@@ -15,252 +15,259 @@
 *      4. Save the profile and start
 */
 
-function LoadConfig () {
-	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
-	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
+(function LoadConfig () {
+  includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+  includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
-	SetUp.include();
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  
+  SetUp.include();
+  SetUp.config();
 
-	/* Script */
-	Scripts.SoloPlay = true;
-	SetUp.config();
+  /* Necro specific Chicken configuration. */
+  Config.IronGolemChicken = 30;
 
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.IronGolemChicken = 30;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
+  /* Pickit configuration. */
+  Config.PickRange = 40;
+  //	Config.PickitFiles.push("kolton.nip");
+  //	Config.PickitFiles.push("LLD.nip");
 
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
-	Config.UseRejuvHP = me.hardcore ? 65 : 40;
-	Config.UseMP = me.hardcore ? 75 : 55;
-	Config.UseMercHP = 75;
+  /* Gambling configuration. */
+  Config.GambleItems.push("Amulet");
+  Config.GambleItems.push("Ring");
+  Config.GambleItems.push("Circlet");
+  Config.GambleItems.push("Coronet");
 
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
+  // AutoEquip setup
+  const levelingTiers = [
+    // Weapon
+    "([type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+    "[type] == wand && [quality] >= normal && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 && [sockets] != 2 # [tier] == tierscore(item)",
+    // Shield
+    "([type] == shield && ([quality] >= magic || [flag] == runeword) || [type] == voodooheads) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+    "[type] == voodooheads && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
+    "me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+    // non runeword white items
+    "([type] == shield) && [quality] >= normal && [flag] != ethereal && [flag] != runeword # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 2) # [tier] == tierscore(item)",
+  ];
 
-	/* Pickit configuration. */
-	Config.PickRange = 40;
-	//	Config.PickitFiles.push("kolton.nip");
-	//	Config.PickitFiles.push("LLD.nip");
+  const expansionTiers = [
+    "me.charlvl < 33 && [name] == smallcharm && [quality] == magic # [maxmana] >= 1 # [invoquantity] == 4 && [charmtier] == charmscore(item)",
+    "[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+    "[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+    "[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+    "[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+  ];
 
-	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 2000000;
-	Config.GambleGoldStop = 750000;
-	Config.GambleItems.push("Amulet");
-	Config.GambleItems.push("Ring");
-	Config.GambleItems.push("Circlet");
-	Config.GambleItems.push("Coronet");
+  NTIP.buildList(levelingTiers);
+  me.expansion && NTIP.buildList(expansionTiers);
 
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
+  /* Attack configuration. */
+  Skill.usePvpRange = true;
+  Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
+  Config.LowManaSkill = [0, 0];
+  Config.MaxAttackCount = 1000;
+  Config.BossPriority = me.normal;
+  Config.ClearType = 0;
+  Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0 };
 
-	/* AutoEquip configuration. */
-	Config.AutoEquip = true;
+  /* Class specific configuration. */
+  Config.Dodge = me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
+  Config.DodgeRange = me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have ? 10 : 5;
+  Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
 
-	// AutoEquip setup
-	const levelingTiers = [
-		// Weapon
-		"([type] == wand || [type] == sword || [type] == knife) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[type] == wand && [quality] >= normal && [flag] != ethereal && [2handed] == 0 # [itemchargedskill] >= 0 && [sockets] != 2 # [tier] == tierscore(item)",
-		// Helmet
-		"([type] == helm || [type] == circlet) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Shield
-		"([type] == shield && ([quality] >= magic || [flag] == runeword) || [type] == voodooheads) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[type] == voodooheads && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && [sockets] == 1 # [tier] == tierscore(item)",
-		"me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-	];
+  /* Summons. */
+  Config.ReviveUnstackable = true;
+  Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
+  Config.Golem = me.checkSkill(sdk.skills.ClayGolem, sdk.skills.subindex.HardPoints) ? "Clay" : "None";
+  Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
+  Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
+  Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
 
-	const expansionTiers = [
-		"me.charlvl < 33 && [name] == smallcharm && [quality] == magic # [maxmana] >= 1 # [invoquantity] == 4 && [charmtier] == charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [maxhp] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [itemmagicbonus] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		"[name] == smallcharm && [quality] == magic # [fireresist]+[lightresist]+[coldresist]+[poisonresist] >= 1 # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-	];
+  /* Skill Specific */
+  Config.PoisonNovaDelay = 1;		// In Seconds
+  Config.ExplodeCorpses = me.checkSkill(sdk.skills.CorpseExplosion, sdk.skills.subindex.HardPoints)
+    ? sdk.skills.CorpseExplosion
+    : me.checkSkill(sdk.skills.PoisonExplosion, sdk.skills.subindex.HardPoints)
+      ? sdk.skills.PoisonExplosion
+      : 0;
 
-	NTIP.arrayLooping(levelingTiers);
-	me.expansion && NTIP.arrayLooping(expansionTiers);
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
 
-	/* Attack configuration. */
-	Skill.usePvpRange = true;
-	Config.AttackSkill = [0, 0, 0, 0, 0, 0, 0];
-	Config.LowManaSkill = [0, 0];
-	Config.MaxAttackCount = 1000;
-	Config.BossPriority = me.normal;
-	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: 0};
+    return [
+      _imbueObj(
+        sdk.items.DemonHead,
+        () => (me.normal && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.HierophantTrophy,
+        () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.BloodlordSkull,
+        () => (me.equipped.get(sdk.body.LeftArm).tier < 1000 && me.expansion)
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        () => (me.normal && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic))
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        () => (!me.normal && me.charlvl < 46 && me.trueStr > 58
+          && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic))
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        () => (!me.normal && me.trueStr > 50
+          && (me.equipped.get(sdk.body.LeftArm).tier > 1000 || me.classic))
+      ),
+    ].filter((item) => item.condition());
+  })();
 
-	/* Class specific configuration. */
-	Config.Dodge = Check.haveItem("armor", "runeword", "Enigma");
-	Config.DodgeRange = Check.haveItem("armor", "runeword", "Enigma") ? 10 : 5;
-	Config.DodgeHP = 90; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
+  let imbueArr = SetUp.imbueItems();
 
-	/* Summons. */
-	Config.ReviveUnstackable = true;
-	Config.ActiveSummon = me.charlvl < 10 || SetUp.currentBuild === "Summon";
-	Config.Golem = me.checkSkill(sdk.skills.ClayGolem, sdk.skills.subindex.HardPoints) ? "Clay" : "None";
-	Config.Skeletons = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
-	Config.SkeletonMages = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
-	Config.Revives = (me.charlvl > 10 && SetUp.currentBuild !== "Summon") ? 0 : "max";
+  !me.smith && NTIP.buildList(imbueArr);
 
-	/* Skill Specific */
-	Config.PoisonNovaDelay = 1;		// In Seconds
-	Config.ExplodeCorpses = me.checkSkill(sdk.skills.CorpseExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.CorpseExplosion : me.checkSkill(sdk.skills.PoisonExplosion, sdk.skills.subindex.HardPoints) ? sdk.skills.PoisonExplosion : 0;
+  switch (me.gametype) {
+  case sdk.game.gametype.Classic:
+    // Res shield
+    if (me.equipped.get(sdk.body.LeftArm).tier < 487) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
+    }
 
-	/* Gear */
-	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.arrayLooping(finalGear);
+    break;
+  case sdk.game.gametype.Expansion:
+    NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
+    const { basicSocketables, addSocketableObj } = require("../Utils/General");
 
-	Config.imbueables = [
-		{name: sdk.items.DemonHead, condition: () => (me.normal && me.expansion)},
-		{name: sdk.items.HierophantTrophy, condition: () => (!me.normal && (me.charlvl < 66 || me.trueStr < 106) && me.expansion)},
-		{name: sdk.items.BloodlordSkull, condition: () => (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(sdk.body.LeftArm).tier > 1000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(sdk.body.LeftArm).tier > 1000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(sdk.body.LeftArm).tier > 1000 || me.classic))},
-	].filter((item) => item.condition());
+    Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
+    Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
+      !me.hell,
+      /** @param {ItemUnit} item */
+      function (item) {
+        /** @type {GetOwnedSettings} */
+        const wanted = {
+          classid: sdk.items.Monarch,
+          mode: sdk.items.mode.inStorage,
+          sockets: 4,
+          /** @param {ItemUnit} item */
+          cb: function (item) {
+            return item.isBaseType;
+          }
+        };
+        return !me.getOwned(wanted).length && item.ilvl >= 41 && item.isBaseType && !item.ethereal;
+      }
+    ));
+    Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+      true, (item) => item.unique && !item.ethereal
+    ));
 
-	let imbueArr = SetUp.imbueItems();
+    /* Crafting */
+    if (me.equipped.get(sdk.body.Neck).tier < 100000) {
+      Config.Recipes.push([Recipe.Caster.Amulet]);
+    }
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+    // upgrade magefist
+    if (me.equipped.get(sdk.body.Gloves).tier < 110000) {
+      Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
+      Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
+    }
 
-	switch (me.gametype) {
-	case sdk.game.gametype.Classic:
-		// Res shield
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 487) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
-		}
+    Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
+    Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
-		break;
-	case sdk.game.gametype.Expansion:
-		NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
+    /* Crafting */
+    if (me.equipped.get(sdk.body.Neck).tier < 100000) {
+      Config.Recipes.push([Recipe.Caster.Amulet]);
+    }
 
-		// basicSocketables located in Globals
-		Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
-		Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],
-			!me.hell, (item) => !Check.haveBase("monarch", 4) && item.ilvl >= 41 && item.isBaseType && !item.ethereal
-		));
-		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
-			true, (item) => item.unique && !item.ethereal
-		));
+    if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
+      Config.Recipes.push([Recipe.Caster.Ring]);
+    }
 
-		/* Crafting */
-		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
-			Config.Recipes.push([Recipe.Caster.Amulet]);
-		}
+    // Call to Arms
+    if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
+      NTIP.addLine("[type] == staff && [quality] == Magic # [itemchargedskill] == 54 # [secondarytier] == 50000 + chargeditemscore(item, 54)");
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
+    }
 
-		// upgrade magefist
-		if (Item.getEquippedItem(sdk.body.Gloves).tier < 110000) {
-			Config.Recipes.push([Recipe.Unique.Armor.ToExceptional, "Light Gauntlets", Roll.NonEth]);
-			Config.Recipes.push([Recipe.Unique.Armor.ToElite, "Battle Gauntlets", Roll.NonEth, "magefist"]);
-		}
+    // White
+    if (SetUp.currentBuild !== "Summon") {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/White.js");
+    }
 
-		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
-		Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
+    // Rhyme
+    if (me.equipped.get(sdk.body.LeftArm).tier < 650) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Rhyme.js");
+    }
+      
+    // Enigma
+    if (!me.checkItem({ name: sdk.locale.items.Enigma }).have) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
+    }
 
-		/* Crafting */
-		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
-			Config.Recipes.push([Recipe.Caster.Amulet]);
-		}
+    // Spirit Sword
+    if (LADDER_ENABLED && me.equipped.get(sdk.body.RightArm).tier < 777) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
+    }
 
-		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
-			Config.Recipes.push([Recipe.Caster.Ring]);
-		}
+    // Spirit shield
+    if (LADDER_ENABLED
+      && (me.equipped.get(sdk.body.LeftArm).tier < 1000
+      || (me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)
+      && me.equipped.get(sdk.body.RightArmSecondary).prefixnum === sdk.locale.items.CalltoArms)) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
+    }
 
-		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
-		}
+    // Merc Insight
+    if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
+    }
 
-		// White
-		if (SetUp.currentBuild !== "Summon") {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/White.js");
-		}
+    if (!me.haveSome([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.Bone }])
+      && me.equipped.get(sdk.body.Armor).tier < 650) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Bone.js");
+    }
 
-		// Rhyme
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 650) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Rhyme.js");
-		}
-			
-		// Enigma
-		if (!me.checkItem({name: sdk.locale.items.Enigma}).have) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
-		}
+    // Lore
+    if (me.equipped.get(sdk.body.Head).tier < 315) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
+    }
 
-		// Spirit Sword
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItem(sdk.body.RightArm).tier < 777) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
-		}
+    // Ancients' Pledge
+    if (me.equipped.get(sdk.body.LeftArm).tier < 500) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
+    }
 
-		// Spirit shield
-		if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 || Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
-		}
+    // Merc Fortitude
+    if (Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
+    }
 
-		// Merc Insight
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
-		}
+    // Merc Treachery
+    if (Item.getMercEquipped(sdk.body.Armor).tier < 15000) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
+    }
 
-		if (!me.haveSome([{name: sdk.locale.items.Enigma}, {name: sdk.locale.items.Bone}]) && Item.getEquippedItem(sdk.body.Armor).tier < 650) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Bone.js");
-		}
+    // Smoke
+    if (me.equipped.get(sdk.body.Armor).tier < 450) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
+    }
 
-		// Lore
-		if (Item.getEquippedItem(sdk.body.Head).tier < 315) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
-		}
+    // Stealth
+    if (me.equipped.get(sdk.body.Armor).tier < 233) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
+    }
 
-		// Ancients' Pledge
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
-		}
+    SoloWants.buildList();
 
-		// Merc Fortitude
-		if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
-		}
+    break;
+  }
 
-		// Merc Treachery
-		if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
-		}
-
-		// Smoke
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 450) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
-		}
-
-		// Stealth
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
-		}
-
-		SoloWants.buildList();
-
-		break;
-	}
-}
+  return true;
+})();

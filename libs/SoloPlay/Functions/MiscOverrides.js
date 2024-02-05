@@ -6,78 +6,50 @@
 *
 */
 
-includeIfNotIncluded("common/Misc.js");
-
-Misc.townEnabled = true;
-
-Misc.townCheck = function () {
-	if (!me.canTpToTown()) return false;
-	
-	let check = false;
-
-	if (Config.TownCheck && !me.inTown) {
-		try {
-			if (me.needPotions() || (Config.OpenChests.Enabled && Town.needKeys())) {
-				check = true;
-			}
-		} catch (e) {
-			check = false;
-		}
-	}
-
-	if (check) {
-		if (Messaging.sendToScript("libs/SoloPlay/Threads/TownChicken.js", "fastTown")) {
-			console.log("BroadCasted townCheck");
-			
-			return true;
-		}
-	}
-
-	return false;
-};
+includeIfNotIncluded("core/Misc.js");
+const ShrineData = require("../../core/GameData/ShrineData");
 
 Misc.openChestsEnabled = true;
-Misc.presetChestIds = [
-	5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
-	242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
-	406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
-];
+Misc.screenshotErrors = true;
 
+/**
+ * @override
+ * @template T
+ * @param {number} area 
+ * @param {number[]} chestIds 
+ * @param {function(T, T): number} [sort] 
+ * @returns {boolean}
+ */
 Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
-	!area && (area = me.area);
-	area !== me.area && Pather.journeyTo(area);
-		
-	let presetUnits = Game.getPresetObjects(area);
-	if (!presetUnits) return false;
+  !area && (area = me.area);
+  typeof sort !== "function" && (sort = Sort.units);
+  area !== me.area && Pather.journeyTo(area);
+  !chestIds.length && (chestIds = sdk.objects.chestIds.slice(0));
+    
+  const presetUnits = Game.getPresetObjects(area)
+    .filter(function (preset) {
+      return chestIds.includes(preset.id);
+    });
+  if (!presetUnits.length) return false;
 
-	!chestIds.length && (chestIds = Misc.presetChestIds.slice(0));
+  let coords = presetUnits
+    .map(function (preset) {
+      return preset.realCoords();
+    });
 
-	let coords = [];
+  while (coords.length) {
+    coords.sort(sort);
+    Pather.moveToUnit(coords[0], 1, 2);
+    this.openChests(20);
 
-	while (presetUnits.length > 0) {
-		if (chestIds.includes(presetUnits[0].id)) {
-			coords.push({
-				x: presetUnits[0].roomx * 5 + presetUnits[0].x,
-				y: presetUnits[0].roomy * 5 + presetUnits[0].y
-			});
-		}
+    for (let i = 0; i < coords.length; i += 1) {
+      if (getDistance(coords[i].x, coords[i].y, coords[0].x, coords[0].y) < 20) {
+        coords.shift();
+      }
+    }
+  }
 
-		presetUnits.shift();
-	}
-
-	while (coords.length) {
-		coords.sort(sort ? sort : Sort.units);
-		Pather.moveToUnit(coords[0], 1, 2);
-		this.openChests(20);
-
-		for (let i = 0; i < coords.length; i += 1) {
-			if (getDistance(coords[i].x, coords[i].y, coords[0].x, coords[0].y) < 20) {
-				coords.shift();
-			}
-		}
-	}
-
-	return true;
+  return true;
 };
 
 /**
@@ -86,807 +58,860 @@ Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
  * @returns {boolean} If we opened the chest
  */
 Misc.openChest = function (unit) {
-	typeof unit === "number" && (unit = Game.getObject(unit));
-		
-	// Skip invalid/open and Countess chests
-	if (!unit || unit.x === 12526 || unit.x === 12565 || unit.mode) return false;
-	// locked chest, no keys
-	if (!me.assassin && unit.islocked && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) return false;
+  typeof unit === "number" && (unit = Game.getObject(unit));
+    
+  // Skip invalid/open and Countess chests
+  if (!unit || unit.x === 12526 || unit.x === 12565 || unit.mode) return false;
+  // locked chest, no keys
+  if (!me.assassin && unit.islocked
+    && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) {
+    return false;
+  }
 
-	let specialChest = sdk.quest.chests.includes(unit.classid);
+  let specialChest = sdk.quest.chests.includes(unit.classid);
 
-	for (let i = 0; i < 7; i++) {
-		// don't use tk if we are right next to it
-		let useTK = (unit.distance > 5 && Skill.useTK(unit) && i < 3);
-		let useDodge = Pather.useTeleport() && Skill.useTK(unit);
-		if (useTK) {
-			unit.distance > 18 && Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true);
-			if (!Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit)) {
-				console.debug("Failed to tk: attempt: " + i);
-				continue;
-			}
-		} else {
-			if (useDodge && me.inDanger()) {
-				if (Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true)) continue;
-			}
-			[(unit.x + 1), (unit.y + 2)].distance > 5 && Pather.moveTo(unit.x + 1, unit.y + 2, 3);
-			(specialChest || i > 2) ? Misc.click(0, 0, unit) : Packet.entityInteract(unit);
-		}
+  for (let i = 0; i < 7; i++) {
+    // don't use tk if we are right next to it
+    let useTK = (unit.distance > 5 && Skill.useTK(unit) && i < 3);
+    let useDodge = Pather.useTeleport() && Skill.useTK(unit);
+    if (useTK) {
+      unit.distance > 18 && Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true);
+      if (!Packet.telekinesis(unit)) {
+        console.debug("Failed to tk: attempt: " + i);
+        continue;
+      }
+    } else {
+      if (useDodge && me.inDanger()) {
+        if (Attack.getIntoPosition(unit, 18, sdk.collision.WallOrRanged, false, true)) continue;
+      }
+      [(unit.x + 1), (unit.y + 2)].distance > 5 && Pather.moveTo(unit.x + 1, unit.y + 2, 3);
+      (specialChest || i > 2) ? Misc.click(0, 0, unit) : Packet.entityInteract(unit);
+    }
 
-		if (Misc.poll(() => unit.mode, 1000, 50)) {
-			return true;
-		}
-		Packet.flash(me.gid);
-	}
+    if (Misc.poll(() => !unit || unit.mode, 1000, 50)) {
+      return true;
+    }
+    Packet.flash(me.gid);
+  }
 
-	// Click to stop walking in case we got stuck
-	!me.idle && Misc.click(0, 0, me.x, me.y);
+  // Click to stop walking in case we got stuck
+  !me.idle && Misc.click(0, 0, me.x, me.y);
 
-	return false;
+  return false;
 };
 
+/**
+ * @param {number} range 
+ * @returns {boolean}
+ * @todo Take path parameter to we can open the chests in an order that brings us closer to our destination
+ */
 Misc.openChests = function (range = 15) {
-	if (!Misc.openChestsEnabled) return false;
-	const containers = [
-		"chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
-		"holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
-		"skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
-		"bonechest", "woodchestl", "woodchestr",
-		"burialchestr", "burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
-		"deadperson", "deadperson2", "groundtombl", "casket"
-	];
+  if (!Misc.openChestsEnabled) return false;
+  const containers = [
+    "chest", "loose rock", "hidden stash", "loose boulder", "corpseonstick", "casket", "armorstand", "weaponrack",
+    "holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
+    "skeleton", "guardcorpse", "sarcophagus", "object2", "cocoon", "hollow log", "hungskeleton",
+    "bonechest", "woodchestl", "woodchestr",
+    "burialchestr", "burialchestl", "chestl", "chestr", "groundtomb", "tomb3l", "tomb1l",
+    "deadperson", "deadperson2", "groundtombl", "casket"
+  ];
 
-	if (Config.OpenChests.Types.some((el) => el.toLowerCase() === "all")) {
-		containers.push(
-			"barrel", "ratnest", "goo pile", "largeurn", "urn", "jug", "basket", "stash",
-			"pillar", "skullpile", "skull pile", "jar3", "jar2", "jar1", "barrel wilderness",
-			"explodingchest", "icecavejar1", "icecavejar2", "icecavejar3",
-			"icecavejar4", "evilurn"
-		);
-	}
+  if (Config.OpenChests.Types.some((el) => el.toLowerCase() === "all")) {
+    containers.push(
+      "barrel", "ratnest", "goo pile", "largeurn", "urn", "jug", "basket", "stash",
+      "pillar", "skullpile", "skull pile", "jar3", "jar2", "jar1", "barrel wilderness",
+      "explodingchest", "icecavejar1", "icecavejar2", "icecavejar3",
+      "icecavejar4", "evilurn"
+    );
+  }
 
-	me.baal && containers.push("evilurn");
+  me.baal && containers.push("evilurn");
 
-	let unitList = getUnits(sdk.unittype.Object)
-		.filter(c => c.name && c.mode === sdk.objects.mode.Inactive && c.distance <= range && containers.includes(c.name.toLowerCase()));
+  let unitList = getUnits(sdk.unittype.Object)
+    .filter(function (c) {
+      return c.name
+        && c.mode === sdk.objects.mode.Inactive
+        && c.distance <= range
+        && containers.includes(c.name.toLowerCase());
+    });
 
-	while (unitList.length > 0) {
-		unitList.sort(Sort.units);
-		let unit = unitList.shift();
+  while (unitList.length > 0) {
+    unitList.sort(Sort.units);
+    let unit = unitList.shift();
 
-		if (unit) {
-			// check mob count at chest - think I need a new prototype for faster checking
-			// allow specifying an amount and return true/false, rather than building the whole list then deciding what amount is too much
-			// possibly also specify a danger modifier - 3 champions around a chest is much more dangerous than 3 fallens
-			// also think we need to take into account mob count arround us, we shouldn't open chests when we are surrounded and in the process of clearing
-			// that needs a handler as well though, if we aren't clearing and are just pathing (tele char) opening a chest and moving on is fine
-		}
+    if (unit && Pather.currentWalkingPath.length) {
+      /**
+       * @todo - check if the chest is in our path of if in the future we would be closer to it
+       * and if so assign a hook to be triggered at our point nearest to it so we can open it
+       * and save time
+       */
+      if (unit.distance > 5 && PathDebug.coordsInPath(Pather.currentWalkingPath, unit.x, unit.y)) {
+        console.log("Skipping chest for now as it is in our path for later");
+        continue;
+      }
+      // check mob count at chest - think I need a new prototype for faster checking
+      // allow specifying an amount and return true/false, rather than building the whole list then deciding what amount is too much
+      // possibly also specify a danger modifier - 3 champions around a chest is much more dangerous than 3 fallens
+      // also think we need to take into account mob count arround us, we shouldn't open chests when we are surrounded and in the process of clearing
+      // that needs a handler as well though, if we aren't clearing and are just pathing (tele char) opening a chest and moving on is fine
+    }
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged)) && this.openChest(unit)) {
-			Pickit.pickItems();
-		}
-	}
+    /**
+     * @todo
+     * - evaluate actual walking distance to chest, as if it's far out of the way it maybe be better to skip it
+     * especially early on when we are trying to get to the next area
+     */
 
-	return true;
+    if (unit
+      && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.BlockWalk))
+      && this.openChest(unit)) {
+      Pickit.pickItems();
+    }
+  }
+
+  return true;
 };
 
+/**
+ * @param {ObjectUnit} unit 
+ * @returns {boolean}
+ */
 Misc.getWell = function (unit) {
-	if (!unit || unit.mode === sdk.objects.mode.Active) return false;
+  if (!unit || unit.mode === sdk.objects.mode.Active) return false;
 
-	for (let i = 0; i < 3; i++) {
-		if (Skill.useTK(unit) && i < 2) {
-			unit.distance > 21 && Pather.moveNearUnit(unit, 20);
-			checkCollision(me, unit, sdk.collision.Ranged) && Attack.getIntoPosition(unit, 20, sdk.collision.Ranged);
-			Skill.cast(sdk.skills.Telekinesis, sdk.skills.hand.Right, unit);
-		} else {
-			if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
-				Misc.click(0, 0, unit);
-			}
-		}
+  for (let i = 0; i < 3; i++) {
+    if (Skill.useTK(unit) && i < 2) {
+      unit.distance > 21 && Pather.moveNearUnit(unit, 20);
+      if (checkCollision(me, unit, sdk.collision.Ranged)) {
+        Attack.getIntoPosition(unit, 20, sdk.collision.Ranged);
+      }
+      Packet.telekinesis(unit);
+    } else {
+      if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
+        Misc.click(0, 0, unit);
+      }
+    }
 
-		if (Misc.poll(() => unit.mode, 1000, 50)) return true;
-		Packet.flash(me.gid);
-	}
+    if (Misc.poll(function () { return unit.mode; }, 1000, 50)) return true;
+    Packet.flash(me.gid);
+  }
 
-	return false;
+  return false;
 };
 
 Misc.useWell = function (range = 15) {
-	// I'm in perfect health, don't need this shit
-	if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 50
-		&& [sdk.states.Frozen, sdk.states.Poison, sdk.states.AmplifyDamage, sdk.states.Decrepify].every((states) => !me.getState(states))) {
-		return true;
-	}
+  // I'm in perfect health, don't need this shit
+  if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 50
+    && [
+      sdk.states.Frozen, sdk.states.Poison,
+      sdk.states.AmplifyDamage, sdk.states.Decrepify
+    ].every(function (states) {
+      return !me.getState(states);
+    })) {
+    return true;
+  }
 
-	Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
+  Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
 
-	let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
-		return well.distance < range && well.mode !== sdk.objects.mode.Active;
-	});
+  let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
+    return well.distance < range && well.mode !== sdk.objects.mode.Active;
+  });
 
-	while (unitList.length > 0) {
-		unitList.sort(Sort.units);
-		let unit = unitList.shift();
+  while (unitList.length > 0) {
+    unitList.sort(Sort.units);
+    let unit = unitList.shift();
 
-		if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged))) {
-			this.getWell(unit);
-		}
-	}
+    if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged))) {
+      this.getWell(unit);
+    }
+  }
 
-	return true;
+  return true;
 };
 
+Misc.lastShrine = new function () {
+  this.tick = 0;
+  this.duration = 0;
+  this.type = -1;
+  this.state = -1;
+
+  /** @param {ObjectUnit} unit */
+  this.update = function (unit) {
+    if (!unit || !unit.hasOwnProperty("objtype")) return;
+    // we only care about tracking shrines with states
+    if (!ShrineData.getState(unit.objtype)) return;
+    this.tick = getTickCount();
+    this.type = unit.objtype;
+    this.duration = ShrineData.getDuration(unit.objtype);
+    this.state = ShrineData.getState(unit.objtype);
+  };
+
+  this.remaining = function () {
+    return this.duration - (getTickCount() - this.tick);
+  };
+
+  this.isMyCurrentState = function () {
+    if (this.state <= 0) return false;
+    return me.getState(this.state);
+  };
+};
+
+/**
+ * Use a shrine Unit
+ * @param {ObjectUnit} unit 
+ * @returns {boolean} 
+ */
+Misc.getShrine = function (unit) {
+  if (unit.mode === sdk.objects.mode.Active) return false;
+  AreaData.get(me.area).addShrine(unit);
+  if (Misc.lastShrine.remaining() > Time.seconds(30) && Misc.lastShrine.isMyCurrentState()) {
+    // skip for now, don't waste the shrine we have active
+    return false;
+  }
+
+  for (let i = 0; i < 3; i++) {
+    if (Skill.useTK(unit) && i < 2) {
+      unit.distance > 21 && Pather.moveNearUnit(unit, 20);
+      if (!Packet.telekinesis(unit)) {
+        Attack.getIntoPosition(unit, 20, sdk.collision.WallOrRanged);
+      }
+    } else {
+      if (getDistance(me, unit) < 4 || Pather.moveToUnit(unit, 3, 0)) {
+        Misc.click(0, 0, unit);
+      }
+    }
+
+    if (Misc.poll(() => unit.mode, 1000, 40)) {
+      AreaData.get(me.area).updateShrine(unit);
+      Misc.lastShrine.update(unit);
+      if (unit.objtype === sdk.shrines.Gem) {
+        Pickit.pickItems();
+      }
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * @param {number} range 
+ * @param {number[]} ignore 
+ * @returns {boolean}
+ */
 Misc.scanShrines = function (range, ignore = []) {
-	if (!Config.ScanShrines.length) return false;
+  if (!Config.ScanShrines.length) return false;
 
-	!range && (range = Pather.useTeleport() ? 25 : 15);
-	!Array.isArray(ignore) && (ignore = [ignore]);
+  !range && (range = Pather.useTeleport() ? 25 : 15);
+  !Array.isArray(ignore) && (ignore = [ignore]);
 
-	let shrineList = [];
-	const rangeCheck = (shrineType) => {
-		switch (true) {
-		case shrineType === sdk.shrines.Refilling && (me.hpPercent < 50 || me.mpPercent < 50 || me.staminaPercent < 50):
-		case shrineType === sdk.shrines.Mana && me.mpPercent < 50:
-		case shrineType === sdk.shrines.ManaRecharge && me.mpPercent < 50 && me.charlvl < 20:
-		case [sdk.shrines.Skill, sdk.shrines.Experience].includes(shrineType):
-			return 30;
-		case [sdk.shrines.Poison, sdk.shrines.Exploding].includes(shrineType):
-			return 15;
-		}
-		return range;
-	};
+  /** @type {ObjectUnit[]} */
+  let shrineList = [];
 
-	// add exploding/poision shrines
-	if (me.normal) {
-		Config.ScanShrines.indexOf(sdk.shrines.Poison) === -1 && Config.ScanShrines.push(sdk.shrines.Poison);
-		Config.ScanShrines.indexOf(sdk.shrines.Exploding) === -1 && Config.ScanShrines.push(sdk.shrines.Exploding);
-	}
+  const rangeCheck = function (shrineType) {
+    switch (true) {
+    case shrineType === sdk.shrines.Refilling && (me.hpPercent < 50 || me.mpPercent < 50 || me.staminaPercent < 50):
+    case shrineType === sdk.shrines.Mana && me.mpPercent < 50:
+    case shrineType === sdk.shrines.ManaRecharge && me.mpPercent < 50 && me.charlvl < 20:
+    case [sdk.shrines.Skill, sdk.shrines.Experience].includes(shrineType):
+      return 30;
+    case [sdk.shrines.Poison, sdk.shrines.Exploding].includes(shrineType):
+      return 15;
+    }
+    return range;
+  };
 
-	// Initiate shrine states
-	if (!this.shrineStates) {
-		this.shrineStates = [];
+  // add exploding/poision shrines
+  if (me.normal) {
+    Config.ScanShrines.indexOf(sdk.shrines.Poison) === -1 && Config.ScanShrines.push(sdk.shrines.Poison);
+    Config.ScanShrines.indexOf(sdk.shrines.Exploding) === -1 && Config.ScanShrines.push(sdk.shrines.Exploding);
+  }
 
-		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
-			switch (Config.ScanShrines[i]) {
-			case sdk.shrines.None:
-			case sdk.shrines.Refilling:
-			case sdk.shrines.Health:
-			case sdk.shrines.Mana:
-			case sdk.shrines.HealthExchange: // (doesn't exist)
-			case sdk.shrines.ManaExchange: // (doesn't exist)
-			case sdk.shrines.Enirhs: // (doesn't exist)
-			case sdk.shrines.Portal:
-			case sdk.shrines.Gem:
-			case sdk.shrines.Fire:
-			case sdk.shrines.Monster:
-			case sdk.shrines.Exploding:
-			case sdk.shrines.Poison:
-				this.shrineStates[i] = 0; // no state
+  // Initiate shrine states
+  if (!Misc.shrineStates) {
+    Misc.shrineStates = [];
+    let i = 0;
+    for (let shrine of Config.ScanShrines) {
+      if (shrine > 0) {
+        Misc.shrineStates[i] = ShrineData.getState(shrine);
+        i++;
+      }
+    }
+  }
 
-				break;
-			case sdk.shrines.Armor:
-			case sdk.shrines.Combat:
-			case sdk.shrines.ResistFire:
-			case sdk.shrines.ResistCold:
-			case sdk.shrines.ResistLightning:
-			case sdk.shrines.ResistPoison:
-			case sdk.shrines.Skill:
-			case sdk.shrines.ManaRecharge:
-			case sdk.shrines.Stamina:
-			case sdk.shrines.Experience:
-				// Both states and shrines are arranged in same order with armor shrine starting at 128
-				this.shrineStates[i] = Config.ScanShrines[i] + 122;
+  /**
+   * @todo - We should build a list of shrines by their preset values when we scan the area
+   */
 
-				break;
-			}
-		}
-	}
-	
-	let shrine = Game.getObject("shrine");
+  let shrine = Game.getObject();
 
-	if (shrine) {
-		let index = -1;
-		// Build a list of nearby shrines
-		do {
-			if (shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
-				&& getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
-				shrineList.push(copyUnit(shrine));
-			}
-		} while (shrine.getNext());
+  /**
+   * Fix for a3/a5 shrines
+   */
+  if (shrine) {
+    // Build a list of nearby shrines
+    do {
+      if (shrine.name.toLowerCase().includes("shrine") && ShrineData.has(shrine.objtype)
+        && shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
+        && getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
+        shrineList.push(copyUnit(shrine));
+      }
+    } while (shrine.getNext());
+    if (!shrineList.length) return false;
 
-		// Check if we have a shrine state, store its index if yes
-		for (let i = 0; i < this.shrineStates.length; i += 1) {
-			if (me.getState(this.shrineStates[i])) {
-				index = i;
+    // Check if we have a shrine state, store its index if yes
+    const index = Misc.shrineStates.findIndex(function (state) {
+      return state > 0 && me.getState(state);
+    });
 
-				break;
-			}
-		}
+    for (let i = 0; i < Config.ScanShrines.length; i += 1) {
+      for (let shrine of shrineList) {
+        // Get the shrine if we have no active state or to refresh current state or if the shrine has no state
+        // Don't override shrine state with a lesser priority shrine
+        // todo - check to make sure we can actually get the shrine for ones without states
+        // can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
+        if (index === -1 || i <= index || this.shrineStates[i] === 0) {
+          if (shrine.objtype === Config.ScanShrines[i]
+            && (Pather.useTeleport() || !checkCollision(me, shrine, sdk.collision.WallOrRanged))) {
+            this.getShrine(shrine);
 
-		for (let i = 0; i < Config.ScanShrines.length; i += 1) {
-			for (let j = 0; j < shrineList.length; j += 1) {
-				// Get the shrine if we have no active state or to refresh current state or if the shrine has no state
-				// Don't override shrine state with a lesser priority shrine
-				// todo - check to make sure we can actually get the shrine for ones without states
-				// can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
-				if (index === -1 || i <= index || this.shrineStates[i] === 0) {
-					if (shrineList[j].objtype === Config.ScanShrines[i] && (Pather.useTeleport() || !checkCollision(me, shrineList[j], sdk.collision.WallOrRanged))) {
-						this.getShrine(shrineList[j]);
+            // Gem shrine - pick gem
+            if (Config.ScanShrines[i] === sdk.shrines.Gem) {
+              Pickit.pickItems();
+            }
+          }
+        }
+      }
+    }
+  }
 
-						// Gem shrine - pick gem
-						if (Config.ScanShrines[i] === sdk.shrines.Gem) {
-							Pickit.pickItems();
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return true;
+  return true;
 };
 
-Misc.presetShrineIds = [2, 81, 83];
+/**
+ * Check all shrines in area and get the first one of specified type
+ * @param {number} area 
+ * @param {number} type 
+ * @param {boolean} use 
+ * @returns {boolean} Sucesfully found shrine(s)
+ * @todo If we are trying to find a specific shrine then generate path and perform callback after each node to see if we are within range
+ * of getUnit and can see the shrine type so we know whether to continue moving to it or not.
+ */
 Misc.getShrinesInArea = function (area, type, use) {
-	let shrineLocs = [];
-	const shrineIds = [2, 81, 83]; // @todo add more of the shrine id's and document them for sdk
-	let unit = getPresetUnits(area);
+  if (!area || !AreaData.has(area)) return false;
+  let shrineLocs = [];
+  let result = false;
+  let units = Game.getPresetObjects(area)
+    .filter(function (preset) {
+      return sdk.shrines.Presets.includes(preset.id);
+    });
 
-	if (unit) {
-		for (let i = 0; i < unit.length; i += 1) {
-			if (shrineIds.includes(unit[i].id)) {
-				shrineLocs.push([unit[i].roomx * 5 + unit[i].x, unit[i].roomy * 5 + unit[i].y]);
-			}
-		}
-	}
+  if (units.length) {
+    for (let shrine of units) {
+      shrineLocs.push(shrine.realCoords());
+    }
+  } else if (AreaData.get(area).getShrines().length) {
+    shrineLocs = AreaData.get(area)
+      .getShrines()
+      .filter(function (shrine) {
+        return shrine.useable();
+      });
+  } else {
+    return false;
+  }
 
-	try {
-		NodeAction.shrinesToIgnore.push(type);
-		
-		while (shrineLocs.length > 0) {
-			shrineLocs.sort(Sort.points);
-			let coords = shrineLocs.shift();
+  try {
+    NodeAction.shrinesToIgnore.push(type);
+    
+    while (shrineLocs.length > 0) {
+      shrineLocs.sort(Sort.units);
+      let coords = shrineLocs.shift();
 
-			Skill.haveTK ? Pather.moveNear(coords[0], coords[1], 20) : Pather.moveTo(coords[0], coords[1], 2);
+      Pather.move(coords, { minDist: Skill.haveTK ? 20 : 5, callback: function () {
+        let shrine = Game.getObject("shrine");
+        return !!shrine && shrine.x === coords.x && shrine.y === coords.y;
+      } });
 
-			let shrine = Game.getObject("shrine");
+      let shrine = Game.getObject("shrine");
 
-			if (shrine) {
-				do {
-					if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
-						(!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
+      if (shrine) {
+        do {
+          if (shrine.objtype === type && shrine.mode === sdk.objects.mode.Inactive) {
+            (!Skill.haveTK || !use) && Pather.moveTo(shrine.x - 2, shrine.y - 2);
 
-						if (!use || this.getShrine(shrine)) {
-							return true;
-						}
+            if (!use || this.getShrine(shrine)) {
+              result = true;
 
-						if (use && type >= sdk.shrines.Armor && type <= sdk.shrines.Experience && me.getState(type + 122)) {
-							return true;
-						}
-					}
-				} while (shrine.getNext());
-			}
-		}
-	} finally {
-		NodeAction.shrinesToIgnore.remove(type);
-	}
+              if (type === sdk.shrines.Gem) {
+                Pickit.pickItems(5);
+              }
+              return true;
+            }
 
-	return false;
+            if (use && type >= sdk.shrines.Armor
+              && type <= sdk.shrines.Experience
+              && me.getState(type + 122)) {
+              return true;
+            }
+          }
+        } while (shrine.getNext());
+      }
+    }
+  } finally {
+    NodeAction.shrinesToIgnore.remove(type);
+  }
+
+  return result;
 };
 
 Misc.getExpShrine = function (shrineLocs = []) {
-	if (me.getState(sdk.states.ShrineExperience)) return true;
+  if (me.getState(sdk.states.ShrineExperience)) return true;
 
-	for (let get = 0; get < shrineLocs.length; get++) {
-		me.overhead("Looking for xp shrine");
+  for (let area of shrineLocs) {
+    me.overhead("Looking for xp shrine");
 
-		if (shrineLocs[get] === sdk.areas.BloodMoor) {
-			Pather.journeyTo(shrineLocs[get]);
-		} else {
-			Pather.checkWP(shrineLocs[get], true) ? Pather.useWaypoint(shrineLocs[get]) : Pather.getWP(shrineLocs[get]);
-		}
+    if (area === sdk.areas.BloodMoor) {
+      Pather.journeyTo(area);
+    } else {
+      Pather.checkWP(area, true)
+        ? Pather.useWaypoint(area)
+        : Pather.getWP(area);
+    }
 
-		Precast.doPrecast(true);
-		Misc.getShrinesInArea(shrineLocs[get], sdk.shrines.Experience, true);
+    Precast.doPrecast(true);
+    Misc.getShrinesInArea(area, sdk.shrines.Experience, true);
 
-		if (me.getState(sdk.states.ShrineExperience)) {
-			break;
-		}
+    if (me.getState(sdk.states.ShrineExperience)) {
+      return true;
+    }
 
-		!me.inTown && Town.goToTown();
-	}
+    !me.inTown && Town.goToTown();
+  }
 
-	return true;
+  // this needs work but idea is we can leverage the shrine data gathered during regular script actions
+  // to find the closest xp shrine to us and go to it without having to search a bunch of different areas
+  // let _xpShrineAreas = AreaData.getAreasWithShrine(sdk.shrines.Experience);
+  // if (_xpShrineAreas.length) {
+  //   for (let area of _xpShrineAreas) {
+  //     me.overhead("Looking for xp shrine");
+  //     Pather.journeyTo(area.Index);
+  //     let _shrine = area.Shrines.find(function (shrine) {
+  //       return shrine.Type === sdk.shrines.Experience;
+  //     });
+  //     Pather.move(_shrine, { minDist: Skill.haveTK ? 20 : 5, callback: function () {
+  //       let shrine = Game.getObject(-1, sdk.objects.mode.Inactive, _shrine.gid);
+  //       return !!shrine && shrine.x === _shrine.x && shrine.y === _shrine.y;
+  //     } });
+  //     if (Misc.getShrine(Game.getObject(-1, sdk.objects.mode.Inactive, _shrine.gid))) {
+  //       return true;
+  //     }
+  //   }
+  // }
+  return true;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @returns {boolean}
+ */
 Misc.unsocketItem = function (item) {
-	if (me.classic || !me.getItem(sdk.items.quest.Cube) || !item) return false;
-	// Item doesn't have anything socketed
-	if (item.getItemsEx().length === 0) return true;
+  if (me.classic || !me.getItem(sdk.items.quest.Cube) || !item) return false;
+  // Item doesn't have anything socketed
+  if (item.getItemsEx().length === 0) return true;
 
-	let hel = me.getItem(sdk.items.runes.Hel, sdk.items.mode.inStorage);
-	if (!hel) return false;
+  let hel = me.getItem(sdk.items.runes.Hel, sdk.items.mode.inStorage);
+  if (!hel) return false;
 
-	let scroll = Runewords.getScroll();
-	let bodyLoc;
-	let {classid, quality} = item;
-	item.isEquipped && (bodyLoc = item.bodylocation);
+  let scroll = Runewords.getScroll();
+  let bodyLoc;
+  let { classid, quality } = item;
+  item.isEquipped && (bodyLoc = item.bodylocation);
 
-	// failed to get scroll or open stash most likely means we're stuck somewhere in town, so it's better to return false
-	if (!scroll || !Town.openStash() || !Cubing.emptyCube()) return false;
+  // failed to get scroll or open stash most likely means we're stuck somewhere in town, so it's better to return false
+  if (!scroll || !Town.openStash() || !Cubing.emptyCube()) return false;
 
-	try {
-		// failed to move any of the items to the cube
-		if (!Storage.Cube.MoveTo(item) || !Storage.Cube.MoveTo(hel) || !Storage.Cube.MoveTo(scroll)) throw "Failed to move items to cube";
+  try {
+    // failed to move any of the items to the cube
+    if (!Storage.Cube.MoveTo(item)
+      || !Storage.Cube.MoveTo(hel)
+      || !Storage.Cube.MoveTo(scroll)) {
+      throw new Error("Failed to move items to cube");
+    }
 
-		// probably only happens on server crash
-		if (!Cubing.openCube()) throw "Failed to open cube";
+    // probably only happens on server crash
+    if (!Cubing.openCube()) throw "Failed to open cube";
 
-		myPrint("ÿc4Removing sockets from: ÿc0" + item.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<;.*]/, ""));
-		transmute();
-		delay(500);
-		// unsocketing an item causes loss of reference, so re-find our item
-		item = me.findItem(classid, -1, sdk.storage.Cube);
-		!!item && bodyLoc && item.equip(bodyLoc);
+    myPrint("ÿc4Removing sockets from: ÿc0" + item.prettyPrint);
+    transmute();
+    delay(500);
+    // unsocketing an item causes loss of reference, so re-find our item
+    item = me.findItem(classid, -1, sdk.storage.Cube);
+    !!item && bodyLoc && item.equip(bodyLoc);
 
-		// can't pull the item out = no space = fail
-		if (!Cubing.emptyCube()) throw "Failed to empty cube";
-	} catch (e) {
-		console.debug(e);
-	} finally {
-		// lost the item, so relocate it
-		!item && (item = me.findItem(classid, -1, -1, quality));
-		// In case error was thrown before hitting above re-equip statement
-		bodyLoc && !item.isEquipped && item.equip(bodyLoc);
-		// No bodyloc so move back to stash
-		!bodyLoc && !item.isInStash && Storage.Stash.MoveTo(item);
-		getUIFlag(sdk.uiflags.Cube) && me.cancel();
-	}
+    // can't pull the item out = no space = fail
+    if (!Cubing.emptyCube()) throw "Failed to empty cube";
+  } catch (e) {
+    console.debug(e);
+  } finally {
+    // lost the item, so relocate it
+    !item && (item = me.findItem(classid, -1, -1, quality));
+    // In case error was thrown before hitting above re-equip statement
+    bodyLoc && !item.isEquipped && item.equip(bodyLoc);
+    // No bodyloc so move back to stash
+    !bodyLoc && !item.isInStash && Storage.Stash.MoveTo(item);
+    getUIFlag(sdk.uiflags.Cube) && me.cancel();
+  }
 
-	return item.getItemsEx().length === 0;
+  return item.getItemsEx().length === 0;
 };
 
 Misc.checkItemsForSocketing = function () {
-	if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) return false;
+  if (me.classic || !me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.ReqComplete)) return false;
 
-	let items = me.getItemsEx()
-		.filter(item => item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0)
-		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
+  let items = me.getItemsEx()
+    .filter(function (item) {
+      return item.sockets === 0 && getBaseStat("items", item.classid, "gemsockets") > 0;
+    })
+    .sort(function (a, b) {
+      return NTIP.GetTier(b) - NTIP.GetTier(a);
+    });
 
-	for (let i = 0; i < items.length; i++) {
-		let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
-		if (curr && curr.condition(items[i]) && curr.useSocketQuest) {
-			return items[i];
-		}
-	}
+  for (let item of items) {
+    let curr = Config.socketables.find(({ classid }) => item.classid === classid);
+    if (curr && curr.condition(item) && curr.useSocketQuest) {
+      return item;
+    }
+  }
 
-	return false;
+  return false;
 };
 
 Misc.checkItemsForImbueing = function () {
-	if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) return false;
+  if (!me.getQuest(sdk.quest.id.ToolsoftheTrade, sdk.quest.states.ReqComplete)) return false;
 
-	let items = me.getItemsEx().filter(item => item.sockets === 0 && (item.normal || item.superior));
+  let items = me.getItemsEx()
+    .filter(function (item) {
+      return item.sockets === 0 && (item.normal || item.superior);
+    });
 
-	for (let i = 0; i < items.length; i++) {
-		if (Config.imbueables.some(item => item.name === items[i].classid && Item.canEquip(items[i]))) {
-			return items[i];
-		}
-	}
+  for (let item of items) {
+    if (Config.imbueables
+      .some(imbueable => imbueable.name === item.classid && Item.canEquip(item))) {
+      return item;
+    }
+  }
 
-	return false;
+  return false;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {ItemUnit[]} runes 
+ * @returns {boolean}
+ */
 Misc.addSocketablesToItem = function (item, runes = []) {
-	if (!item || item.sockets === 0) return false;
-	let preSockets = item.getItemsEx().length;
-	let original = preSockets;
-	let bodyLoc;
+  if (!item || item.sockets === 0) return false;
+  let preSockets = item.getItemsEx().length;
+  let original = preSockets;
+  let bodyLoc;
 
-	if (item.isEquipped) {
-		bodyLoc = item.bodylocation;
+  if (item.isEquipped) {
+    bodyLoc = item.bodylocation;
 
-		if (!Storage.Inventory.CanFit(item)) {
-			Town.sortInventory();
+    if (!Storage.Inventory.CanFit(item)) {
+      me.sortInventory();
 
-			if (!Storage.Inventory.CanFit(item) && !Storage.Inventory.MoveTo(item)) {
-				console.log("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
-				return false;
-			}
-		} else {
-			if (!Storage.Inventory.MoveTo(item)) return false;
-		}
-	}
+      if (!Storage.Inventory.CanFit(item) && !Storage.Inventory.MoveTo(item)) {
+        console.log("ÿc8AddSocketableToItemÿc0 :: No space to get item back");
+        return false;
+      }
+    } else {
+      if (!Storage.Inventory.MoveTo(item)) return false;
+    }
+  }
 
-	if (!Town.openStash()) return false;
+  if (!Town.openStash()) return false;
 
-	for (let i = 0; i < runes.length; i++) {
-		let rune = runes[i];
-		if (!rune.toCursor()) return false;
+  for (let rune of runes) {
+    if (!rune.toCursor()) return false;
 
-		for (let i = 0; i < 3; i += 1) {
-			sendPacket(1, sdk.packets.send.InsertSocketItem, 4, rune.gid, 4, item.gid);
-			let tick = getTickCount();
+    for (let i = 0; i < 3; i += 1) {
+      new PacketBuilder()
+        .byte(sdk.packets.send.InsertSocketItem)
+        .dword(rune.gid)
+        .dword(item.gid)
+        .send();
+      
+      let tick = getTickCount();
 
-			while (getTickCount() - tick < 2000) {
-				if (!me.itemoncursor) {
-					delay(300);
+      while (getTickCount() - tick < 2000) {
+        if (!me.itemoncursor) {
+          delay(300);
 
-					break;
-				}
+          break;
+        }
 
-				delay(10);
-			}
+        delay(10);
+      }
 
-			if (item.getItemsEx().length > preSockets) {
-				D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, sdk.colors.D2Bot.Gold);
-				Misc.logItem("Added " + rune.name + " to: ", item, null, true);
-				preSockets++;
-			}
-		}
-	}
+      if (item.getItemsEx().length > preSockets) {
+        D2Bot.printToConsole("Added socketable: " + rune.fname + " to " + item.fname, sdk.colors.D2Bot.Gold);
+        Item.logItem("Added " + rune.name + " to: ", item, null, true);
+        preSockets++;
+      }
+    }
+  }
 
-	bodyLoc && Item.equip(item, bodyLoc);
+  bodyLoc && Item.equip(item, bodyLoc);
 
-	return item.getItemsEx().length > original;
+  return item.getItemsEx().length > original;
 };
 
+/**
+ * @param {ItemUnit} item 
+ * @param {{ classid: number, socketWith: number[], temp: number[], useSocketQuest: boolean, condition: Function }} [itemInfo] 
+ * @returns {boolean}
+ */
 Misc.getSocketables = function (item, itemInfo) {
-	if (!item) return false;
-	let itemtype, gemType, runeType;
-	let [multiple, temp] = [[], []];
-	let itemSocketInfo = item.getItemsEx();
-	let preSockets = itemSocketInfo.length;
-	let allowTemp = (!!itemInfo && !!itemInfo.temp && itemInfo.temp.length > 0 && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
-	let sockets = item.sockets;
-	let openSockets = sockets - preSockets;
-	let { classid, quality } = item;
-	let socketables = me.getItemsEx().filter(item => item.isInsertable);
+  if (!item) return false;
+  itemInfo === undefined && (itemInfo = {});
 
-	if (!socketables || (!allowTemp && openSockets === 0)) return false;
+  let itemtype, gemType, runeType;
+  let [multiple, temp] = [[], []];
+  let itemSocketInfo = item.getItemsEx();
+  let preSockets = itemSocketInfo.length;
+  let allowTemp = (itemInfo.hasOwnProperty("temp") && itemInfo.temp.length > 0
+    && (preSockets === 0 || preSockets > 0 && itemSocketInfo.some(el => !itemInfo.socketWith.includes(el.classid))));
+  let sockets = item.sockets;
+  let openSockets = sockets - preSockets;
+  let { classid, quality } = item;
+  let socketables = me.getItemsEx()
+    .filter(function (item) {
+      return item.isInsertable;
+    });
 
-	function highestGemAvailable (gem, checkList = []) {
-		if (!gem) return false;
+  if (!socketables || (!allowTemp && openSockets === 0)) return false;
 
-		// filter out all items that aren't the gem type we are looking for
-		// then sort the highest classid (better gems first)
-		let myItems = me.getItemsEx()
-			.filter(item => item.itemType === gem.itemType)
-			.sort((a, b) => b.classid - a.classid);
+  function highestGemAvailable (gem, checkList = []) {
+    if (!gem) return false;
 
-		for (let i = 0; i < myItems.length; i++) {
-			if (!checkList.includes(myItems[i])) return true;
-		}
+    // filter out all items that aren't the gem type we are looking for
+    // then sort the highest classid (better gems first)
+    let myItems = me.getItemsEx()
+      .filter(function (item) {
+        return item.itemType === gem.itemType;
+      })
+      .sort(function (a, b) {
+        return b.classid - a.classid;
+      });
 
-		return false;
-	}
+    for (let item of myItems) {
+      if (!checkList.includes(item)) return true;
+    }
 
-	if (!itemInfo || (!!itemInfo && itemInfo.socketWith.length === 0)) {
-		itemtype = item.getItemType();
-		if (!itemtype) return false;
-		gemType = ["Helmet", "Armor"].includes(itemtype) ? "Ruby" : itemtype === "Shield" ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster ? "Skull" : "";
+    return false;
+  }
 
-		// Tir rune in normal, Io rune otherwise and Shael's if assassin
-		!gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
+  if (!itemInfo.hasOwnProperty("socketWith")
+    || (itemInfo.hasOwnProperty("socketWith") && itemInfo.socketWith.length === 0)) {
+    itemtype = item.getItemType();
+    if (!itemtype) return false;
+    gemType = ["Helmet", "Armor"].includes(itemtype)
+      ? "Ruby" : itemtype === "Shield"
+        ? "Diamond" : itemtype === "Weapon" && !Check.currentBuild().caster
+          ? "Skull" : "";
 
-		// TODO: Use Jewels
-		// would need to score them and way to compare to runes/gems by what itemtype we are looking at
-		// then keep upgrading until we actually are ready to insert in the item
-	}
+    // Tir rune in normal, Io rune otherwise and Shael's if assassin
+    !gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
 
-	for (let i = 0; i < socketables.length; i++) {
-		if (!!itemInfo && itemInfo.socketWith.length > 0) {
-			// In case we are trying to use different runes, check if item already has current rune inserted
-			// or if its already in the muliple list. If it is, remove that socketables classid from the list of wanted classids
-			if (itemInfo.socketWith.length > 1
-				&& (itemSocketInfo.some(el => el.classid === socketables[i].classid) || multiple.some(el => el.classid === socketables[i].classid))) {
-				itemInfo.socketWith.remove(socketables[i].classid);
-			}
+    // TODO: Use Jewels
+    // would need to score them and way to compare to runes/gems by what itemtype we are looking at
+    // then keep upgrading until we actually are ready to insert in the item
+  }
 
-			if (itemInfo.socketWith.includes(socketables[i].classid) && !multiple.includes(socketables[i])) {
-				if (multiple.length < sockets) {
-					multiple.push(socketables[i]);
-				}
-			}
+  for (let i = 0; i < socketables.length; i++) {
+    if (itemInfo.hasOwnProperty("socketWith") && itemInfo.socketWith.length > 0) {
+      // In case we are trying to use different runes, check if item already has current rune inserted
+      // or if its already in the muliple list. If it is, remove that socketables classid from the list of wanted classids
+      if (itemInfo.socketWith.length > 1
+        && (itemSocketInfo.some(el => el.classid === socketables[i].classid) || multiple.some(el => el.classid === socketables[i].classid))) {
+        itemInfo.socketWith.remove(socketables[i].classid);
+      }
 
-			if (allowTemp && itemInfo.temp.includes(socketables[i].classid) && !temp.includes(socketables[i])) {
-				if (temp.length < sockets) {
-					temp.push(socketables[i]);
-				}
-			}
-		} else {
-			// If itemtype was matched with a gemType
-			if (gemType) {
-				// current item matches wanted gemType
-				if (socketables[i].itemType === sdk.items.type[gemType]) {
-					// is the highest gem of that type
-					if (highestGemAvailable(socketables[i], multiple)) {
-						if (multiple.length < sockets) {
-							multiple.push(socketables[i]);
-						}
-					}
-				}
-			} else if (runeType) {
-				if (socketables[i].classid === sdk.items.runes[runeType] && !multiple.includes(socketables[i])) {
-					if (multiple.length < sockets) {
-						multiple.push(socketables[i]);
-					}
-				}
-			}
-		}
+      if (itemInfo.socketWith.includes(socketables[i].classid) && !multiple.includes(socketables[i])) {
+        if (multiple.length < sockets) {
+          multiple.push(socketables[i]);
+        }
+      }
 
-		if (multiple.length === sockets) {
-			break;
-		}
-	}
+      if (allowTemp && itemInfo.temp.includes(socketables[i].classid) && !temp.includes(socketables[i])) {
+        if (temp.length < sockets) {
+          temp.push(socketables[i]);
+        }
+      }
+    } else {
+      // If itemtype was matched with a gemType
+      if (gemType) {
+        // current item matches wanted gemType
+        if (socketables[i].itemType === sdk.items.type[gemType]) {
+          // is the highest gem of that type
+          if (highestGemAvailable(socketables[i], multiple)) {
+            if (multiple.length < sockets) {
+              multiple.push(socketables[i]);
+            }
+          }
+        }
+      } else if (runeType) {
+        if (socketables[i].classid === sdk.items.runes[runeType] && !multiple.includes(socketables[i])) {
+          if (multiple.length < sockets) {
+            multiple.push(socketables[i]);
+          }
+        }
+      }
+    }
 
-	if (allowTemp) {
-		// we have all our wanted socketables
-		if (multiple.length === sockets) {
-			// Failed to remove temp socketables
-			if (!Misc.unsocketItem(item)) return false;
-			// relocate our item as unsocketing it causes loss of reference
-			item = me.findItem(classid, -1, -1, quality);
-			openSockets = sockets;
-		} else {
-			if (temp.length > 0) {
-				// use temp socketables
-				multiple = temp.slice(0);
-			} else if (item.getItemsEx().some((el) => itemInfo.temp.includes(el.classid))) {
-				return false;
-			}
-		}
-	}
-	
-	if (multiple.length > 0) {
-		multiple.length > openSockets && (multiple.length = openSockets);
-		if (openSockets === 0) return false;
-		// check to ensure I am a high enough level to use wanted socketables
-		for (let i = 0; i < multiple.length; i++) {
-			if (me.charlvl < multiple[i].lvlreq) {
-				console.log("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
-				return false;
-			}
-		}
+    if (multiple.length === sockets) {
+      break;
+    }
+  }
 
-		if (Misc.addSocketablesToItem(item, multiple)) {
-			delay(250 + me.ping);
-		} else {
-			console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
-		}
+  if (allowTemp) {
+    // we have all our wanted socketables
+    if (multiple.length === sockets) {
+      // Failed to remove temp socketables
+      if (!Misc.unsocketItem(item)) return false;
+      // relocate our item as unsocketing it causes loss of reference
+      item = me.findItem(classid, -1, -1, quality);
+      openSockets = sockets;
+    } else {
+      if (temp.length > 0) {
+        // use temp socketables
+        multiple = temp.slice(0);
+      } else if (item.getItemsEx().some((el) => itemInfo.temp.includes(el.classid))) {
+        return false;
+      }
+    }
+  }
+  
+  if (multiple.length > 0) {
+    multiple.length > openSockets && (multiple.length = openSockets);
+    if (openSockets === 0) return false;
+    // check to ensure I am a high enough level to use wanted socketables
+    for (let i = 0; i < multiple.length; i++) {
+      if (me.charlvl < multiple[i].lvlreq) {
+        console.log("ÿc8Kolbot-SoloPlayÿc0: Not high enough level for " + multiple[i].fname);
+        return false;
+      }
+    }
 
-		return item.getItemsEx().length === sockets || item.getItemsEx().length > preSockets;
-	}
+    if (Misc.addSocketablesToItem(item, multiple)) {
+      delay(250 + me.ping);
+    } else {
+      console.log("ÿc8Kolbot-SoloPlayÿc0: Failed to add socketable to " + item.fname);
+    }
 
-	return false;
+    return item.getItemsEx().length === sockets || item.getItemsEx().length > preSockets;
+  }
+
+  return false;
 };
 
 Misc.checkSocketables = function () {
-	let items = me.getItemsEx()
-		.filter(item => item.sockets > 0 && AutoEquip.hasTier(item) && item.quality > sdk.items.quality.Superior)
-		.sort((a, b) => NTIP.GetTier(b) - NTIP.GetTier(a));
+  let items = me.getItemsEx()
+    .filter(function (item) {
+      return item.sockets > 0 && AutoEquip.hasTier(item)
+        && (item.quality >= sdk.items.quality.Magic
+        || ((item.normal || item.superior) && item.isEquipped));
+    })
+    .sort(function (a, b) {
+      return NTIP.GetTier(b) - NTIP.GetTier(a);
+    });
 
-	if (!items) return;
+  if (!items) return;
 
-	for (let i = 0; i < items.length; i++) {
-		let sockets = items[i].sockets;
+  for (let item of items) {
+    let sockets = item.sockets;
 
-		switch (items[i].quality) {
-		case sdk.items.quality.Magic:
-		case sdk.items.quality.Rare:
-		case sdk.items.quality.Crafted:
-			// no need to check anything else if already socketed
-			if (items[i].getItemsEx().length === sockets) {
-				continue;
-			}
-			// Any magic, rare, or crafted item with open sockets
-			if (items[i].isEquipped && [sdk.body.Head, sdk.body.Armor, sdk.body.RightArm, sdk.body.LeftArm].includes(items[i].bodylocation)) {
-				Misc.getSocketables(items[i]);
-			}
+    switch (item.quality) {
+    case sdk.items.quality.Normal:
+    case sdk.items.quality.Superior:
+    case sdk.items.quality.Magic:
+    case sdk.items.quality.Rare:
+    case sdk.items.quality.Crafted:
+      // no need to check anything else if already socketed
+      if (item.getItemsEx().length === sockets) {
+        continue;
+      }
+      // Any magic, rare, or crafted item with open sockets
+      if (item.isEquipped && [sdk.body.Head, sdk.body.Armor, sdk.body.RightArm, sdk.body.LeftArm].includes(item.bodylocation)) {
+        Misc.getSocketables(item);
+      }
 
-			break;
-		case sdk.items.quality.Set:
-		case sdk.items.quality.Unique:
-			{
-				let curr = Config.socketables.find(({ classid }) => items[i].classid === classid);
+      break;
+    case sdk.items.quality.Set:
+    case sdk.items.quality.Unique:
+      {
+        let curr = Config.socketables.find(({ classid }) => item.classid === classid);
 
-				// item is already socketed and we don't use temp socketables on this item
-				if ((!curr || (curr && !curr.temp)) && items[i].getItemsEx().length === sockets) {
-					continue;
-				}
+        // item is already socketed and we don't use temp socketables on this item
+        if ((!curr || (curr && !curr.temp)) && item.getItemsEx().length === sockets) {
+          continue;
+        }
 
-				if (curr && curr.condition(items[i])) {
-					Misc.getSocketables(items[i], curr);
-				} else if (items[i].isEquipped) {
-					Misc.getSocketables(items[i]);
-				}
-			}
+        if (curr && curr.condition(item)) {
+          Misc.getSocketables(item, curr);
+        } else if (item.isEquipped) {
+          Misc.getSocketables(item);
+        }
+      }
 
-			break;
-		default:
-			break;
-		}
-	}
-};
-
-// Log kept item stats in the manager.
-Misc.logItem = function (action, unit, keptLine, force) {
-	if (!this.useItemLog || unit === undefined || !unit || !unit.fname) return false;
-	if (!Config.LogKeys && ["pk1", "pk2", "pk3"].includes(unit.code)) return false;
-	if (!Config.LogOrgans && ["dhn", "bey", "mbr"].includes(unit.code)) return false;
-	if (!Config.LogLowRunes && ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14"].includes(unit.code)) return false;
-	if (!Config.LogMiddleRunes && ["r15", "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23"].includes(unit.code)) return false;
-	if (!Config.LogHighRunes && ["r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", "r32", "r33"].includes(unit.code)) return false;
-	if (!Config.LogLowGems && ["gcv", "gcy", "gcb", "gcg", "gcr", "gcw", "skc", "gfv", "gfy", "gfb", "gfg", "gfr", "gfw", "skf", "gsv", "gsy", "gsb", "gsg", "gsr", "gsw", "sku"].includes(unit.code)) return false;
-	if (!Config.LogHighGems && ["gzv", "gly", "glb", "glg", "glr", "glw", "skl", "gpv", "gpy", "gpb", "gpg", "gpr", "gpw", "skz"].includes(unit.code)) return false;
-
-	for (let i = 0; i < Config.SkipLogging.length; i++) {
-		if (Config.SkipLogging[i] === unit.classid || Config.SkipLogging[i] === unit.code) return false;
-	}
-
-	let lastArea;
-	let name = unit.fname.split("\n").reverse().join(" ").replace(/ÿc[0-9!"+<:;.*]|\/|\\/g, "").trim();
-	let desc = (this.getItemDesc(unit) || "");
-	let color = (unit.getColor() || -1);
-
-	if (action.match("kept", "i")) {
-		lastArea = DataFile.getStats().lastArea;
-		lastArea && (desc += ("\n\\xffc0Area: " + lastArea));
-	}
-
-	const mercCheck = action.match("Merc");
-	const hasTier = AutoEquip.hasTier(unit);
-	const charmCheck = (unit.isCharm && Item.autoEquipCharmCheck(unit));
-	const nTResult = NTIP.CheckItem(unit, NTIP_CheckListNoTier) === 1;
-
-	if (!action.match("kept", "i") && !action.match("Shopped") && hasTier) {
-		if (!mercCheck) {
-			NTIP.GetCharmTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip charm tier: " + NTIP.GetCharmTier(unit)));
-			NTIP.GetTier(unit) > 0 && (desc += ("\n\\xffc0Autoequip char tier: " + NTIP.GetTier(unit)));
-		} else {
-			desc += ("\n\\xffc0Autoequip merc tier: " + NTIP.GetMercTier(unit));
-		}
-	}
-
-	// should stop logging items unless we wish to see them or it's part of normal pickit
-	if (!nTResult && !force) {
-		switch (true) {
-		case (unit.questItem || unit.isBaseType):
-		case (!unit.isCharm && hasTier && !Developer.debugging.autoEquip):
-		case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
-		case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
-		case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
-			return true;
-		default:
-			break;
-		}
-	}
-
-	let code = this.getItemCode(unit);
-	let sock = unit.getItem();
-
-	if (sock) {
-		do {
-			if (sock.itemType === sdk.items.type.Jewel) {
-				desc += "\n\n";
-				desc += this.getItemDesc(sock);
-			}
-		} while (sock.getNext());
-	}
-
-	keptLine && (desc += ("\n\\xffc0Line: " + keptLine));
-	desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
-
-	let itemObj = {
-		title: action + " " + name,
-		description: desc,
-		image: code,
-		textColor: unit.quality,
-		itemColor: color,
-		header: "",
-		sockets: this.getItemSockets(unit)
-	};
-
-	D2Bot.printToItemLog(itemObj);
-
-	return true;
-};
-
-Misc.errorReport = function (error, script) {
-	let msg, oogmsg, filemsg, source, stack;
-	let stackLog = "";
-
-	let date = new Date();
-	let dateString = "[" + new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, -5).replace(/-/g, "/").replace("T", " ") + "]";
-
-	if (typeof error === "string") {
-		msg = error;
-		oogmsg = error.replace(/ÿc[0-9!"+<:;.*]/gi, "");
-		filemsg = dateString + " <" + me.profile + "> " + error.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
-	} else {
-		source = error.fileName.substring(error.fileName.lastIndexOf("\\") + 1, error.fileName.length);
-		msg = "ÿc1Error in ÿc0" + script + " ÿc1(" + source + " line ÿc1" + error.lineNumber + "): ÿc1" + error.message;
-		oogmsg = " Error in " + script + " (" + source + " #" + error.lineNumber + ") " + error.message + " (Area: " + Pather.getAreaName(me.area) + ", Ping:" + me.ping + ", Game: " + me.gamename + ")";
-		filemsg = dateString + " <" + me.profile + "> " + msg.replace(/ÿc[0-9!"+<:;.*]/gi, "") + "\n";
-
-		if (error.hasOwnProperty("stack")) {
-			stack = error.stack;
-
-			if (stack) {
-				stack = stack.split("\n");
-
-				if (stack && typeof stack === "object") {
-					stack.reverse();
-				}
-
-				for (let i = 0; i < stack.length; i += 1) {
-					if (stack[i]) {
-						stackLog += stack[i].substr(0, stack[i].indexOf("@") + 1) + stack[i].substr(stack[i].lastIndexOf("\\") + 1, stack[i].length - 1);
-
-						if (i < stack.length - 1) {
-							stackLog += ", ";
-						}
-					}
-				}
-			}
-		}
-
-		if (stackLog) {
-			filemsg += "Stack: " + stackLog + "\n";
-		}
-	}
-
-	if (this.errorConsolePrint) {
-		D2Bot.printToConsole(oogmsg, sdk.colors.D2Bot.Gray);
-	}
-
-	showConsole();
-	console.log(msg);
-	this.fileAction("logs/ScriptErrorLog.txt", 2, filemsg);
-	takeScreenshot();
-	delay(500);
+      break;
+    default:
+      break;
+    }
+  }
 };
 
 Misc.updateRecursively = function (oldObj, newObj, path) {
-	if (path === void 0) { path = []; }
-	Object.keys(newObj).forEach(function (key) {
-		if (typeof newObj[key] === "function") return; // skip
-		if (typeof newObj[key] !== "object") {
-			if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
-				oldObj[key] = newObj[key];
-			}
-		} else if (Array.isArray(newObj[key]) && !newObj[key].some(k => typeof k === "object")) {
-			// copy array (shallow copy)
-			if (oldObj[key] === undefined || !oldObj[key].equals(newObj[key])) {
-				oldObj[key] = newObj[key].slice(0);
-			}
-		} else {
-			if (typeof oldObj[key] !== "object") {
-				oldObj[key] = {};
-			}
-			path.push(key);
-			Misc.updateRecursively(oldObj[key], newObj[key], path);
-		}
-	});
+  if (path === void 0) { path = []; }
+  Object.keys(newObj).forEach(function (key) {
+    if (typeof newObj[key] === "function") return; // skip
+    if (typeof newObj[key] !== "object") {
+      if (!oldObj.hasOwnProperty(key) || oldObj[key] !== newObj[key]) {
+        oldObj[key] = newObj[key];
+      }
+    } else if (Array.isArray(newObj[key]) && !newObj[key].some(k => typeof k === "object")) {
+      // copy array (shallow copy)
+      if (oldObj[key] === undefined || !oldObj[key].equals(newObj[key])) {
+        oldObj[key] = newObj[key].slice(0);
+      }
+    } else {
+      if (typeof oldObj[key] !== "object") {
+        oldObj[key] = {};
+      }
+      path.push(key);
+      Misc.updateRecursively(oldObj[key], newObj[key], path);
+    }
+  });
 };
 
 Misc.recursiveSearch = function (o, n, changed) {
-	if (changed === void 0) { changed = {}; }
-	Object.keys(n).forEach(function (key) {
-		if (typeof n[key] === "function") return; // skip
-		if (typeof n[key] !== "object") {
-			if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
-				changed[key] = n[key];
-			}
-		} else {
-			if (typeof changed[key] !== "object" || !changed[key]) {
-				changed[key] = {};
-			}
-			Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);
-			if (!Object.keys(changed[key]).length) {
-				delete changed[key];
-			}
-		}
-	});
-	return changed;
+  if (changed === void 0) { changed = {}; }
+  Object.keys(n).forEach(function (key) {
+    if (typeof n[key] === "function") return; // skip
+    if (typeof n[key] !== "object") {
+      if (!o.hasOwnProperty(key) || o[key] !== n[key]) {
+        changed[key] = n[key];
+      }
+    } else {
+      if (typeof changed[key] !== "object" || !changed[key]) {
+        changed[key] = {};
+      }
+      Misc.recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);
+      if (!Object.keys(changed[key]).length) {
+        delete changed[key];
+      }
+    }
+  });
+  return changed;
 };

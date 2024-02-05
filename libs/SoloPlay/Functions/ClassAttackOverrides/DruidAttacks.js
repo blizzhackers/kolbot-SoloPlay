@@ -10,228 +10,295 @@
  * Test traveling in wolf form/ utilizing wereform if we have it and need to perform normal attack
  */
 
-includeIfNotIncluded("common/Attacks/Druid.js");
+includeIfNotIncluded("core/Attacks/Druid.js");
 
-ClassAttack.doAttack = function (unit, preattack) {
-	if (!unit) return Attack.Result.SUCCESS;
-	let gid = unit.gid;
+(function () {
+  /**
+   * @constructor
+   * @param {number} skillId
+   * @param {number} reqLvl
+   * @param {number} range
+   */
+  function ClassData (skillId = -1, range = 0) {
+    this.have = false;
+    this.skill = skillId;
+    this.range = range ? range : Skill.getRange(skillId);
+    this.mana = Infinity;
+    this.dmg = 0;
+    this.timed = Skill.isTimed(skillId);
+    this.reqLvl = getBaseStat("skills", skillId, "reqlevel");
+  }
 
-	if (Config.MercWatch && Town.needMerc()) {
-		console.log("mercwatch");
+  /**
+   * Initialize data values
+   * @param {number} [range] 
+   * @returns {void}
+   */
+  ClassData.prototype.assignValues = function (range) {
+    this.have = Skill.canUse(this.skill);
+    if (!this.have) return;
+    this.range = range || Skill.getRange(this.skill);
+    this.mana = Skill.getManaCost(this.skill);
+  };
 
-		if (Town.visitTown()) {
-			// lost reference to the mob we were attacking
-			if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
-				return Attack.Result.SUCCESS;
-			}
-		}
-	}
+  /**
+   * Calculate effective damage for a certain monster unit
+   * @param {Monster} unit 
+   * @returns {void}
+   */
+  ClassData.prototype.calcDmg = function (unit) {
+    if (!this.have) return;
+    this.dmg = GameData.avgSkillDamage(this.skill, unit);
+  };
 
-	let checkSkill;
-	let mercRevive = 0;
-	let timedSkill = -1;
-	let untimedSkill = -1;
-	let gold = me.gold;
-	let index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
+  const AttackData = {
+    "Attack": new ClassData(sdk.skills.Attack, 4),
+    "Firestorm": new ClassData(sdk.skills.Firestorm),
+    "MoltenBoulder": new ClassData(sdk.skills.MoltenBoulder),
+    "ArcticBlast": new ClassData(sdk.skills.ArcticBlast),
+    "Fissure": new ClassData(sdk.skills.Fissure),
+    "Twister": new ClassData(sdk.skills.Twister),
+    "Tornado": new ClassData(sdk.skills.Tornado),
+    "Volcano": new ClassData(sdk.skills.Volcano),
+    // "Hurricane": new ClassData(sdk.skills.Hurricane),
+    // "Armageddon": new ClassData(sdk.skills.Armageddon),
+  };
 
-	// Rebuff Hurricane
-	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.hand.Right);
-	// Rebuff Cyclone Armor
-	Skill.canUse(sdk.skills.CycloneArmor) && !me.getState(sdk.states.CycloneArmor) && Skill.cast(sdk.skills.CycloneArmor, sdk.skills.hand.Right);
+  /**
+   * hacky for now - fire skills are wonky with the skill delays
+   * better solution might be tracking what was last cast and the actual
+   * delay of each 
+   */
+  AttackData.Firestorm.timed = false;
 
-	if (index === 1 && !unit.dead && unit.curseable) {
-		const commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+  /**
+   * The keys never change so this makes it easier to iterate without calling Object.keys each time
+   * @type {Array<keyof typeof AttackData>}
+   */
+  const AttackDataKeys = Object.keys(AttackData);
+  
+  /**
+   * Helper function to re-init AttackData
+   * @param {number} currLvl
+   * @todo decide when AttackData need to be re-initialized becasue doing it every attack is a waste
+   */
+  const initAttackData = (currLvl = me.charlvl) => {
+    AttackDataKeys.forEach(sk => {
+      if (currLvl >= AttackData[sk].reqLvl) {
+        AttackData[sk].assignValues();
+      }
+    });
+  };
 
-		if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-			&& (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Cast slow missiles
-			Attack.castCharges(sdk.skills.SlowMissiles, unit);
-		}
+  /**
+   * Helper function to init damage value for unit
+   * @param {Monster} unit
+   */
+  const setDamageValues = (unit) => {
+    AttackDataKeys.forEach(sk => {
+      if (AttackData[sk].have) {
+        AttackData[sk].calcDmg(unit);
+      }
+    });
+  };
 
-		if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-			&& gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Cast slow missiles
-			Attack.castCharges(sdk.skills.InnerSight, unit);
-		}
+  /**
+   * Check if this skill is the most damaging
+   * @param {ClassData} skill 
+   * @returns {boolean}
+   */
+  const isHighestDmg = (skill) => {
+    for (let key of AttackDataKeys) {
+      if (AttackData[key].dmg > skill.dmg) {
+        return false;
+      }
+    }
+    return true;
+  };
 
-		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-			&& !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Switch cast decrepify
-			Attack.switchCastCharges(sdk.skills.Decrepify, unit);
-		}
-		
-		if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-			&& !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Switch cast weaken
-			Attack.switchCastCharges(sdk.skills.Weaken, unit);
-		}
-	}
+  /**
+   * Used to handle times when there isn't a valid skill we can use, to prevent throwing error
+   */
+  const DummyData = new ClassData(-1, -1);
 
-	// specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
-	if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || unit.isDoll)
-		&& unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
-		Skill.switchCast(sdk.skills.BattleCry, {oSkill: true});
-	}
+  /**
+  * @param {Monster} unit 
+  * @param {boolean} recheck 
+  * @returns {AttackResult}
+  */
+  ClassAttack.doAttack = function (unit, recheck) {
+    if (!unit) return Attack.Result.SUCCESS;
+    let gid = unit.gid;
 
-	if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0])
-		&& (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(Config.AttackSkill[0]))) {
-		if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
-			if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
-				return Attack.Result.FAILED;
-			}
-		}
+    if (Config.MercWatch && me.needMerc()) {
+      console.log("mercwatch");
 
-		Skill.cast(Config.AttackSkill[0], Skill.getHand(Config.AttackSkill[0]), unit);
+      if (Town.visitTown()) {
+        // lost reference to the mob we were attacking
+        if (!unit || !copyUnit(unit).x || !Game.getMonster(-1, -1, gid) || unit.dead) {
+          return Attack.Result.SUCCESS;
+        }
+      }
+    }
 
-		return Attack.Result.SUCCESS;
-	}
+    let mercRevive = 0;
+    let gold = me.gold;
+    const currLvl = me.charlvl;
+    const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
-	// Get timed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[0] : Config.AttackSkill[index];
+    // maybe every couple attacks or just the first one?
+    Precast.doPrecast();
 
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		timedSkill = checkSkill;
-	} else if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, Config.AttackSkill[5]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[5])) {
-		timedSkill = Config.AttackSkill[5];
-	}
+    if (index === 1 && !unit.dead && unit.curseable) {
+      const commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
 
-	// Get untimed skill
-	checkSkill = Attack.getCustomAttack(unit) ? Attack.getCustomAttack(unit)[1] : Config.AttackSkill[index + 1];
+      if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
+        && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+        // Cast slow missiles
+        Attack.castCharges(sdk.skills.SlowMissiles, unit);
+      }
 
-	if (Attack.checkResist(unit, checkSkill) && Attack.validSpot(unit.x, unit.y, checkSkill)) {
-		untimedSkill = checkSkill;
-	} else if (Config.AttackSkill[6] > -1 && Attack.checkResist(unit, Config.AttackSkill[6]) && Attack.validSpot(unit.x, unit.y, Config.AttackSkill[6])) {
-		untimedSkill = Config.AttackSkill[6];
-	}
+      if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
+        && gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+        // Cast slow missiles
+        Attack.castCharges(sdk.skills.InnerSight, unit);
+      }
 
-	// Low mana timed skill
-	if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(timedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
-		timedSkill = Config.LowManaSkill[0];
-	}
+      if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
+        && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+        // Switch cast decrepify
+        Attack.switchCastCharges(sdk.skills.Decrepify, unit);
+      }
+      
+      if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+        && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+        // Switch cast weaken
+        Attack.switchCastCharges(sdk.skills.Weaken, unit);
+      }
+    }
 
-	// Low mana untimed skill
-	if (Config.LowManaSkill[1] > -1 && Skill.getManaCost(untimedSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[1])) {
-		untimedSkill = Config.LowManaSkill[1];
-	}
+    // specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
+    if (Precast.haveCTA > -1 && !unit.dead && (index === 1 || unit.isDoll)
+      && unit.distance < 5 && !unit.getState(sdk.states.BattleCry) && unit.curseable) {
+      Skill.switchCast(sdk.skills.BattleCry, { oSkill: true });
+    }
 
-	if (me.normal && me.charlvl > 12 && gold < 5000 && Skill.getManaCost(timedSkill) > me.mp) {
-		switch (SetUp.currentBuild) {
-		case "Start":
-			if (Skill.canUse(sdk.skills.Firestorm) && Skill.getManaCost(sdk.skills.Firestorm) < me.mp) {
-				timedSkill = sdk.skills.Firestorm;
-			} else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 1) {
-				// I have no mana and there are mobs around me, just attack
-				timedSkill = sdk.skills.Attack;
-			}
+    initAttackData(currLvl);
+    setDamageValues(unit);
 
-			break;
-		default:
-			break;
-		}
-	}
+    let selectedSkillKey = AttackDataKeys
+      .filter(k => AttackData[k].have && me.mp > AttackData[k].mana && (!AttackData[k].timed || !me.skillDelay))
+      .sort((a, b) => AttackData[b].dmg - AttackData[a].dmg)
+      .first();
+    if (!selectedSkillKey) return Attack.Result.FAILED;
 
-	let result = this.doCast(unit, timedSkill, untimedSkill);
+    /** @type {ClassData} */
+    let selectedSkill = typeof AttackData[selectedSkillKey] === "object" ? AttackData[selectedSkillKey] : DummyData;
 
-	if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
-		let merc = me.getMerc();
+    switch (selectedSkill.skill) {
+    case sdk.skills.Attack:
+      if (!me.normal || (me.charlvl > 6 && !me.checkForMobs({ range: 10, coll: (sdk.collision.BlockWall | sdk.collision.ClosedDoor) }))) {
+        selectedSkill = DummyData;
+      }
+    }
 
-		while (unit.attackable) {
-			if (Misc.townCheck()) {
-				if (!unit || !copyUnit(unit).x) {
-					unit = Misc.poll(() => Game.getMonster(-1, -1, gid), 1000, 80);
-				}
-			}
+    // console.debug(AttackData);
+    // console.debug("Choose skill :: " + getSkillById(selectedSkill.skill) + " Damage: " + selectedSkill.dmg);
 
-			if (!unit) return Attack.Result.SUCCESS;
+    let result = ClassAttack.doCast(unit, selectedSkill);
 
-			if (Town.needMerc()) {
-				if (Config.MercWatch && mercRevive++ < 1) {
-					Town.visitTown();
-				} else {
-					return Attack.Result.CANTATTACK;
-				}
+    if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
+      let merc = me.getMerc();
 
-				(merc === undefined || !merc) && (merc = me.getMerc());
-			}
+      while (unit.attackable) {
+        if (!unit) return Attack.Result.SUCCESS;
 
-			if (!!merc && getDistance(merc, unit) > 5) {
-				Pather.moveToUnit(unit);
+        if (me.needMerc()) {
+          if (Config.MercWatch && mercRevive++ < 1) {
+            Town.visitTown();
+          } else {
+            return Attack.Result.CANTATTACK;
+          }
 
-				let spot = Attack.findSafeSpot(unit, 10, 5, 9);
-				!!spot && Pather.walkTo(spot.x, spot.y);
-			}
+          (merc === undefined || !merc) && (merc = me.getMerc());
+        }
 
-			let closeMob = Attack.getNearestMonster({skipGid: gid});
-			!!closeMob && this.doCast(closeMob, timedSkill, untimedSkill);
-		}
+        if (!!merc && getDistance(merc, unit) > 5) {
+          Pather.moveToUnit(unit);
 
-		return Attack.Result.SUCCESS;
-	}
+          let spot = Attack.findSafeSpot(unit, 10, 5, 9);
+          !!spot && Pather.walkTo(spot.x, spot.y);
+        }
 
-	return result;
-};
+        let closeMob = Attack.getNearestMonster({ skipGid: gid });
+        !!closeMob && ClassAttack.doCast(closeMob, selectedSkill);
+      }
 
-ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
-	let walk;
+      return Attack.Result.SUCCESS;
+    }
 
-	// No valid skills can be found
-	if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
+    return result;
+  };
 
-	// Rebuff Hurricane
-	Skill.canUse(sdk.skills.Hurricane) && !me.getState(sdk.states.Hurricane) && Skill.cast(sdk.skills.Hurricane, sdk.skills.hand.Right);
+  /**
+  * @param {Monster} unit 
+  * @param {number} timedSkill 
+  * @param {number} untimedSkill 
+  * @returns {AttackResult} 
+  */
+  ClassAttack.doCast = function (unit, choosenSkill) {
+    let { skill, range, mana, timed } = choosenSkill;
+    // unit became invalidated
+    if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
+    if (!!skill && me.mp < mana) {
+      return Attack.Result.NEEDMANA;
+    }
+    // No valid skills can be found
+    if (skill < 0) return Attack.Result.CANTATTACK;
 
-	if (timedSkill > -1 && (!me.getState(sdk.states.SkillDelay) || !Skill.isTimed(timedSkill))) {
-		switch (timedSkill) {
-		case sdk.skills.Tornado:
-			if (Math.ceil(unit.distance) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
-				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), sdk.collision.Ranged)) {
-					return Attack.Result.FAILED;
-				}
-			}
+    /**
+     * @todo handling targetting for fissure/molten moulder/volcano
+     */
 
-			// Randomized x coord changes tornado path and prevents constant missing
-			if (!unit.dead) {
-				Skill.cast(timedSkill, Skill.getHand(timedSkill), unit.x + rand(-1, 1), unit.y);
-			}
+    if (range > 8 && me.inDanger()) {
+      Attack.getIntoPosition(unit, range + 1, Coords_1.Collision.BLOCK_MISSILE, true);
+    }
+    
+    if (!me.skillDelay || !timed) {
+      switch (skill) {
+      case sdk.skills.Tornado:
+        if (Math.ceil(unit.distance) > range || checkCollision(me, unit, sdk.collision.Ranged)) {
+          if (!Attack.getIntoPosition(unit, range, sdk.collision.Ranged)) {
+            return Attack.Result.FAILED;
+          }
+        }
 
-			return Attack.Result.SUCCESS;
-		default:
-			if (Skill.getRange(timedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
+        // Randomized x coord changes tornado path and prevents constant missing
+        if (!unit.dead) {
+          Skill.cast(skill, Skill.getHand(skill), unit.x + rand(-1, 1), unit.y);
+        }
 
-			if (Math.ceil(unit.distance) > (Skill.getRange(timedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
-				// Allow short-distance walking for melee skills
-				walk = Skill.getRange(timedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
+        return Attack.Result.SUCCESS;
+      default:
+        if (range < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
 
-				if (!Attack.getIntoPosition(unit, (Skill.getRange(timedSkill)), sdk.collision.Ranged, walk)) {
-					return Attack.Result.FAILED;
-				}
-			}
+        if (Math.ceil(unit.distance) > range || checkCollision(me, unit, sdk.collision.Ranged)) {
+          // Allow short-distance walking for melee skills
+          let walk = range < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
 
-			!unit.dead && Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
+          if (!Attack.getIntoPosition(unit, range, sdk.collision.Ranged, walk)) {
+            return Attack.Result.FAILED;
+          }
+        }
 
-			return Attack.Result.SUCCESS;
-		}
-	}
+        !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit);
 
-	if (untimedSkill > -1) {
-		if (Skill.getRange(untimedSkill) < 4 && !Attack.validSpot(unit.x, unit.y)) return Attack.Result.FAILED;
+        return Attack.Result.SUCCESS;
+      }
+    }
 
-		if (Math.ceil(unit.distance) > (Skill.getRange(untimedSkill)) || checkCollision(me, unit, sdk.collision.Ranged)) {
-			// Allow short-distance walking for melee skills
-			walk = Skill.getRange(untimedSkill) < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall);
+    Misc.poll(() => !me.skillDelay, 1000, 40);
 
-			if (!Attack.getIntoPosition(unit, (Skill.getRange(untimedSkill)), sdk.collision.Ranged, walk)) {
-				return Attack.Result.FAILED;
-			}
-		}
-
-		!unit.dead && Skill.cast(untimedSkill, Skill.getHand(untimedSkill), unit);
-
-		return Attack.Result.SUCCESS;
-	}
-
-	Misc.poll(() => !me.skillDelay, 1000, 40);
-
-	return Attack.Result.SUCCESS;
-};
-
+    return Attack.Result.SUCCESS;
+  };
+})();

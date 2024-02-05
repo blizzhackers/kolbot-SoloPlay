@@ -7,94 +7,101 @@
 
 // todo: clean this up
 function andariel () {
-	Town.doChores(false, { fullChores: true });
-	myPrint("starting andy");
+  Town.doChores(false, { fullChores: true });
+  myPrint("starting andy");
 
-	if (me.normal && Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, sdk.quest.states.ReqComplete)) {
-		Pather.changeAct();
+  if (me.normal && Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, sdk.quest.states.ReqComplete)) {
+    Pather.changeAct();
 
-		return true;
-	}
+    return true;
+  }
 
-	let questBug = (!me.normal && !me.andariel);
+  let questBug = (!me.normal && !me.andariel);
 
-	Pather.checkWP(sdk.areas.CatacombsLvl2, true) ? Pather.useWaypoint(sdk.areas.CatacombsLvl2) : Pather.getWP(sdk.areas.CatacombsLvl2);
-	Precast.doPrecast(true);
-	Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
+  Pather.checkWP(sdk.areas.CatacombsLvl2, true)
+    ? Pather.useWaypoint(sdk.areas.CatacombsLvl2)
+    : Pather.getWP(sdk.areas.CatacombsLvl2);
+  Precast.doPrecast(true);
+  Pather.moveToExit([sdk.areas.CatacombsLvl3, sdk.areas.CatacombsLvl4], true);
 
-	if (me.poisonRes < 75) {
-		Town.doChores(true, {thawing: me.coldRes < 75, antidote: true});
-		Pather.usePortal(sdk.areas.CatacombsLvl4, me.name);
-	}
+  if (me.charlvl < 12) {
+    myPrint("Still to early, NG");
+    return true;
+  }
 
-	Precast.doPrecast(true);
+  if (me.poisonRes < 75) {
+    Town.doChores(true, { thawing: me.coldRes < 75, antidote: true });
+    Pather.usePortal(sdk.areas.CatacombsLvl4);
+  }
 
-	let oldPickRange = Config.PickRange;
-	
-	if (questBug) {
-		Config.PickRange = -1;
-		me.barbarian && (Config.FindItem = false);
-	} else {
-		Config.PickRange = 5;	// Only pick what is directly around me
-	}
+  Precast.doPrecast(true);
 
-	let coords = [
-		{x: 22572, y: 9635}, {x: 22554, y: 9618},
-		{x: 22542, y: 9600}, {x: 22572, y: 9582},
-		{x: 22554, y: 9566}
-	];
+  let oldPickRange = Config.PickRange;
+  
+  if (questBug) {
+    Config.PickRange = -1;
+    me.barbarian && (Config.FindItem = false);
+  } else {
+    Config.PickRange = 5;	// Only pick what is directly around me
+  }
 
-	if (Pather.useTeleport()) {
-		Pather.moveTo(22571, 9590);
-	} else {
-		while (coords.length) {
-			let andy = Game.getMonster(sdk.monsters.Andariel);
+  let coords = [
+    { x: 22572, y: 9635 }, { x: 22554, y: 9618 },
+    { x: 22542, y: 9600 }, { x: 22572, y: 9582 },
+    { x: 22554, y: 9566 }
+  ];
 
-			if (andy && andy.distance < 15) {
-				break;
-			}
+  if (Pather.useTeleport()) {
+    Pather.moveTo(22571, 9590);
+  } else {
+    while (coords.length) {
+      let andy = Game.getMonster(sdk.monsters.Andariel);
 
-			Pather.moveToUnit(coords[0]);
-			Attack.clearClassids(sdk.monsters.DarkShaman1);
-			coords.shift();
-		}
-	}
-	
-	Config.MercWatch = false;
+      if (andy && andy.distance < 15) {
+        break;
+      }
 
-	Attack.killTarget("Andariel");
+      Pather.moveToUnit(coords[0]);
+      Attack.clearClassids(sdk.monsters.DarkShaman1);
+      coords.shift();
+    }
+  }
+  
+  Config.MercWatch = false;
 
-	if (questBug) {
-		Config.TownCheck = false;
-		Config.MercWatch = false;
-		Config.HealStatus = false;
-		Config.UseMerc = false;
-		Config.TownHP = 0;
-		Config.TownMP = 0;
-		Config.PickRange = -1;
-		Misc.townEnabled = false;
-		CharData.updateConfig();
+  Attack.killTarget("Andariel");
 
-		if (Pather.changeAct()) {
-			delay(2000 + me.ping);
+  if (questBug) {
+    Config.TownCheck = false;
+    Config.MercWatch = false;
+    Config.HealStatus = false;
+    Config.UseMerc = false;
+    Config.TownHP = 0;
+    Config.TownMP = 0;
+    Config.PickRange = -1;
+    SoloEvents.townChicken.disabled = true;
+    CharData.updateConfig();
 
-			// Now check my area
-			if (me.act === 2) {
-				// Act change sucessful, Andy has been bugged
-				// let result = (Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "Sucessful" : "Unsucessful");
-				// myPrint("Andy bugged was " + result);
-				myPrint("Bugging andy");
-				scriptBroadcast("quit");
-			}
-		}
-	}
+    if (Pather.changeAct()) {
+      delay(2000 + me.ping);
 
-	delay(2000 + me.ping); // Wait for minions to die.
-	Config.PickRange = oldPickRange;	// Reset to normal value
-	Pickit.pickItems();
-	Config.MercWatch = true;
+      // Now check my area
+      if (me.act === 2) {
+        // Act change sucessful, Andy has been bugged
+        // let result = (Misc.checkQuest(sdk.quest.id.SistersToTheSlaughter, 15) ? "Sucessful" : "Unsucessful");
+        // myPrint("Andy bugged was " + result);
+        myPrint("Bugging andy");
+        scriptBroadcast("quit");
+      }
+    }
+  }
 
-	!me.andariel && Pather.changeAct();
+  delay(2000 + me.ping); // Wait for minions to die.
+  Config.PickRange = oldPickRange;	// Reset to normal value
+  Pickit.pickItems();
+  Config.MercWatch = true;
 
-	return true;
+  !me.andariel && Pather.changeAct();
+
+  return true;
 }

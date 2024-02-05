@@ -7,341 +7,342 @@
 
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 
-const CharData = {
-	filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
-	threads: ["libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js", "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"],
-	default: {
-		initialized: false,
-		normal: {
-			respecUsed: false,
-			imbueUsed: false,
-			socketUsed: false,
-		},
-		nightmare: {
-			respecUsed: false,
-			imbueUsed: false,
-			socketUsed: false,
-		},
-		hell: {
-			respecUsed: false,
-			imbueUsed: false,
-			socketUsed: false,
-		},
-		me: {
-			task: "",
-			startTime: 0,
-			charName: "",
-			classid: -1,
-			level: 1,
-			strength: 0,
-			dexterity: 0,
-			currentBuild: "Start",
-			finalBuild: "",
-			highestDifficulty: "Normal",
-			setDifficulty: "Normal",
-			charms: {},
-			charmGids: [],
-		},
-		merc: {
-			act: 1,
-			classid: 271,
-			difficulty: 0,
-			strength: 0,
-			dexterity: 0,
-			type: "",
-			gear: [],
-		}
-	},
+const CharData = (function () {
+  const _create = function () {
+    let obj = Object.assign({}, this._default);
+    let string = JSON.stringify(obj, null, 2);
 
-	loginData: {
-		filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LoginData.json",
-		default: {Acc: "", Pass: "", Char: "", existing: false},
+    if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
+      let folder = dopen("libs/SoloPlay/Data");
+      folder && folder.create(me.profile);
+    }
 
-		create: function () {
-			let obj = Object.assign({}, this.default);
-			let string = JSON.stringify(obj, null, 2);
+    FileAction.write(this.filePath, string);
 
-			if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
-				let folder = dopen("libs/SoloPlay/Data");
-				folder && folder.create(me.profile);
-			}
+    return obj;
+  };
 
-			Misc.fileAction(this.filePath, 1, string);
+  const _getObj = function () {
+    if (!FileTools.exists(this.filePath)) return this.create();
 
-			return obj;
-		},
+    let obj;
+    let string = FileAction.read(this.filePath);
 
-		getObj: function () {
-			if (!FileTools.exists(this.filePath)) return CharData.loginData.create();
+    try {
+      obj = JSON.parse(string);
+    } catch (e) {
+      // If we failed, file might be corrupted, so create a new one
+      obj = this.create();
+    }
 
-			let obj;
-			let string = Misc.fileAction(this.filePath, 0);
+    return obj ? obj : this._default;
+  };
 
-			try {
-				obj = JSON.parse(string);
-			} catch (e) {
-			// If we failed, file might be corrupted, so create a new one
-				obj = this.create();
-			}
+  const _getStats = function () {
+    let obj = this.getObj();
+    return clone(obj);
+  };
 
-			return obj ? obj : this.default;
-		},
+  const _updateData = function (arg, property, value) {
+    let obj = this.getObj();
+    typeof arg !== "string" && (arg = arg.toString());
+    typeof arg === "string" && (arg = arg.toLowerCase());
 
-		getStats: function () {
-			let obj = this.getObj();
-			return Misc.clone(obj);
-		},
+    if (typeof property === "object") {
+      obj = Object.assign(obj, property);
+      return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
+    }
 
-		updateData: function (arg, property, value) {
-			let obj = this.getObj();
-			typeof arg !== "string" && (arg = arg.toString());
-			typeof arg === "string" && (arg = arg.toLowerCase());
+    if (obj.hasOwnProperty(property)) {
+      obj[property] = value;
+      return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
+    } else if (obj.hasOwnProperty(arg) && obj[arg].hasOwnProperty(property)) {
+      obj[arg][property] = value;
+      return FileAction.write(this.filePath, JSON.stringify(obj, null, 2));
+    }
 
-			if (typeof property === "object") {
-				obj = Object.assign(obj, property);
-				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
-			}
+    return false;
+  };
+  
+  return {
+    filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
+    threads: [
+      "libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js",
+      "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"
+    ],
+    _default: (function () {
+      let diffObj = { respecUsed: false, imbueUsed: false, socketUsed: false };
+      return {
+        initialized: false,
+        normal: Object.assign({}, diffObj),
+        nightmare: Object.assign({}, diffObj),
+        hell: Object.assign({}, diffObj),
+        task: "",
+        startTime: 0,
+        charName: "",
+        classid: -1,
+        level: 1,
+        strength: 0,
+        dexterity: 0,
+        currentBuild: "Start",
+        finalBuild: "",
+        highestDifficulty: "Normal",
+        setDifficulty: "Normal",
+        charms: {},
+        charmGids: [],
+        merc: {
+          act: 1,
+          classid: sdk.mercs.Rogue,
+          difficulty: sdk.difficulty.Normal,
+          level: 1,
+          strength: 0,
+          dexterity: 0,
+          skill: 0,
+          skillName: "",
+          gear: [],
+        }
+      };
+    })(),
 
-			if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
-				obj[arg][property] = value;
-				return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
-			}
+    login: (function () {
+      return {
+        filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LoginData.json",
+        _default: { account: "", pass: "", currentChar: "", tag: "", charCount: 0, existing: false },
 
-			return false;
-		},
-	},
+        create: function () {
+          return _create.call(this);
+        },
+        getObj: function () {
+          return _getObj.call(this);
+        },
 
-	charmData: {
-		getCountInfo: function () {
-			const finalCharmKeys = Object.keys(myData.me.charms);
-			let [curr, max] = [0, 0];
+        getStats: function () {
+          return _getStats.call(this);
+        },
 
-			for (let i = 0; i < finalCharmKeys.length; i++) {
-				let cKey = finalCharmKeys[i];
-				if (myData.me.charms[cKey].classid === this.id) {
-					curr += myData.me.charms[cKey].have.length;
-					max += myData.me.charms[cKey].max;
-				}
-			}
+        updateData: function (arg, property, value) {
+          return _updateData.call(this, arg, property, value);
+        },
+      };
+    })(),
 
-			return {
-				curr: curr,
-				max: max
-			};
-		},
-		small: {
-			id: sdk.items.SmallCharm,
-		},
-		large: {
-			id: sdk.items.LargeCharm,
-		},
-		grand: {
-			id: sdk.items.GrandCharm,
-		}
-	},
+    charms: (function () {
+      /**
+       * @constructor
+       * @param {number} classid 
+       */
+      function Charm (classid) {
+        this.classid = classid;
+      }
 
-	buffData: {
-		stamina: {
-			tick: 0,
-			duration: 0,
-			active: function () {
-				return me.getState(sdk.states.StaminaPot);
-			},
-			timeLeft: function () {
-				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
-			},
-			need: function () {
-				return (!this.active() || this.timeLeft() < Time.minutes(5));
-			},
-		},
+      Charm.prototype.count = function () {
+        let [curr, max] = [0, 0];
+        Object.keys(me.data.charms).forEach(function (cKey) {
+          if (me.data.charms[cKey].classid === this.classid) {
+            curr += me.data.charms[cKey].have.length;
+            max += me.data.charms[cKey].max;
+          }
+        });
 
-		thawing: {
-			tick: 0,
-			duration: 0,
-			active: function () {
-				return me.getState(sdk.states.Thawing);
-			},
-			timeLeft: function () {
-				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
-			},
-			need: function () {
-				return (me.coldRes < 75 && (!this.active() || this.timeLeft() < Time.minutes(5)));
-			},
-		},
+        return {
+          curr: curr,
+          max: max
+        };
+      };
+      /** @type {Map<number, Charm} */
+      const charmMap = new Map([
+        [sdk.items.SmallCharm, new Charm(sdk.items.SmallCharm)],
+        ["small", new Charm(sdk.items.SmallCharm)],
+        [sdk.items.LargeCharm, new Charm(sdk.items.LargeCharm)],
+        ["large", new Charm(sdk.items.LargeCharm)],
+        [sdk.items.GrandCharm, new Charm(sdk.items.GrandCharm)],
+        ["grand", new Charm(sdk.items.GrandCharm)]
+      ]);
 
-		antidote: {
-			tick: 0,
-			duration: 0,
-			active: function () {
-				return me.getState(sdk.states.Antidote);
-			},
-			timeLeft: function () {
-				return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
-			},
-			need: function () {
-				// don't really like the hardcoded time value of 5 minutes, its okay but feel like it should be more dynamic
-				return (me.poisonRes < 75 && (!this.active() || this.timeLeft() < Time.minutes(5)));
-			},
-		},
+      return charmMap;
+    })(),
 
-		update: function () {
-			const obj = JSON.stringify(Misc.copy(this));
-			const myThread = getScript(true).name;
-			CharData.threads.forEach(function (script) {
-				let curr = getScript(script);
-				if (curr && myThread !== curr.name) {
-					curr.send("buff--" + obj);
-				}
-			});
-		},
-	},
+    pots: (function () {
+      /**
+      * @constructor
+      * @param {number} state 
+      * @param {Function} check 
+      */
+      function BuffPot (state, check) {
+        this.state = state;
+        this.check = check || (() => true);
+        this.tick = 0;
+        this.duration = 0;
+      }
 
-	skillData: {
-		skills: [],
-		currentChargedSkills: [],
-		chargedSkills: [],
-		chargedSkillsOnSwitch: [],
-		bowData: {
-			initialized: false,
-			bowOnSwitch: false,
-			bowGid: 0,
-			bowType: 0,
-			arrows: 0,
-			quiverType: 0,
-			setBowInfo: function (bow, init = false) {
-				if (bow === undefined) return;
-				this.bowGid = bow.gid;
-				this.bowType = bow.itemType;
-				this.bowOnSwitch = bow.isOnSwap;
-				SetUp.bowQuiver();
-				init && (this.initialized = true);
-				!init && CharData.skillData.update();
-			},
-			setArrowInfo: function (quiver) {
-				if (quiver === undefined) return;
-				this.arrows = Math.floor((quiver.getStat(sdk.stats.Quantity) * 100) / getBaseStat("items", quiver.classid, "maxstack"));
-				this.quiverType = quiver.itemType;
-			},
-			resetBowData: function () {
-				this.bowOnSwitch = false;
-				[this.bowGid, this.bowType, this.arrows, this.quiverType] = [0, 0, 0, 0];
-				NTIP.resetRuntimeList();
-				CharData.skillData.update();
-			},
-		},
+      BuffPot.prototype.active = function () {
+        return me.getState(this.state);
+      };
 
-		init: function (skillIds, mainSkills, switchSkills) {
-			this.currentChargedSkills = skillIds.slice(0);
-			this.chargedSkills = mainSkills.slice(0);
-			this.chargedSkillsOnSwitch = switchSkills.slice(0);
-			this.skills = me.getSkill(4).map((skill) => skill[0]);
-		},
+      BuffPot.prototype.timeLeft = function () {
+        return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
+      };
 
-		update: function () {
-			let obj = JSON.stringify(Misc.copy(this));
-			let myThread = getScript(true).name;
-			CharData.threads.forEach(function (script) {
-				let curr = getScript(script);
-				if (curr && myThread !== curr.name) {
-					curr.send("skill--" + obj);
-				}
-			});
-		},
+      BuffPot.prototype.need = function () {
+        return (this.check() && (!this.active() || this.timeLeft() < Time.minutes(5)));
+      };
 
-		haveChargedSkill: function (skillid = []) {
-			// convert to array if not one
-			!Array.isArray(skillid) && (skillid = [skillid]);
-			return this.currentChargedSkills.some(s => skillid.includes(s));
-		},
+      /** @type {Map<number | string, BuffPot>} */
+      const _buffPots = new Map([
+        [
+          sdk.items.StaminaPotion,
+          new BuffPot(sdk.states.StaminaPot,
+            function () {
+              return Skill.canUse(sdk.skills.Vigor) || Pather.canTeleport();
+            })
+        ],
+        [
+          sdk.items.ThawingPotion,
+          new BuffPot(sdk.states.Thawing,
+            function () {
+              return me.coldRes < 75;
+            })
+        ],
+        [
+          sdk.items.AntidotePotion,
+          new BuffPot(sdk.states.Antidote,
+            function () {
+              return me.poisonRes < 75;
+            })
+        ],
+      ]);
+      // hacky for now - just to handle the old way of accessing buff pots
+      _buffPots.set("stamina", _buffPots.get(sdk.items.StaminaPotion));
+      _buffPots.set("thawing", _buffPots.get(sdk.items.ThawingPotion));
+      _buffPots.set("antidote", _buffPots.get(sdk.items.AntidotePotion));
 
-		haveChargedSkillOnSwitch: function (skillid = 0) {
-			return this.chargedSkillsOnSwitch.some(chargeSkill => chargeSkill.skill === skillid);
-		}
-	},
+      return _buffPots;
+    }()),
 
-	// updates config obj across all threads - excluding our current
-	updateConfig: function () {
-		let obj = JSON.stringify(Misc.copy(Config));
-		let myThread = getScript(true).name;
-		CharData.threads.forEach(function (script) {
-			let curr = getScript(script);
-			if (curr && myThread !== curr.name) {
-				curr.send("config--" + obj);
-			}
-		});
-	},
+    skillData: {
+      skills: [],
+      currentChargedSkills: [],
+      chargedSkills: [],
+      chargedSkillsOnSwitch: [],
+      /**
+      * @todo fix this, it's ugly
+      */
+      bow: {
+        initialized: false,
+        onSwitch: false,
+        bowGid: 0,
+        bowType: 0,
+        arrows: 0,
+        quiverType: 0,
+        setBowInfo: function (bow, init = false) {
+          if (bow === undefined) return;
+          this.bowGid = bow.gid;
+          this.bowType = bow.itemType;
+          this.bowOnSwitch = bow.isOnSwap;
+          SetUp.bowQuiver();
+          init && (this.initialized = true);
+          !init && CharData.skillData.update();
+        },
+        setArrowInfo: function (quiver) {
+          if (quiver === undefined) return;
+          this.arrows = Math.floor((quiver.getStat(sdk.stats.Quantity) * 100) / getBaseStat("items", quiver.classid, "maxstack"));
+          this.quiverType = quiver.itemType;
+        },
+        resetBowData: function () {
+          this.bowOnSwitch = false;
+          [this.bowGid, this.bowType, this.arrows, this.quiverType] = [0, 0, 0, 0];
+          NTIP.Runtime.clear();
+          CharData.skillData.update();
+        },
+      },
 
-	create: function () {
-		let obj = Object.assign({}, this.default);
-		let string = JSON.stringify(obj, null, 2);
+      init: function (skillIds, mainSkills, switchSkills) {
+        this.currentChargedSkills = skillIds.slice(0);
+        this.chargedSkills = mainSkills.slice(0);
+        this.chargedSkillsOnSwitch = switchSkills.slice(0);
+        this.skills = me.getSkill(4).map((skill) => skill[0]);
+      },
 
-		if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
-			let folder = dopen("libs/SoloPlay/Data");
-			folder && folder.create(me.profile);
-		}
+      update: function () {
+        let obj = JSON.stringify(copyObj(this));
+        let myThread = getScript(true).name;
+        CharData.threads.forEach(function (script) {
+          let curr = getScript(script);
+          if (curr && myThread !== curr.name) {
+            curr.send("skill--" + obj);
+          }
+        });
+      },
 
-		Misc.fileAction(this.filePath, 1, string);
+      haveChargedSkill: function (skillid = []) {
+        // convert to array if not one
+        !Array.isArray(skillid) && (skillid = [skillid]);
+        return this.currentChargedSkills
+          .some(function (s) {
+            return skillid.includes(s);
+          });
+      },
 
-		return obj;
-	},
+      haveChargedSkillOnSwitch: function (skillid = 0) {
+        return this.chargedSkillsOnSwitch
+          .some(function (chargeSkill) {
+            return chargeSkill.skill === skillid;
+          });
+      }
+    },
 
-	getObj: function () {
-		if (!FileTools.exists(this.filePath)) return CharData.create();
+    // updates config obj across all threads - excluding our current
+    updateConfig: function () {
+      let obj = JSON.stringify(copyObj(Config));
+      let myThread = getScript(true).name;
+      CharData.threads.forEach(function (script) {
+        let curr = getScript(script);
+        if (curr && myThread !== curr.name) {
+          curr.send("config--" + obj);
+        }
+      });
+    },
 
-		let obj;
-		let string = Misc.fileAction(this.filePath, 0);
+    /**
+     * @returns {MyData}
+     */
+    create: function () {
+      return _create.call(this);
+    },
 
-		try {
-			obj = JSON.parse(string);
-		} catch (e) {
-			// If we failed, file might be corrupted, so create a new one
-			obj = this.create();
-		}
+    /**
+     * @returns {MyData}
+     */
+    getObj: function () {
+      return _getObj.call(this);
+    },
 
-		return obj ? obj : this.default;
-	},
+    /**
+     * @returns {MyData}
+     */
+    getStats: function () {
+      return _getStats.call(this);
+    },
 
-	getStats: function () {
-		let obj = this.getObj();
-		return Misc.clone(obj);
-	},
+    updateData: function (arg, property, value) {
+      while (me.ingame && !me.gameReady) {
+        delay(100);
+      }
 
-	updateData: function (arg, property, value) {
-		while (me.ingame && !me.gameReady) {
-			delay(100);
-		}
+      console.trace();
 
-		console.trace();
+      return _updateData.call(this, arg, property, value);
+    },
 
-		let obj = this.getObj();
-		typeof arg !== "string" && (arg = arg.toString());
-		typeof arg === "string" && (arg = arg.toLowerCase());
+    delete: function (deleteMain = false) {
+      if (deleteMain && FileTools.exists("data/" + me.profile + ".json")) {
+        FileTools.remove("data/" + me.profile + ".json");
+      }
+        
+      FileTools.exists(this.filePath) && FileTools.remove(this.filePath);
+      FileTools.exists(Tracker.GTPath) && FileTools.remove(Tracker.GTPath);
 
-		if (typeof property === "object") {
-			obj = Object.assign(obj, property);
-			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
-		}
-
-		if (!!obj[arg] && obj[arg].hasOwnProperty(property)) {
-			obj[arg][property] = value;
-			return Misc.fileAction(this.filePath, 1, JSON.stringify(obj, null, 2));
-		}
-
-		return false;
-	},
-
-	delete: function (deleteMain = false) {
-		if (deleteMain && FileTools.exists("data/" + me.profile + ".json")) {
-			FileTools.remove("data/" + me.profile + ".json");
-		}
-			
-		FileTools.exists(this.filePath) && FileTools.remove(this.filePath);
-		FileTools.exists(Tracker.GTPath) && FileTools.remove(Tracker.GTPath);
-
-		return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
-	},
-};
-
-CharData.charmData.small.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.small);
-CharData.charmData.large.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.large);
-CharData.charmData.grand.getCountInfo = CharData.charmData.getCountInfo.bind(CharData.charmData.grand);
+      return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
+    },
+  };
+})();

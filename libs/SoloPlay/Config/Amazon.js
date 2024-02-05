@@ -16,292 +16,315 @@
 *      4. Save the profile and start
 */
 
-function LoadConfig () {
-	includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
-	includeIfNotIncluded("SoloPlay/Functions/Globals.js");
+(function LoadConfig () {
+  includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+  includeIfNotIncluded("SoloPlay/Functions/Globals.js");
 
-	SetUp.include();
+  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
 
-	/* Script */
-	Scripts.SoloPlay = true;
-	SetUp.config();
+  SetUp.include();
+  SetUp.config();
 
-	/* Chicken configuration. */
-	Config.LifeChicken = me.hardcore ? 45 : 10;
-	Config.ManaChicken = 0;
-	Config.MercChicken = 0;
-	Config.TownHP = me.hardcore ? 0 : 35;
-	Config.TownMP = 0;
+  /* Pickit configuration. */
+  Config.PickRange = 40;
+  //	Config.PickitFiles.push("kolton.nip");
+  //	Config.PickitFiles.push("LLD.nip");
 
-	/* Potions configuration. */
-	Config.UseHP = me.hardcore ? 90 : 75;
-	Config.UseRejuvHP = me.hardcore ? 65 : 40;
-	Config.UseMP = me.hardcore ? 75 : 55;
-	Config.UseMercHP = 75;
+  /* Gambling configuration. */
+  if (me.equipped.get(sdk.body.Neck).tier < 100000) {
+    Config.GambleItems.push("Amulet");
+  }
+  if (me.equipped.get(sdk.body.RingLeft).tier < 100000
+    || me.equipped.get(sdk.body.RingRight).tier < 100000) {
+    Config.GambleItems.push("Ring");
+  }
+  if (me.equipped.get(sdk.body.Head).tier < 100000) {
+    Config.GambleItems.push("Circlet");
+    Config.GambleItems.push("Coronet");
+  }
 
-	/* Belt configuration. */
-	Config.BeltColumn = ["hp", "mp", "mp", "rv"];
-	SetUp.belt();
+  if (me.equipped.get(sdk.body.RightArm).tier < 100000) {
+    Config.GambleItems.push("Javelin");
+    Config.GambleItems.push("Pilum");
+    Config.GambleItems.push("Short Spear");
+    Config.GambleItems.push("Throwing Spear");
+  }
+  // AutoEquip setup
+  const levelingTiers = [
+    // Weapon
+    "([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
+    // "[name] == ceremonialjavelin && [quality] == unique && [flag] == ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)", // too many issues with eth titans
+  ];
 
-	/* Pickit configuration. */
-	Config.PickRange = 40;
-	//	Config.PickitFiles.push("kolton.nip");
-	//	Config.PickitFiles.push("LLD.nip");
+  const expansionTiers = [
+    // Switch
+    "[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000",								// Weaken charged wand
+    "[type] == wand && [quality] >= normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
+    // Charms
+    "[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
+    "[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
+  ];
 
-	/* Gambling configuration. */
-	Config.Gamble = true;
-	Config.GambleGoldStart = 1250000;
-	Config.GambleGoldStop = 750000;
-	Config.GambleItems.push("Amulet");
-	Config.GambleItems.push("Ring");
-	Config.GambleItems.push("Circlet");
-	Config.GambleItems.push("Coronet");
+  NTIP.buildList(levelingTiers);
+  me.expansion && NTIP.buildList(expansionTiers);
 
-	/* AutoMule configuration. */
-	Config.AutoMule.Trigger = [];
-	Config.AutoMule.Force = [];
-	Config.AutoMule.Exclude = [
-		"[name] >= Elrune && [name] <= Lemrune",
-	];
+  if (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
+    NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
+    NTIP.addLine("([type] == shield) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 2) # [tier] == tierscore(item)");
+    NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
+  }
 
-	/* AutoEquip configuration. */
-	Config.AutoEquip = true;
+  /* Attack configuration. */
+  Config.AttackSkill = [0, 0, 0, 0, 0];
+  Config.LowManaSkill = [-1, -1];
+  Config.MaxAttackCount = 1000;
+  Config.BossPriority = false;
+  Config.ClearType = 0;
+  Config.ClearPath = { Range: (Pather.canTeleport() ? 30 : 20), Spectype: sdk.monsters.spectype.All };
 
-	// AutoEquip setup
-	const levelingTiers = [
-		// Weapon
-		"([type] == javelin || [type] == amazonjavelin) && [quality] >= normal && [flag] != ethereal && [wsm] <= 10 && [2handed] == 0 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"[name] == ceremonialjavelin && [quality] == unique && [flag] == ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Helmet
-		"([type] == circlet || [type] == helm) && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Belt
-		"[type] == belt && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		"me.normal && [type] == belt && [quality] >= lowquality && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Boots
-		"[type] == boots && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Armor
-		"[type] == armor && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Gloves
-		"[type] == gloves && [quality] >= magic && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Amulet
-		"[type] == amulet && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-		// Rings
-		"[type] == ring && [quality] >= magic # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
-	];
+  // Class specific config
+  Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
+  Config.SummonValkyrie = true; 	// Summon Valkyrie
 
-	const expansionTiers = [
-		// Switch
-		"[type] == wand && [quality] >= normal # [itemchargedskill] == 72 # [secondarytier] == 25000",								// Weaken charged wand
-		"[type] == wand && [quality] >= normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",	// Lower Resist charged wand
-		// Charms
-		"[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",
-		"[name] == grandcharm && [quality] == magic # # [invoquantity] == 2 && [charmtier] == charmscore(item)",
-	];
+  Config.imbueables = (function () {
+    /**
+     * @param {number} name 
+     * @param {function(): boolean} condition 
+     */
+    const _imbueObj = (name, condition) => ({ name: name, condition: condition });
 
-	NTIP.arrayLooping(levelingTiers);
-	me.expansion && NTIP.arrayLooping(expansionTiers);
+    return [
+      _imbueObj(
+        sdk.items.MaidenJavelin,
+        function () {
+          return me.normal && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.CeremonialJavelin,
+        function () {
+          return !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.MatriarchalJavelin,
+        function () {
+          return me.equipped.get(sdk.body.RightArm).tier < 100000
+            && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion;
+        }
+      ),
+      _imbueObj(
+        sdk.items.Belt,
+        function () {
+          return me.normal && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+      _imbueObj(
+        sdk.items.MeshBelt,
+        function () {
+          return !me.normal && me.charlvl < 46 && me.trueStr > 58
+            && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+      _imbueObj(
+        sdk.items.SpiderwebSash,
+        function () {
+          return !me.normal && me.trueStr > 50
+            && (me.equipped.get(sdk.body.RightArm).tier > 100000 || me.classic);
+        }
+      ),
+    ].filter((item) => item.condition());
+  })();
 
-	if (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
-		NTIP.addLine("[type] == shield && ([quality] >= magic || [flag] == runeword) && [flag] != ethereal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
-		NTIP.addLine("me.classic && [type] == shield && [quality] >= normal # [itemchargedskill] >= 0 # [tier] == tierscore(item)");
-	}
+  let imbueArr = SetUp.imbueItems();
 
-	/* Attack configuration. */
-	Config.AttackSkill = [0, 0, 0, 0, 0];
-	Config.LowManaSkill = [-1, -1];
-	Config.MaxAttackCount = 1000;
-	Config.BossPriority = false;
-	Config.ClearType = 0;
-	Config.ClearPath = {Range: (Pather.canTeleport() ? 30 : 20), Spectype: sdk.monsters.spectype.All};
+  !me.smith && NTIP.buildList(imbueArr);
 
-	// Class specific config
-	Config.LightningFuryDelay = 10; // Lightning fury interval in seconds. LF is treated as timed skill.
-	Config.SummonValkyrie = true; 	// Summon Valkyrie
+  switch (me.gametype) {
+  case sdk.game.gametype.Classic:
+    // Res shield
+    if (me.equipped.get(sdk.body.LeftArm).tier < 487) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
+    }
+    
+    break;
+  case sdk.game.gametype.Expansion:
+    NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
+    const { basicSocketables, addSocketableObj } = require("../Utils/General");
 
-	/* Gear */
-	let finalGear = Check.finalBuild().finalGear;
-	!!finalGear && NTIP.arrayLooping(finalGear);
+    Config.socketables = Config.socketables.concat(basicSocketables.all);
+    Config.socketables.push(addSocketableObj(
+      sdk.items.Bill, [], [],
+      me.normal, (item) => item.ilvl >= 26 && item.isBaseType
+    ));
+    Config.socketables.push(addSocketableObj(
+      sdk.items.Shako,
+      [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+      true, (item) => item.unique && !item.ethereal
+    ));
 
-	Config.imbueables = [
-		{name: sdk.items.MaidenJavelin, condition: () => me.normal && me.expansion},
-		{name: sdk.items.CeremonialJavelin, condition: () => !me.normal && (me.charlvl < 48 || me.trueStr < 107 || me.trueDex < 151) && me.expansion},
-		{name: sdk.items.MatriarchalJavelin, condition: () => (Item.getEquippedItem(sdk.body.RightArm).tier < 100000 && me.trueStr >= 107 && me.trueDex >= 151 && me.expansion)},
-		{name: sdk.items.Belt, condition: () => (me.normal && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.MeshBelt, condition: () => (!me.normal && me.charlvl < 46 && me.trueStr > 58 && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
-		{name: sdk.items.SpiderwebSash, condition: () => (!me.normal && me.trueStr > 50 && (Item.getEquippedItem(sdk.body.RightArm).tier > 100000 || me.classic))},
-	];
+    Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
+    Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
 
-	let imbueArr = SetUp.imbueItems();
+    /* Crafting */
+    // Going with Blood but TODO is test HitPower vs Blood
+    if (me.equipped.get(sdk.body.Neck).tier < 100000) {
+      Config.Recipes.push([Recipe.Blood.Amulet]);
+    }
 
-	!me.smith && NTIP.arrayLooping(imbueArr);
+    if (me.equipped.get(sdk.body.RingLeft).tier < 100000) {
+      Config.Recipes.push([Recipe.Blood.Ring]);
+    }
 
-	if (Item.getEquippedItem(sdk.body.RightArm).tier < 100000) {
-		Config.GambleItems.push("Javelin");
-		Config.GambleItems.push("Pilum");
-		Config.GambleItems.push("Short Spear");
-		Config.GambleItems.push("Throwing Spear");
-	}
+    // FinalBuild specific setup
+    switch (SetUp.finalBuild) {
+    case "Witchyzon":
+    case "Faithbowzon":
+    case "Wfzon":
+      if (["Witchyzon", "Wfzon", "Faithbowzon"].includes(SetUp.currentBuild)) {
+        NTIP.addLine("[type] == bowquiver # # [maxquantity] == 1");
+      }
 
-	switch (me.gametype) {
-	case sdk.game.gametype.Classic:
-		// Res shield
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 487) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PDiamondShield.js");
-		}
-		
-		break;
-	case sdk.game.gametype.Expansion:
-		NTIP.addLine("[name] >= Vexrune && [name] <= Zodrune");
+      if (SetUp.finalBuild === "Wfzon") {
+        if (!me.checkItem({ name: sdk.locale.items.Windforce, classid: sdk.items.HydraBow }).have) {
+          NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
+        }
 
-		// basicSocketables located in Globals
-		Config.socketables = Config.socketables.concat(basicSocketables.all);
-		Config.socketables.push(addSocketableObj(sdk.items.Bill, [], [],
-			me.normal, (item) => item.ilvl >= 26 && item.isBaseType
-		));
-		Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
-			true, (item) => item.unique && !item.ethereal
-		));
+        Config.socketables.push(addSocketableObj(
+          sdk.items.HydraBow,
+          [sdk.items.runes.Shael], [sdk.items.runes.Amn],
+          true,
+          (item) => item.unique
+        ));
+      }
 
-		Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
-		Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
+      if ((SetUp.finalBuild === "Faithbowzon")
+        && !me.checkItem({ name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow }).have) {
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Faith.js");
+      }
+        
+      if (!me.checkItem({ name: sdk.locale.items.WitchwildString, classid: sdk.items.DiamondBow }).have
+        && (SetUp.finalBuild === "Witchyzon" || ["Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)) {
+        NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
+        // Witchyzon only - keep the bow but don't upgrade it until we have our wanted belt
+        if (["Wfzon", "Faithbowzon"].includes(SetUp.finalBuild)
+          || (
+            SetUp.finalBuild === "Witchyzon"
+            && me.checkItem({ name: sdk.locale.items.NosferatusCoil }).have
+          )) {
+          Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
+        }
+      }
 
-		/* Crafting */
-		// Going with Blood but TODO is test HitPower vs Blood
-		if (Item.getEquippedItem(sdk.body.Neck).tier < 100000) {
-			Config.Recipes.push([Recipe.Blood.Amulet]);
-		}
+      // Spirit shield - while lvling and Wf final switch
+      if ((LADDER_ENABLED) && (me.equipped.get(5).tier < 1000
+        && (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)
+        || (SetUp.finalBuild === "Wfzon" && me.equipped.get(12).prefixnum !== sdk.locale.items.Spirit))) {
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
+      }
 
-		if (Item.getEquippedItem(sdk.body.RingLeft).tier < 100000) {
-			Config.Recipes.push([Recipe.Blood.Ring]);
-		}
+      Config.socketables.push(addSocketableObj(
+        sdk.items.DiamondBow,
+        [sdk.items.runes.Nef, sdk.items.runes.Shael], [sdk.items.gems.Perfect.Skull],
+        false,
+        (item) => item.unique
+      ));
+      Config.socketables.push(addSocketableObj(
+        sdk.items.BoneVisage,
+        [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+        true,
+        (item) => (item.unique && item.getStat(sdk.stats.LifeLeech) === 8
+          && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal)
+      ));
 
-		// FinalBuild specific setup
-		switch (SetUp.finalBuild) {
-		case "Witchyzon":
-		case "Faithbowzon":
-		case "Wfzon":
-			(["Witchyzon", "Wfzon", "Faithbowzon"].includes(SetUp.currentBuild)) && NTIP.addLine("[type] == bowquiver # # [maxquantity] == 1");
+      break;
+    case "Javazon":
+      Config.SkipImmune = ["lightning and physical"];
 
-			if (SetUp.finalBuild === "Wfzon") {
-				if (!Check.haveItem(sdk.items.HydraBow, "unique", "Windforce")) {
-					NTIP.addLine("[name] == hydrabow && [quality] == unique # [manaleech] >= 6 # [maxquantity] == 1");
-				}
+      if (me.checkSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.HardPoints)) {
+        // "Monster name": [-1, -1],
+        Config.CustomAttack = {
+          "Fire Tower": [sdk.skills.ChargedStrike, -1],
+        };
+      }
 
-				Config.socketables.push(addSocketableObj(sdk.items.HydraBow, [sdk.items.runes.Shael], [sdk.items.runes.Amn],
-					true, (item) => item.unique
-				));
-			}
+      // Infinity
+      if ((LADDER_ENABLED)
+        && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
+      }
 
-			if ((SetUp.finalBuild === "Faithbowzon") && !me.checkItem({name: sdk.locale.items.Faith, classid: sdk.items.GrandMatronBow}).have) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Faith.js");
-			}
-				
-			if (!Check.haveItem(sdk.items.DiamondBow, "unique", "Witchwild String")
-				&& (SetUp.finalBuild === "Witchyzon" || ["Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)) {
-				NTIP.addLine("[name] == shortsiegebow && [quality] == unique # [fireresist] == 40 # [maxquantity] == 1");
-				// Witchyzon only - keep the bow but don't upgrade it until we have our wanted belt
-				if ((SetUp.finalBuild === "Witchyzon" && Check.haveItem("vampirefangbelt", "unique", "Nosferatu's Coil")) || ["Wfzon", "Faithbowzon"].includes(SetUp.finalBuild)) {
-					Config.Recipes.push([Recipe.Unique.Weapon.ToElite, "Short Siege Bow", Roll.NonEth]);
-				}
-			}
+      // Spirit shield
+      if (LADDER_ENABLED
+        && (me.equipped.get(sdk.body.LeftArm).tier < 1000
+        || me.equipped.get(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
+      }
 
-			// Spirit shield - while lvling and Wf final switch
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(5).tier < 1000
-				&& (["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1)
-				|| (SetUp.finalBuild === "Wfzon" && Item.getEquippedItem(12).prefixnum !== sdk.locale.items.Spirit))) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
-			}
+      break;
+    default:
+      break;
+    }
 
-			Config.socketables.push(addSocketableObj(sdk.items.DiamondBow, [sdk.items.runes.Nef, sdk.items.runes.Shael], [sdk.items.gems.Perfect.Skull],
-				false, (item) => item.unique
-			));
-			Config.socketables.push(addSocketableObj(sdk.items.BoneVisage, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
-				true, (item) => item.unique && item.getStat(sdk.stats.LifeLeech) === 8 && item.getStat(sdk.stats.DamageResist) === 20 && !item.ethereal
-			));
+    // Call to Arms
+    if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
+    }
 
-			break;
-		case "Javazon":
-			Config.SkipImmune = ["lightning and physical"];
+    // Chains of Honor
+    if (!me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
+    }
 
-			if (me.checkSkill(sdk.skills.ChargedStrike, sdk.skills.subindex.HardPoints)) {
-				// "Monster name": [-1, -1],
-				Config.CustomAttack = {
-					"Fire Tower": [sdk.skills.ChargedStrike, -1],
-				};
-			}
+    // Merc Insight
+    if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
+    }
 
-			// Infinity
-			if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
-			}
+    // Lore
+    if (me.equipped.get(sdk.body.Head).tier < 250) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
+    }
 
-			// Spirit shield
-			if ((me.ladder || Developer.addLadderRW) && (Item.getEquippedItem(sdk.body.LeftArm).tier < 1000 || Item.getEquippedItem(sdk.body.LeftArmSecondary).prefixnum !== sdk.locale.items.Spirit)) {
-				includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritShield.js");
-			}
+    // Ancients' Pledge
+    if (me.equipped.get(sdk.body.LeftArm).tier < 500 && ["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
+    }
 
-			break;
-		default:
-			break;
-		}
+    // Treachery
+    if (me.equipped.get(sdk.body.Armor).tier < 634) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Treachery.js");
+    }
 
-		// Call to Arms
-		if (!me.checkItem({name: sdk.locale.items.CalltoArms}).have) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/CallToArms.js");
-		}
+    // Merc Doom
+    if ((LADDER_ENABLED) && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js");
+    }
 
-		// Chains of Honor
-		if (!me.checkItem({name: sdk.locale.items.ChainsofHonor}).have) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/ChainsOfHonor.js");
-		}
+    // Merc Fortitude
+    if (Item.getMercEquipped(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
+    }
 
-		// Merc Insight
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).tier < 3600) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
-		}
+    // Merc Treachery
+    if (Item.getMercEquipped(sdk.body.Armor).tier < 15000) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
+    }
 
-		// Lore
-		if (Item.getEquippedItem(sdk.body.Head).tier < 250) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
-		}
+    // Smoke
+    if (me.equipped.get(sdk.body.Armor).tier < 634) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
+    }
 
-		// Ancients' Pledge
-		if (Item.getEquippedItem(sdk.body.LeftArm).tier < 500 && ["Witchyzon", "Wfzon", "Faithbowzon"].indexOf(SetUp.currentBuild) === -1) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/AncientsPledge.js");
-		}
+    // Stealth
+    if (me.equipped.get(sdk.body.Armor).tier < 233) {
+      includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
+    }
 
-		// Treachery
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 634) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Treachery.js");
-		}
+    SoloWants.buildList();
 
-		// Merc Doom
-		if ((me.ladder || Developer.addLadderRW) && Item.getEquippedItemMerc(sdk.body.RightArm).prefixnum !== 20532 && SetUp.finalBuild !== "Javazon") {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercDoom.js");
-		}
+    break;
+  }
 
-		// Merc Fortitude
-		if (Item.getEquippedItemMerc(sdk.body.Armor).prefixnum !== sdk.locale.items.Fortitude) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercFortitude.js");
-		}
-
-		// Merc Treachery
-		if (Item.getEquippedItemMerc(sdk.body.Armor).tier < 15000) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercTreachery.js");
-		}
-
-		// Smoke
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 634) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Smoke.js");
-		}
-
-		// Stealth
-		if (Item.getEquippedItem(sdk.body.Armor).tier < 233) {
-			includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Stealth.js");
-		}
-
-		SoloWants.buildList();
-
-		break;
-	}
-}
+  return true;
+})();

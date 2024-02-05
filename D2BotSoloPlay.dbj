@@ -1,13 +1,17 @@
-/* eslint-disable no-fallthrough */
 /**
 *  @filename    D2BotSoloPlay.dbj
 *  @author      theBGuy
 *  @desc        Entry script for SoloPlay leveling system
 *
+*
+*  @typedef {import("./sdk/globals")}
+*  @typedef {import("./libs/SoloPlay/globals")}
 */
-include("StarterConfig.js");
 
-// D2BotSoloPlay specific settings - for global settings see libs/StarterConfig.js
+// No touchy!
+include("critical.js"); // required
+
+// D2BotSoloPlay specific settings - for global settings see libs/starter/StarterConfig.js
 Starter.Config.InvalidPasswordDelay = 10; // Minutes to wait after getting Invalid Password message
 Starter.Config.GameDoesNotExistTimeout = 600; // Seconds to wait before cancelling the 'Game does not exist.' screen
 Starter.Config.DelayBeforeLogin = rand(5, 25); // Seconds to wait before logging in
@@ -20,6 +24,7 @@ Starter.Config.GlobalAccountPassword = ""; // Set value for a global password fo
 
 // Override default values for StarterConfig under here by following format
 // Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
+// Profile().type === sdk.game.profiletype.SinglePlayer && (Starter.Config.CrashDelay = 2);
 
 /**
  * @todo
@@ -28,398 +33,115 @@ Starter.Config.GlobalAccountPassword = ""; // Set value for a global password fo
  *   - need to handle someone using a premade account
  */
 
-// No touchy!
-include("polyfill.js");
-include("json2.js");
-include("OOG.js");
-include("automule.js");
-include("gambling.js");
-include("craftingsystem.js");
-include("torchsystem.js");
-include("common/util.js");
-include("common/misc.js");
-include("common/pather.js");
-include("common/prototypes.js");
+// the only things we really need from these are their oog checks
+includeSystemLibs();
+
+// solo specific
 include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/Tracker.js");
-include("SoloPlay/Tools/NameGen.js");
 include("SoloPlay/Tools/OOGOverrides.js");
-include("SoloPlay/Functions/SoloEvents.js");
+
+// is this needed? soloplay doesn't run in default.dbj anymore
 include("SoloPlay/Functions/ConfigOverrides.js");
 
-let Controls = require("./modules/Control");
-let Overrides = require("./modules/Override");
-
-if (typeof AdvancedConfig[me.profile] === "object") {
-	Object.assign(Starter.Config, AdvancedConfig[me.profile]);
+if (typeof Starter.AdvancedConfig[me.profile] === "object") {
+  Object.assign(Starter.Config, Starter.AdvancedConfig[me.profile]);
 }
-
-let joinInfo;
-let gameTracker;
-Starter.BNET = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
-const charClassMap = {"ZON": "amazon", "SOR": "sorceress", "NEC": "necromancer", "PAL": "paladin", "BAR": "barbarian", "DRU": "druid", "SIN": "assassin"};
+delete Starter.AdvancedConfig;
 
 // initialize data files
 if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
-	Starter.firstRun = true;
-	delay(Math.floor(rand(1, 20)));
+  Starter.firstRun = true;
 }
 
-if (!FileTools.exists(CharData.filePath) && CharData.create()) {
-	delay(Math.floor(rand(1, 20)));
-}
-
-if (!FileTools.exists(CharData.filePath) && CharData.loginData.create()) {
-	delay(Math.floor(rand(1, 20)));
-}
-
+!FileTools.exists(CharData.filePath) && CharData.create();
+!FileTools.exists(CharData.login.filePath) && CharData.login.create();
 Developer.logPerformance && Tracker.initialize();
 
-new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode, msg) {
-	switch (mode) {
-	case 1: // Join Info
-		console.log("Got Join Info");
-		joinInfo = JSON.parse(msg);
-
-		SoloEvents.gameInfo.gameName = joinInfo.gameName.toLowerCase();
-		SoloEvents.gameInfo.gamePass = joinInfo.gamePass.toLowerCase();
-
-		break;
-	case 1638:
-		try {
-			let obj = JSON.parse(msg);
-			Starter.profileInfo.profile = me.profile.toUpperCase();
-			Starter.profileInfo.account = obj.Account;
-			Starter.profileInfo.password = "";
-			Starter.profileInfo.charName = obj.Character;
-			Starter.profileInfo.tag = (obj.Tag.trim().capitalize(true) || "");
-			Starter.profileInfo.difficulty = obj.Difficulty;
-			obj.Realm = obj.Realm.toLowerCase();
-			Starter.profileInfo.realm = ["east", "west"].includes(obj.Realm) ? "us" + obj.Realm : obj.Realm;
-
-			let buildCheck = Starter.profileInfo.profile.split("-"); // SCL-ZON123
-			Starter.profileInfo.hardcore = buildCheck[0].includes("HC"); // SC softcore = false
-			Starter.profileInfo.expansion = buildCheck[0].indexOf("CC") === -1; // not CC so not classic - true
-			Starter.profileInfo.ladder = buildCheck[0].indexOf("NL") === -1; // not NL so its ladder - true
-
-			if (buildCheck.length <= 1) {
-				D2Bot.printToConsole('Please update profile name. Example: "HCCNL-PAL" will make a Hardcore Classic NonLadder Paladin', sdk.colors.D2Bot.Gold);
-				D2Bot.printToConsole("If you are still confused please read the included readMe. https://github.com/blizzhackers/kolbot-SoloPlay/blob/main/README.md", sdk.colors.D2Bot.Gold);
-				D2Bot.stop();
-			}
-
-			buildCheck[1] = buildCheck[1].toString().substring(0, 3);
-
-			if (charClassMap[buildCheck[1]]) {
-				Starter.profileInfo.charClass = charClassMap[buildCheck[1]];
-			} else {
-				throw new Error("Invalid profile name, couldn't set character class");
-			}
-
-			if (Starter.profileInfo.tag !== "") {
-				{
-					let soloStats = CharData.getStats();
-
-					if (!soloStats.me.finalBuild || soloStats.me.finalBuild !== Starter.profileInfo.tag) {
-						D2Bot.setProfile(null, null, null, null, null, Starter.profileInfo.tag);
-						soloStats.me.finalBuild = Starter.profileInfo.tag;
-						soloStats.me.charms = {};
-						CharData.updateData("me", soloStats);
-					}
-
-					if (!["Start", "Stepping", "Leveling"].includes(soloStats.me.currentBuild) && soloStats.me.currentBuild !== soloStats.me.finalBuild) {
-						soloStats.me.currentBuild = "Leveling";
-						soloStats.me.charms = {};
-						CharData.updateData("me", soloStats);
-					}
-				}
-			} else {
-				throw new Error("Please update profile InfoTag. Missing the finalBuild.");
-			}
-		} catch (e) {
-			Misc.errorReport(e, "D2BotSoloPlay.dbj");
-			D2Bot.stop();
-		}
-
-		break;
-	default:
-		orignal(mode, msg);
-	}
-}).apply();
-
-new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) {
-	if (typeof msg !== "string") return;
-	if (msg === "event") {
-		SoloEvents.check = true;
-	} else if (msg === "diffChange") {
-		Starter.checkDifficulty();
-	} else {
-		orignal(msg);
-	}
-}).apply();
-
-function timer (tick) {
-	const currInGame = (getTickCount() - tick);
-	let timeStr = " (Time: " + Time.format(currInGame) + ") ";
-	
-	if (Developer.displayClockInConsole && Developer.logPerformance) {
-		try {
-			gameTracker === undefined && (gameTracker = Developer.readObj(Tracker.GTPath));
-			let [tTime, tInGame, tDays] = [(gameTracker.Total + currInGame), (gameTracker.InGame + currInGame), (gameTracker.Total + currInGame)];
-			let [totalTime, totalInGame, totalDays] = [Developer.formatTime(tTime), Developer.formatTime(tInGame), Developer.totalDays(tDays)];
-			timeStr += ("(Days: " + totalDays + ") (Total: " + totalTime + ") (IG: " + totalInGame + ") (OOG: " + Developer.formatTime(gameTracker.OOG) + ")");
-		} catch (e) {
-			console.log(e);
-		}
-	}
-	return timeStr;
-}
-
-const oogCheck = () => (AutoMule.outOfGameCheck() || TorchSystem.outOfGameCheck() || Gambling.outOfGameCheck() || CraftingSystem.outOfGameCheck() || SoloEvents.outOfGameCheck());
-
-const locations = {};
-locations[sdk.game.locations.PreSplash] = () => ControlAction.click();
-locations[sdk.game.locations.GatewaySelect] = () => Controls.GatewayCancel.click();
-locations[sdk.game.locations.SplashScreen] = () => Starter.LocationEvents.login();
-locations[sdk.game.locations.MainMenu] = () => Starter.LocationEvents.login();
-locations[sdk.game.locations.Login] = () => Starter.LocationEvents.login();
-locations[sdk.game.locations.OtherMultiplayer] = () => Starter.LocationEvents.otherMultiplayerSelect();
-locations[sdk.game.locations.TcpIp] = () => Profile().type === sdk.game.profiletype.TcpIpHost ? Controls.TcpIpHost.click() : Controls.TcpIpCancel.click();
-locations[sdk.game.locations.TcpIpEnterIp] = () => Controls.TcpIpCancel.click();
-locations[sdk.game.locations.LoginError] = () => Starter.LocationEvents.loginError();
-locations[sdk.game.locations.LoginUnableToConnect] = () => Starter.LocationEvents.unableToConnect();
-locations[sdk.game.locations.TcpIpUnableToConnect] = () => Starter.LocationEvents.unableToConnect();
-locations[sdk.game.locations.CdKeyInUse] = () => Starter.LocationEvents.loginError();
-locations[sdk.game.locations.InvalidCdKey] = () => Starter.LocationEvents.loginError();
-locations[sdk.game.locations.RealmDown] = () => Starter.LocationEvents.realmDown();
-locations[sdk.game.locations.Disconnected] = () => {
-	ControlAction.timeoutDelay("Disconnected", 3000);
-	Controls.OkCentered.click();
-};
-locations[sdk.game.locations.RegisterEmail] = () => Controls.EmailDontRegisterContinue.control ? Controls.EmailDontRegisterContinue.click() : Controls.EmailDontRegister.click();
-locations[sdk.game.locations.MainMenuConnecting] = (loc) => !Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc) && Controls.LoginCancelWait.click();
-locations[sdk.game.locations.CharSelectPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
-locations[sdk.game.locations.CharSelect] = (loc) => Starter.LocationEvents.charSelect(loc);
-locations[sdk.game.locations.CharSelectConnecting] = (loc) => Starter.LocationEvents.charSelect(loc);
-locations[sdk.game.locations.CharSelectNoChars] = (loc) => Starter.LocationEvents.charSelect(loc);
-locations[sdk.game.locations.SelectDifficultySP] = () => Starter.LocationEvents.selectDifficultySP();
-locations[sdk.game.locations.CharacterCreate] = (loc) => !Starter.locationTimeout(5e3, loc) && Controls.CharSelectExit.click();
-locations[sdk.game.locations.ServerDown] = () => {
-	ControlAction.timeoutDelay("Server Down", Time.minutes(5));
-	Controls.OkCentered.click();
-};
-locations[sdk.game.locations.LobbyPleaseWait] = (loc) => !Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc) && Controls.OkCentered.click();
-locations[sdk.game.locations.Lobby] = () => {
-	D2Bot.updateStatus("Lobby");
-	ControlAction.saveInfo(Starter.profileInfo);
-
-	me.blockKeys = false;
-
-	!Starter.firstLogin && (Starter.firstLogin = true);
-	Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
-
-	if (Starter.Config.PingQuitDelay && Starter.pingQuit) {
-		ControlAction.timeoutDelay("Ping Delay", Starter.Config.PingQuitDelay * 1e3);
-		Starter.pingQuit = false;
-	}
-
-	if (Starter.Config.JoinChannel !== "" && Controls.LobbyEnterChat.click()) return;
-
-	if (Starter.inGame || Starter.gameInfo.error) {
-		!Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
-
-		if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3 && !joinInfo) {
-			ControlAction.timeoutDelay("Min game time wait", Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount());
-		}
-	}
-
-	if (Starter.inGame) {
-		if (oogCheck()) return;
-
-		D2Bot.updateRuns();
-
-		Starter.gameCount += 1;
-		Starter.lastGameStatus = "ready";
-		Starter.inGame = false;
-
-		if (Starter.Config.ResetCount && Starter.gameCount > Starter.Config.ResetCount) {
-			Starter.gameCount = 1;
-			DataFile.updateStats("runs", Starter.gameCount);
-		}
-	}
-
-	Starter.LocationEvents.openCreateGameWindow();
-};
-locations[sdk.game.locations.LobbyChat] = () => Starter.LocationEvents.lobbyChat();
-locations[sdk.game.locations.CreateGame] = (loc) => {
-	ControlAction.timeoutDelay("Create Game Delay", Starter.Config.DelayBeforeLogin * 1e3);
-	D2Bot.updateStatus("Creating Game");
-
-	if (typeof Starter.Config.CharacterDifference === "number") {
-		Controls.CharacterDifference.disabled === sdk.game.controls.Disabled && Controls.CharacterDifferenceButton.click();
-		Controls.CharacterDifference.setText(Starter.Config.CharacterDifference.toString());
-	} else if (!Starter.Config.CharacterDifference && Controls.CharacterDifference.disabled === 5) {
-		Controls.CharacterDifferenceButton.click();
-	}
-
-	typeof Starter.Config.MaxPlayerCount === "number" && Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
-
-	D2Bot.requestGameInfo();
-	delay(500);
-	
-	// todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
-	Starter.checkDifficulty();
-
-	Starter.gameInfo.gameName = DataFile.getStats().gameName;
-	Starter.gameInfo.gamePass = Starter.randomString(5, true);
-
-	switch (true) {
-	case Starter.gameInfo.gameName === "":
-	case Starter.gameInfo.gameName === "Name":
-		Starter.gameInfo.gameName = Starter.profileInfo.charName.substring(0, 7) + "-" + Starter.randomString(3, false) + "-";
-
-		break;
-	}
-
-	// FTJ handler
-	if (Starter.lastGameStatus === "pending") {
-		Starter.isUp = "no";
-
-		D2Bot.printToConsole("Failed to create game");
-		ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
-		D2Bot.updateRuns();
-	}
-
-	ControlAction.createGame((Starter.gameInfo.gameName + Starter.gameCount), Starter.gameInfo.gamePass, Starter.gameInfo.difficulty, Starter.Config.CreateGameDelay * 1000);
-	Starter.lastGameStatus = "pending";
-	Starter.setNextGame(Starter.gameInfo);
-	Starter.locationTimeout(10000, loc);
-};
-locations[sdk.game.locations.GameNameExists] = () => {
-	Controls.CreateGameWindow.click();
-	Starter.gameCount += 1;
-	Starter.lastGameStatus = "ready";
-};
-locations[sdk.game.locations.WaitingInLine] = () => Starter.LocationEvents.waitingInLine();
-locations[sdk.game.locations.JoinGame] = () => Starter.LocationEvents.openCreateGameWindow();
-locations[sdk.game.locations.Ladder] = () => Starter.LocationEvents.openCreateGameWindow();
-locations[sdk.game.locations.ChannelList] = () => Starter.LocationEvents.openCreateGameWindow();
-locations[sdk.game.locations.LobbyLostConnection] = () => {
-	ControlAction.timeoutDelay("LostConnection", 3000);
-	Controls.OkCentered.click();
-};
-locations[sdk.game.locations.GameDoesNotExist] = () => Starter.LocationEvents.gameDoesNotExist();
-locations[sdk.game.locations.GameIsFull] = () => Starter.LocationEvents.openCreateGameWindow();
-
 function main () {
-	debugLog(me.profile);
-	addEventListener("copydata", Starter.receiveCopyData);
-	addEventListener("scriptmsg", Starter.scriptMsgEvent);
+  debugLog(me.profile);
+  addEventListener("copydata", Starter.receiveCopyData);
+  addEventListener("scriptmsg", Starter.scriptMsgEvent);
 
-	let oogTick = getTickCount();
+  let oogTick = getTickCount();
 
-	while (!Starter.handle) {
-		delay(100);
-	}
+  while (!Starter.handle) {
+    delay(3);
+  }
 
-	DataFile.updateStats("handle", Starter.handle);
-	delay(500);
+  DataFile.updateStats("handle", Starter.handle);
+  D2Bot.handle = Starter.handle;
+  delay(500);
 
-	while (!D2Bot.init()) {
-		delay(250);
-	}
-	load("tools/heartbeat.js");
+  load("threads/heartbeat.js");
 
-	while (!Object.keys(Starter.gameInfo).length) {
-		D2Bot.requestGameInfo();
-		delay(500);
-	}
+  if (Profile().type === sdk.game.profiletype.TcpIpJoin) {
+    D2Bot.printToConsole("TcpJoin is unsupported.");
+    D2Bot.stop();
+  }
 
-	if (Profile().type === sdk.game.profiletype.TcpIpJoin) {
-		D2Bot.printToConsole("TcpJoin is unsupported.");
-		D2Bot.stop();
-	}
+  Starter.gameCount = (DataFile.getStats().runs + 1 || 1);
 
-	// Developer.logPerformance && Tracker.checkValidity();
-	Starter.gameCount = (DataFile.getStats().runs + 1 || 1);
+  while (!Object.keys(Starter.gameInfo).length) {
+    delay(rand(200, 1500));
+    D2Bot.requestGameInfo();
+    delay(500);
+  }
 
-	if (Starter.gameInfo.error) {
-		ControlAction.timeoutDelay("Crash Delay", Starter.Config.CrashDelay * 1e3);
-		Starter.BNET && D2Bot.updateRuns();
-	}
+  if (Starter.gameInfo.error) {
+    ControlAction.timeoutDelay("Crash Delay", Starter.Config.CrashDelay * 1e3);
+    Starter.BNET && D2Bot.updateRuns();
+  }
 
-	DataFile.updateStats("debugInfo", JSON.stringify({currScript: "none", area: "out of game"}));
+  DataFile.updateStats("debugInfo", JSON.stringify({ currScript: "none", area: "out of game" }));
 
-	while (!Object.keys(Starter.profileInfo).length) {
-		D2Bot.getProfile();
-		console.log("Getting Profile");
-		delay(500);
-		// console.log(Starter.profileInfo);
-	}
+  while (!Object.keys(Starter.profileInfo).length) {
+    delay(rand(200, 1500));
+    D2Bot.getProfile();
+    delay(500);
+  }
 
-	if (Starter.profileInfo.charName === "") {
-		console.log("Generating Character Name");
-		Starter.profileInfo.charName = NameGen();
-		delay(50);
-	}
+  while (true) {
+    // returns true before actually in game so we can't only use this check
+    while (me.ingame) {
+      // returns false when switching acts so we can't use while
+      if (me.gameReady) {
+        Starter.isUp = "yes";
 
-	let resPenalty, areaName, diffName;
-	const xp = () => me.getStat(sdk.stats.Experience) > 0 ? Experience.progress() : 0;
-	const tGold = () => me.getStat(sdk.stats.Gold) + me.getStat(sdk.stats.GoldBank);
-	const fireRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxFireResist), me.getStat(sdk.stats.FireResist) - resPenalty);
-	const coldRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxColdResist), me.getStat(sdk.stats.ColdResist) - resPenalty);
-	const lightRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxLightResist), me.getStat(sdk.stats.LightResist) - resPenalty);
-	const poisRes = (resPenalty) => Math.min(75 + me.getStat(sdk.stats.MaxPoisonResist), me.getStat(sdk.stats.PoisonResist) - resPenalty);
+        if (!Starter.inGame) {
+          Starter.gameStart = getTickCount();
+          Starter.lastGameStatus = "ingame";
+          Starter.inGame = true;
+          DataFile.updateStats("runs", Starter.gameCount);
+          DataFile.updateStats("ingameTick");
+          Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
+          oogTick = 0;
+          D2Bot.updateStatus("In-Game :: Initializing threads...");
+        } else {
+          // Tracker
+          if (Developer.logPerformance) {
+            if (getTickCount() - Tracker.tick > Time.minutes(3)) {
+              Tracker.tick = getTickCount();
 
-	while (true) {
-		// returns true before actually in game so we can't only use this check
-		while (me.ingame) {
-			// returns false when switching acts so we can't use while
-			if (me.gameReady) {
-				Starter.isUp = "yes";
+              try {
+                Tracker.update();
+              } catch (e) {
+                console.error(e);
+              }
+            }
+          }
+        }
+      }
 
-				if (!Starter.inGame) {
-					Starter.gameStart = getTickCount();
-					Starter.lastGameStatus = "ingame";
-					Starter.inGame = true;
-					resPenalty = me.gametype === 0 ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
-					diffName = ["Norm", "Night", "Hell"][me.diff];
-					DataFile.updateStats("runs", Starter.gameCount);
-					DataFile.updateStats("ingameTick");
-					Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
-					Developer.displayClockInConsole && (gameTracker = Developer.readObj(Tracker.GTPath));
-					oogTick = 0;
-				}
+      delay(1000);
+    }
 
-				if (me.ingame && me.gameReady) {
-					let statusString = "";
+    // was in game so start recording oog time
+    Starter.inGame && oogTick === 0 && (oogTick = getTickCount());
+    Starter.isUp = "no";
 
-					try {
-						let [exp, myGold, fr, cr, lr, pr] = [xp(), tGold(), fireRes(resPenalty), coldRes(resPenalty), lightRes(resPenalty), poisRes(resPenalty)];
-						areaName = !!me.area ? Pather.getAreaName(me.area) : "";
-						statusString = me.name + " | Lvl: " + me.charlvl + " (" + exp + "%) (Diff: " + diffName + ") (A: " + areaName + ") (G: " + myGold + ") (F: " + fr + "/C: " + cr + "/L: " + lr + "/P: " + pr + ")";
-					} catch (e) {
-						console.error(e);
-					}
-
-					D2Bot.updateStatus(statusString + timer(Starter.gameStart));
-				}
-			}
-
-			delay(1000);
-		}
-
-		// was in game so start recording oog time
-		Starter.inGame && oogTick === 0 && (oogTick = getTickCount());
-		Starter.isUp = "no";
-
-		try {
-			let loc = getLocation();
-			(locations[loc] !== undefined) && locations[loc](loc);
-		} catch (e) {
-			console.error(e, "LOCATION: " + getLocation());
-		}
-		delay(1000);
-	}
+    LocationAction.run();
+    delay(1000);
+  }
 }
