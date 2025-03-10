@@ -24,7 +24,7 @@
       ],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [
-        ["strength", 103], ["dexterity", 136], ["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
+        ["strength", 106], ["dexterity", 136], ["vitality", 300], ["dexterity", "block"], ["vitality", "all"]
       ],
       skills: [
         [sdk.skills.Conviction, 20],
