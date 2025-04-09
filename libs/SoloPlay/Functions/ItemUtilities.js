@@ -6,6 +6,7 @@
 */
 
 includeIfNotIncluded("core/Item.js");
+
 (function () {
   /**
    * @param {ItemUnit} item 
@@ -34,9 +35,10 @@ includeIfNotIncluded("core/Item.js");
   /**
    * @param {ItemUnit} base 
    * @param {boolean} verbose 
+   * @param {runeword | null} runeword
    * @returns {boolean} 
    */
-  Item.betterBaseThanWearing = function (base, verbose = Developer.debugging.baseCheck) {
+  Item.betterBaseThanWearing = function (base, verbose = Developer.debugging.baseCheck, runeword = null) {
     if (!base || !base.isBaseType) return false;
 
     let name = "";
@@ -142,7 +144,14 @@ includeIfNotIncluded("core/Item.js");
       return false;
     }
     // don't toss pb base crescent moon/HoJ/Grief
-    if (base.classid === sdk.items.PhaseBlade && [3, 4, 5].includes(base.sockets)) return true;
+    if (base.classid === sdk.items.PhaseBlade && [3, 4, 5].includes(base.sockets)) {
+      return true;
+    }
+
+    if (runeword && runeword.sockets !== base.sockets) {
+      // we are checking within runewords and this base isn't related to the recipe
+      return true;
+    }
 
     let items = me.getItemsEx()
       .filter(function (i) {
@@ -159,6 +168,11 @@ includeIfNotIncluded("core/Item.js");
 
       preSocketCheck = checkNoSockets(equippedItem);
       if (base.sockets === 0 && !preSocketCheck) return true;
+
+      if (runeword && !String.isEqual(name.replace(" ", ""), runeword.name.replace(" ", ""))) {
+        // This is a different runeword than what we're trying to make
+        return true;
+      }
 
       if (base.sockets === equippedItem.sockets || preSocketCheck) {
         switch (equippedItem.prefixnum) {
@@ -257,8 +271,9 @@ includeIfNotIncluded("core/Item.js");
 
           break;
         case sdk.locale.items.Spirit:
-          if (!me.paladin || bodyLoc[i] !== sdk.body.LeftArm || base.getItemType() !== "Shield") return true;
-        
+          if (!me.paladin || bodyLoc[i] !== sdk.body.LeftArm || base.getItemType() !== "Shield") {
+            return true;
+          }
           [itemsResists, baseResists] = [(getRes(equippedItem) - 115), getRes(base)];
           if (baseResists !== itemsResists && resCheck(baseResists, itemsResists)) return true;
 

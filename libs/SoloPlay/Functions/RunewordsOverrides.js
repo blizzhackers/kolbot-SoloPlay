@@ -106,22 +106,32 @@ Runewords.checkRunewords = function () {
  * @returns {ItemUnit | false}
  */
 Runewords.getBase = function (runeword, base, ethFlag, reroll) {
-  let item = typeof base === "object"
+  const item = typeof base === "object"
     ? base
     : me.getItem(base, sdk.items.mode.inStorage);
 
   if (item) {
     do {
-      if (item && item.quality < sdk.items.quality.Magic
-        && item.sockets === runeword.sockets && runeword.itemTypes.includes(item.itemType)) {
+      if (!item) continue;
+      if (
+        item.quality < sdk.items.quality.Magic
+        && item.sockets === runeword.sockets
+        && runeword.itemTypes.includes(item.itemType)
+      ) {
         /**
          * check if item has items socketed in it
          * better check than getFlag(sdk.items.flags.Runeword) because randomly socketed items return false for it
          */
 
-        if ((!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck))
-          || (reroll && item.getItem() && !NTIP.CheckItem(item, this.pickitEntries)
-          && !Item.autoEquipCheckMerc(item, true) && !Item.autoEquipCheck(item, true))) {
+        if (
+          (!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck, runeword))
+          || (
+            reroll && item.getItem()
+            && !NTIP.CheckItem(item, this.pickitEntries)
+            && !Item.autoEquipCheckMerc(item, true)
+            && !Item.autoEquipCheck(item, true)
+          )
+        ) {
           if (!ethFlag || (ethFlag === Roll.Eth && item.ethereal) || (ethFlag === Roll.NonEth && !item.ethereal)) {
             return copyUnit(item);
           }
