@@ -27,6 +27,7 @@ const LocationAction = {
   let joinInfo;
   
   Starter.Config.StopOnDeadHardcore = false;
+  
   const Controls = require("../../modules/Control");
   const Overrides = require("../../modules/Override");
   const SoloEvents = (() => {
@@ -262,7 +263,28 @@ const LocationAction = {
 
           break;
         case sdk.game.locations.LobbyPleaseWait:
-          D2Bot.restart(); // single player error on finding character
+          {
+            let textPopup = Controls.CharCreateStatusText.control;
+
+            if (textPopup) {
+              let text = parseControlText(textPopup);
+              if (text && text.includes("Please wait")) {
+                // annoying but this is actually the popup after char create as well
+                if (!Starter.locationTimeout(Time.seconds(5), sdk.game.locations.LobbyPleaseWait)) {
+                  // should we restart or just wait it out?
+                  // D2Bot.restart();
+                  // just log and wait it out for now
+                  D2Bot.printToConsole("Stuck at LobbyPleaseWait screen", sdk.colors.D2Bot.Red);
+                }
+              } else if (text && text.includes("That character name is already taken.")) {
+                ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
+                Starter.profileInfo.charName = info.charName = NameGen();
+                Controls.OkCentered.click();
+                D2Bot.updateStatus("Making Character: " + info.charName);
+                Controls.OkCentered.click(); // actually cancel but whatever
+              }
+            }
+          }
 
           break;
         case sdk.game.locations.CharacterCreate:
@@ -1423,7 +1445,7 @@ const LocationAction = {
         // FTJ handler
         if (Starter.lastGameStatus === "pending") {
           Starter.isUp = "no";
-
+          
           D2Bot.printToConsole("Failed to create game");
           ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
           D2Bot.updateRuns();
