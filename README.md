@@ -2,7 +2,7 @@
 
 *"the one bot to rule them all."*
 
-For a very quick kolbot+soloplay installer check out https://github.com/theBGuy/kolbot-soloplay-installer
+For a quick kolbot+soloplay installer check out https://github.com/theBGuy/kolbot-soloplay-installer
 
 # Table of contents
 - [What is SoloPlay?](#the-big-question-what-is-kolbot-soloplay)
