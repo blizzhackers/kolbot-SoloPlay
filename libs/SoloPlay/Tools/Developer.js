@@ -25,7 +25,7 @@ const Developer = {
   hideChickens: true,
   // @desc - enable ladder runewords in single player mode ONLY WORKS IF RUNEWORDS.TXT IS INSTALLED AND D2BS PROFILE IS CONFIGURED
   //   or patch.json has been updated (see Single Player Additions in README.md)
-  addLadderRW: !me.profile.toLowerCase().contains("nl"),
+  addLadderRW: !me.profile.toLowerCase().includes("nl"),
   // @desc - hide casting animations for better stability (reduce d2bs crashes)
   forcePacketCasting: {
     enabled: true,
