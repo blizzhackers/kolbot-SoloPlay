@@ -259,7 +259,7 @@ const SetUp = {
     }
     Array.isArray(files) && files
       .filter(file => file.endsWith(".js"))
-      .sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
+      .sort(a => a.startsWith("PrototypeOverrides.js") || a.startsWith("Mercenary.js") ? -1 : 1) // Dirty fix to load new prototypes first
       .forEach(function (x) {
         if (!isIncluded("SoloPlay/Functions/" + x)) {
           if (!include("SoloPlay/Functions/" + x)) {
