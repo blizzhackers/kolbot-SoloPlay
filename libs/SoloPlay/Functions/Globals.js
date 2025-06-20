@@ -257,9 +257,14 @@ const SetUp = {
         delay(50);
       }
     }
+    
+    includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
+    includeIfNotIncluded("SoloPlay/Functions/Mercenary.js");
+
     Array.isArray(files) && files
-      .filter(file => file.endsWith(".js"))
-      .sort(a => a.startsWith("PrototypeOverrides.js") ? 0 : 1) // Dirty fix to load new prototypes first
+      .filter(function (file) {
+        return file.endsWith(".js");
+      })
       .forEach(function (x) {
         if (!isIncluded("SoloPlay/Functions/" + x)) {
           if (!include("SoloPlay/Functions/" + x)) {
@@ -294,7 +299,9 @@ const SetUp = {
     ],
   },
 
+  /** @type {string} */
   currentBuild: this.currentBuild,
+  /** @type {string} */
   finalBuild: this.finalBuild,
 
   // setter for Developer option to stop a profile once it reaches a certain level
