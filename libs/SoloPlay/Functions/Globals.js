@@ -80,6 +80,15 @@ const SetUp = {
         }
       }
 
+      if (me.assassin && me.data.finalBuild === "trap") {
+        me.data.finalBuild = "Trapsin";
+        errors.push(
+          "~Info tag :: trap was incorrect, I have attempted to remedy this."
+          + " If it is still giving you an error please re-read the documentation. \n"
+          + "New InfoTag/finalBuild :: " + SetUp.finalBuild
+        );
+      }
+
       if (errors.length) {
         D2Bot.printToConsole("Kolbot-SoloPlay Final Build Error :: \n" + errors.join("\n"), sdk.colors.D2Bot.Red);
         SetUp._buildTemplate = checkBuildTemplate(); // check again
@@ -257,7 +266,7 @@ const SetUp = {
         delay(50);
       }
     }
-    
+
     includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
     includeIfNotIncluded("SoloPlay/Functions/Mercenary.js");
 
