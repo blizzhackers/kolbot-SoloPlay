@@ -239,7 +239,7 @@
     const scrollId = (classid === sdk.items.TomeofTownPortal
       ? sdk.items.ScrollofTownPortal
       : sdk.items.ScrollofIdentify);
-    const have = Town.checkScrolls(classid, force);
+    const have = me.checkScrolls(classid, force);
     let myTome = me.getTome(classid);
     let invoScrolls = 0;
 

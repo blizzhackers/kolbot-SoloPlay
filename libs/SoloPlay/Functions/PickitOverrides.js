@@ -97,10 +97,10 @@ Pickit.checkItem = function (unit) {
     }
   }
 
-  if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOSYSTEM);
-  if (CraftingSystem.checkItem(unit)) return resultObj(Pickit.Result.CRAFTING);
-  if (Cubing.checkItem(unit)) return resultObj(Pickit.Result.CUBING);
-  if (Runewords.checkItem(unit)) return resultObj(Pickit.Result.RUNEWORD);
+  if (SoloWants.checkItem(unit)) return resultObj(Pickit.Result.SOLOSYSTEM, "Soloplay");
+  if (CraftingSystem.checkItem(unit)) return resultObj(Pickit.Result.CRAFTING, "Crafting");
+  if (Cubing.checkItem(unit)) return resultObj(Pickit.Result.CUBING, "Cubing");
+  if (Runewords.checkItem(unit)) return resultObj(Pickit.Result.RUNEWORD, "Runewords");
   if (AutoEquip.hasTier(unit) && !unit.identified) return resultObj(Pickit.Result.UNID);
 
   if (unit.isCharm/*  && NTIP.GetCharmTier(unit) > 0 && unit.identified */) {
@@ -540,12 +540,12 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
       if (!item.onGroundOrDropping) {
         switch (stats.classid) {
         case sdk.items.Key:
-          console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkKeys() + "/12)");
+          console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + me.checkKeys() + "/12)");
 
           return true;
         case sdk.items.ScrollofTownPortal:
         case sdk.items.ScrollofIdentify:
-          console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + Town.checkScrolls(stats.classid === sdk.items.ScrollofTownPortal ? "tbk" : "ibk") + "/20)");
+          console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + me.checkScrolls(stats.classid === sdk.items.ScrollofTownPortal ? "tbk" : "ibk") + "/20)");
 
           return true;
         case sdk.items.Arrows:
@@ -587,7 +587,10 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
       }
 
       if (item.identified && item.isInInventory && AutoEquip.wanted(item)) {
-        ((Item.autoEquipCheck(item) && Item.autoEquip("Field")) || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field")));
+        (
+          (Item.autoEquipCheck(item) && Item.autoEquip("Field"))
+          || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field"))
+        );
       }
 
       break;
