@@ -319,10 +319,10 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     if (Skills.get(sdk.skills.GlacialSpike).have()) {
       if (me.mp > Skills.get(sdk.skills.GlacialSpike).manaCost() * 2) {
-        let shouldSpike = unit && unit.distance < 10 &&
-        getUnits(sdk.unittype.Monster).filter(function (el) {
-          return getDistance(el, unit) < 4 && slowable(el, true);
-        }).length > 1;
+        let shouldSpike = unit && unit.distance < 10
+          && getUnits(sdk.unittype.Monster).filter(function (el) {
+            return getDistance(el, unit) < 4 && slowable(el, true);
+          }).length > 1;
         if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
           Developer.debugging.skills && console.log("SPIKE");
           Skill.cast(sdk.skills.GlacialSpike, sdk.skills.hand.Right, unit);
@@ -331,7 +331,9 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
 
     // We lost track of the mob or killed it
-    if (unit === undefined || !unit || !unit.attackable) return Attack.Result.SUCCESS;
+    if (unit === undefined || !unit || !unit.attackable) {
+      return Attack.Result.SUCCESS;
+    }
 
     // Set damage values
     // redo gamedata to be more efficent
@@ -348,7 +350,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     // If we have enough mana for Static and it will do more damage than our other skills then duh use it
     // should this return afterwards since the calulations will now be different?
-    if (Skills.get(sdk.skills.StaticField).have() && (Skills.get(sdk.skills.StaticField).manaCost() * 3) < me.mp) {
+    const staticField = Skills.get(sdk.skills.StaticField);
+    if (staticField.have() && (staticField.manaCost() * 3) < me.mp) {
       let closeMobCheck = getUnits(sdk.unittype.Monster)
         .filter(function (unit) {
           return !!unit && unit.attackable && unit.distance < Skills.get(sdk.skills.StaticField).range();
@@ -368,7 +371,9 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
 
     // We lost track of the mob or killed it (recheck after using static)
-    if (unit === undefined || !unit || !unit.attackable) return Attack.Result.SUCCESS;
+    if (unit === undefined || !unit || !unit.attackable) {
+      return Attack.Result.SUCCESS;
+    }
 
     rebuild && setDamageValues(unit);
   

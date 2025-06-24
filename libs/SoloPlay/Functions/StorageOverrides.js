@@ -81,7 +81,9 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
     }
 
     //Insure valid reference.
-    if (typeof (reference) !== "object" || reference.length !== this.buffer.length || reference[0].length !== this.buffer[0].length) {
+    if (typeof (reference) !== "object"
+      || reference.length !== this.buffer.length
+      || reference[0].length !== this.buffer[0].length) {
       throw new Error("Storage.IsLocked: Invalid inventory reference");
     }
 
@@ -97,7 +99,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
     } catch (e2) {
       const { name, y, sizey, x, sizex, mode, location } = item;
       const errMsg = "Storage.IsLocked error! Item info: ";
-      throw new Error(errMsg + name + " " + y + " " + sizey + " " + x + " " + sizex + " " + mode + " " + item.location);
+      throw new Error(errMsg + name + " " + y + " " + sizey + " " + x + " " + sizex + " " + mode + " " + location);
     }
 
     return false;
@@ -379,7 +381,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
         ItemsSortedFromRightPriority.indexOf(item.classid) === -1
         && ItemsSortedFromLeftPriority.indexOf(item.classid) === -1
         && !force)
-      ) {
+    ) {
       return false; // only continue if the item is in the priority sort list
     }
 

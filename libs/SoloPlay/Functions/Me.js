@@ -156,6 +156,7 @@ if (!me.hasOwnProperty("trueDex")) {
 }
 
 if (!me.hasOwnProperty("finalBuild")) {
+  /** @type {Build | null} */
   let _finalBuild = null;
 
   Object.defineProperty(me, "finalBuild", {
@@ -178,6 +179,7 @@ if (!me.hasOwnProperty("finalBuild")) {
 }
 
 if (!me.hasOwnProperty("currentBuild")) {
+  /** @type {Build | null} */
   let _currentBuild = null;
 
   Object.defineProperty(me, "currentBuild", {
