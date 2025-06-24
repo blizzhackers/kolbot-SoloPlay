@@ -304,6 +304,10 @@ Attack.killTarget = function (name) {
     }, 2000, 100));
 
   if (!target) {
+    if (Attack._killed.has(classId)) {
+      console.log("ÿc7Killed ÿc0:: " + classId);
+      return true;
+    }
     console.warn("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
     return (Attack.clear(25) && Pickit.pickItems());
   }
@@ -314,6 +318,11 @@ Attack.killTarget = function (name) {
     return false;
   }
 
+  /**
+   * @param {number} gid 
+   * @param {PathNode} loc 
+   * @returns {Monster | boolean}
+   */
   const findTarget = function (gid, loc) {
     let path = getPath(me.area, me.x, me.y, loc.x, loc.y, 1, 5);
     if (!path) return false;
@@ -398,6 +407,11 @@ Attack.killTarget = function (name) {
     if (!!target && target.attackable) {
       console.warn("ÿc1Failed to kill ÿc0" + who + errorInfo);
     } else {
+      if (target.dead && (target.isBoss || target.uniqueid > -1)) {
+        // a little obnoxious, but we need to track bosses killed and this handles if we are attempting to check by id or name
+        target.isBoss && Attack._killed.add(target.classid);
+        target.uniqueid > -1 && Attack._killed.add(target.name);
+      }
       console.log("ÿc7Killed ÿc0:: " + who + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
     }
   } finally {
@@ -405,7 +419,7 @@ Attack.killTarget = function (name) {
     Misc.openChestsEnabled = true;
   }
 
-  return (!target || !copyUnit(target).x || target.dead || !target.attackable);
+  return (!target || !copyUnit(target).x || target.dead || !target.attackable || Attack.haveKilled(who));
 };
 
 Attack.clearLocations = function (list = []) {
@@ -787,70 +801,24 @@ Attack.clearLevelEx = function (givenSettings = {}) {
   return true;
 };
 
-// Clear an entire area until area is done or level is reached
 Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
-  function RoomSort (a, b) {
-    return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
-  }
-
-  let room = getRoom();
-  if (!room) return false;
-
   !charlvl && (charlvl = me.charlvl + 1);
-  let result, myRoom, previousArea;
-  let rooms = [];
-  /** @type {PathNode} */
-  let node = { x: null, y: null };
-  const currentArea = getArea().id;
-
-  do {
-    rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
-  } while (room.getNext());
-
   myPrint("Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
 
-  while (rooms.length > 0) {
-    // get the first room + initialize myRoom var
-    !myRoom && (room = getRoom(me.x, me.y));
-
-    if (room) {
-      if (room instanceof Array) { // use previous room to calculate distance
-        myRoom = [room[0], room[1]];
-      } else { // create a new room to calculate distance (first room, done only once)
-        myRoom = [room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2];
-      }
+  function quitWhen () {
+    if (Attack.stopClear) {
+      Attack.stopClear = false;	// Reset value
+      return true;
     }
 
-    rooms.sort(RoomSort);
-    room = rooms.shift();
-    result = Pather.getNearestWalkable(room[0], room[1], 18, 3);
-
-    if (result) {
-      node = { x: result[0], y: result[1] };
-      Pather.move(node, { retry: 3, clearSettings: { spectype: spectype } });
-      previousArea = result;
-
-      if (Attack.stopClear) {
-        Attack.stopClear = false;	// Reset value
-        return true;
-      }
-
-      if (me.charlvl >= charlvl) {
-        myPrint("Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
-        return true;
-      }
-
-      if (!this.clear(40, spectype)) {
-        break;
-      }
-    } else if (currentArea !== getArea().id) {
-      // Make sure bot does not get stuck in different area.
-      node = { x: previousArea[0], y: previousArea[1] };
-      Pather.move(node, { retry: 3, clearSettings: { spectype: spectype } });
+    if (me.charlvl >= charlvl) {
+      myPrint("Clear until level requirment met. My level: " + me.charlvl + " wanted level: " + charlvl);
+      return true;
     }
+    return false;
   }
 
-  return true;
+  return Attack.clearLevel(spectype, quitWhen);
 };
 
 /**
@@ -1029,6 +997,11 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
         }
         Attack.openChests(4);
         if (target.dead) {
+          if ((target.isBoss || target.uniqueid > 0) && target.dead) {
+            // TODO: add uniqueids to sdk
+            target.isBoss && Attack._killed.add(target.classid);
+            target.uniqueid > -1 && Attack._killed.add(target.name);
+          }
           clearResult = Attack.Result.SUCCESS;
           if (boss && boss.gid === target.gid) {
             killedBoss = true;
@@ -1072,7 +1045,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
   if (boss && !killedBoss) {
     // check if boss corpse is around
     // sometimes this fails, need better check for it
-    if (boss.dead) {
+    if (boss.dead || Attack.haveKilled(boss.classid)) {
       console.log("ÿc7Cleared ÿc0:: " + (!!boss.name ? boss.name : bossId) + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick));
     } else {
       console.log("ÿc7Clear ÿc0:: ÿc1Failed to clear ÿc0:: " + (!!boss.name ? boss.name : bossId));
