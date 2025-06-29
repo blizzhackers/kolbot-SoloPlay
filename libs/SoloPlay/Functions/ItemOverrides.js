@@ -872,6 +872,8 @@ Item.removeItemsMerc = function () {
           Storage.Inventory.MoveTo(cursorItem);
         } else {
           cursorItem.drop();
+          cursorItem._node = { x: me.x, y: me.y };
+          droppedItems.push(copyUnit(cursorItem));
         }
       }
     });

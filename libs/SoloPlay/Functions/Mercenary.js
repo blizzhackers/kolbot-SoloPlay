@@ -276,7 +276,10 @@ const Mercenary = {
       myPrint("ÿc9Mercenaryÿc0 :: getting merc");
       Town.move(Town.tasks.get(me.act).Merc);
       me.sortInventory();
-      Item.removeItemsMerc(); // strip temp merc gear
+      
+      /** @type {(ItemUnit & { _node: PathNode })[]} */
+      const droppedItems = [];
+      Item.removeItemsMerc(droppedItems); // strip temp merc gear
       delay(500 + me.ping);
       
       addEventListener("gamepacket", MercLib_1.mercPacket);
@@ -284,7 +287,9 @@ const Mercenary = {
 
       delay(500);
 
-      if (!MercLib_1.default.length) throw new Error("No mercs found");
+      if (!MercLib_1.default.length) {
+        throw new Error("No mercs found");
+      }
 
       let wantedMerc = MercLib_1.default
         .filter(function (merc) {
@@ -331,6 +336,10 @@ const Mercenary = {
       while (getInteractedNPC()) {
         delay(me.ping || 5);
         me.cancel();
+      }
+
+      if (droppedItems.length) {
+        Pather.move(droppedItems[0]._node);
       }
     } catch (e) {
       console.error(e);
