@@ -7,9 +7,9 @@
 */
 
 includeIfNotIncluded("core/Pickit.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
-includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
-includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
 
 Pickit.enabled = true;
 Pickit.Result.SOLOWANTS = 8;

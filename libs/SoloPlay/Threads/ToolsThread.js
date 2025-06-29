@@ -20,8 +20,8 @@ include("SoloPlay/Tools/Developer.js");
 include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/SoloIndex.js");
-include("SoloPlay/Functions/ConfigOverrides.js");
-include("SoloPlay/Functions/Globals.js");
+include("SoloPlay/Core/ConfigOverrides.js");
+include("SoloPlay/Core/Globals.js");
 
 /**
  * @todo trim the uneeded files/global variables from this file

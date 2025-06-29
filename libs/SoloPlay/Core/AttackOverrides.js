@@ -19,8 +19,8 @@ Attack.init = function () {
     console.log("Loading custom attack file");
     include("core/Attacks/" + Config.CustomClassAttack + ".js");
   } else {
-    if (!include("SoloPlay/Functions/ClassAttackOverrides/" + CLASSNAME + "Attacks.js")) {
-      console.log(sdk.colors.Red + "Failed to include: " + "SoloPlay/Functions/ClassAttackOverrides/" + CLASSNAME + "Attacks.js");
+    if (!include("SoloPlay/Core/ClassAttackOverrides/" + CLASSNAME + "Attacks.js")) {
+      console.log(sdk.colors.Red + "Failed to include: " + "SoloPlay/Core/ClassAttackOverrides/" + CLASSNAME + "Attacks.js");
       console.log(sdk.colors.Blue + "Loading default attacks instead");
       include("core/Attacks/" + CLASSNAME + ".js");
     }

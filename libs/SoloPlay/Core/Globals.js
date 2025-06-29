@@ -15,7 +15,7 @@
 includeIfNotIncluded("oog/D2Bot.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
 // not every thread needs these
 /** @global */
@@ -256,28 +256,28 @@ const SetUp = {
   // really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
   // scriptBroadcast all the time
   include: function () {
-    let files = dopen("libs/SoloPlay/Functions/").getFiles();
+    let files = dopen("libs/SoloPlay/Core/").getFiles();
     if (!files.length) throw new Error("Failed to find my files");
     if (!files.includes("Globals.js")) {
       console.warn("Incorrect Files?", files);
       // something went wrong?
       while (!files.includes("Globals.js")) {
-        files = dopen("libs/SoloPlay/Functions/").getFiles();
+        files = dopen("libs/SoloPlay/Core/").getFiles();
         delay(50);
       }
     }
 
-    includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
-    includeIfNotIncluded("SoloPlay/Functions/Mercenary.js");
+    includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
+    includeIfNotIncluded("SoloPlay/Core/Mercenary.js");
 
     Array.isArray(files) && files
       .filter(function (file) {
         return file.endsWith(".js");
       })
       .forEach(function (x) {
-        if (!isIncluded("SoloPlay/Functions/" + x)) {
-          if (!include("SoloPlay/Functions/" + x)) {
-            throw new Error("Failed to include " + "SoloPlay/Functions/" + x);
+        if (!isIncluded("SoloPlay/Core/" + x)) {
+          if (!include("SoloPlay/Core/" + x)) {
+            throw new Error("Failed to include " + "SoloPlay/Core/" + x);
           }
         }
       });

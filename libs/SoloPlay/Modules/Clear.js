@@ -10,8 +10,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
   }
 })(function (require, exports) {
   "use strict";
-  if (!isIncluded("libs/SoloPlay/Functions/PatherOverrides.js")) { include("libs/SoloPlay/Functions/PatherOverrides.js"); }
-  include("SoloPlay/Functions/ClassAttackOverrides/" + sdk.player.class.nameOf(me.classid) + "Attacks.js");
+  if (!isIncluded("libs/SoloPlay/Core/PatherOverrides.js")) { include("libs/SoloPlay/Core/PatherOverrides.js"); }
+  include("SoloPlay/Core/ClassAttackOverrides/" + sdk.player.class.nameOf(me.classid) + "Attacks.js");
   global["__________ignoreMonster"] = [];
   const sdk_1 = __importDefault(require("../../modules/sdk"));
   const Events_1 = require("./Events");

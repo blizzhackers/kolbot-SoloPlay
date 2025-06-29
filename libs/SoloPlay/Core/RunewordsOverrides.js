@@ -6,7 +6,7 @@
 */
 
 includeIfNotIncluded("core/Runewords.js");
-includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
 
 Runeword.PDiamondShield = Runeword.addRuneword(
   "PDiamondShield", 3,

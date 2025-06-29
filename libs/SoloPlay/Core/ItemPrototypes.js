@@ -6,7 +6,7 @@
 *
 */
 
-includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
 /** @this {ItemUnit} */
 Unit.prototype.hasTier = function () {

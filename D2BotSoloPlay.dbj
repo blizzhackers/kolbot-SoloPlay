@@ -43,7 +43,7 @@ include("SoloPlay/Tools/Tracker.js");
 include("SoloPlay/Tools/OOGOverrides.js");
 
 // is this needed? soloplay doesn't run in default.dbj anymore
-include("SoloPlay/Functions/ConfigOverrides.js");
+include("SoloPlay/Core/ConfigOverrides.js");
 
 if (typeof Starter.AdvancedConfig[me.profile] === "object") {
   Object.assign(Starter.Config, Starter.AdvancedConfig[me.profile]);

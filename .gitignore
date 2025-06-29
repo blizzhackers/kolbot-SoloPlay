@@ -2,9 +2,9 @@
 libs/SoloPlay/Scripts/developermode.js
 libs/SoloPlay/Data/**
 !libs/SoloPlay/Data/deleteMe.txt
-libs/SoloPlay/Functions/BlizzardError
-libs/SoloPlay/Functions/*.png
-libs/SoloPlay/Functions/*.jpg
+libs/SoloPlay/Core/BlizzardError
+libs/SoloPlay/Core/*.png
+libs/SoloPlay/Core/*.jpg
 libs/SoloPlay/Modules/RuneData.js
 libs/SoloPlay/Modules/SkillData.js
 libs/SoloPlay/Modules/util.js

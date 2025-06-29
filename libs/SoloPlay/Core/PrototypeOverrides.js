@@ -7,8 +7,8 @@
 */
 
 includeIfNotIncluded("core/Prototypes.js");
-includeIfNotIncluded("SoloPlay/Functions/Me.js");
-includeIfNotIncluded("SoloPlay/Functions/Polyfills.js");
+includeIfNotIncluded("SoloPlay/Core/Me.js");
+includeIfNotIncluded("SoloPlay/Core/Polyfills.js");
 
 /**
  * @description Unit prototypes for soloplay with checks to ensure forwards compatibility

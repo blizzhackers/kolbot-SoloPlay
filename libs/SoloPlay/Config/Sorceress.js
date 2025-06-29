@@ -18,8 +18,8 @@
 */
 
 (function LoadConfig () {
-  includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
-  includeIfNotIncluded("SoloPlay/Functions/Globals.js");
+  includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
+  includeIfNotIncluded("SoloPlay/Core/Globals.js");
 
   const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
   

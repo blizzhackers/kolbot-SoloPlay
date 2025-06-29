@@ -31,7 +31,7 @@ const LocationAction = {
   const Controls = require("../../modules/Control");
   const Overrides = require("../../modules/Override");
   const SoloEvents = (() => {
-    let { outOfGameCheck, check, gameInfo } = require("../Functions/SoloEvents");
+    let { outOfGameCheck, check, gameInfo } = require("../Core/SoloEvents");
     return {
       check: check,
       gameInfo: gameInfo,

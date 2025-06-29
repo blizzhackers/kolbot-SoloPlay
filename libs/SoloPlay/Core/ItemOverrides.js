@@ -7,7 +7,7 @@
 */
 
 includeIfNotIncluded("core/Item.js");
-includeIfNotIncluded("SoloPlay/Functions/ItemPrototypes.js");
+includeIfNotIncluded("SoloPlay/Core/ItemPrototypes.js");
 
 Item.weaponTypes = [
   sdk.items.type.Scepter, sdk.items.type.Wand,

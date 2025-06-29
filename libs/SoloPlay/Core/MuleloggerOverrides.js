@@ -6,8 +6,8 @@
 */
 
 includeIfNotIncluded("systems/mulelogger/MuleLogger.js");
-includeIfNotIncluded("SoloPlay/Functions/NTIPOverrides.js");
-includeIfNotIncluded("SoloPlay/Functions/MiscOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
 
 // Added type parameter and logging tier value under picture on char viewer tab
 MuleLogger.logItem = function (unit, logIlvl, type = "Player") {

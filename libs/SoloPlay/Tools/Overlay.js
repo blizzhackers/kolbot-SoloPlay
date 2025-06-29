@@ -8,7 +8,7 @@
 
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
-includeIfNotIncluded("SoloPlay/Functions/PrototypeOverrides.js");
+includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
 /**
  * @todo Clean this up, probably needs to be entirely rewritten
