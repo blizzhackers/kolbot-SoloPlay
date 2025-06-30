@@ -1168,10 +1168,13 @@ Attack.getCurrentChargedSkillIds = function (init = false) {
 
   // only update other threads if this isn't being called from Attack.init
   if (CharData.skillData.currentChargedSkills.length > 0 || init) {
+    const currentChargedSkillsHash = md5(JSON.stringify(CharData.skillData.chargedSkills));
+    const currentSwitchChargedSkillsHash = md5(JSON.stringify(CharData.skillData.chargedSkillsOnSwitch));
+    
     switch (true) {
     case !currentChargedSkills.equals(CharData.skillData.currentChargedSkills):
-    case Object.keys(Misc.recursiveSearch(chargedSkillsOnSwitch, CharData.skillData.chargedSkillsOnSwitch)).length > 0:
-    case Object.keys(Misc.recursiveSearch(chargedSkills, CharData.skillData.chargedSkills)).length > 0:
+    case md5(JSON.stringify(chargedSkillsOnSwitch)) !== currentSwitchChargedSkillsHash:
+    case md5(JSON.stringify(chargedSkills)) !== currentChargedSkillsHash:
       CharData.skillData.init(currentChargedSkills, chargedSkills, chargedSkillsOnSwitch);
       break;
     }
