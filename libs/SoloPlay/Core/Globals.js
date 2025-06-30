@@ -105,6 +105,8 @@ const SetUp = {
       }
     }
 
+    const orignalHash = md5(JSON.stringify(me.data));
+    
     if (!me.data.initialized) {
       me.data.startTime = me.gamestarttime;
       me.data.level = me.charlvl;
@@ -118,10 +120,7 @@ const SetUp = {
       }
 
       me.data.initialized = true;
-      CharData.updateData("me", me.data);
     }
-
-    let temp = copyObj(me.data);
 
     if (me.data.currentBuild !== CharInfo.getActiveBuild()) {
       me.data.currentBuild = CharInfo.getActiveBuild();
@@ -146,12 +145,9 @@ const SetUp = {
     me.data.dexterity !== me.rawDexterity && (me.data.dexterity = me.rawDexterity);
 
     // expansion check
-    let [cUpdate, mUpdate] = [false, false];
-
     if (me.expansion) {
       if (!me.data.merc.gear) {
         me.data.merc.gear = [];
-        mUpdate = true;
       }
       
       // merc check
@@ -160,7 +156,6 @@ const SetUp = {
       if (merc) {
         // TODO: figure out how to ensure we are already using the right merc to prevent re-hiring
         // can't do an aura check as merc auras are bugged, only useful info from getUnit is the classid
-        let _tempMerc = copyObj(me.data.merc);
         let mercItems = merc.getItemsEx();
         let preLength = me.data.merc.gear.length;
         let check = me.data.merc.gear.filter(function (i) {
@@ -170,7 +165,6 @@ const SetUp = {
         });
 
         if (check !== preLength) {
-          mUpdate = true;
           me.data.merc.gear = check;
         }
 
@@ -211,23 +205,15 @@ const SetUp = {
         // // only if we have enough gold on hand to hire said merc
         // // return to our orignal difficulty afterwards
         // }
-        let changed = Misc.recursiveSearch(me.data.merc, _tempMerc);
-  
-        if (Object.keys(changed).length > 0) {
-          CharData.updateData("merc", me.data);
-          // mUpdate = true;
-        }
       }
 
       // charm check
       if (!me.data.charms || !Object.keys(me.data.charms).length) {
         me.data.charms = Check.finalBuild().finalCharms;
-        cUpdate = true;
       }
 
       if (!me.data.charmGids || me.data.charmGids.length > 0) {
         me.data.charmGids = [];
-        cUpdate = true;
       }
 
       const finalCharmKeys = Object.keys(me.data.charms);
@@ -235,7 +221,6 @@ const SetUp = {
       for (let key of finalCharmKeys) {
         if (me.data.charms[key].have.length) {
           me.data.charms[key].have = [];
-          cUpdate = true;
         }
       }
 
@@ -244,9 +229,8 @@ const SetUp = {
       }
     }
 
-    let changed = Misc.recursiveSearch(me.data, temp);
-  
-    if (cUpdate || mUpdate || Object.keys(changed).length > 0) {
+    const hasChanged = md5(JSON.stringify(me.data)) !== orignalHash;
+    if (hasChanged) {
       CharData.updateData("me", me.data);
     }
   },

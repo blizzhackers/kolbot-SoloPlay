@@ -681,7 +681,7 @@ Item.equipMerc = function (item, bodyLoc) {
         if (check.runeword) {
           // just track runewords for now
           me.data.merc.gear.push(check.prefixnum);
-          CharData.updateData("merc", me.data);
+          CharData.updateData("me", me.data);
         }
 
         if (getCursorType() === 3) {

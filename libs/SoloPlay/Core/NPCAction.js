@@ -767,12 +767,12 @@
 
       let merc = null;
       let tick = getTickCount();
+      const orignalHash = md5(JSON.stringify(me.data));
 
       while (getTickCount() - tick < 2000) {
         if ((merc = me.getMercEx())) {
           delay(Math.max(750, me.ping * 2));
           // check stats and update if necessary
-          let _temp = copyObj(me.data.merc);
           let mercInfo = Mercenary.getMercInfo(merc);
           if (mercInfo.classid !== me.data.merc.classid) {
             me.data.merc.classid = mercInfo.classid;
@@ -803,10 +803,9 @@
               //
             }
           }
-          let changed = Misc.recursiveSearch(me.data.merc, _temp);
-  
-          if (Object.keys(changed).length > 0) {
-            CharData.updateData("merc", me.data.merc);
+
+          if (md5(JSON.stringify(me.data)) !== orignalHash) {
+            CharData.updateData("me", me.data);
           }
           me.cancel();
 

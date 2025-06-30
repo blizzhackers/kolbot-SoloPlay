@@ -329,7 +329,7 @@ const Mercenary = {
         me.data.merc.difficulty = me.diff;
         me.data.merc.skillName = wantedMerc.skills.find(sk => sk.name === wantedSkill).name;
         me.data.merc.skill = MercData.findByName(me.data.merc.skillName, me.act).skill;
-        CharData.updateData("merc", me.data) && me.update();
+        CharData.updateData("me", me.data) && me.update();
         console.log("ÿc9Mercenaryÿc0 :: " + me.data.merc.skillName + " merc hired.");
       }
       me.cancelUIFlags();
