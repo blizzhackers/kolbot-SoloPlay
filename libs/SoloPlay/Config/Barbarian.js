@@ -129,7 +129,7 @@
     break;
   case sdk.game.gametype.Expansion:
     NTIP.addLine("[name] >= VexRune && [name] <= ZodRune");
-    const { basicSocketables, addSocketableObj } = require("../Utils/General");
+    const { basicSocketables, addSocketableObj } = require("../Modules/General");
     
     /** @param {ItemUnit} item */
     const honorCheck = function (item) {

@@ -43,7 +43,7 @@
       },
     };
 
-    const { buildAutoBuildTempObj } = require("../../Utils/General");
+    const { buildAutoBuildTempObj } = require("../../Modules/General");
     
     build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
       Config.ScanShrines.indexOf(sdk.shrines.Combat) === -1 && Config.ScanShrines.push(sdk.shrines.Combat);

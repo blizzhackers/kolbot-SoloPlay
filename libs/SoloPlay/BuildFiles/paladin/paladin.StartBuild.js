@@ -46,7 +46,7 @@
       },
     };
 
-    const { buildAutoBuildTempObj } = require("../../Utils/General");
+    const { buildAutoBuildTempObj } = require("../../Modules/General");
     
     build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
       Config.SkipEnchant.indexOf("cold enchanted") === -1 && Config.SkipEnchant.push("cold enchanted");

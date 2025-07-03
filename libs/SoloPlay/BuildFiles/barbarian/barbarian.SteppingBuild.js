@@ -56,7 +56,7 @@
       },
     };
 
-    const { buildAutoBuildTempObj } = require("../../Utils/General");
+    const { buildAutoBuildTempObj } = require("../../Modules/General");
     
     build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
       Config.AttackSkill = [-1, sdk.skills.DoubleSwing, -1, sdk.skills.DoubleSwing, -1];

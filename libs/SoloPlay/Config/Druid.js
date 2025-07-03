@@ -137,7 +137,7 @@
 
   !me.smith && NTIP.buildList(imbueArr);
 
-  const { basicSocketables, addSocketableObj } = require("../Utils/General");
+  const { basicSocketables, addSocketableObj } = require("../Modules/General");
   
   Config.socketables = Config.socketables.concat(basicSocketables.caster, basicSocketables.all);
   Config.socketables.push(addSocketableObj(sdk.items.Monarch, [], [],

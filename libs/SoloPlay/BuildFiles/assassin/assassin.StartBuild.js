@@ -39,7 +39,7 @@
       },
     };
 
-    const { buildAutoBuildTempObj } = require("../../Utils/General");
+    const { buildAutoBuildTempObj } = require("../../Modules/General");
     
     build.AutoBuildTemplate[1] = buildAutoBuildTempObj(() => {
       Config.TownHP = me.hardcore ? 0 : 35;
