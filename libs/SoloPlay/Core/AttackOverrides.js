@@ -304,8 +304,8 @@ Attack.killTarget = function (name) {
     }, 2000, 100));
 
   if (!target) {
-    if (Attack._killed.has(classId)) {
-      console.log("ÿc7Killed ÿc0:: " + classId);
+    if (Attack._killed.has(name)) {
+      console.log("ÿc7Killed ÿc0:: " + name);
       return true;
     }
     console.warn("ÿc8KillTargetÿc0 :: " + name + " not found. Performing Attack.Clear(25)");
