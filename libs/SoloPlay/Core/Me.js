@@ -452,6 +452,13 @@ me.getEquippedItem = function (bodyLoc) {
   return equippedItem.first();
 };
 
+me.getEquippedItems = function () {
+  return me.getItemsEx()
+    .filter(function (item) {
+      return item.isEquipped;
+    });
+};
+
 /**
  * @param {number} bodyLoc 
  */

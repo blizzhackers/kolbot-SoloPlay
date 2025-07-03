@@ -276,7 +276,7 @@ function main () {
 
   // Start Running Script
   myPrint("start setup");
-  const { nipItems, impossibleClassicBuilds, impossibleNonLadderBuilds } = require("../Modules/General");
+  const { nipItems, impossibleClassicBuilds, impossibleNonLadderBuilds } = require("./Modules/General");
   NTIP.buildList(nipItems.Quest, nipItems.General);
 
   try {
@@ -303,34 +303,32 @@ function main () {
   Check.checkSpecialCase();
 
   // check if any of our currently equipped items are no longer usable - can happen after respec
-  me.getItemsEx()
-    .filter(function (item) {
-      return item.isEquipped;
-    })
-    .forEach(function (item) {
-      if (me.getStat(sdk.stats.Strength) < item.strreq
-        || me.getStat(sdk.stats.Dexterity) < item.dexreq
-        || item.ethereal && item.isBroken) {
-        myPrint("No longer able to use: " + item.fname);
-        Item.removeItem(null, item);
-      } else if (sdk.quest.items.includes(item.classid)) {
-        myPrint("Removing Quest Item: " + item.fname);
-        Item.removeItem(null, item);
-      } else if (me.charlvl >= 16 && item.isOnSwap
-        && [
-          sdk.items.type.AmazonBow, sdk.items.type.Bow,
-          sdk.items.type.Crossbow, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver
-        ].includes(item.itemType)) {
-        myPrint("Removing old swap Item: " + item.fname);
-        try {
-          me.switchWeapons(sdk.player.slot.Secondary);
-          item.drop();
-          CharData.skillData.bow.resetBowData();
-        } finally {
-          me.switchWeapons(sdk.player.slot.Main);
-        }
+  for (let item of me.getEquippedItems()) {
+    if (me.getStat(sdk.stats.Strength) < item.strreq
+      || me.getStat(sdk.stats.Dexterity) < item.dexreq
+      || (item.ethereal && item.isBroken)
+    ) {
+      myPrint("No longer able to use: " + item.fname);
+      Item.removeItem(null, item);
+    } else if (sdk.quest.items.includes(item.classid)) {
+      myPrint("Removing Quest Item: " + item.fname);
+      Item.removeItem(null, item);
+    } else if (me.charlvl >= 16 && item.isOnSwap
+          && [
+            sdk.items.type.AmazonBow, sdk.items.type.Bow,
+            sdk.items.type.Crossbow, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver
+          ].includes(item.itemType)
+    ) {
+      myPrint("Removing old swap Item: " + item.fname);
+      try {
+        me.switchWeapons(sdk.player.slot.Secondary);
+        item.drop();
+        CharData.skillData.bow.resetBowData();
+      } finally {
+        me.switchWeapons(sdk.player.slot.Main);
       }
-    });
+    }
+  }
   
   me.getItemsEx()
     .filter(function (item) {

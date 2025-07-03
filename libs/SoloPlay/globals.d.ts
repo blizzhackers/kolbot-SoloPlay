@@ -165,6 +165,7 @@ declare global {
     canTpToTown(): boolean;
     getMercEx(): MercUnit | null;
     getEquippedItem(bodyLoc: number): ItemUnit | null;
+    getEquippedItems(): ItemUnit[];
     getSkillTabs(classid: number): number[];
     inDanger(checkLoc?: {x: number, y: number} | MeType, range?: number): boolean;
     checkSkill(skillId: number, subId: number): boolean;
