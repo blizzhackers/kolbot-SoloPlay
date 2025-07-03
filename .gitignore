@@ -1,10 +1,17 @@
 
-libs/SoloPlay/Scripts/developermode.js
-libs/SoloPlay/.soloplay/**
-!libs/SoloPlay/.soloplay/.gitkeep
-libs/SoloPlay/Core/BlizzardError
-libs/SoloPlay/Core/*.png
-libs/SoloPlay/Core/*.jpg
-libs/SoloPlay/Modules/RuneData.js
-libs/SoloPlay/Modules/SkillData.js
-libs/SoloPlay/Modules/util.js
+.soloplay/**
+!.soloplay/.gitkeep
+Core/BlizzardError
+Core/*.png
+Core/*.jpg
+Modules/RuneData.js
+Modules/SkillData.js
+Modules/util.js
+Config/*
+!Config/Amazon.js
+!Config/Assassin.js
+!Config/Barbarian.js
+!Config/Druid.js
+!Config/Necromancer.js
+!Config/Paladin.js
+!Config/Sorceress.js
