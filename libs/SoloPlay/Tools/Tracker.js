@@ -9,9 +9,9 @@ includeIfNotIncluded("core/experience.js");
 includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
 const Tracker = {
-  GTPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-GameTime.json",
-  LPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
-  SPPath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
+  GTPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-GameTime.json",
+  LPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
+  SPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
   // Leveling Performance
   LPHeader: [
     "Total Time",
@@ -68,8 +68,8 @@ const Tracker = {
     const GameTracker = Object.assign({}, this._default);
 
     // Create Files
-    if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
-      let folder = dopen("libs/SoloPlay/Data");
+    if (!FileTools.exists("libs/SoloPlay/.soloplay/" + me.profile)) {
+      let folder = dopen("libs/SoloPlay/.soloplay");
       folder.create(me.profile);
     }
 

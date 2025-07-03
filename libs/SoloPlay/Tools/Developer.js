@@ -13,7 +13,7 @@
 const Developer = {
   // @desc - set to true if using the PlugY mod - allows use of larger stash
   plugyMode: false,
-  // @desc - log game/bot statistics to .csv files located at SoloPlay/Data/
+  // @desc - log game/bot statistics to .csv files located at SoloPlay/.soloplay/
   logPerformance: true,
   // @desc - show in game overlay (see bottom of README.md for example)
   overlay: true,

@@ -12,8 +12,8 @@ const CharData = (function () {
     let obj = Object.assign({}, this._default);
     let string = JSON.stringify(obj, null, 2);
 
-    if (!FileTools.exists("libs/SoloPlay/Data/" + me.profile)) {
-      let folder = dopen("libs/SoloPlay/Data");
+    if (!FileTools.exists("libs/SoloPlay/.soloplay/" + me.profile)) {
+      let folder = dopen("libs/SoloPlay/.soloplay");
       folder && folder.create(me.profile);
     }
 
@@ -65,7 +65,7 @@ const CharData = (function () {
   };
   
   return {
-    filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-CharData.json",
+    filePath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-CharData.json",
     threads: [
       "libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js",
       "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"
@@ -106,7 +106,7 @@ const CharData = (function () {
 
     login: (function () {
       return {
-        filePath: "libs/SoloPlay/Data/" + me.profile + "/" + me.profile + "-LoginData.json",
+        filePath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-LoginData.json",
         _default: { account: "", pass: "", currentChar: "", tag: "", charCount: 0, existing: false },
 
         create: function () {
@@ -342,7 +342,7 @@ const CharData = (function () {
       FileTools.exists(this.filePath) && FileTools.remove(this.filePath);
       FileTools.exists(Tracker.GTPath) && FileTools.remove(Tracker.GTPath);
 
-      return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json"));
+      return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/.soloplay/" + me.profile + ".GameTime" + ".json"));
     },
   };
 })();

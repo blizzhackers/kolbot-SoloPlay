@@ -33,7 +33,7 @@
     "**/ClassAttackOverrides/",
     "node_modules",
     "**/node_modules/*",
-    "**/data/",
-    "**/Data/",
+    "**/.soloplay/",
+    "**/.soloplay/",
   ],
 }

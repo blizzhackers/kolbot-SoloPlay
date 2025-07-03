@@ -23,7 +23,7 @@
     } catch (e) {
       D2Bot.printToConsole(e, sdk.colors.D2Bot.Red);
       FileTools.remove("data/" + me.profile + ".json");
-      FileTools.remove("libs/SoloPlay/Data/" + me.profile + ".GameTime" + ".json");
+      FileTools.remove("libs/SoloPlay/.soloplay/" + me.profile + ".GameTime" + ".json");
       D2Bot.stop();
     }
 
