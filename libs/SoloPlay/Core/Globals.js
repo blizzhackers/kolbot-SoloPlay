@@ -358,7 +358,7 @@ const SetUp = {
       + "Making next...",
       sdk.colors.D2Bot.Gold
     );
-    D2Bot.setProfile(null, null, require("../Tools/NameGen")());
+    D2Bot.setProfile(null, null, require("../Modules/NameGen")());
     CharData.delete(true);
     delay(250);
     D2Bot.restart();

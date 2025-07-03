@@ -217,7 +217,7 @@ const LocationAction = {
    */
   ControlAction.makeCharacter = function (info) {
     try {
-      const NameGen = require("./NameGen");
+      const NameGen = require("../Modules/NameGen");
       !info.charClass && (info.charClass = "barbarian");
       !info.charName && (info.charName = NameGen());
       me.blockMouse = true;
