@@ -50,7 +50,7 @@ For a quick kolbot+soloplay installer check out https://github.com/theBGuy/kolbo
 | |  | | Hammershock |  |
 | |  | | *`Sancdreamer`* |  |
 - **NOTE:** Expansion only builds marked as *`Expansion`*
-- Navigate to ``kolbot\libs\SoloPlay\``[``BuildFiles``](libs/SoloPlay/BuildFiles/) and open the file with the build name for a more in-depth description of each build
+- Navigate to ``kolbot\libs\SoloPlay\``[``BuildFiles``](./BuildFiles/) and open the file with the build name for a more in-depth description of each build
 
 ## New modes
 - New modes are available: **Bumper**, **Socketmule**, and **Imbuemule**. Enter into your D2Bot# profiles info tag to make. 
@@ -74,15 +74,15 @@ For a quick kolbot+soloplay installer check out https://github.com/theBGuy/kolbo
 ### **Q: When will the bot change to the final build I selected?**
 
 **A:** In classic, the bot will switch to the final build after it defeats diablo and meets a level requirement.
-In expansion, it transitions to the final build when final gear requirements are met ``(Navigate to libs\SoloPlay\``[``BuildFiles\``](libs/SoloPlay/BuildFiles/)) and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic.
+In expansion, it transitions to the final build when final gear requirements are met ``(Navigate to libs\SoloPlay\``[``BuildFiles\``](./BuildFiles/)) and look for the file with the name of the final build you choose to see what items are needed for each build and what level is required for classic.
 
 ### **Q: Where can I see what items are used in the final build I selected?**
 
-**A:** Same place as above answer ``(Navigate to libs\SoloPlay\``[``BuildFiles\``](libs/SoloPlay/BuildFiles/))
+**A:** Same place as above answer ``(Navigate to libs\SoloPlay\``[``BuildFiles\``](./BuildFiles/))
 
 ### **Q: The bot has beaten diablo (classic) / baal, so why isn't moving on to the next difficulty?**
 
-**A:** The bot will only progress once it has reached a minimum character level (``navigate to libs\SoloPlay\``[``BuildFiles``](libs/SoloPlay/BuildFiles/)``\classname\classname.js`` and see `CharInfo.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
+**A:** The bot will only progress once it has reached a minimum character level (``navigate to libs\SoloPlay\``[``BuildFiles``](./BuildFiles/)``\classname\classname.js`` and see `CharInfo.levelCap` for level requirments) and will not start the next difficulty with negative resistances. If the bot is more than 5 levels higher than the minimum character level and has not reached the required resistances, it will automatically move to the next difficulty.
 
 ### **Q: How can I run more than one of the same class?**
 
@@ -98,7 +98,7 @@ In expansion, it transitions to the final build when final gear requirements are
 
 ### **Q: HELP!!! The bot isn't casting any skills!**
 
-**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to `libs\SoloPlay\Tools\`[Developer.js](libs/SoloPlay/Tools/Developer.js) and change forcePacketCasting.enabled to false.
+**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to `libs\SoloPlay\Tools\`[Developer.js](./Tools/Developer.js) and change forcePacketCasting.enabled to false.
 
 ### **Q: What is a Bumper?**
 
@@ -182,7 +182,7 @@ add your pickit files here or uncomment the kolton nip already present.
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
 # Extras
-- Navigate to `libs\SoloPlay\Tools\`[Developer.js](/libs/SoloPlay/Tools/Developer.js) for extra options
+- Navigate to `libs\SoloPlay\Tools\`[Developer.js](./Tools/Developer.js) for extra options
 - Developer.js includes options such as:
   - plugyMode toggle (allow use of larger stash when using the Mod PlugY)
   - logging equipped items to D2Bot# Char Viewer tab
