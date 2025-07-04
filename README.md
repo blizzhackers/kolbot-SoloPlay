@@ -145,9 +145,9 @@ add your pickit files here or uncomment the kolton nip already present.
 
 ## Quick YouTube tutorial
 * Overview + how to use github desktop
-  - https://youtu.be/9JG58tRAAnI
+  - https://youtu.be/zppjWZUiSM0
 * How to download with git or zip
-  - https://youtu.be/R7sXY9QAKdQ
+  - https://youtu.be/X6xkRy4jOJ4
 
 ## Possible Profile Names 
 | Prefix | Description|
