@@ -1,3 +1,5 @@
+/// <reference path="./Types/script-types.d.ts" />
+
 // @ts-nocheck
 declare global {
   interface Math {

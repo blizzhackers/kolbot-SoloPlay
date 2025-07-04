@@ -11,12 +11,19 @@
  *   evaluate which script would be most benefical based on current character conditions and disable teleport for the duration of the script if need be
  */
 
+/** @typedef {import("Types/script-types").SoloScript} SoloScript */
+
 const SoloIndex = {
+  /** @type {SoloScript[]} */
   doneList: [],
+  /** @type {SoloScript[]} */
   retryList: [],
   goldScripts: ["bishibosh", "tristram", "treehead", "countess", "lowerkurast"],
 
-  // this controls the order
+  /**
+   * @description This controls the order of the scripts that will be run.
+   * @type {SoloScript[]}
+   */
   scripts: [
     // Act 1
     "corpsefire", "mausoleum", "den", "bishibosh", "bloodraven", "tristram", "treehead",
@@ -32,6 +39,9 @@ const SoloIndex = {
     "shenk", "savebarby", "anya", "pindle", "nith", "ancients", "baal", "a5chests",
   ],
 
+  /**
+   * @type {Record<SoloScript, { preReq?: () => boolean, skipIf?: () => boolean, shouldRun: () => boolean }>}
+   */
   index: {
     "corpsefire": {
       preReq: function () {
