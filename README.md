@@ -143,7 +143,7 @@ add your pickit files here or uncomment the kolton nip already present.
 |9.|Enjoy!||
 
 ## Quick YouTube tutorial
-https://youtu.be/qYHUw6nNn74
+https://youtu.be/9JG58tRAAnI
 
 ## Possible Profile Names 
 | Prefix | Description|
