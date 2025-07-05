@@ -11,25 +11,14 @@
 // No touchy!
 include("critical.js"); // required
 
-// D2BotSoloPlay specific settings - for global settings see libs/starter/StarterConfig.js
-Starter.Config.InvalidPasswordDelay = 10; // Minutes to wait after getting Invalid Password message
-Starter.Config.GameDoesNotExistTimeout = 600; // Seconds to wait before cancelling the 'Game does not exist.' screen
-Starter.Config.DelayBeforeLogin = rand(5, 25); // Seconds to wait before logging in
-Starter.Config.VersionErrorDelay = rand(5, 30); // Seconds to wait after 'unable to identify version' message
-
-// Global Account Settings.
-Starter.Config.GlobalAccount = "bgsolotest"; // Set value for a global account. (MAX Characters 12 plus AccountSuffixLength) 
-Starter.Config.AccountSuffixLength = 3; // Set Global Account value for random numbers at the end of the name. (Minimum suffix 3)
-Starter.Config.GlobalAccountPassword = "pass"; // Set value for a global password for account generation.
-
-// Override default values for StarterConfig under here by following format
-// Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
-// Profile().type === sdk.game.profiletype.SinglePlayer && (Starter.Config.CrashDelay = 2);
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+const { StarterConfig } = require("./StarterConfig.js");
+Object.assign(Starter.Config, StarterConfig);
 
 /**
  * @todo
  *   - re-structure to use datafile for login info instead of writing to d2bot#
- *   - need to hanlde single player and online logging in
+ *   - need to handle single player and online logging in
  *   - need to handle someone using a premade account
  */
 
