@@ -649,108 +649,8 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 };
 
 // General Game functions
-const Check = {
-  lowGold: false,
-
-  gold: function () {
-    let gold = me.gold;
-    let goldLimit = [25000, 50000, 100000][me.diff];
-
-    if ((me.normal && !me.accessToAct(2)) || gold >= goldLimit) {
-      return true;
-    }
-
-    me.overhead("low gold");
-
-    return false;
-  },
-
-  brokeAf: function (announce = true) {
-    let gold = me.gold;
-    let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
-
-    switch (true) {
-    case (me.charlvl < 15):
-    case (me.normal && !me.accessToAct(2)):
-    case (gold >= lowGold):
-    case (me.charlvl >= 15 && gold > Math.floor(lowGold / 2) && gold > me.getRepairCost()):
-      return false;
-    }
-
-    if (announce) {
-      myPrint("very low gold. My Gold: " + gold);
-      NTIP.addLine("[name] == gold # [gold] >= 1");
-    }
-
-    return true;
-  },
-
-  broken: function () {
-    const gold = me.gold;
-    const rightArm = me.equipped.get(sdk.body.RightArm);
-    const leftArm = me.equipped.get(sdk.body.LeftArm);
-
-    // Almost broken but not quite
-    if (((rightArm.durability <= 30 && rightArm.durability > 0)
-      || (leftArm.durability <= 30 && leftArm.durability > 0)
-      && !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
-      return 1;
-    }
-
-    // Broken
-    if ((rightArm.durability === 0 || leftArm.durability === 0)
-      && me.charlvl >= 15 && !me.normal && gold < 1000) {
-      return 2;
-    }
-
-    return 0;
-  },
-
-  brokeCheck: function () {
-    Town.doChores();
-
-    let myGold = me.gold;
-    let repairCost = me.getRepairCost();
-    let items = (me.getItemsForRepair(100, false) || []);
-    let meleeChar = !Check.currentBuild().caster;
-    let msg = "";
-    let diff = -1;
-
-    switch (true) {
-    case myGold > repairCost:
-      return false;
-    case me.normal:
-    case !meleeChar && me.nightmare:
-      Check.lowGold = myGold < repairCost;
-      return false;
-    case meleeChar && !me.normal:
-      // check how broke we are - only for melee chars since casters don't care about weapons
-      let wep = me.equipped.get(sdk.body.RightArm);
-      if (!!wep && meleeChar && wep.durabilityPercent === 0) {
-        // we are really broke - go back to normal
-        msg = " We are broken - lets get some easy gold in normal.";
-        diff = sdk.difficulty.Normal;
-      }
-
-      break;
-    case !meleeChar && me.hell:
-      msg = " We are pretty broke, lets run some easy stuff in nightmare for gold";
-      diff = sdk.difficulty.Nightmare;
-
-      break;
-    }
-
-    if (diff > -1) {
-      console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
-      goToDifficulty(diff, msg + (" My gold: " + myGold + ", Repair cost: " + repairCost));
-
-      return true;
-    }
-
-    return false;
-  },
-
-  resistance: function () {
+const Check = (function () {
+  const resistance = function () {
     let resPenalty = me.getResPenalty(me.diff + 1);
     let [frRes, lrRes, crRes, prRes] = [
       (me.realFR - resPenalty),
@@ -766,217 +666,14 @@ const Check = {
       LR: lrRes,
       PR: prRes,
     };
-  },
-
-  nextDifficulty: function (announce = true) {
-    let currDiff = me.diff;
-    if (currDiff === sdk.difficulty.Hell) return false;
-    if (["Bumper", "Socketmule"].includes(SetUp.finalBuild)) return false;
-    if (me.charlvl < CharInfo.levelCap) return false;
-    if (!me.diffCompleted) return false;
-    let nextDiff = null;
-    let res = this.resistance();
-    let lvlReq = !!(!this.broken());
-    let [str, color] = ["", sdk.colors.D2Bot.Black];
-
-    if (lvlReq) {
-      if (res.Status) {
-        nextDiff = currDiff + 1;
-        [str, color] = ["next difficulty requirements met. Starting: " + sdk.difficulty.nameOf(nextDiff), sdk.colors.D2Bot.Blue];
-      } else {
-        if (me.charlvl >= CharInfo.levelCap + (!me.normal ? 5 : 2)) {
-          nextDiff = currDiff + 1;
-          str = "Over leveled. Starting: " + sdk.difficulty.nameOf(nextDiff);
-        } else {
-          announce && myPrint(
-            sdk.difficulty.nameOf(currDiff + 1)
-            + " requirements not met. Negative resistance. FR: " + res.FR + " | CR: " + res.CR + " | LR: " + res.LR
-          );
-        }
-      }
-    }
-
-    if (!nextDiff) return false;
-    if (announce && str) {
-      D2Bot.printToConsole("Kolbot-SoloPlay: " + str, color);
-    }
-
-    return sdk.difficulty.nameOf(nextDiff);
-  },
-
-  runes: function () {
-    if (me.classic) return false;
-    let needRunes = true;
-
-    switch (me.diff) {
-    case sdk.difficulty.Normal:
-      // Have runes or stealth and ancients pledge
-      if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth])
-        || me.checkItem({ name: sdk.locale.items.Stealth }).have) {
-        needRunes = false;
-      }
-
-      break;
-    case sdk.difficulty.Nightmare:
-      if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn])
-        && Check.currentBuild().caster)
-        || (!me.paladin && me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have)
-        || (me.paladin && me.haveAll([
-          {
-            name: sdk.locale.items.Spirit,
-            itemtype: sdk.items.type.Sword
-          },
-          {
-            name: sdk.locale.items.Spirit,
-            itemtype: sdk.items.type.AuricShields
-          }
-        ]))
-        || (me.necromancer && me.checkItem({ name: sdk.locale.items.White }).have
-          && (
-            me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have
-            || me.equipped.get(sdk.body.LeftArm).tier > 800
-          ))
-        || (me.barbarian && (me.checkItem({ name: sdk.locale.items.Lawbringer }).have || me.baal))) {
-        needRunes = false;
-      }
-
-      break;
-    case sdk.difficulty.Hell:
-      if (!me.baal || (me.sorceress && !["Blova", "Lightning"].includes(SetUp.currentBuild))) {
-        needRunes = false;
-      }
-
-      break;
-    }
-
-    return needRunes;
-  },
+  };
 
   /**
-   * @deprecated Use me.checkItem() instead
-   * @param {number | string} type 
-   * @param {string} [flag] 
-   * @param {string} [iName] 
-   * @returns 
+   * @param {Build} buildInfo 
+   * @param {string} stat 
+   * @returns {number}
    */
-  haveItem: function (type, flag, iName) {
-    let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
-
-    flag && typeof flag === "string" && (flag = flag.capitalize(true));
-    typeof iName === "string" && (iName = iName.toLowerCase());
-
-    let items = me.getItemsEx()
-      .filter(function (item) {
-        return !item.questItem && (flag === "Runeword" ? item.isRuneword : item.quality === sdk.items.quality[flag]);
-      });
-
-    switch (typeof type) {
-    case "string":
-      typeof type === "string" && (type = type.toLowerCase());
-      if (type !== "dontcare" && !NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
-      if (type === "dontcare") {
-        typeCHECK = true; // we don't care about type
-        break;
-      }
-
-      // check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
-      isClassID = !!NTIPAliasClassID[type] && !NTIPAliasType[type];
-      type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
-      
-      break;
-    case "number":
-      if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
-      // check if item is a classid but with hacky fix for items like belt which is a type and classid...sigh
-      isClassID = Object.values(sdk.items).includes(type) && !Object.values(sdk.items.type).includes(type);
-
-      break;
-    }
-
-    // filter out non-matching item types/classids
-    if (typeof type === "number") {
-      items = items.filter(function (item) {
-        return (isClassID ? item.classid === type : item.itemType === type);
-      });
-    }
-
-    const quality = (flag === "Set" || flag === "Unique" || flag === "Crafted")
-      ? sdk.items.quality[flag]
-      : undefined;
-
-    for (let item of items) {
-      switch (flag) {
-      case "Set":
-      case "Unique":
-      case "Crafted":
-        itemCHECK = !!(item.quality === quality) && (iName ? item.fname.toLowerCase().includes(iName) : true);
-        break;
-      case "Runeword":
-        itemCHECK = !!(item.isRuneword) && (iName ? item.fname.toLowerCase().includes(iName) : true);
-        break;
-      }
-
-      // don't waste time if first condition wasn't met
-      if (itemCHECK && typeof type === "number") {
-        typeCHECK = isClassID ? item.classid === type : item.itemType === type;
-      }
-
-      if (itemCHECK && typeCHECK) {
-        return true;
-      }
-    }
-
-    return false;
-  },
-
-  itemSockables: function (type, quality, iName) {
-    quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
-    typeof iName === "string" && (iName = iName.toLowerCase());
-    let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
-
-    switch (typeof type) {
-    case "string":
-      typeof type === "string" && (type = type.toLowerCase());
-      if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
-      isClassID = !!NTIPAliasClassID[type];
-      type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
-      
-      break;
-    case "number":
-      if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
-      isClassID = Object.values(sdk.items).includes(type);
-
-      break;
-    }
-
-    let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
-    let items = me.getItemsEx()
-      .filter(function (item) {
-        return item.quality === quality && !item.questItem && !item.isRuneword
-          && (isClassID ? item.classid === type : item.itemType === type)
-          && getBaseStat("items", item.classid, "gemsockets") > 0;
-      });
-
-    for (let item of items) {
-      itemCHECK = !!(item.quality === quality) && (iName ? item.fname.toLowerCase().includes(iName) : true);
-
-      // don't waste time if first condition wasn't met
-      itemCHECK && (typeCHECK = isClassID ? item.classid === type : item.itemType === type);
-
-      if (itemCHECK && typeCHECK) {
-        if (!socketableCHECK && item.getItemsEx().length === 0) {
-          return true;
-        } else if (socketableCHECK) {
-          SoloWants.addToList(item);
-
-          return true;
-        }
-      }
-    }
-
-    return false;
-  },
-
-  getMaxValue: function (buildInfo, stat) {
+  const getMaxValue = function (buildInfo, stat) {
     if (!buildInfo || !buildInfo.stats || stat === undefined) return 0;
     let highest = 0;
     const shorthandStr = [sdk.stats.Strength, "s", "str", "strength"];
@@ -998,13 +695,16 @@ const Check = {
     });
 
     return highest;
-  },
+  };
 
-  // repetitive code - FIX THIS
-  currentBuild: function () {
-    let build = me.currentBuild;
-    
-    if (!build) throw new Error("currentBuild(): Failed to include template: " + SetUp._buildTemplate);
+  /**
+   * Helper method to process a build object into a standardized structure
+   * @param {Build} build
+   */
+  const processBuild = function (build) {
+    if (!build) {
+      throw new Error("processBuild(): Build object is required");
+    }
 
     return {
       caster: build.caster,
@@ -1015,91 +715,323 @@ const Check = {
       usefulStats: build.hasOwnProperty("usefulStats") ? build.usefulStats : [],
       wantedMerc: build.hasOwnProperty("wantedMerc") ? build.wantedMerc : null,
       finalCharms: build.hasOwnProperty("charms") ? (build.charms || {}) : {},
-      maxStr: Check.getMaxValue(build, "strength"),
-      maxDex: Check.getMaxValue(build, "dexterity"),
+      maxStr: getMaxValue(build, "strength"),
+      maxDex: getMaxValue(build, "dexterity"),
       respec: build.hasOwnProperty("respec") ? build.respec : () => {},
       active: build.active,
     };
-  },
+  };
+  
+  return {
+    lowGold: false,
 
-  // repetitive code - FIX THIS
-  finalBuild: function () {
-    let finalBuild = me.finalBuild;
+    gold: function () {
+      let gold = me.gold;
+      let goldLimit = [25000, 50000, 100000][me.diff];
 
-    if (!finalBuild) throw new Error("finalBuild(): Failed to include template: " + SetUp._buildTemplate);
+      if ((me.normal && !me.accessToAct(2)) || gold >= goldLimit) {
+        return true;
+      }
 
-    return {
-      caster: finalBuild.caster,
-      tabSkills: finalBuild.skillstab,
-      wantedSkills: finalBuild.wantedskills,
-      usefulSkills: finalBuild.usefulskills,
-      precastSkills: finalBuild.precastSkills,
-      usefulStats: (!!finalBuild.usefulStats ? finalBuild.usefulStats : []),
-      wantedMerc: finalBuild.wantedMerc,
-      finalCharms: (finalBuild.charms || {}),
-      maxStr: Check.getMaxValue(finalBuild, "strength"),
-      maxDex: Check.getMaxValue(finalBuild, "dexterity"),
-      respec: finalBuild.respec,
-      active: finalBuild.active,
-    };
-  },
+      me.overhead("low gold");
 
-  checkSpecialCase: function () {
-    const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
-    let goalReached = false, goal = "";
+      return false;
+    },
 
-    switch (true) {
-    case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-    case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
-    case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.imbueStopLevel):
-      goal = SetUp.finalBuild;
-      goalReached = true;
+    brokeAf: function (announce = true) {
+      let gold = me.gold;
+      let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
 
-      break;
-    case SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel:
-      goal = "Level: " + SetUp.stopAtLevel;
-      goalReached = true;
+      switch (true) {
+      case (me.charlvl < 15):
+      case (me.normal && !me.accessToAct(2)):
+      case (gold >= lowGold):
+      case (me.charlvl >= 15 && gold > Math.floor(lowGold / 2) && gold > me.getRepairCost()):
+        return false;
+      }
 
-      break;
-    case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty):
+      if (announce) {
+        myPrint("very low gold. My Gold: " + gold);
+        NTIP.addLine("[name] == gold # [gold] >= 1");
+      }
+
+      return true;
+    },
+
+    broken: function () {
+      const gold = me.gold;
+      const rightArm = me.equipped.get(sdk.body.RightArm);
+      const leftArm = me.equipped.get(sdk.body.LeftArm);
+
+      // Almost broken but not quite
+      if (((rightArm.durability <= 30 && rightArm.durability > 0)
+      || (leftArm.durability <= 30 && leftArm.durability > 0)
+      && !me.getMerc() && me.charlvl >= 15 && !me.normal && !me.nightmare && gold < 1000)) {
+        return 1;
+      }
+
+      // Broken
+      if ((rightArm.durability === 0 || leftArm.durability === 0)
+      && me.charlvl >= 15 && !me.normal && gold < 1000) {
+        return 2;
+      }
+
+      return 0;
+    },
+
+    brokeCheck: function () {
+      Town.doChores();
+
+      let myGold = me.gold;
+      let repairCost = me.getRepairCost();
+      let items = (me.getItemsForRepair(100, false) || []);
+      let meleeChar = !Check.currentBuild().caster;
+      let msg = "";
+      let diff = -1;
+
+      switch (true) {
+      case myGold > repairCost:
+        return false;
+      case me.normal:
+      case !meleeChar && me.nightmare:
+        Check.lowGold = myGold < repairCost;
+        return false;
+      case meleeChar && !me.normal:
+      // check how broke we are - only for melee chars since casters don't care about weapons
+        let wep = me.equipped.get(sdk.body.RightArm);
+        if (!!wep && meleeChar && wep.durabilityPercent === 0) {
+        // we are really broke - go back to normal
+          msg = " We are broken - lets get some easy gold in normal.";
+          diff = sdk.difficulty.Normal;
+        }
+
+        break;
+      case !meleeChar && me.hell:
+        msg = " We are pretty broke, lets run some easy stuff in nightmare for gold";
+        diff = sdk.difficulty.Nightmare;
+
+        break;
+      }
+
+      if (diff > -1) {
+        console.debug("My gold: " + myGold + ", Repair cost: " + repairCost);
+        goToDifficulty(diff, msg + (" My gold: " + myGold + ", Repair cost: " + repairCost));
+
+        return true;
+      }
+
+      return false;
+    },
+
+    nextDifficulty: function (announce = true) {
+      let currDiff = me.diff;
+      if (currDiff === sdk.difficulty.Hell) return false;
+      if (["Bumper", "Socketmule"].includes(SetUp.finalBuild)) return false;
+      if (me.charlvl < CharInfo.levelCap) return false;
+      if (!me.diffCompleted) return false;
+      let nextDiff = null;
+      let res = this.resistance();
+      let lvlReq = !!(!this.broken());
+      let [str, color] = ["", sdk.colors.D2Bot.Black];
+
+      if (lvlReq) {
+        if (res.Status) {
+          nextDiff = currDiff + 1;
+          [str, color] = ["next difficulty requirements met. Starting: " + sdk.difficulty.nameOf(nextDiff), sdk.colors.D2Bot.Blue];
+        } else {
+          if (me.charlvl >= CharInfo.levelCap + (!me.normal ? 5 : 2)) {
+            nextDiff = currDiff + 1;
+            str = "Over leveled. Starting: " + sdk.difficulty.nameOf(nextDiff);
+          } else {
+            announce && myPrint(
+              sdk.difficulty.nameOf(currDiff + 1)
+            + " requirements not met. Negative resistance. FR: " + res.FR + " | CR: " + res.CR + " | LR: " + res.LR
+            );
+          }
+        }
+      }
+
+      if (!nextDiff) return false;
+      if (announce && str) {
+        D2Bot.printToConsole("Kolbot-SoloPlay: " + str, color);
+      }
+
+      return sdk.difficulty.nameOf(nextDiff);
+    },
+
+    runes: function () {
+      if (me.classic) return false;
+      let needRunes = true;
+
+      switch (me.diff) {
+      case sdk.difficulty.Normal:
+      // Have runes or stealth and ancients pledge
+        if (me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Eth])
+        || me.checkItem({ name: sdk.locale.items.Stealth }).have) {
+          needRunes = false;
+        }
+
+        break;
+      case sdk.difficulty.Nightmare:
+        if ((me.haveRunes([sdk.items.runes.Tal, sdk.items.runes.Thul, sdk.items.runes.Ort, sdk.items.runes.Amn])
+        && Check.currentBuild().caster)
+        || (!me.paladin && me.checkItem({ name: sdk.locale.items.Spirit, itemtype: sdk.items.type.Sword }).have)
+        || (me.paladin && me.haveAll([
+          {
+            name: sdk.locale.items.Spirit,
+            itemtype: sdk.items.type.Sword
+          },
+          {
+            name: sdk.locale.items.Spirit,
+            itemtype: sdk.items.type.AuricShields
+          }
+        ]))
+        || (me.necromancer && me.checkItem({ name: sdk.locale.items.White }).have
+          && (
+            me.checkItem({ name: sdk.locale.items.Rhyme, itemtype: sdk.items.type.VoodooHeads }).have
+            || me.equipped.get(sdk.body.LeftArm).tier > 800
+          ))
+        || (me.barbarian && (me.checkItem({ name: sdk.locale.items.Lawbringer }).have || me.baal))) {
+          needRunes = false;
+        }
+
+        break;
+      case sdk.difficulty.Hell:
+        if (!me.baal || (me.sorceress && !["Blova", "Lightning"].includes(SetUp.currentBuild))) {
+          needRunes = false;
+        }
+
+        break;
+      }
+
+      return needRunes;
+    },
+
+    itemSockables: function (type, quality, iName) {
+      quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
+      typeof iName === "string" && (iName = iName.toLowerCase());
+      let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
+
+      switch (typeof type) {
+      case "string":
+        typeof type === "string" && (type = type.toLowerCase());
+        if (!NTIPAliasType[type] && !NTIPAliasClassID[type]) return false;
+        isClassID = !!NTIPAliasClassID[type];
+        type = isClassID ? NTIPAliasClassID[type] : NTIPAliasType[type];
+      
+        break;
+      case "number":
+        if (!Object.values(sdk.items.type).includes(type) && !Object.values(sdk.items).includes(type)) return false;
+        isClassID = Object.values(sdk.items).includes(type);
+
+        break;
+      }
+
+      let socketableCHECK = isClassID ? Config.socketables.find(({ classid }) => type === classid) : false;
+      let items = me.getItemsEx()
+        .filter(function (item) {
+          return item.quality === quality && !item.questItem && !item.isRuneword
+          && (isClassID ? item.classid === type : item.itemType === type)
+          && getBaseStat("items", item.classid, "gemsockets") > 0;
+        });
+
+      for (let item of items) {
+        itemCHECK = !!(item.quality === quality) && (iName ? item.fname.toLowerCase().includes(iName) : true);
+
+        // don't waste time if first condition wasn't met
+        itemCHECK && (typeCHECK = isClassID ? item.classid === type : item.itemType === type);
+
+        if (itemCHECK && typeCHECK) {
+          if (!socketableCHECK && item.getItemsEx().length === 0) {
+            return true;
+          } else if (socketableCHECK) {
+            SoloWants.addToList(item);
+
+            return true;
+          }
+        }
+      }
+
+      return false;
+    },
+
+    currentBuild: function () {
+      let build = me.currentBuild;
+    
+      if (!build) {
+        throw new Error("currentBuild(): Failed to include template: " + SetUp._buildTemplate);
+      }
+
+      return processBuild(build);
+    },
+
+    finalBuild: function () {
+      let finalBuild = me.finalBuild;
+
+      if (!finalBuild) {
+        throw new Error("finalBuild(): Failed to include template: " + SetUp._buildTemplate);
+      }
+
+      return processBuild(finalBuild);
+    },
+
+    checkSpecialCase: function () {
+      const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
+      let goalReached = false, goal = "";
+
+      switch (true) {
+      case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
+      case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
+      case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.imbueStopLevel):
+        goal = SetUp.finalBuild;
+        goalReached = true;
+
+        break;
+      case SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel:
+        goal = "Level: " + SetUp.stopAtLevel;
+        goalReached = true;
+
+        break;
+      case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty):
       // TODO: fill this out, if we go back to normal from hell I want to be able to do whatever it was imbue/socket/respec then return to our orignal difficulty
       // as it is right now if we go back it would take 2 games to get back to hell
       // but this needs a check to ensure that one of the above reasons are why we went back in case we had gone back because low gold in which case we need to stay in the game
-      break;
-    default:
-      break;
-    }
-
-    if (goalReached) {
-      const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
-
-      switch (true) {
-      case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
-      case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
-      case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.imbueMule):
-        SetUp.makeNext();
-        
         break;
       default:
-        D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
-        Developer.logPerformance && Tracker.update();
-        D2Bot.stop();
+        break;
       }
-    }
-  },
 
-  // TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
-  usePreviousSocketQuest: function () {
-    if (me.classic) return;
-    if (!Check.resistance().Status) {
-      if (me.weaponswitch === 0
-        && me.equipped.get(sdk.body.LeftArm).fname.includes("Lidless Wall")
-        && !me.equipped.get(sdk.body.LeftArm).socketed) {
-        if (!me.normal) {
-          if (!me.data.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
-          if (me.hell && !me.data.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
+      if (goalReached) {
+        const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
+
+        switch (true) {
+        case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
+        case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
+        case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.imbueMule):
+          SetUp.makeNext();
+        
+          break;
+        default:
+          D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
+          Developer.logPerformance && Tracker.update();
+          D2Bot.stop();
         }
       }
-    }
-  },
-};
+    },
+
+    // TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
+    usePreviousSocketQuest: function () {
+      if (me.classic) return;
+      if (!resistance().Status) {
+        if (me.weaponswitch === 0
+        && me.equipped.get(sdk.body.LeftArm).fname.includes("Lidless Wall")
+        && !me.equipped.get(sdk.body.LeftArm).socketed) {
+          if (!me.normal) {
+            if (!me.data.normal.socketUsed) goToDifficulty(sdk.difficulty.Normal, " to use socket quest");
+            if (me.hell && !me.data.nightmare.socketUsed) goToDifficulty(sdk.difficulty.Nightmare, " to use socket quest");
+          }
+        }
+      }
+    },
+  };
+})();
