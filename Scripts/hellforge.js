@@ -38,7 +38,7 @@ function hellforge () {
 
   Pickit.pickItems();
   let forge = Game.getObject(sdk.quest.chest.HellForge);
-  !!forge && Attack.clearPos(forge.x, forge.y, 25) && Attack.securePosition(forge.x, forge.y, 25, 3000);
+  !!forge && Attack.clearPos(forge.x, forge.y, 25) && Attack.securePosition(forge.x, forge.y, { range: 25, duration: 3000 });
 
   if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
     // we don't have the hammer, is Hephasto dead?

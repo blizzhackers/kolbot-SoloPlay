@@ -93,7 +93,7 @@ function tristram () {
               return false;
             }
           }
-          Attack.securePosition(me.x, me.y, 10, 0);
+          Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
           delay(10);
         }
       }
@@ -104,7 +104,7 @@ function tristram () {
         if (Pather.usePortal(sdk.areas.Tristram)) {
           break;
         }
-        Attack.securePosition(me.x, me.y, 10, 1000);
+        Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
       }
     } catch (err) {
       console.error(err);

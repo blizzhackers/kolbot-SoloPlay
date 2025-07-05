@@ -13,7 +13,7 @@ function cube () {
   Precast.doPrecast(true);
   Pather.clearToExit(sdk.areas.HallsoftheDeadLvl2, sdk.areas.HallsoftheDeadLvl3, Pather.useTeleport());
   Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HoradricCubeChest);
-  Attack.securePosition(me.x, me.y, 30, 3000, true);
+  Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
   Quest.collectItem(sdk.items.quest.Cube, sdk.quest.chest.HoradricCubeChest);
   Quest.stashItem(sdk.items.quest.Cube);
   Town.sortStash(true);

@@ -17,7 +17,7 @@ function duriel () {
   Precast.doPrecast(true);
   Pather.moveToExit(getRoom().correcttomb, true);
   Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.HoradricStaffHolder);
-  Attack.securePosition(me.x, me.y, 30, 3000, true, me.hell);
+  Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true, useRedemption: me.hell });
   Quest.placeStaff();
 
   // quest-prep
