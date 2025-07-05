@@ -12,7 +12,7 @@
 include("critical.js"); // required
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-const { StarterConfig } = require("./StarterConfig.js");
+const { StarterConfig } = require("./StarterConfig");
 Object.assign(Starter.Config, StarterConfig);
 
 /**
