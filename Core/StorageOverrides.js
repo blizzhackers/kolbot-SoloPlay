@@ -224,12 +224,12 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
             || itemIdsLeft.indexOf(item.classid) === -1
           )) {
         // sort from right by default or if specified
-          nPos = this.FindSpot(item, true, false, SetUp.sortSettings.ItemsSortedFromRightPriority);
+          nPos = this.FindSpot(item, true, false, Config.SortSettings.ItemsSortedFromRightPriority);
         } else if (this.location === sdk.storage.Inventory
           && itemIdsRight.indexOf(item.classid) === -1
           && itemIdsLeft.includes(item.classid)) {
         // sort from left only if specified
-          nPos = this.FindSpot(item, false, false, SetUp.sortSettings.ItemsSortedFromLeftPriority);
+          nPos = this.FindSpot(item, false, false, Config.SortSettings.ItemsSortedFromLeftPriority);
         }
 
         // skip if no better spot found
@@ -312,7 +312,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
           let bufferItemGfx = this.itemList[this.buffer[x][y] - 1].gfx;
           let bufferItemQuality = this.itemList[this.buffer[x][y] - 1].quality;
 
-          if (SetUp.sortSettings.PrioritySorting && priorityClassIds && priorityClassIds.includes(item.classid)
+          if (Config.SortSettings.PrioritySorting && priorityClassIds && priorityClassIds.includes(item.classid)
             && !this.IsLocked(this.itemList[this.buffer[x][y] - 1], Config.Inventory) // don't try to make a spot by moving locked items! TODO: move this to the start of loop
             && (priorityClassIds.indexOf(bufferItemClass) === -1
             || priorityClassIds.indexOf(item.classid) < priorityClassIds.indexOf(bufferItemClass))) { // item in this spot needs to move!
@@ -370,7 +370,7 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
       ItemsSortedFromRight,
       ItemsSortedFromLeftPriority,
       ItemsSortedFromRightPriority
-    } = SetUp.sortSettings;
+    } = Config.SortSettings;
     // TODO: test the scenario where all possible items have been moved, but this item still can't be placed
     //		 e.g. if there are many LCs in an inventory and the spot for a GC can't be freed up without
     //			  moving other items that ARE NOT part of the position desired

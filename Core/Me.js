@@ -1044,8 +1044,8 @@ me.needMerc = function () {
 
 me.sortInventory = function () {
   return Storage.Inventory.SortItems(
-    SetUp.sortSettings.ItemsSortedFromLeft,
-    SetUp.sortSettings.ItemsSortedFromRight
+    Config.SortSettings.ItemsSortedFromLeft,
+    Config.SortSettings.ItemsSortedFromRight
   );
 };
 
