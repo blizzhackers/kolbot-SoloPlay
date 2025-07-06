@@ -65,7 +65,6 @@ function tristram () {
       /**
        * @todo I know there is a way to read the correct stone order from the packet response, need to figure that out
        */
-      include("core/Common/Cain.js");
       
       const stoneIds = [
         sdk.quest.chest.StoneAlpha, sdk.quest.chest.StoneBeta, sdk.quest.chest.StoneGamma,

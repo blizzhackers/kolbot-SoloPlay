@@ -8,7 +8,6 @@
 // todo: clean this up, listen for lights game packet while opening/checking seals
 
 function diablo () {
-  include("core/Common/Diablo.js");
   // Start Diablo Quest
   const diabloPrep = function () {
     let tick = getTickCount();

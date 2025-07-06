@@ -7,7 +7,6 @@
 */
 
 function ancients () {
-  include("core/Common/Ancients.js");
   Town.doChores(false, { fullChores: true });
   myPrint("starting ancients");
 

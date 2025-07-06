@@ -9,7 +9,6 @@ include("critical.js");
 
 // globals needed for core gameplay
 includeCoreLibs({ exclude: ["Storage.js"] });
-include("core/Common/Tools.js");
 
 // system libs
 includeSystemLibs();

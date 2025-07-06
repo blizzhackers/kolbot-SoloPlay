@@ -132,7 +132,6 @@ function cows () {
   Town.move("stash");
 
   if (Misc.poll(() => Pather.usePortal(sdk.areas.MooMooFarm), Time.seconds(30), Time.seconds(1))) {
-    include("core/Common/Cows.js");
     const Worker = require("../../modules/Worker");
     let kingTick = getTickCount();
     let king;
