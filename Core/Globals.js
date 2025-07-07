@@ -830,7 +830,7 @@ const Check = (function () {
       if (me.charlvl < CharInfo.levelCap) return false;
       if (!me.diffCompleted) return false;
       let nextDiff = null;
-      let res = this.resistance();
+      let res = resistance();
       let lvlReq = !!(!this.broken());
       let [str, color] = ["", sdk.colors.D2Bot.Black];
 
