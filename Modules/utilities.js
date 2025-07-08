@@ -53,8 +53,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
           changed[key] = {};
         }
         recursiveSearch((o === null || o === void 0 ? void 0 : o[key]) || {}, (n === null || n === void 0 ? void 0 : n[key]) || {}, changed[key]);
-        if (!Object.keys(changed[key]).length)
-          delete changed[key];
+        if (!Object.keys(changed[key]).length) {delete changed[key];}
       }
     });
     return changed;

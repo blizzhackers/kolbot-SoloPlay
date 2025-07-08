@@ -1,10 +1,9 @@
 /**
-*  @filename    amazon.JavazonBuild.js
-*  @author      theBGuy
-*  @desc        Javelin Lightning based final build (pure lightning for expansion) (light/poision for classic)
-*
-*/
-
+ *  @filename    amazon.JavazonBuild.js
+ *  @author      theBGuy
+ *  @desc        Javelin Lightning based final build (pure lightning for expansion) (light/poision for classic)
+ *
+ */
 
 (function (module) {
   module.exports = (function () {
@@ -26,8 +25,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MaxHp) === 20
+            );
+          },
         },
 
         ResMf: {
@@ -36,8 +40,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MagicBonus) === 7
+            );
+          },
         },
 
         ResFHR: {
@@ -46,8 +55,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.FHR) === 5
+            );
+          },
         },
 
         Skiller: {
@@ -56,20 +70,24 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.JavelinandSpear) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.JavelinandSpear) === 1 &&
+              check.getStat(sdk.stats.MaxHp) >= 40
+            );
+          },
         },
       },
-      
+
       AutoBuildTemplate: {
-        1:	{
+        1: {
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.ChargedStrike, -1, sdk.skills.LightningStrike, -1, -1, -1];
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             Config.HPBuffer = me.expansion ? 2 : 4;
             Config.MPBuffer = me.expansion ? 4 : 6;
-          }
+          },
         },
       },
 
@@ -77,27 +95,47 @@
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
         } else {
-          return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50)));
+          return (
+            Attack.checkInfinity() ||
+            (me.data.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50))
+          );
         }
       },
 
       active: function () {
-        return this.respec() && (me.expansion ? me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) > 1 && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) < 5 : me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) === 20);
+        return (
+          this.respec() &&
+          (me.expansion
+            ? me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) > 1 &&
+              me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) < 5
+            : me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) === 20)
+        );
       },
     };
 
     build.stats = me.classic
       ? [
-        ["dexterity", 65], ["strength", 75], ["vitality", "all"]
+        ["dexterity", 65],
+        ["strength", 75],
+        ["vitality", "all"],
       ]
       : [
-        ["strength", 34], ["vitality", 30], ["dexterity", 47],
-        ["vitality", 45], ["strength", 47], ["dexterity", 65],
-        ["vitality", 65], ["strength", 53], ["dexterity", 118],
-        ["vitality", 100], ["strength", 118], ["dexterity", 151],
-        ["strength", 156], ["vitality", "all"],
+        ["strength", 34],
+        ["vitality", 30],
+        ["dexterity", 47],
+        ["vitality", 45],
+        ["strength", 47],
+        ["dexterity", 65],
+        ["vitality", 65],
+        ["strength", 53],
+        ["dexterity", 118],
+        ["vitality", 100],
+        ["strength", 118],
+        ["dexterity", 151],
+        ["strength", 156],
+        ["vitality", "all"],
       ];
-    
+
     build.skills = me.classic
       ? [
         [sdk.skills.Valkyrie, 1],
@@ -128,8 +166,9 @@
         [sdk.skills.Pierce, 5, false],
       ];
 
-    me.classic && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
-    
+    me.classic &&
+      build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
+
     let finalGear = me.classic
       ? [
         // Helm - Tarnhelm
@@ -142,7 +181,8 @@
         "[name] == leathergloves && [quality] == set # [poisonresist] >= 50 # [tier] == 100000",
         // Rings - SoJ
         "[type] == ring && [quality] == unique # [itemmaxmanapercent] == 25 # [tier] == 100000",
-      ] : [
+      ]
+      : [
         // Weapon - Titan's Revenge
         "[name] == ceremonialjavelin && [quality] == unique # [itemchargedskill] >= 0 # [tier] == tierscore(item, 100000)",
         // Helmet - Harlequin's Crest

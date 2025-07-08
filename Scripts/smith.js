@@ -9,7 +9,9 @@ function smith () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting smith");
 
-  Pather.checkWP(sdk.areas.OuterCloister, true) ? Pather.useWaypoint(sdk.areas.OuterCloister) : Pather.getWP(sdk.areas.OuterCloister);
+  Pather.checkWP(sdk.areas.OuterCloister, true)
+    ? Pather.useWaypoint(sdk.areas.OuterCloister)
+    : Pather.getWP(sdk.areas.OuterCloister);
   Precast.doPrecast(true);
   Pather.moveToExit(sdk.areas.Barracks);
 
@@ -29,7 +31,7 @@ function smith () {
   Town.goToTown();
   Town.npcInteract("charsi");
 
-  if (!getWaypoint(Pather.wpAreas.indexOf(sdk.areas.JailLvl1))) {
+  if (!me.haveWaypoint(sdk.areas.JailLvl1)) {
     Pather.usePortal(null, me.name);
     Pather.getWP(sdk.areas.JailLvl1);
     Pather.useWaypoint(sdk.areas.RogueEncampment);

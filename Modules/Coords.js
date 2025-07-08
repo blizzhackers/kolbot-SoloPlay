@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* eslint-disable dot-notation */
 (function (factory) {
   if (typeof module === "object" && typeof module.exports === "object") {

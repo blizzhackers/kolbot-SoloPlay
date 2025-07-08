@@ -33,7 +33,13 @@ const CharInfo = {
     case currLevel < this.respecOne && !me.checkSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints):
       return "Start";
     case currLevel >= this.respecOne && currLevel < this.respecTwo && justRepeced:
-    case currLevel >= this.respecOne && currLevel < this.respecTwo && me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) && !me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints):
+    case (
+      currLevel >= this.respecOne
+      && currLevel < this.respecTwo
+      && me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)
+      && !me.checkSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints)
+      && !me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints)
+    ):
       return "Stepping";
     case Check.finalBuild().respec() && justRepeced:
     case Check.finalBuild().active():

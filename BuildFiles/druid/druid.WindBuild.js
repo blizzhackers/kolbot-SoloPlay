@@ -1,10 +1,9 @@
 /**
-*  @filename    druid.WindBuild.js
-*  @author      isid0re, theBGuy
-*  @desc        Wind elemental based final build
-*
-*/
-
+ *  @filename    druid.WindBuild.js
+ *  @author      isid0re, theBGuy
+ *  @desc        Wind elemental based final build
+ *
+ */
 
 (function (module) {
   module.exports = (function () {
@@ -17,7 +16,9 @@
       usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery],
       wantedMerc: MercData[sdk.skills.Might],
       stats: [
-        ["dexterity", 35], ["strength", 156], ["vitality", "all"]
+        ["dexterity", 35],
+        ["strength", 156],
+        ["vitality", "all"],
       ],
       skills: [
         [sdk.skills.Grizzly, 1],
@@ -36,8 +37,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
-          }
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20
+            );
+          },
         },
 
         ResMf: {
@@ -46,8 +52,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
-          }
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7
+            );
+          },
         },
 
         ResFHR: {
@@ -56,8 +67,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
-          }
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5
+            );
+          },
         },
 
         Skiller: {
@@ -66,21 +82,24 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Elemental) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
-          }
+            return (
+              !check.unique
+              && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Elemental) === 1
+              && check.getStat(sdk.stats.MaxHp) >= 40
+            );
+          },
         },
       },
 
       AutoBuildTemplate: {
-        1:	{
+        1: {
           Update: function () {
-            Config.SkipImmune = ["cold and physical"];
-            Config.AttackSkill = [-1, sdk.skills.Tornado, -1, sdk.skills.Tornado, -1, sdk.skills.ArcticBlast, -1];
+            Config.AttackSkill = [-1, sdk.skills.Tornado, -1, sdk.skills.Tornado, -1, sdk.skills.ArticBlast, -1];
             Config.LowManaSkill = [-1, -1];
             Config.SummonAnimal = "Grizzly";
             Config.SummonSpirit = "Oak Sage";
-          }
+          },
         },
       },
 
@@ -93,7 +112,8 @@
       },
     };
 
-    let finalGear = [ // autoequip final gear
+    let finalGear = [
+      // autoequip final gear
       // Weapon - HotO
       "[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000",
       // Helmet - Jalal's mane

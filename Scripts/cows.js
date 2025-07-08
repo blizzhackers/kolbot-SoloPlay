@@ -1,11 +1,11 @@
 /**
-*  @filename    cows.js
-*  @author      kolton, theBGuy
-*  @desc        clear the Moo Moo Farm without killing the Cow King
-*
-*/
+ *  @filename    cows.js
+ *  @author      kolton, theBGuy
+ *  @desc        clear the Moo Moo Farm without killing the Cow King
+ *
+ */
 
-function cows () {
+function cows() {
   const getLeg = function () {
     if (me.getItem(sdk.items.quest.WirtsLeg)) return me.getItem(sdk.items.quest.WirtsLeg);
 
@@ -54,7 +54,7 @@ function cows () {
           tpTome.forEach(function (book) {
             while (book.getStat(sdk.stats.Quantity) < 20) {
               scroll = npc.getItem(sdk.items.ScrollofTownPortal);
-              
+
               if (!!scroll && scrollCost < me.gold) {
                 scroll.buy(true);
               } else {
@@ -78,7 +78,11 @@ function cows () {
       let cubingItem;
       if (classID === sdk.items.TomeofTownPortal) {
         // select the tome we just bought rather than the one we had by it's position in our invo
-        cubingItem = me.getItemsEx(sdk.items.TomeofTownPortal).filter(i => i.isInInventory).sort((a, b) => a.x - b.x).first();
+        cubingItem = me
+          .getItemsEx(sdk.items.TomeofTownPortal)
+          .filter((i) => i.isInInventory)
+          .sort((a, b) => a.x - b.x)
+          .first();
       } else {
         cubingItem = me.getItem(classID);
       }
@@ -117,7 +121,7 @@ function cows () {
   myPrint("starting cows");
 
   if (!Pather.getPortal(sdk.areas.MooMooFarm) && !getLeg()) return true;
-  
+
   Town.doChores();
   openPortal(sdk.areas.MooMooFarm, sdk.items.quest.WirtsLeg, sdk.items.TomeofTownPortal);
   NPCAction.fillTome(sdk.items.TomeofTownPortal);
@@ -128,7 +132,7 @@ function cows () {
   } else {
     Misc.getExpShrine([sdk.areas.BloodMoor]);
   }
-  
+
   Town.move("stash");
 
   if (Misc.poll(() => Pather.usePortal(sdk.areas.MooMooFarm), Time.seconds(30), Time.seconds(1))) {
@@ -146,7 +150,14 @@ function cows () {
         !kingPreset && (kingPreset = Game.getPresetMonster(me.area, sdk.monsters.preset.TheCowKing));
 
         if (king && kingPreset) {
-          if (getDistance(me.x, me.y, getRoom(kingPreset.roomx * 5 + kingPreset.x), getRoom(kingPreset.roomy * 5 + kingPreset.y)) <= 25) {
+          if (
+            getDistance(
+              me.x,
+              me.y,
+              getRoom(kingPreset.roomx * 5 + kingPreset.x),
+              getRoom(kingPreset.roomy * 5 + kingPreset.y)
+            ) <= 25
+          ) {
             myPrint("exit cows. Near the king");
             throw new Error("exit cows. Near the king");
           }

@@ -1,3 +1,7 @@
+/**
+ * Runeword configuration for Enigma
+ * IIFE for scope
+ */
 (function () {
   const Enigma = [
     "[name] == JahRune",

@@ -33,7 +33,7 @@ function templeruns () {
       }
       const precastTimeout = getTickCount() + Time.minutes(2);
       if (Pather.wpAreas.includes(area.base)
-        && !getWaypoint(Pather.wpAreas.indexOf(area.base))) {
+        && !me.haveWaypoint(area.base)) {
         Pather.getWP(area.base);
       }
       /** @type {Map<number, { x: number, y: number }} */
