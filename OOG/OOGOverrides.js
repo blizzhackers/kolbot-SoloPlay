@@ -27,6 +27,7 @@ const LocationAction = {
   let joinInfo;
   
   Starter.Config.StopOnDeadHardcore = false;
+  Starter._ftj = 0;
   
   const Controls = require("../../modules/Control");
   const Overrides = require("../../modules/Override");
@@ -262,31 +263,6 @@ const LocationAction = {
           Controls.CharSelectCreate.click();
 
           break;
-        case sdk.game.locations.LobbyPleaseWait:
-          {
-            let textPopup = Controls.CharCreateStatusText.control;
-
-            if (textPopup) {
-              let text = parseControlText(textPopup);
-              if (text && text.includes("Please wait")) {
-                // annoying but this is actually the popup after char create as well
-                if (!Starter.locationTimeout(Time.seconds(5), sdk.game.locations.LobbyPleaseWait)) {
-                  // should we restart or just wait it out?
-                  // D2Bot.restart();
-                  // just log and wait it out for now
-                  D2Bot.printToConsole("Stuck at LobbyPleaseWait screen", sdk.colors.D2Bot.Red);
-                }
-              } else if (text && text.includes("That character name is already taken.")) {
-                ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
-                Starter.profileInfo.charName = info.charName = NameGen();
-                Controls.OkCentered.click();
-                D2Bot.updateStatus("Making Character: " + info.charName);
-                Controls.OkCentered.click(); // actually cancel but whatever
-              }
-            }
-          }
-
-          break;
         case sdk.game.locations.CharacterCreate:
           clickCoords = coords.get(info.charClass.toLowerCase()) || coords.get("paladin");
           getControl().click(clickCoords[0], clickCoords[1]);
@@ -307,12 +283,27 @@ const LocationAction = {
           }
 
           break;
+        case sdk.game.locations.LobbyPleaseWait:
         case sdk.game.locations.OkCenteredErrorPopUp:
-          // char name exists (text box 4, 268, 320, 264, 120)
-          ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
-          Starter.profileInfo.charName = info.charName = NameGen();
-          Controls.OkCentered.click();
-          D2Bot.updateStatus("Making Character: " + info.charName);
+          {
+            let textPopup = Controls.CharCreateStatusText.control;
+
+            if (textPopup) {
+              let text = parseControlText(textPopup);
+              if (text && text.includes("Please wait")) {
+                // annoying but this is actually the popup after char create as well
+                if (!Starter.locationTimeout(Time.seconds(5), sdk.game.locations.LobbyPleaseWait)) {
+                  D2Bot.printToConsole("Stuck at LobbyPleaseWait screen", sdk.colors.D2Bot.Red);
+                }
+              } else if (text && text.includes("That character name is already taken.")) {
+                ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
+                Starter.profileInfo.charName = info.charName = NameGen();
+                Controls.OkCentered.click();
+                D2Bot.updateStatus("Making Character: " + info.charName);
+                Controls.OkCentered.click(); // actually cancel but whatever
+              }
+            }
+          }
 
           break;
         default:
@@ -1387,6 +1378,7 @@ const LocationAction = {
           Starter.gameCount += 1;
           Starter.lastGameStatus = "ready";
           Starter.inGame = false;
+          Starter._ftj = 0;
 
           if (Starter.Config.ResetCount && Starter.gameCount > Starter.Config.ResetCount) {
             Starter.gameCount = 1;
@@ -1445,7 +1437,15 @@ const LocationAction = {
         // FTJ handler
         if (Starter.lastGameStatus === "pending") {
           Starter.isUp = "no";
+
+          if (Starter.profileInfo.hardcore && Starter._ftj > 3) {
+            console.debug("3 FTJ's limit reached. Exiting to lobby, maybe we died?");
+            Controls.LobbyQuit.click();
+            
+            return;
+          }
           
+          Starter._ftj += 1;
           D2Bot.printToConsole("Failed to create game");
           ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
           D2Bot.updateRuns();
