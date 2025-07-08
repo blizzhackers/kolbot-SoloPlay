@@ -1293,10 +1293,15 @@
     return {
       wps: wps,
 
+      /**
+       * @param {number} key 
+       * @param {AreaDataInstance} value 
+       */
       set: function (key, value) {
         _map.set(key, value);
       },
       
+      /** @param {number} key */
       get: function (key) {
         return _map.get(key);
       },
@@ -1305,6 +1310,10 @@
         return _map.has(key);
       },
 
+      /**
+       * @param {(value: AreaDataInstance, key: number) => void} callbackFn 
+       * @param {ThisType} thisArg 
+       */
       forEach: function (callbackFn, thisArg) {
         thisArg = thisArg || this;
         for (let [key, value] of _map.entries()) {
@@ -1328,6 +1337,10 @@
           : _nonTownWps.random();
       },
 
+      /**
+       * @param {number} shrineType
+       * @returns {Array<AreaDataInstance>}
+       */
       getAreasWithShrine: function (shrineType) {
         let areas = [];
 

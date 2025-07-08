@@ -26,7 +26,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
             sdk.states.BattleCry, sdk.states.AmplifyDamage,
             sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt
           ].every(state => !el.getState(state))
-          && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
+          && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
       }).length > me.maxNearMonsters;
   };
 
@@ -38,7 +38,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
           sdk.states.BattleCry, sdk.states.AmplifyDamage,
           sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt
         ].every(state => !el.getState(state))
-        && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
+        && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
     });
   };
 
@@ -54,7 +54,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
           sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
         ].includes(el.classid)
         && (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500)
-        && !checkCollision(me, el, Coords_1.Collision.BLOCK_MISSILE));
+        && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
     });
   };
 
@@ -136,7 +136,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
             sdk.states.Terror, sdk.states.BattleCry,
             sdk.states.Decrepify, sdk.states.Taunt
           ].every(state => !currMob.getState(state))
-          && data.taunt.mana < me.mp && !Coords_1.isBlockedBetween(me, currMob)) {
+          && data.taunt.mana < me.mp && !Coords.isBlockedBetween(me, currMob)) {
           me.overhead("Taunting: " + currMob.name + " | classid: " + currMob.classid);
           Skill.cast(sdk.skills.Taunt, sdk.skills.hand.Right, currMob);
         }
@@ -375,7 +375,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
         }
 
         // Remove this for now, needs more data calculations to decide if its actually worth using (% dmg, %crushing blow, # of mobs filtering phys immunes unless maybe we do ele dmg from something)
-        // if (useWhirl && !unit.dead && (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
+        // if (useWhirl && !unit.dead && (me.getMobCount(6, Coords.Collision.BLOCK_MISSILE | Coords.BlockBits.BlockWall) >= 3 || ([156, 211, 242, 243, 544, 571].indexOf(unit.classid) > -1) && !me.hell)) {
         // 	this.whirlwind(unit);
         // }
       }
@@ -437,7 +437,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
           corpse = Game.getMonster(check.classid, sdk.monsters.mode.Dead, check.gid);
 
           if (this.checkCorpse(corpse)) {
-            if (corpse.distance > 30 || Coords_1.isBlockedBetween(me, corpse)) {
+            if (corpse.distance > 30 || Coords.isBlockedBetween(me, corpse)) {
               Pather.moveNearUnit(corpse, 5);
             }
 

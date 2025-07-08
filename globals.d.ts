@@ -569,6 +569,7 @@ declare global {
 
     useable(): boolean;
   }
+
   class AreaDataInstance {
     constructor (index: number);
 
@@ -609,23 +610,143 @@ declare global {
     getShrines(): ShrineInstance[];
   }
 
-  namespace AreaData {
-    /** @private */
-    const _map: Map<number, AreaDataInstance>;
-    const wps: Map<number, number>;
-    const nextAreas: Map<number, number[]>;
-    const previousAreas: Map<number, number>;
-
-    function set(key: number, value: AreaDataInstance): void;
-    function get(key: number): AreaDataInstance | undefined;
-    function has(key: number): boolean;
-    function forEach(callback: (value: AreaDataInstance, key: number) => void): void;
-    /**
-     * @description returns a random non town wp area
-     */
-    function randomWpArea(checkValid: boolean): number;
-    function getAreasWithShrine(shrineType: number): AreaDataInstance[];
+  const AreaData: typeof import("./Modules/GameData/AreaData");
+  
+  interface CoordinatePoint {
+    x: number;
+    y: number;
   }
+
+  /**
+  * Block bits enumeration for collision detection
+  */
+  enum BlockBits {
+    BlockWall = 1,
+    LineOfSight = 2,
+    Ranged = 4,
+    PlayerToWalk = 8,
+    DarkArea = 16,
+    Casting = 32,
+    Unknown_NeverSeen = 64,
+    Players = 128,
+    Monsters = 256,
+    Items = 512,
+    Objects = 1024,
+    ClosedDoor = 2048,
+    IsOnFloor = 4096,
+    FriendlyNPC = 8192,
+    Unknown_3 = 16384,
+    DeadBodies = 32768
+  }
+
+  /**
+  * Collision enumeration for specific collision types
+  */
+  enum Collision {
+    BLOCK_MISSILE = 2062
+  }
+
+  interface Coords {
+    /**
+    * Block bits enumeration for collision detection
+    */
+    BlockBits: typeof BlockBits;
+
+    /**
+    * Collision enumeration for missile blocking
+    */
+    Collision: typeof Collision;
+
+    /**
+    * Get coordinates between two points using line algorithm
+    * @param {number} x1 - Starting X coordinate
+    * @param {number} y1 - Starting Y coordinate
+    * @param {number} x2 - Ending X coordinate
+    * @param {number} y2 - Ending Y coordinate
+    * @returns {CoordinatePoint[]} Array of coordinate points
+    */
+    getCoordsBetween(x1: number, y1: number, x2: number, y2: number): CoordinatePoint[];
+
+    /**
+    * Convert arguments to coordinate array
+    * @param {any[]} args - Arguments to convert
+    * @param {string} caller - Name of calling function
+    * @param {number} [length=2] - Expected length of coordinate array
+    * @returns {CoordinatePoint[]} Array of coordinate points
+    */
+    convertToCoordArray(args: any[], caller: string, length?: number): CoordinatePoint[];
+
+    /**
+    * Get collision flags between coordinates
+    * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
+    * @returns {number} Collision flags as bitmask
+    */
+    getCollisionBetweenCoords(...args: any[]): number;
+
+    /**
+    * Check if path between coordinates is blocked
+    * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
+    * @returns {boolean} True if path is blocked
+    */
+    isBlockedBetween(...args: any[]): boolean;
+
+    /**
+    * Check collision between two units with specific collision flags
+    * @param {Unit} unit1 - First unit
+    * @param {Unit} unit2 - Second unit
+    * @param {number} coll - Collision flags to check
+    * @returns {boolean} True if collision exists
+    */
+    checkCollisionBetween(unit1: Unit, unit2: Unit, coll: number): boolean;
+
+    /**
+    * Find casting spot for a specific skill
+    * @param {number} skill - Skill ID
+    * @param {Unit} unit - Target unit
+    * @param {number} [minRange=5] - Minimum casting range
+    * @param {number} [thickness=5] - Collision thickness
+    * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
+    * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
+    */
+    findCastingSpotSkill(skill: number, unit: Unit, minRange?: number, thickness?: number, collision?: number): CoordinatePoint | undefined;
+
+    /**
+    * Find casting spot within specified range
+    * @param {number} range - Maximum casting range
+    * @param {Unit} unit - Target unit
+    * @param {number} [minRange=5] - Minimum casting range
+    * @param {number} [thickness=5] - Collision thickness
+    * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
+    * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
+    */
+    findCastingSpotRange(range: number, unit: Unit, minRange?: number, thickness?: number, collision?: number): CoordinatePoint | undefined;
+
+    /**
+    * Get valid spots around a unit for casting/positioning
+    * @param {number} collision - Collision flags to avoid
+    * @param {number} thickness - Collision thickness to check
+    * @param {Unit} unit - Reference unit
+    * @returns {CoordinatePoint[]} Array of valid coordinate spots
+    */
+    getSpotsFor(collision: number, thickness: number, unit: Unit): CoordinatePoint[];
+  }
+
+  /**
+    * Room extension for coordinate checking
+    */
+  interface Room {
+    /**
+    * Check if coordinates are within this room
+    * @param {...any} args - Coordinate arguments (x, y or coordinate object)
+    * @returns {boolean} True if coordinates are in room
+    */
+    isInRoom(...args: any[]): boolean;
+  }
+
+  /**
+  * Coordinate utilities module
+  */
+  const Coords: Coords;
 
   namespace GameData {
     const myReference: Unit;

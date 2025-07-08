@@ -261,7 +261,7 @@ includeIfNotIncluded("core/Attacks/Druid.js");
      */
 
     if (range > 8 && me.inDanger()) {
-      Attack.getIntoPosition(unit, range + 1, Coords_1.Collision.BLOCK_MISSILE, true);
+      Attack.getIntoPosition(unit, range + 1, Coords.Collision.BLOCK_MISSILE, true);
     }
     
     if (!me.skillDelay || !timed) {

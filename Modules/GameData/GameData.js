@@ -12,7 +12,7 @@
   const MonsterData = require("./MonsterData");
   const AreaData = require("./AreaData");
   const MissileData = require("./MissileData");
-  const Coords_1 = require("../Coords");
+  const Coords = require("../Coords");
   const Vector = require("../Vector");
   const sdk = require("../../../modules/sdk");
   const HPLookup = [
@@ -93,6 +93,11 @@
   function onGround (item) {
     return item.onGroundOrDropping;
   }
+
+  /**
+   * @exports
+   * @typedef {typeof GameData} GameDataInterface
+   */
 
   const GameData = {
     myReference: me,
@@ -2296,7 +2301,7 @@
       .filter(function (unit) {
         return unit.attackable
         && typeof unit.x === "number" // happens if monster despawns
-        && !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
+        && !checkCollision(me, unit, Coords.Collision.BLOCK_MISSILE)
         && unit.getStat(sdk.stats.ColdResist) < 100;
         //&& !unit.getState(sdk.states.Frozen);
       })
@@ -2328,7 +2333,7 @@
       .filter(function (unit) {
         return unit.attackable
         && typeof unit.x === "number" // happens if monster despawns
-        && !checkCollision(me, unit, Coords_1.Collision.BLOCK_MISSILE)
+        && !checkCollision(me, unit, Coords.Collision.BLOCK_MISSILE)
         && Attack.checkResist(unit, "lightning");
       })
       .reduce(function (acc, cur) {

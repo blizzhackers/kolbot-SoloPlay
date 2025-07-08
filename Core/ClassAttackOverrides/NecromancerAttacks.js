@@ -263,7 +263,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
         skills.timed = sdk.skills.Teeth;
       } else if (Skill.canUse(sdk.skills.PoisonDagger) && Skill.getManaCost(sdk.skills.PoisonDagger) < me.mp) {
         skills.timed = sdk.skills.PoisonDagger;
-      } else if (me.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE | Coords_1.BlockBits.BlockWall) >= 1) {
+      } else if (me.getMobCount(6, Coords.Collision.BLOCK_MISSILE | Coords.BlockBits.BlockWall) >= 1) {
         // I have no mana and there are mobs around me, just attack
         skills.timed = sdk.skills.Attack;
       }

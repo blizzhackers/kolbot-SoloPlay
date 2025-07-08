@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
   global["__________ignoreMonster"] = [];
   const sdk_1 = __importDefault(require("../../modules/sdk"));
   const Events_1 = require("./Events");
-  const Coords_1 = require("./Coords");
+  const Coords = require("./Coords");
   const MissileData_1 = __importDefault(require("./GameData/MissileData"));
   const defaults = {
     range: 14,
@@ -83,7 +83,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
       try {
         let x = nearestNode.x, y = nearestNode.y;
         // If the path between me and the node we wanna run back to is blocked dont do it
-        if (CollMap.checkColl(me, {x: x, y: y}, Coords_1.Collision.BLOCK_MISSILE, 3)) {
+        if (CollMap.checkColl(me, {x: x, y: y}, Coords.Collision.BLOCK_MISSILE, 3)) {
           me.overhead("Before backtracking, clear near me");
           let unit = units.first();
           unit && ClassAttack.doAttack(unit);
@@ -124,7 +124,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                   .slice(settings.nodes.index, settings.nodes.index + 5)
                   .filter(function (el) { return el.distance < 30; }))
                   .some(function (node) { return getDistance(unit, node.x, node.y) < smallStepRange; })))
-                && !CollMap.checkColl(me, unit, Coords_1.Collision.BLOCK_MISSILE, 5); })
+                && !CollMap.checkColl(me, unit, Coords.Collision.BLOCK_MISSILE, 5); })
         .filter(function (unit) {
           if (!settings.spectype || typeof settings.spectype !== "number")
             return true; // No spectype =  all monsters

@@ -19,8 +19,11 @@ includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 // not every thread needs these
 /** @global */
 const Overrides = require("../../modules/Override");
-/** @global */
-const Coords_1 = require("../Modules/Coords");
+/**
+ * @global
+ * @type {Coords}
+ */
+const Coords = require("../Modules/Coords");
 /** @global */
 const GameData = require("../Modules/GameData/GameData");
 

@@ -394,7 +394,7 @@ ClassAttack.afterAttack = function () {
   Precast.doPrecast(false);
 
   if (Skill.canUse(sdk.skills.Cleansing) && me.hpPercent < 85 && me.getState(sdk.states.Poison)
-    && !me.checkForMobs({ range: 12, coll: Coords_1.BlockBits.BlockWall }) && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)) {
+    && !me.checkForMobs({ range: 12, coll: Coords.BlockBits.BlockWall }) && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)) {
     me.overhead("Delaying for a second to get rid of Poison");
     Misc.poll(() => (!me.getState(sdk.states.Poison) || me.mode === sdk.player.mode.GettingHit), 1500, 50);
   }

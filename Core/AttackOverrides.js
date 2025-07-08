@@ -1013,8 +1013,8 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
           attackCount -= _currMon.attacks;
         }
       } else {
-        if (Coords_1.isBlockedBetween(me, target)) {
-          let collCheck = Coords_1.getCollisionBetweenCoords(me.x, me.y, target.x, target.y);
+        if (Coords.isBlockedBetween(me, target)) {
+          let collCheck = Coords.getCollisionBetweenCoords(me.x, me.y, target.x, target.y);
           if (collCheck !== sdk.collision.MonsterObject) {
             console.log("ÿc1Skipping " + target.name + " because they are blocked. Collision: " + collCheck.toString(16));
             monsterList.shift();
@@ -1570,11 +1570,11 @@ Attack.pwnDia = function () {
           .filter(function (loc) {
             let collision = getCollision(me.area, loc.x, loc.y);
             // noinspection JSBitwiseOperatorUsage
-            let isLava = !!(collision & Coords_1.BlockBits.IsOnFloor);
+            let isLava = !!(collision & Coords.BlockBits.IsOnFloor);
             // this spot is on lava, fuck this
             if (isLava) return false;
             // noinspection JSBitwiseOperatorUsage
-            return !(collision & (Coords_1.BlockBits.BlockWall));
+            return !(collision & (Coords.BlockBits.BlockWall));
           })
           .sort(function (a, b) {
             return getDistance(me, a) - getDistance(me, b);
@@ -1623,7 +1623,7 @@ Attack.pwnDia = function () {
         }
         Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, dia);
 
-        if (!!dia && !checkCollision(me, dia, Coords_1.Collision.BLOCK_MISSILE)
+        if (!!dia && !checkCollision(me, dia, Coords.Collision.BLOCK_MISSILE)
           && Skill.getRange(Config.AttackSkill[2]) > 15) {
           Skill.cast(Config.AttackSkill[2], sdk.skills.hand.Right, dia);
         }
@@ -1890,8 +1890,8 @@ Attack.castableSpot = function (x = undefined, y = undefined) {
   }
 
   return !(result === undefined
-    || !!(result & Coords_1.BlockBits.Casting)
-    || !!(result & Coords_1.Collision.BLOCK_MISSILE)
+    || !!(result & Coords.BlockBits.Casting)
+    || !!(result & Coords.Collision.BLOCK_MISSILE)
     || (result & sdk.collision.Objects)
     || (result & sdk.collision.BlockWall));
 };

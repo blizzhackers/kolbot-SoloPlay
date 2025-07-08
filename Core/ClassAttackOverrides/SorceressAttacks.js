@@ -30,7 +30,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       do {
         if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
           && !mob.isChilled && Attack.checkResist(mob, "cold")
-          && !checkCollision(me, mob, Coords_1.Collision.BLOCK_MISSILE)) {
+          && !checkCollision(me, mob, Coords.Collision.BLOCK_MISSILE)) {
           return true;
         }
       } while (mob.getNext());
@@ -323,7 +323,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
           && getUnits(sdk.unittype.Monster).filter(function (el) {
             return getDistance(el, unit) < 4 && slowable(el, true);
           }).length > 1;
-        if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
+        if (shouldSpike && !Coords.isBlockedBetween(me, unit)) {
           Settings.debugging.skills && console.log("SPIKE");
           Skill.cast(sdk.skills.GlacialSpike, sdk.skills.hand.Right, unit);
         }
@@ -360,7 +360,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
           return Attack.checkResist(unit, "lightning") && unit.hpPercent > Config.CastStatic;
         });
       if (!!closeMobCheck && isHighestDmg(Skills.get(sdk.skills.StaticField))
-        && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
+        && !Coords.isBlockedBetween(me, closeMobCheck)) {
         Settings.debugging.skills && console.log("STATIC");
         // check if we should use battle cry from cta if we have it
         battleCryCheck(closeMobCheck);
@@ -566,20 +566,20 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       if (TELEPORT.have() && me.mp > TELEPORT.manaCost() + mana && me.inDanger()) {
         //console.log("FINDING NEW SPOT");
         Attack.getIntoPosition(unit, range, 0
-                | Coords_1.BlockBits.LineOfSight
-                | Coords_1.BlockBits.Ranged
-                | Coords_1.BlockBits.Casting
-                | Coords_1.BlockBits.ClosedDoor
-                | Coords_1.BlockBits.Objects, false, true);
+                | Coords.BlockBits.LineOfSight
+                | Coords.BlockBits.Ranged
+                | Coords.BlockBits.Casting
+                | Coords.BlockBits.ClosedDoor
+                | Coords.BlockBits.Objects, false, true);
       } else if (me.inDanger()) {
-        Attack.getIntoPosition(unit, range + 1, Coords_1.Collision.BLOCK_MISSILE, true);
+        Attack.getIntoPosition(unit, range + 1, Coords.Collision.BLOCK_MISSILE, true);
       } else if (unit.distance < 3 && range > 4) {
         // Attack.getIntoPositionEx(unit, {
         //   range: range,
         //   force: true,
         //   walk: Pather.useTeleport()
         // });
-        Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, true);
+        Attack.getIntoPosition(unit, range, Coords.Collision.BLOCK_MISSILE, true);
       }
     }
 
@@ -588,7 +588,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
       if (skill === sdk.skills.ChargedBolt
         && !unit.hasEnchant(sdk.enchant.ManaBurn, sdk.enchant.ColdEnchanted)) {
-        unit.getMobCount(6, Coords_1.Collision.BLOCK_MISSILE) < 3 && (range = 7);
+        unit.getMobCount(6, Coords.Collision.BLOCK_MISSILE) < 3 && (range = 7);
       }
 
       if (skill === sdk.skills.Attack) {
@@ -636,7 +636,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
         range = 12;
       }
       
-      if (unit.distance > range || Coords_1.isBlockedBetween(me, unit)) {
+      if (unit.distance > range || Coords.isBlockedBetween(me, unit)) {
         // Allow short-distance walking for melee skills
         let walk = (
           (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7))
@@ -645,27 +645,27 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       
         // todo - handle nova/frost nova, BLOCK_MISSILE doesn't apply for them
         if (ranged) {
-          if (!Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, walk)) {
+          if (!Attack.getIntoPosition(unit, range, Coords.Collision.BLOCK_MISSILE, walk)) {
             return Attack.Result.FAILED;
           }
-        } else if (!Attack.getIntoPosition(unit, range, Coords_1.BlockBits.Ranged, walk)) {
+        } else if (!Attack.getIntoPosition(unit, range, Coords.BlockBits.Ranged, walk)) {
           return Attack.Result.FAILED;
         } /* else if (!Attack.getIntoPositionEx(unit, { range: range, coll: sdk.collision.LineOfSight, walk: walk })) {
           return Attack.Result.FAILED;
         } */
       }
 
-      if (!unit.dead && !checkCollision(me, unit, Coords_1.BlockBits.Ranged)) {
+      if (!unit.dead && !checkCollision(me, unit, Coords.BlockBits.Ranged)) {
         if (skill === sdk.skills.ChargedBolt) {
           let preHealth = unit.hp;
           let cRetry = 0;
-          unit.distance <= 1 && Attack.getIntoPosition(unit, range, Coords_1.Collision.BLOCK_MISSILE, true);
+          unit.distance <= 1 && Attack.getIntoPosition(unit, range, Coords.Collision.BLOCK_MISSILE, true);
           for (let i = 0; i < 3; i++) {
             !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit.x, unit.y);
             if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
               cRetry++;
               // we still might of missed so pick another coord
-              if (!Attack.getIntoPosition(unit, (range - cRetry), Coords_1.Collision.BLOCK_MISSILE, true)) {
+              if (!Attack.getIntoPosition(unit, (range - cRetry), Coords.Collision.BLOCK_MISSILE, true)) {
                 return Attack.Result.FAILED;
               }
               !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit.x, unit.y);
@@ -691,7 +691,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
               if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 200, 50)) {
                 sRetry++;
                 // we still might of missed so pick another coord
-                if (!Attack.getIntoPosition(unit, (range - sRetry), Coords_1.Collision.BLOCK_MISSILE, true)) {
+                if (!Attack.getIntoPosition(unit, (range - sRetry), Coords.Collision.BLOCK_MISSILE, true)) {
                   return Attack.Result.FAILED;
                 }
                 !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit);
