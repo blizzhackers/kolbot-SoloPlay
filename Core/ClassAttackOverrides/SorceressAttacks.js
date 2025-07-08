@@ -265,7 +265,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @returns {AttackResult}
    */
   ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
-    if (Developer.debugging.skills) {
+    if (Settings.debugging.skills) {
       console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
     }
     // unit became invalidated
@@ -306,7 +306,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
         let ticktwo = getTickCount();
         // if the nova cause the death of any monsters around us, its worth it
         if (GameData.calculateKillableFallensByFrostNova() > 0) {
-          if (Developer.debugging.skills) {
+          if (Settings.debugging.skills) {
             console.log(
               "took " + ((getTickCount() - ticktwo) / 1000)
               + " seconds to check calculateKillableFallensByFrostNova. frost nova will kill fallens"
@@ -324,7 +324,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
             return getDistance(el, unit) < 4 && slowable(el, true);
           }).length > 1;
         if (shouldSpike && !Coords_1.isBlockedBetween(me, unit)) {
-          Developer.debugging.skills && console.log("SPIKE");
+          Settings.debugging.skills && console.log("SPIKE");
           Skill.cast(sdk.skills.GlacialSpike, sdk.skills.hand.Right, unit);
         }
       }
@@ -340,7 +340,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     setDamageValues(unit);
     
     // log damage values
-    // if (Developer.debugging.skills) {
+    // if (Settings.debugging.skills) {
     //   for (let [skillId, skill] of Skills) {
     //     console.log(getSkillById(skillId) + " : " + skill._dmg);
     //   }
@@ -361,7 +361,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
         });
       if (!!closeMobCheck && isHighestDmg(Skills.get(sdk.skills.StaticField))
         && !Coords_1.isBlockedBetween(me, closeMobCheck)) {
-        Developer.debugging.skills && console.log("STATIC");
+        Settings.debugging.skills && console.log("STATIC");
         // check if we should use battle cry from cta if we have it
         battleCryCheck(closeMobCheck);
         [sdk.skills.StaticField, sdk.skills.StaticField]
@@ -465,7 +465,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     switch (result) {
     case Attack.Result.FAILED:
-      if (Developer.debugging.skills) {
+      if (Settings.debugging.skills) {
         console.log(
           sdk.colors.Red + "Fail Test End----Time elasped["
           + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"
@@ -474,7 +474,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       
       return Attack.Result.FAILED;
     case Attack.Result.SUCCESS:
-      if (Developer.debugging.skills) {
+      if (Settings.debugging.skills) {
         console.log(
           sdk.colors.Red + "Sucess Test End----Time elasped["
           + ((getTickCount() - tick) / 1000) + " seconds]----------------------//"
@@ -552,8 +552,8 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     if (skill < 0) return Attack.Result.CANTATTACK;
     
     // print damage values
-    // if (Developer.debugging.skills && choosenSkill.have) {
-    if (Developer.debugging.skills && choosenSkill.have()) {
+    // if (Settings.debugging.skills && choosenSkill.have) {
+    if (Settings.debugging.skills && choosenSkill.have()) {
       // console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
       console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill._dmg);
     }

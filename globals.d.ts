@@ -35,6 +35,7 @@ declare global {
     readonly isStunned: boolean;
     readonly isUnderCoS: boolean;
     readonly isUnderLowerRes: boolean;
+    readonly size: number;
   }
 
   interface Unit {
@@ -719,5 +720,25 @@ declare global {
     function calculateKillableSummonsByNova(): number;
     function targetPointForSkill(skillId: number, monster: Monster): PathNode;
   }
+
+  // type ExtendedCubingRecipe =
+  //   | CubingRecipe
+  //   | [RecipeIndex["Reroll"]["Charm"], string, Partial<{ cm1: number, cm2: number, cm3: number }>];
+  
+  // interface Config {
+  //   Recipes: ExtendedCubingRecipe[];
+  // }
+  
+  namespace Recipe.Reroll {
+    export const Charm = 56;
+  }
+
+  namespace Recipe.Socket {
+    export const LowMagic = 57;
+    export const HighMagic = 58;
+    export const Rare = 59;
+  }
+
+  const Settings: SettingsInterface;
 }
 export{};

@@ -14,10 +14,10 @@ includeCoreLibs({ exclude: ["Storage.js"] });
 includeSystemLibs();
 include("systems/mulelogger/MuleLogger.js");
 
+// Include critical files
+include("SoloPlay/critical.js");
+
 // Include SoloPlay's librarys
-include("SoloPlay/Tools/Developer.js");
-include("SoloPlay/Tools/Tracker.js");
-include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/SoloIndex.js");
 include("SoloPlay/Core/ConfigOverrides.js");
 include("SoloPlay/Core/Globals.js");
@@ -48,7 +48,7 @@ function main () {
   Runewords.init();
   Cubing.init();
 
-  Developer.overlay && include("SoloPlay/Tools/Overlay.js");
+  Settings.overlay && include("SoloPlay/Tools/Overlay.js");
 
   // Reset core chicken
   me.chickenhp = -1;
@@ -96,7 +96,7 @@ function main () {
   const exit = function (chickenExit = false) {
     chickenExit && D2Bot.updateChickens();
     Config.LogExperience && Experience.log();
-    Developer.logPerformance && Tracker.update();
+    Settings.logPerformance && Tracker.update();
     console.log("ÿc8Run duration ÿc2" + Time.format(getTickCount() - me.gamestarttime));
     stopDefault();
     quit();
@@ -104,7 +104,7 @@ function main () {
 
   const restartGame = function () {
     Config.LogExperience && Experience.log();
-    Developer.logPerformance && Tracker.update();
+    Settings.logPerformance && Tracker.update();
     stopDefault();
     D2Bot.restart();
   };
@@ -313,15 +313,15 @@ function main () {
 
       break;
     case sdk.keys.Numpad0: // stop profile without logging character
-      Developer.logPerformance && Tracker.update();
+      Settings.logPerformance && Tracker.update();
       console.log("ÿc8Kolbot-SoloPlay: ÿc1Stopping profile");
       delay(rand(2e3, 5e3));
       D2Bot.stop(me.profile, true);
 
       break;
     case sdk.keys.End: // stop profile and log character
-      Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
-      Developer.logPerformance && Tracker.update();
+      Settings.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
+      Settings.logPerformance && Tracker.update();
 
       delay(rand(Config.QuitListDelay[0] * 1e3, Config.QuitListDelay[1] * 1e3));
       D2Bot.printToConsole(me.profile + " - end run " + me.gamename);
@@ -362,7 +362,7 @@ function main () {
 
       break;
     case sdk.keys.Numpad6: // log character to char viewer
-      Developer.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
+      Settings.logEquipped ? MuleLogger.logEquippedItems() : MuleLogger.logChar();
       me.overhead("Logged char: " + me.name);
 
       break;
@@ -597,7 +597,7 @@ function main () {
 
     switch (msg) {
     case "remake":
-      Developer.testingMode.enabled && (quitFlag = true);
+      Settings.testingMode.enabled && (quitFlag = true);
 
       break;
     case "toggleQuitlist":
@@ -667,7 +667,7 @@ function main () {
 
   let myAct = me.act;
 
-  if (Developer.overlay && !Developer.logPerformance) {
+  if (Settings.overlay && !Settings.logPerformance) {
     console.warn("Without logPerformance set, the overlay will only show partial values");
   }
 
@@ -683,7 +683,7 @@ function main () {
       const currInGame = (getTickCount() - me.gamestarttime);
       let timeStr = " (Time: " + Time.format(currInGame) + ") ";
       
-      if (Developer.displayClockInConsole && Developer.logPerformance) {
+      if (Settings.displayClockInConsole && Settings.logPerformance) {
         try {
           gameTracker === undefined && (gameTracker = Tracker.readObj(Tracker.GTPath));
           let [tTime, tInGame, tDays] = [
@@ -729,7 +729,7 @@ function main () {
         }
 
         // handle overlay
-        if (Developer.overlay) {
+        if (Settings.overlay) {
           try {
             if (me.ingame && me.gameReady && me.area) {
               Overlay.update(quitFlag);
@@ -744,7 +744,7 @@ function main () {
             console.error(e);
             console.log("Overlay disabled");
             D2Bot.printToConsole("Overlay disabled", sdk.colors.D2Bot.Red);
-            Developer.overlay = false;
+            Settings.overlay = false;
           }
         }
       }
@@ -762,7 +762,7 @@ function main () {
         Config.UseRejuvHP > 0 && me.hpPercent < Config.UseRejuvHP && drinkPotion(sdk.items.type.RejuvPotion);
 
         if (Config.LifeChicken > 0 && me.hpPercent <= Config.LifeChicken && !me.inTown) {
-          if (!Developer.hideChickens) {
+          if (!Settings.hideChickens) {
             D2Bot.printToConsole("Life Chicken (" + me.hp + "/" + me.hpmax + ")" + Attack.getNearestMonster() + " in " + getAreaName(me.area) + ". Ping: " + me.ping, sdk.colors.D2Bot.Red);
           }
           exit(true);
@@ -780,7 +780,7 @@ function main () {
         }
 
         if (Config.ManaChicken > 0 && me.mpPercent <= Config.ManaChicken && !me.inTown) {
-          if (!Developer.hideChickens) {
+          if (!Settings.hideChickens) {
             D2Bot.printToConsole("Mana Chicken: (" + me.mp + "/" + me.mpmax + ") in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
           }
           exit(true);
@@ -796,7 +796,7 @@ function main () {
           if (ironGolem) {
             // ironGolem.hpmax is bugged with BO
             if (ironGolem.hp <= Math.floor(128 * Config.IronGolemChicken / 100)) {
-              if (!Developer.hideChickens) {
+              if (!Settings.hideChickens) {
                 D2Bot.printToConsole("Irom Golem Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
               }
               exit(true);
@@ -813,7 +813,7 @@ function main () {
 
             if (mercHP > 0 && merc.mode !== sdk.monsters.mode.Dead) {
               if (mercHP < Config.MercChicken) {
-                if (!Developer.hideChickens) {
+                if (!Settings.hideChickens) {
                   D2Bot.printToConsole("Merc Chicken in " + getAreaName(me.area), sdk.colors.D2Bot.Red);
                 }
                 exit(true);

@@ -442,6 +442,13 @@ me.getMercEx = function () {
   return !!merc && !merc.dead ? merc : null;
 };
 
+me.getEquippedItems = function () {
+  return me.getItemsEx()
+    .filter(function (item) {
+      return item.isEquipped;
+    });
+};
+
 me.getEquippedItem = function (bodyLoc) {
   if (!bodyLoc) return null;
   let equippedItem = me.getItemsEx()
@@ -450,13 +457,6 @@ me.getEquippedItem = function (bodyLoc) {
     });
   if (!equippedItem.length) return null;
   return equippedItem.first();
-};
-
-me.getEquippedItems = function () {
-  return me.getItemsEx()
-    .filter(function (item) {
-      return item.isEquipped;
-    });
 };
 
 /**

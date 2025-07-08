@@ -15,3 +15,6 @@ Config/*
 !Config/Necromancer.js
 !Config/Paladin.js
 !Config/Sorceress.js
+Settings/AdvancedSettings.js
+Settings/Settings.js
+OOG/StarterConfig.js

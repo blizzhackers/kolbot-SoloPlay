@@ -6,7 +6,6 @@
 *
 */
 
-includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
@@ -56,7 +55,7 @@ const Overlay = {
       enabled: true,
 
       clock: function () {
-        if (!Developer.logPerformance) return "";
+        if (!Settings.logPerformance) return "";
         _gameTracker === undefined && (Object.assign(_gameTracker, Tracker.readObj(Tracker.GTPath)));
         _tick = getTickCount();
         let currInGame = getTickCount() - me.gamestarttime;
@@ -87,7 +86,7 @@ const Overlay = {
           }
         }
 
-        if (Developer.logPerformance) {
+        if (Settings.logPerformance) {
           if (!this.getHook("times")) {
             this.add("times");
           } else {

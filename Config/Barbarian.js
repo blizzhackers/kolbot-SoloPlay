@@ -20,7 +20,7 @@
   includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Core/Globals.js");
 
-  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  const LADDER_ENABLED = (me.ladder || Settings.addLadderRW);
   
   SetUp.include();
   SetUp.config();

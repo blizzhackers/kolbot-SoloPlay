@@ -7,7 +7,6 @@
 *
 */
 
-includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 (function () {
   /**
    * @constructor
@@ -636,10 +635,10 @@ includeIfNotIncluded("SoloPlay/Tools/Developer.js");
    */
   const Storage = new function () {
     this.Init = () => {
-      this.StashY = me.classic ? 4 : Developer.plugyMode ? 10 : 8;
+      this.StashY = me.classic ? 4 : Settings.plugyMode ? 10 : 8;
       this.Inventory = new Container("Inventory", 10, 4, 3);
       this.TradeScreen = new Container("Inventory", 10, 4, 5);
-      this.Stash = new Container("Stash", (Developer.plugyMode ? 10 : 6), this.StashY, 7);
+      this.Stash = new Container("Stash", (Settings.plugyMode ? 10 : 6), this.StashY, 7);
       this.Belt = new Container("Belt", 4 * this.BeltSize(), 1, 2);
 
       /**

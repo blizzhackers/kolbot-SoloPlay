@@ -18,7 +18,7 @@ Object.assign(Starter.Config, StarterConfig);
 /**
  * @todo
  *   - re-structure to use datafile for login info instead of writing to d2bot#
- *   - need to handle single player and online logging in
+ *   - need to hanlde single player and online logging in
  *   - need to handle someone using a premade account
  */
 
@@ -26,9 +26,7 @@ Object.assign(Starter.Config, StarterConfig);
 includeSystemLibs();
 
 // solo specific
-include("SoloPlay/Tools/Developer.js");
-include("SoloPlay/Tools/CharData.js");
-include("SoloPlay/Tools/Tracker.js");
+include("SoloPlay/critical.js");
 include("SoloPlay/OOG/OOGOverrides.js");
 
 // is this needed? soloplay doesn't run in default.dbj anymore
@@ -46,7 +44,7 @@ if (DataFile.init()) {
 
 !FileTools.exists(CharData.filePath) && CharData.create();
 !FileTools.exists(CharData.login.filePath) && CharData.login.create();
-Developer.logPerformance && Tracker.initialize();
+Settings.logPerformance && Tracker.initialize();
 
 function main () {
   debugLog(me.profile);
@@ -104,12 +102,12 @@ function main () {
           Starter.inGame = true;
           DataFile.updateStats("runs", Starter.gameCount);
           DataFile.updateStats("ingameTick");
-          Developer.logPerformance && Tracker.update((getTickCount() - oogTick));
+          Settings.logPerformance && Tracker.update((getTickCount() - oogTick));
           oogTick = 0;
           D2Bot.updateStatus("In-Game :: Initializing threads...");
         } else {
           // Tracker
-          if (Developer.logPerformance) {
+          if (Settings.logPerformance) {
             if (getTickCount() - Tracker.tick > Time.minutes(3)) {
               Tracker.tick = getTickCount();
 

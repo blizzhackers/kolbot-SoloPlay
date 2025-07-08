@@ -8,7 +8,7 @@
 
 includeIfNotIncluded("core/Pather.js");
 
-Developer.debugging.pathing && (PathDebug.enableHooks = true);
+Settings.debugging.pathing && (PathDebug.enableHooks = true);
 
 /** @global */
 const AreaData = require("../Modules/GameData/AreaData");
@@ -241,7 +241,7 @@ Pather.canUseTeleCharges = function () {
 };
 
 Pather.teleportTo = function (x, y, maxRange = 5) {
-  // Developer.debugging.pathing && console.log("Mob Count at next node: " + [x, y].mobCount());
+  // Settings.debugging.pathing && console.log("Mob Count at next node: " + [x, y].mobCount());
   
   for (let i = 0; i < 3; i += 1) {
     if (!Packet.teleport(x, y)) continue;
@@ -983,7 +983,7 @@ Pather.useWaypoint = function useWaypoint (targetArea, check = false) {
             switch (targetArea) {
             case "random":
               let validWps = this.nonTownWpAreas
-                .filter(area => getWaypoint(this.wpAreas.indexOf(area)));
+                .filter(area => me.haveWaypoint(area));
               if (!validWps.length) {
                 if (me.inTown && Pather.moveToExit(me.area + 1, true)) {
                   break;

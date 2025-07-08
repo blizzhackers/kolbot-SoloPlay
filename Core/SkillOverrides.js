@@ -6,12 +6,8 @@
 */
 
 includeIfNotIncluded("core/Skill.js");
-includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
-Skill.forcePacket = (
-  Developer.forcePacketCasting.enabled
-  && !Developer.forcePacketCasting.excludeProfiles.includes(me.profile)
-);
+Skill.forcePacket = Settings.forcePacketCasting;
 Skill.casterSkills = [
   sdk.skills.FireBolt, sdk.skills.ChargedBolt,
   sdk.skills.IceBolt, sdk.skills.FrostNova,

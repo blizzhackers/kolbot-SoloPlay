@@ -6,7 +6,6 @@
 */
 
 includeIfNotIncluded("core/experience.js");
-includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 
 const Tracker = {
   GTPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-GameTime.json",

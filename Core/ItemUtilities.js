@@ -38,7 +38,7 @@ includeIfNotIncluded("core/Item.js");
    * @param {runeword | null} runeword
    * @returns {boolean} 
    */
-  Item.betterBaseThanWearing = function (base, verbose = Developer.debugging.baseCheck, runeword = null) {
+  Item.betterBaseThanWearing = function (base, verbose = Settings.debugging.baseCheck, runeword = null) {
     if (!base || !base.isBaseType) return false;
 
     let name = "";
@@ -378,7 +378,7 @@ includeIfNotIncluded("core/Item.js");
     if (!base || base.quality > sdk.items.quality.Superior || base.isRuneword) return false;
     if (base.sockets === 0 && getBaseStat("items", base.classid, "gemsockets") <= 1) return false;
     if (base.sockets === 1) return false;
-    verbose === undefined && (verbose = Developer.debugging.baseCheck);
+    verbose === undefined && (verbose = Settings.debugging.baseCheck);
 
     /** @param {ItemUnit} item */
     const defenseScore = (item) => ({

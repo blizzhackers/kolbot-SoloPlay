@@ -74,7 +74,7 @@ Loader.run = function () {
     } finally {
       SoloIndex.doneList.push(scriptName);
       // skip logging if we didn't actually finish it
-      if (!SoloIndex.retryList.includes(scriptName) && Developer.logPerformance) {
+      if (!SoloIndex.retryList.includes(scriptName) && Settings.logPerformance) {
         Tracker.script(tick, scriptName, currentExp);
       }
       console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Time.format(me.maxgametime));
@@ -168,7 +168,7 @@ Loader.runScript = function (script, configOverride) {
       console.warn("ÿc8Kolbot-SoloPlayÿc0: " + (e.message ? e.message : e));
     } finally {
       SoloIndex.doneList.push(script);
-      Developer.logPerformance && Tracker.script(tick, script, currentExp);
+      Settings.logPerformance && Tracker.script(tick, script, currentExp);
       delete global[script];
       this.tempList.pop();
         

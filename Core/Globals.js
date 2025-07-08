@@ -13,7 +13,6 @@
 
 // all we really need from oog is D2Bot
 includeIfNotIncluded("oog/D2Bot.js");
-includeIfNotIncluded("SoloPlay/Tools/Developer.js");
 includeIfNotIncluded("SoloPlay/Tools/CharData.js");
 includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
@@ -309,9 +308,8 @@ const SetUp = (function () {
 
     // setter for Developer option to stop a profile once it reaches a certain level
     stopAtLevel: (function () {
-      if (!Developer.stopAtLevel.enabled) return false;
-      let level = Developer.stopAtLevel.profiles.find(prof => String.isEqual(prof[0], me.profile)) || false;
-      return level ? level[1] : false;
+      if (!Settings.stopAtLevel) return false;
+      return Settings.stopAtLevel;
     })(),
 
     // pulls respec requirments from final build file
@@ -357,7 +355,7 @@ const SetUp = (function () {
 
     makeNext: function () {
       includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
-      let gameObj, printTotalTime = Developer.logPerformance;
+      let gameObj, printTotalTime = Settings.logPerformance;
       printTotalTime && (gameObj = Tracker.readObj(Tracker.GTPath));
 
       // log info
@@ -432,7 +430,7 @@ const SetUp = (function () {
       Config.socketables = [];
       Config.AutoEquip = true;
 
-      if (me.ladder > 0 || Developer.addLadderRW) {
+      if (me.ladder > 0 || Settings.addLadderRW) {
       // Runewords.ladderOverride = true;
         Config.LadderOveride = true;
       }
@@ -982,7 +980,7 @@ const Check = (function () {
       switch (true) {
       case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
       case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
-      case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Developer.imbueStopLevel):
+      case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Settings.imbue.stopLevel):
         goal = SetUp.finalBuild;
         goalReached = true;
 
@@ -1002,18 +1000,18 @@ const Check = (function () {
       }
 
       if (goalReached) {
-        const gameObj = Developer.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
+        const gameObj = Settings.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;
 
         switch (true) {
-        case (SetUp.finalBuild === "Bumper" && Developer.fillAccount.bumpers):
-        case (SetUp.finalBuild === "Socketmule" && Developer.fillAccount.socketMules):
-        case (SetUp.finalBuild === "Imbuemule" && Developer.fillAccount.imbueMule):
+        case (SetUp.finalBuild === "Bumper" && Settings.bumper.fillAccount):
+        case (SetUp.finalBuild === "Socketmule" && Settings.socket.fillAccount):
+        case (SetUp.finalBuild === "Imbuemule" && Settings.imbue.fillAccount):
           SetUp.makeNext();
         
           break;
         default:
           D2Bot.printToConsole("Kolbot-SoloPlay " + goal + " goal reached." + (gameObj ? " (" + (Time.format(gameObj.Total + Time.elapsed(gameObj.LastSave))) + ")" : ""), sdk.colors.D2Bot.Gold);
-          Developer.logPerformance && Tracker.update();
+          Settings.logPerformance && Tracker.update();
           D2Bot.stop();
         }
       }

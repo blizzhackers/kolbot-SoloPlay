@@ -67,8 +67,9 @@ const CharData = (function () {
   return {
     filePath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-CharData.json",
     threads: [
-      "libs/SoloPlay/SoloPlay.js", "libs/SoloPlay/Threads/TownChicken.js",
-      "libs/SoloPlay/Threads/ToolsThread.js", "libs/SoloPlay/Threads/EventThread.js"
+      "libs/SoloPlay/SoloPlay.js",
+      "libs/SoloPlay/Threads/ToolsThread.js",
+      "libs/SoloPlay/Threads/EventThread.js"
     ],
     _default: (function () {
       let diffObj = { respecUsed: false, imbueUsed: false, socketUsed: false };
@@ -342,7 +343,10 @@ const CharData = (function () {
       FileTools.exists(this.filePath) && FileTools.remove(this.filePath);
       FileTools.exists(Tracker.GTPath) && FileTools.remove(Tracker.GTPath);
 
-      return !(FileTools.exists(this.filePath) && FileTools.exists("libs/SoloPlay/.soloplay/" + me.profile + ".GameTime" + ".json"));
+      return !(
+        FileTools.exists(this.filePath)
+        && FileTools.exists("libs/SoloPlay/.soloplay/" + me.profile + ".GameTime" + ".json")
+      );
     },
   };
 })();

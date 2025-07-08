@@ -335,7 +335,7 @@ Cubing.buildRecipes = function () {
 
       break;
     case Recipe.Unique.Weapon.ToElite: // Ladder only
-      if (me.ladder || Developer.addLadderRW) {
+      if (me.ladder || Settings.addLadderRW) {
         this.recipes.push({
           Ingredients: [
             Config.Recipes[i][1],
@@ -363,7 +363,7 @@ Cubing.buildRecipes = function () {
 
       break;
     case Recipe.Unique.Armor.ToElite: // Ladder only
-      if (me.ladder || Developer.addLadderRW) {
+      if (me.ladder || Settings.addLadderRW) {
         this.recipes.push({
           Ingredients: [
             Config.Recipes[i][1],
@@ -613,7 +613,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Dol: // dol->hel
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [
               sdk.items.runes.Dol,
@@ -627,7 +627,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Hel: // hel->io
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [
               sdk.items.runes.Hel,
@@ -641,7 +641,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Io: // io->lum
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Io, sdk.items.runes.Io, sdk.items.runes.Io, sdk.items.gems.Flawed.Topaz],
             Index: Recipe.Rune,
@@ -650,7 +650,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Lum: // lum->ko
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [
               sdk.items.runes.Lum,
@@ -664,7 +664,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Ko: // ko->fal
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [
               sdk.items.runes.Ko,
@@ -678,7 +678,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Fal: // fal->lem
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [
               sdk.items.runes.Fal,
@@ -692,7 +692,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Lem: // lem->pul
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [
               sdk.items.runes.Lem,
@@ -706,7 +706,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Pul: // pul->um
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Pul, sdk.items.runes.Pul, sdk.items.gems.Flawed.Diamond],
             Index: Recipe.Rune,
@@ -715,7 +715,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Um: // um->mal
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Um, sdk.items.runes.Um, sdk.items.gems.Normal.Topaz],
             Index: Recipe.Rune,
@@ -724,7 +724,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Mal: // mal->ist
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Mal, sdk.items.runes.Mal, sdk.items.gems.Normal.Amethyst],
             Index: Recipe.Rune,
@@ -733,7 +733,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Ist: // ist->gul
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Ist, sdk.items.runes.Ist, sdk.items.gems.Normal.Sapphire],
             Index: Recipe.Rune,
@@ -742,7 +742,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Gul: // gul->vex
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Gul, sdk.items.runes.Gul, sdk.items.gems.Normal.Ruby],
             Index: Recipe.Rune,
@@ -751,7 +751,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Vex: // vex->ohm
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Vex, sdk.items.runes.Vex, sdk.items.gems.Normal.Emerald],
             Index: Recipe.Rune,
@@ -760,7 +760,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Ohm: // ohm->lo
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Ohm, sdk.items.runes.Ohm, sdk.items.gems.Normal.Diamond],
             Index: Recipe.Rune,
@@ -769,7 +769,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Lo: // lo->sur
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Lo, sdk.items.runes.Lo, sdk.items.gems.Flawless.Topaz],
             Index: Recipe.Rune,
@@ -778,7 +778,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Sur: // sur->ber
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Sur, sdk.items.runes.Sur, sdk.items.gems.Flawless.Amethyst],
             Index: Recipe.Rune,
@@ -787,7 +787,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Ber: // ber->jah
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Ber, sdk.items.runes.Ber, sdk.items.gems.Flawless.Sapphire],
             Index: Recipe.Rune,
@@ -796,7 +796,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Jah: // jah->cham
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Jah, sdk.items.runes.Jah, sdk.items.gems.Flawless.Ruby],
             Index: Recipe.Rune,
@@ -805,7 +805,7 @@ Cubing.buildRecipes = function () {
 
         break;
       case sdk.items.runes.Cham: // cham->zod
-        if (me.ladder || Developer.addLadderRW) {
+        if (me.ladder || Settings.addLadderRW) {
           this.recipes.push({
             Ingredients: [sdk.items.runes.Cham, sdk.items.runes.Cham, sdk.items.gems.Flawless.Emerald],
             Index: Recipe.Rune,
@@ -1542,7 +1542,7 @@ Cubing.doCubing = function () {
               }
             }
 
-            Developer.debugging.crafting && Item.logItem("Crafted but didn't want", items[j]);
+            Settings.debugging.crafting && Item.logItem("Crafted but didn't want", items[j]);
 
             break;
           case Pickit.Result.WANTED:

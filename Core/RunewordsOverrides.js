@@ -124,7 +124,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
          */
 
         if (
-          (!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck, runeword))
+          (!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Settings.debugging.baseCheck, runeword))
           || (
             reroll && item.getItem()
             && !NTIP.CheckItem(item, this.pickitEntries)

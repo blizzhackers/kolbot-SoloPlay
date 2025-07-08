@@ -241,7 +241,7 @@ const LocationAction = {
       if (soloStats.currentBuild !== "Start" || soloStats.level > 1) {
         CharData.delete(false);
         CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
-        Developer.logPerformance && Tracker.initialize();
+        Settings.logPerformance && Tracker.initialize();
       }
 
       D2Bot.updateStatus("Making Character: " + info.charName);
@@ -566,8 +566,8 @@ const LocationAction = {
 
           break;
         case sdk.game.locations.RegisterEmail:
-          let { profiles, realms } = Developer.setEmail;
-          if (Developer.setEmail.enabled
+          let { profiles, realms } = Settings.setEmail;
+          if (Settings.setEmail.enabled
             && (!profiles.length || profiles.includes(me.profile))
             && (!realms.length || realms.includes(Profile().gateway.toLowerCase()))) {
             ControlAction.setEmail();
@@ -605,7 +605,7 @@ const LocationAction = {
     DataFile.create();
     DataFile.updateStats("handle", Starter.handle);
     CharData.updateData("me", "finalBuild", Starter.profileInfo.tag);
-    Developer.logPerformance && Tracker.initialize();
+    Settings.logPerformance && Tracker.initialize();
     D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", sdk.colors.D2Bot.Gold);
     Starter.deadCheck = false;
 

@@ -14,10 +14,10 @@ includeCoreLibs({ exclude: ["Storage.js"] });
 includeSystemLibs();
 include("systems/mulelogger/MuleLogger.js");
 
+// Include critical files
+include("SoloPlay/critical.js");
+
 // Include SoloPlay's librarys
-include("SoloPlay/Tools/Developer.js");
-include("SoloPlay/Tools/Tracker.js");
-include("SoloPlay/Tools/CharData.js");
 include("SoloPlay/Tools/SoloIndex.js");
 include("SoloPlay/Core/ConfigOverrides.js");
 include("SoloPlay/Core/Globals.js");
@@ -229,13 +229,11 @@ function main () {
   SoloEvents.filePath = "libs/SoloPlay/SoloPlay.js"; // hacky for now, don't want to mess up others running so we just broadcast to ourselves
   
   // Load guard if we want to see the stack as it runs
-  if (Developer.debugging.showStack.enabled) {
+  if (Settings.debugging.showStack) {
     // check in case we reloaded and guard was still running
     let guard = getScript("libs/SoloPlay/Modules/Guard.js");
     !!guard && guard.running && guard.stop();
-    Developer.debugging.showStack.profiles
-      .some(prof => String.isEqual(prof, me.profile) || String.isEqual(prof, "all"))
-      && require("../SoloPlay/Modules/Guard");
+    require("../SoloPlay/Modules/Guard");
     delay(1000);
   }
 
@@ -246,7 +244,7 @@ function main () {
   // One time maintenance - check cursor, get corpse, clear leftover items, pick items in case anything important was dropped
   Cubing.cursorCheck();
   Town.getCorpse();
-  Town.clearBelt();
+  me.clearBelt();
   Pather.init(); // initialize wp data
   
   let { x, y } = me;
@@ -284,7 +282,7 @@ function main () {
       throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in classic. Change the info tag or remake as an expansion character...Shutting down");
     }
 
-    if (impossibleNonLadderBuilds.includes(SetUp.finalBuild) && !Developer.addLadderRW) {
+    if (impossibleNonLadderBuilds.includes(SetUp.finalBuild) && !Settings.addLadderRW) {
       throw new Error("Kolbot-SoloPlay: " + SetUp.finalBuild + " cannot be used in non-ladder as they require ladder runewords. Change the info tag or remake as an ladder character...Shutting down");
     }
   } catch (e) {
@@ -329,7 +327,7 @@ function main () {
       }
     }
   }
-  
+    
   me.getItemsEx()
     .filter(function (item) {
       return (
@@ -341,7 +339,7 @@ function main () {
     .forEach(function (item) {
       Quest.stashItem(item);
     });
-  
+    
   me.cancelUIFlags();
   // initialize final charms if we have any
   CharmEquip.init();
@@ -356,11 +354,9 @@ function main () {
   }
 
   // Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
-  if (Developer.developerMode.enabled) {
-    if (Developer.developerMode.profiles.some(prof => String.isEqual(prof, me.profile))) {
-      Developer.debugging.pathing && (me.automap = true);
-      Loader.runScript("developermode");
-    }
+  if (Settings.developerMode) {
+    Settings.debugging.pathing && (me.automap = true);
+    Loader.runScript("developermode");
   }
 
   if (Check.brokeCheck()) return true;

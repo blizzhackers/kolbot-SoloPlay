@@ -240,8 +240,8 @@ Item.autoEquip = function (task = "") {
         SoloWants.addToList(item);
         SoloWants.ensureList();
       }
-      Developer.debugging.autoEquip && Item.logItem(task, me.getItem(-1, -1, gid));
-      Developer.logEquipped && MuleLogger.logEquippedItems();
+      Settings.debugging.autoEquip && Item.logItem(task, me.getItem(-1, -1, gid));
+      Settings.logEquipped && MuleLogger.logEquippedItems();
       me.equipped.set(bodyLoc, item);
     } else if (!noStash && item.lvlreq > me.charlvl && !item.isInStash) {
       if (Storage.Stash.CanFit(item)) {
@@ -613,8 +613,8 @@ Item.autoEquipSecondary = function (task = "") {
 
         if (this.secondaryEquip(item, loc)) {
           console.log("ÿc9SecondaryEquipÿc0 :: Equipped: " + prettyName + " SecondaryTier: " + tier);
-          Developer.debugging.autoEquip && Item.logItem("Equipped switch", me.getItem(-1, -1, gid));
-          Developer.logEquipped && MuleLogger.logEquippedItems();
+          Settings.debugging.autoEquip && Item.logItem("Equipped switch", me.getItem(-1, -1, gid));
+          Settings.logEquipped && MuleLogger.logEquippedItems();
           me.equipped.set(loc, item);
         }
 
@@ -672,7 +672,7 @@ Item.equipMerc = function (item, bodyLoc) {
     if (item.toCursor()) {
       if (clickItem(sdk.clicktypes.click.item.Mercenary, bodyLoc)) {
         delay(500 + me.ping * 2);
-        Developer.debugging.autoEquip && Item.logItem("Merc Equipped", mercenary.getItem(item.classid));
+        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", mercenary.getItem(item.classid));
       }
 
       let check = mercenary.getItem(item.classid);
@@ -689,7 +689,7 @@ Item.equipMerc = function (item, bodyLoc) {
           !!cursorItem && !cursorItem.shouldKeep() && cursorItem.drop();
         }
 
-        Developer.logEquipped && MuleLogger.logEquippedItems();
+        Settings.logEquipped && MuleLogger.logEquippedItems();
 
         return true;
       }
@@ -842,7 +842,7 @@ Item.autoEquipMerc = function () {
 
         if (cursorItem) {
           cursorItem.drop();
-          Developer.debugging.autoEquip && Item.logItem("Merc Dropped", cursorItem);
+          Settings.debugging.autoEquip && Item.logItem("Merc Dropped", cursorItem);
         }
 
         break;
@@ -853,7 +853,8 @@ Item.autoEquipMerc = function () {
   return true;
 };
 
-Item.removeItemsMerc = function () {
+/** @param {ItemUnit[]} droppedItems */
+Item.removeItemsMerc = function (droppedItems = []) {
   let mercenary = me.getMercEx();
   if (!mercenary) return true;
   // Sort items so we try to keep the highest tier'd items in case space in our invo is limited
@@ -947,10 +948,10 @@ Item.logItem = function (action, unit, keptLine, force) {
   if (!nTResult && !force) {
     switch (true) {
     case (unit.questItem || unit.isBaseType):
-    case (!unit.isCharm && hasTier && !Developer.debugging.autoEquip):
-    case (charmCheck && !Developer.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
-    case (charmCheck && !Developer.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
-    case (charmCheck && !Developer.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
+    case (!unit.isCharm && hasTier && !Settings.debugging.autoEquip):
+    case (charmCheck && !Settings.debugging.smallCharm && unit.classid === sdk.items.SmallCharm):
+    case (charmCheck && !Settings.debugging.largeCharm && unit.classid === sdk.items.LargeCharm):
+    case (charmCheck && !Settings.debugging.grandCharm && unit.classid === sdk.items.GrandCharm):
       return true;
     default:
       break;
@@ -974,6 +975,7 @@ Item.logItem = function (action, unit, keptLine, force) {
     desc += ("\n\\xffc0Line: " + keptLine);
   }
   desc += "$" + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
+
   const formattedDate = new Date().dateStamp().replace(/\//g, "-");
 
   const itemObj = {

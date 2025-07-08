@@ -383,7 +383,7 @@ Unit.prototype.castChargedSkillEx = function (...args) {
   unit && ([x, y] = [unit.x, unit.y]);
 
   if (this !== me && this.type !== sdk.unittype.Item) {
-    if (Developer.debugging.skills) {
+    if (Settings.debugging.skills) {
       console.debug(
         "ÿc9CastChargedSkillÿc0 :: Wierd Error, invalid arguments, expected 'me' object or 'item' unit" + " unit type : " + this.type
       );

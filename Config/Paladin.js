@@ -25,15 +25,15 @@
   includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
   includeIfNotIncluded("SoloPlay/Core/Globals.js");
 
-  const LADDER_ENABLED = (me.ladder || Developer.addLadderRW);
+  const LADDER_ENABLED = (me.ladder || Settings.addLadderRW);
   
   SetUp.include();
   SetUp.config();
 
   /* Pickit configuration. */
   Config.PickRange = 40;
-  //	Config.PickitFiles.push("kolton.nip");
-  //	Config.PickitFiles.push("LLD.nip");
+  // Config.PickitFiles.push("kolton.nip");
+  // Config.PickitFiles.push("LLD.nip");
 
   /* Gambling configuration. */
   Config.GambleItems.push("Amulet");

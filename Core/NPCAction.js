@@ -474,7 +474,7 @@
       tierInfo === undefined && (tierInfo = "");
       console.log("ÿc8Kolbot-SoloPlayÿc0: " + action + (tierInfo ? " " + tierInfo : ""));
       Item.logger(action, item);
-      if (Developer.debugging.autoEquip) {
+      if (Settings.debugging.autoEquip) {
         Item.logItem("Shopped " + action, item, result.line !== undefined ? result.line : "null");
       }
     };
@@ -503,7 +503,7 @@
         try {
           if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
             if (item.isBaseType) {
-              if (Item.betterThanStashed(item) && Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) {
+              if (Item.betterThanStashed(item) && Item.betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
                 shopReport(item, "better base", line);
                 item.buy() && bought++;
               }

@@ -592,7 +592,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true, cb = null) {
         Pickit.pickItems();
       }
     }
-    if (Developer.debugging.pathing) {
+    if (Settings.debugging.pathing) {
       console.debug("Returning to position " + x + "/" + y + " distance: " + [x, y].distance);
     }
     if (_startPos.distance > 15) {
@@ -1726,7 +1726,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
  */
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
   if (!unit || !unit.x || !unit.y) return false;
-  Developer.debugging.pathing && console.time("getIntoPosition");
+  Settings.debugging.pathing && console.time("getIntoPosition");
   const useTele = Pather.useTeleport();
   const name = unit.hasOwnProperty("name") ? unit.name : "";
   const angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
@@ -1830,7 +1830,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       } else {
         Pather.move(coord, _pathSettings);
       }
-      if (Developer.debugging.pathing) {
+      if (Settings.debugging.pathing) {
         console.log(
           sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
           + "Moving to: x: " + coord.x + " y: " + coord.y
@@ -1860,7 +1860,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
         return Pather.move(potentialSpot, _pathSettings);
       }
     })()) {
-      if (Developer.debugging.pathing) {
+      if (Settings.debugging.pathing) {
         console.log(
           sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow
           + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y

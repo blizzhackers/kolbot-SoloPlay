@@ -409,9 +409,9 @@ Town.itemResult = function (item, result, system = "", sell = false) {
     if (!item.sellable || !sell) return;
 
     switch (true) {
-    case (Developer.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
-    case (Developer.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
-    case (Developer.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
+    case (Settings.debugging.smallCharm && item.classid === sdk.items.SmallCharm):
+    case (Settings.debugging.largeCharm && item.classid === sdk.items.LargeCharm):
+    case (Settings.debugging.grandCharm && item.classid === sdk.items.GrandCharm):
       Item.logItem("Sold", item);
 
       break;
@@ -757,7 +757,7 @@ Town.clearInventory = function () {
 
     if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
       if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
-        if (!Item.betterThanStashed(item) && !Item.betterBaseThanWearing(item, Developer.debugging.baseCheck)) {
+        if (!Item.betterThanStashed(item) && !Item.betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
           if (NTIP.CheckItem(item, NTIP.CheckList) === Pickit.Result.UNWANTED) {
             result = Pickit.Result.TRASH;
           }
@@ -883,7 +883,7 @@ Town.clearJunk = function () {
           continue;
         }
 
-        if (!Item.betterBaseThanWearing(junk, Developer.debugging.baseCheck)) {
+        if (!Item.betterBaseThanWearing(junk, Settings.debugging.baseCheck)) {
           console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.prettyPrint + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
           getToItem("BetterThanWearingCheck", junk) && totalJunk.push(junk);
 
@@ -918,7 +918,7 @@ Town.clearJunk = function () {
       for (let item of junkToSell) {
         console.log("ÿc9JunkCheckÿc0 :: Sell " + item.prettyPrint);
         Item.logger("Sold", item);
-        Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", item);
+        Settings.debugging.junkCheck && Item.logItem("JunkCheck Sold", item);
 
         item.sell();
         delay(100);
@@ -930,7 +930,7 @@ Town.clearJunk = function () {
     for (let item of junkToDrop) {
       console.log("ÿc9JunkCheckÿc0 :: Drop " + item.prettyPrint);
       Item.logger("Sold", item);
-      Developer.debugging.junkCheck && Item.logItem("JunkCheck Sold", item);
+      Settings.debugging.junkCheck && Item.logItem("JunkCheck Sold", item);
 
       item.drop();
       delay(100);

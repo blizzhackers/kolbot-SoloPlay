@@ -104,7 +104,7 @@ const CharmEquip = (function () {
       }
     })();
     /** @type {boolean} */
-    this.debugging = Developer.debugging[this.name.toLowerCase() + "Charm"];
+    this.debugging = Settings.debugging[this.name.toLowerCase() + "Charm"];
   }
 
   /**
@@ -700,9 +700,9 @@ const CharmEquip = (function () {
       if (me.classic) return;
 
       console.log("ÿc8Kolbot-SoloPlayÿc0: Entering charm auto equip");
-      const verbose = (Developer.debugging.smallCharm
-        || Developer.debugging.largeCharm
-        || Developer.debugging.grandCharm
+      const verbose = (Settings.debugging.smallCharm
+        || Settings.debugging.largeCharm
+        || Settings.debugging.grandCharm
       );
       let tick = getTickCount();
       let charms = me.getItemsEx()
