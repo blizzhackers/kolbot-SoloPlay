@@ -57,7 +57,19 @@ For a quick kolbot+soloplay installer check out https://github.com/theBGuy/kolbo
     - The bot will then stop after completing mode requirments.
       - Shenk quest for Socketmule
       - Level 40 for a [Bumper](#q-what-is-a-bumper)
-      - Default at level 30 for Imbuemule (**this can be edited in [Developer.js](/libs/SoloPlay/Tools/Developer.js) by changing ``imbueStopLevel: 30,`` to be the level you want**.
+      - Default at level 30 for Imbuemule (**this can be edited in `/libs/SoloPlay/Settings/Settings.js` by changing ``stopLevel: 30,`` to be the level you want**.
+      ```js
+      imbue: {
+        /**
+        * set to true in use with tag Imbuemule to make next character after reaching goal until account is full
+        */
+        fillAccount: false,
+        /**
+        * @desc - level to stop at
+        */
+        stopLevel: 30,
+      }
+      ```
 - **Note: These options only work in expansion.**
 
 | Mode | Example |
@@ -98,7 +110,13 @@ In expansion, it transitions to the final build when final gear requirements are
 
 ### **Q: HELP!!! The bot isn't casting any skills!**
 
-**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to `libs\SoloPlay\Tools\`[Developer.js](./Tools/Developer.js) and change forcePacketCasting.enabled to false.
+**A:** The bot uses packet casting for stability, which doesn't show the casting animations. It is actually casting the skills, if you would like to see the casting animations you will need to navigate to `libs\SoloPlay\Settings\Settings.js` and change forcePacketCasting to false.
+```js
+/**
+ * @desc - hide casting animations for better stability (reduce d2bs crashes)
+ */
+forcePacketCasting: false,
+```
 
 ### **Q: What is a Bumper?**
 
@@ -182,8 +200,8 @@ add your pickit files here or uncomment the kolton nip already present.
 - **HCCNL-SORC** would make a hardcore classic nonladder sorceress
 
 # Extras
-- Navigate to `libs\SoloPlay\Tools\`[Developer.js](./Tools/Developer.js) for extra options
-- Developer.js includes options such as:
+- Navigate to `libs\SoloPlay\Settings\Settings.js` for extra options
+- Settings.js includes options such as:
   - plugyMode toggle (allow use of larger stash when using the Mod PlugY)
   - logging equipped items to D2Bot# Char Viewer tab
   - Overlay toggle
