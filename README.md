@@ -237,7 +237,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
   <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
 </a>
 
-[![Donate](https://img.shields.io/badge/PayPal-Donate-blue.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?business=Y9S4AWX9QUZXW&no_recurring=0&currency_code=USD)
+[![Donate](https://img.shields.io/badge/PayPal-Donate-blue.svg?style=for-the-badge&logo=paypal)](paypal.me/theBguy)
 
 ## Statistics (will become filled out as data becomes available)
 | Level | Amazon | Sorceress | Necromancer | Paladin | Barbarian | Druid | Assassin |
