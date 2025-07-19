@@ -7,6 +7,8 @@
 
 /**
  * @typedef {import("../../modules/Control")} Controls
+ * @typedef {import("../../systems/torch/TorchSystem")} TorchSystem
+ * @typedef {import("../../systems/gambling/Gambling")} GamblingSystem
  */
 includeIfNotIncluded("OOG.js");
 
@@ -39,6 +41,22 @@ const LocationAction = {
       outOfGameCheck: outOfGameCheck,
     };
   })();
+
+  const checkDifficulty = function () {
+    let setDiff = CharData.getStats().setDifficulty;
+    if (setDiff) {
+      console.debug(setDiff);
+      Starter.gameInfo.difficulty = setDiff;
+    }
+  };
+
+  const oogCheck = () => (
+    AutoMule.outOfGameCheck()
+    || TorchSystem.outOfGameCheck()
+    || Gambling.outOfGameCheck()
+    || CraftingSystem.outOfGameCheck()
+    || SoloEvents.outOfGameCheck()
+  );
 
   /**
    * @param {Control} control
@@ -171,7 +189,7 @@ const LocationAction = {
     if (msg === "event") {
       SoloEvents.check = true;
     } else if (msg === "diffChange") {
-      Starter.checkDifficulty();
+      checkDifficulty();
     } else if (msg === "test") {
       console.debug(
         sdk.colors.Green
@@ -436,7 +454,7 @@ const LocationAction = {
           if (getLocation() === sdk.game.locations.MainMenu
             && Profile().type === sdk.game.profiletype.SinglePlayer
             && Controls.SinglePlayer.click()) {
-            Starter.checkDifficulty();
+            checkDifficulty();
             break;
           } else if (Starter.BNET) {
             Starter.LocationEvents.login();
@@ -709,19 +727,6 @@ const LocationAction = {
     }
   };
 
-  Starter.randomNumberString = function (len) {
-    len === undefined && (len = rand(2, 5));
-
-    let rval = "";
-    const vals = "0123456789".split("");
-
-    for (let i = 0; i < len; i += 1) {
-      rval += vals.random();
-    }
-
-    return rval;
-  };
-
   Starter.charSelectConnecting = function () {
     if (getLocation() === sdk.game.locations.CharSelectConnecting) {
       // bugged? lets see if we can unbug it
@@ -736,23 +741,6 @@ const LocationAction = {
   };
 
   Starter.BNET = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
-  Starter.LocationEvents.oogCheck = function () {
-    return (
-      AutoMule.outOfGameCheck()
-      || TorchSystem.outOfGameCheck()
-      || Gambling.outOfGameCheck()
-      || CraftingSystem.outOfGameCheck()
-      || SoloEvents.outOfGameCheck()
-    );
-  };
-
-  Starter.checkDifficulty = function () {
-    let setDiff = CharData.getStats().setDifficulty;
-    if (setDiff) {
-      console.debug(setDiff);
-      Starter.gameInfo.difficulty = setDiff;
-    }
-  };
 
   Starter.LocationEvents.login = function () {
     Starter.inGame && (Starter.inGame = false);
@@ -867,7 +855,7 @@ const LocationAction = {
               ? Controls.SinglePlayer.click()
               : ControlAction.loginOtherMultiplayer();
           }
-          Starter.checkDifficulty();
+          checkDifficulty();
           Starter.LocationEvents.charSelect(getLocation());
         } catch (err) {
           console.error(err);
@@ -1175,14 +1163,6 @@ const LocationAction = {
     Starter.LocationEvents.openCreateGameWindow();
   };
 
-  const oogCheck = () => (
-    AutoMule.outOfGameCheck()
-    || TorchSystem.outOfGameCheck()
-    || Gambling.outOfGameCheck()
-    || CraftingSystem.outOfGameCheck()
-    || SoloEvents.outOfGameCheck()
-  );
-
   const _locations = new Map([
     [
       sdk.game.locations.PreSplash,
@@ -1422,7 +1402,7 @@ const LocationAction = {
         delay(500);
         
         // todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
-        Starter.checkDifficulty();
+        checkDifficulty();
 
         Starter.gameInfo.gameName = DataFile.getStats().gameName;
         Starter.gameInfo.gamePass = Starter.randomString(5, true);
