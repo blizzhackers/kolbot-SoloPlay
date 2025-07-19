@@ -53,6 +53,9 @@ declare global {
     difficulty: number,
   };
 
+  type StandardBuild = "Start" | "Stepping" | "Leveling";
+  type FinalBuild = import("./Types/build-types").SoloBuild;
+  
   interface Build {
     caster: boolean;
     skillstab: number;
@@ -97,8 +100,8 @@ declare global {
     level: number;
     strength: number;
     dexterity: number;
-    currentBuild: string;
-    finalBuild: string;
+    currentBuild: StandardBuild | FinalBuild;
+    finalBuild: FinalBuild;
     highestDifficulty: string;
     setDifficulty: string;
     charms: Record<string, { max: number; have: number[]; classid: number; stats: (check: ItemUnit) => boolean; }>;
@@ -484,8 +487,8 @@ declare global {
 
   namespace SetUp {
     let mercEnabled: boolean;
-    const currentBuild: string;
-    const finalBuild: string;
+    const currentBuild: StandardBuild | FinalBuild;
+    const finalBuild: FinalBuild;
     const stopAtLevel: number | false;
 
     function init(): void;
@@ -840,24 +843,6 @@ declare global {
     function calculateKillableFallensByFrostNova(): number;
     function calculateKillableSummonsByNova(): number;
     function targetPointForSkill(skillId: number, monster: Monster): PathNode;
-  }
-
-  // type ExtendedCubingRecipe =
-  //   | CubingRecipe
-  //   | [RecipeIndex["Reroll"]["Charm"], string, Partial<{ cm1: number, cm2: number, cm3: number }>];
-  
-  // interface Config {
-  //   Recipes: ExtendedCubingRecipe[];
-  // }
-  
-  namespace Recipe.Reroll {
-    export const Charm = 56;
-  }
-
-  namespace Recipe.Socket {
-    export const LowMagic = 57;
-    export const HighMagic = 58;
-    export const Rare = 59;
   }
 
   const Settings: SettingsInterface;

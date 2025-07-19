@@ -1,0 +1,2 @@
+// Auto-generated build types
+export type SoloBuild = "Auradin" | "Blizzballer" | "Blova" | "Bone" | "Classicauradin" | "Cold" | "Elemental" | "Ensorb" | "Faithbowzon" | "Firewolf" | "Frenzy" | "Frostmaiden" | "Hammerdin" | "Hammershock" | "Immortalwhirl" | "Javazon" | "Leveling" | "Lightning" | "Meteorb" | "Plaguewolf" | "Poison" | "Sancdreamer" | "Singer" | "Smiter" | "Start" | "Stepping" | "Stormbear" | "Summon" | "Throw" | "Torchadin" | "Trapsin" | "Uberconc" | "Wfzon" | "Whirlsin" | "Whirlwind" | "Wind" | "Witchyzon" | "Wolf" | "Zealer";
