@@ -2367,14 +2367,33 @@
    * @returns {PathNode}
    */
   function targetPointForSkill (skillId, monster) {
-    if (!monster || skillId === undefined || !monster.attackable) return null;
+    if (!monster || skillId === undefined || !monster.attackable) {
+      return null;
+    }
     let missileName = getBaseStat("skills", skillId, "cltmissile");
+    /** @type {import("./MissileData")[number] | undefined} */
     let missile = MissileData[missileName];
     if (!missile) {
       missileName = getBaseStat("skills", skillId, "srvmissile");
       missile = MissileData[missileName];
     }
-    if (!missile || missile.velocity <= 0) return null;
+    if (!missile || missile.velocity <= 0) {
+      // special case for blizzard - if monster isn't moving choose offset coords
+      if (skillId === sdk.skills.Blizzard && !monster.isMoving) {
+        // TODO: better calcluation, need to create a collision grid then find a valid node from that to cast on
+        // current implementation might pick invalid location
+        let offset = 2;
+        for (let i = 0; i < 3; i++) {
+          let x = monster.x + (Math.random() < 0.5 ? -offset : offset);
+          let y = monster.y + (Math.random() < 0.5 ? -offset : offset);
+          if (Attack.validSpot(x, y, sdk.skills.Blizzard, monster.classid)) {
+            // console.debug("targetPointForSkill: using offset coords for Blizzard at " + x + ", " + y);
+            return new PathNode(x, y);
+          }
+        }
+      }
+      return null;
+    }
     if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
       let startX = monster.x;
       let startY = monster.y;
