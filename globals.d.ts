@@ -7,14 +7,9 @@ declare global {
   }
 
   interface Object {
-    mobCount(givenSettings?: {
-      range?: number,
-      coll?: number,
-      type: number,
-      ignoreClassids: number[],
-    }): number;
+    mobCount(givenSettings?: { range?: number; coll?: number; type: number; ignoreClassids: number[] }): number;
   }
-  
+
   interface ItemUnit {
     readonly isCharm: boolean;
     readonly isGem: boolean;
@@ -46,16 +41,16 @@ declare global {
   }
 
   type MercObj = {
-    classid: number,
-    skill: number,
-    skillName: string,
-    act: number,
-    difficulty: number,
+    classid: number;
+    skill: number;
+    skillName: string;
+    act: number;
+    difficulty: number;
   };
 
   type StandardBuild = "Start" | "Stepping" | "Leveling";
   type FinalBuild = import("./Types/build-types").SoloBuild;
-  
+
   interface Build {
     caster: boolean;
     skillstab: number;
@@ -65,12 +60,15 @@ declare global {
     wantedMerc: MercObj;
     stats: Array<[string, number | "block" | "all"]>;
     skills: Array<[number, number, boolean?]>;
-    charms: Record<string, {
-      max: number;
-      have: number[];
-      classid: number;
-      stats: (check: ItemUnit) => boolean;
-    }>;
+    charms: Record<
+      string,
+      {
+        max: number;
+        have: number[];
+        classid: number;
+        stats: (check: ItemUnit) => boolean;
+      }
+    >;
     AutoBuildTemplate: Record<number, { Update: () => void }>;
     respec: () => boolean;
     active: () => boolean;
@@ -104,7 +102,7 @@ declare global {
     finalBuild: FinalBuild;
     highestDifficulty: string;
     setDifficulty: string;
-    charms: Record<string, { max: number; have: number[]; classid: number; stats: (check: ItemUnit) => boolean; }>;
+    charms: Record<string, { max: number; have: number[]; classid: number; stats: (check: ItemUnit) => boolean }>;
     charmGids: number[];
     merc: {
       act: number;
@@ -131,14 +129,14 @@ declare global {
   type EquippedMap = Map<number, EquippedItem>;
 
   type GetOwnedSettings = {
-    itemType?: number,
-    classid?: number,
-    mode?: number,
-    quality?: number,
-    sockets?: number,
-    location?: number,
-    ethereal?: boolean,
-    cb?: (item: ItemUnit) => boolean,
+    itemType?: number;
+    classid?: number;
+    mode?: number;
+    quality?: number;
+    sockets?: number;
+    location?: number;
+    ethereal?: boolean;
+    cb?: (item: ItemUnit) => boolean;
   };
 
   interface MeType {
@@ -173,7 +171,7 @@ declare global {
     getEquippedItem(bodyLoc: number): ItemUnit | null;
     getEquippedItems(): ItemUnit[];
     getSkillTabs(classid: number): number[];
-    inDanger(checkLoc?: {x: number, y: number} | MeType, range?: number): boolean;
+    inDanger(checkLoc?: { x: number; y: number } | MeType, range?: number): boolean;
     checkSkill(skillId: number, subId: number): boolean;
     cleanUpInvoPotions(beltSize: number): boolean;
     needPotions(): boolean;
@@ -197,37 +195,37 @@ declare global {
   interface Container {
     /**
      * A function that checks if the cube is located at { x: 0, y: 0 } in the stash and moves it there if not
-     * @param name 
+     * @param name
      */
     CubeSpot(name: string): boolean;
 
     /**
      * A function that sorts items with optional priority
-     * @param itemIdsLeft 
-     * @param itemIdsRight 
+     * @param itemIdsLeft
+     * @param itemIdsRight
      */
     SortItems(itemIdsLeft: number[], itemIdsRight: number[]): boolean;
-    
+
     /**
      * A function that moves an item to a location in a container
-     * @param item 
-     * @param reverseX 
-     * @param reverseY 
-     * @param priorityClassIds 
+     * @param item
+     * @param reverseX
+     * @param reverseY
+     * @param priorityClassIds
      */
-    MoveTo(item: ItemUnit, reverseX: boolean, reverseY: boolean, priorityClassIds: number[]): boolean
+    MoveTo(item: ItemUnit, reverseX: boolean, reverseY: boolean, priorityClassIds: number[]): boolean;
 
     /**
-     * @param item 
-     * @param location 
-     * @param force 
+     * @param item
+     * @param location
+     * @param force
      */
-    MakeSpot(item: ItemUnit, location: { x: number, y: number }, force: boolean): boolean;
+    MakeSpot(item: ItemUnit, location: { x: number; y: number }, force: boolean): boolean;
 
     /**
-     * @param item 
-     * @param mX 
-     * @param mY 
+     * @param item
+     * @param mX
+     * @param mY
      */
     MoveToSpot(item: ItemUnit, mX: number, mY: number): boolean;
   }
@@ -263,7 +261,7 @@ declare global {
     function getMercSkill(merc?: MercUnit): string | false;
     function getMercDifficulty(merc?: MercUnit): number;
     function getMercAct(merc?: MercUnit): number;
-    function getMercInfo(merc?: MercUnit): { classid: number, act: number, difficulty: number, type: string | false };
+    function getMercInfo(merc?: MercUnit): { classid: number; act: number; difficulty: number; type: string | false };
     function checkMercSkill(wanted: string, merc?: MercUnit): boolean;
     function hireMerc(): boolean;
   }
@@ -282,12 +280,12 @@ declare global {
     function getSocketables(
       item: ItemUnit,
       itemInfo?: {
-        classid: number,
-        socketWith: number[],
-        temp: number[],
-        useSocketQuest: boolean,
-        condition: Function
-      }
+        classid: number;
+        socketWith: number[];
+        temp: number[];
+        useSocketQuest: boolean;
+        condition: Function;
+      },
     ): boolean;
     function checkSocketables(): void;
   }
@@ -295,7 +293,7 @@ declare global {
   namespace Skill {
     function switchCast(
       skillId: number,
-      givenSettings: { hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean }
+      givenSettings: { hand?: number; x?: number; y?: number; switchBack?: boolean; oSkill?: boolean },
     ): boolean;
   }
 
@@ -344,18 +342,12 @@ declare global {
       unit: ItemUnit,
       status: PickitResult,
       keptLine?: string,
-      givenSettings?: { allowClear: boolean, allowMove: boolean }
+      givenSettings?: { allowClear: boolean; allowMove: boolean },
     ): boolean;
   }
 
   namespace Attack {
-    function clearPos(
-      x: number,
-      y: number,
-      range?: number,
-      pickit?: boolean,
-      cb?: function(): boolean,
-    ): boolean;
+    function clearPos(x: number, y: number, range?: number, pickit?: boolean, cb?: () => boolean): boolean;
     function killTarget(name: Monster | string | number): boolean;
   }
 
@@ -367,7 +359,7 @@ declare global {
     function doCast(unit: Monster, timedSkill: number, untimedSkill: number): AttackResult;
     function doCast(
       unit: Monster,
-      choosenSkill: { have: boolean, skill: number, range: number, mana: number, timed: boolean }
+      choosenSkill: { have: boolean; skill: number; range: number; mana: number; timed: boolean },
     ): AttackResult;
     function afterAttack(pickit?: boolean): void;
   }
@@ -494,7 +486,7 @@ declare global {
     function init(): void;
     function include(): void;
     function finalRespec(): number;
-    function getTemplate(): { buildType: string, template: string };
+    function getTemplate(): { buildType: string; template: string };
     function specPush(specType: string): number[];
     function makeNext(): void;
     function belt(): void;
@@ -511,7 +503,7 @@ declare global {
     function brokeAf(): boolean;
     function broken(): 0 | 1 | 2;
     function brokeCheck(): boolean;
-    function resistance(): { Status: boolean, FR: number, CR: number, LR: number, PR: number };
+    function resistance(): { Status: boolean; FR: number; CR: number; LR: number; PR: number };
     function nextDifficulty(announce: boolean): string | false;
     function runes(): boolean;
     function haveItem(type: string | number, flag?: string | number, iName?: string): boolean;
@@ -520,8 +512,7 @@ declare global {
     function finalBuild(): Build;
   }
 
-  namespace SoloWants {
-  }
+  namespace SoloWants {}
 
   namespace NPCAction {
     function shopAt(npcName: string): boolean;
@@ -534,14 +525,13 @@ declare global {
     function reviveMerc(): boolean;
   }
 
-  namespace AutoEquip {
-  }
+  namespace AutoEquip {}
 
   type extraTasks = {
-    thawing?: boolean,
-    antidote?: boolean,
-    stamina?: boolean,
-    fullChores?: boolean,
+    thawing?: boolean;
+    antidote?: boolean;
+    stamina?: boolean;
+    fullChores?: boolean;
   };
 
   namespace LocationAction {
@@ -554,10 +544,10 @@ declare global {
     area: number;
     classid: number;
     type: number;
-	};
+  };
 
   class ShrineInstance {
-    constructor (shrine: ObjectUnit);
+    constructor(shrine: ObjectUnit);
 
     type: number;
     classid: number;
@@ -574,7 +564,7 @@ declare global {
   }
 
   class AreaDataInstance {
-    constructor (index: number);
+    constructor(index: number);
 
     LocaleString: string;
     Index: number;
@@ -595,9 +585,9 @@ declare global {
     Shrines: ShrineInstance[];
     Chests: PresetObjectUnit[];
 
-    hasMonsterType (type: number): boolean;
-    forEachMonster (callback: (monster: number) => void): void;
-    forEachMonsterAndMinion (callback: (monster: number) => void): void;
+    hasMonsterType(type: number): boolean;
+    forEachMonster(callback: (monster: number) => void): void;
+    forEachMonsterAndMinion(callback: (monster: number) => void): void;
     canAccess(): boolean;
     townArea(): AreaDataInstance;
     getExits(): Exit[];
@@ -614,15 +604,15 @@ declare global {
   }
 
   const AreaData: typeof import("./Modules/GameData/AreaData");
-  
+
   interface CoordinatePoint {
     x: number;
     y: number;
   }
 
   /**
-  * Block bits enumeration for collision detection
-  */
+   * Block bits enumeration for collision detection
+   */
   enum BlockBits {
     BlockWall = 1,
     LineOfSight = 2,
@@ -639,116 +629,128 @@ declare global {
     IsOnFloor = 4096,
     FriendlyNPC = 8192,
     Unknown_3 = 16384,
-    DeadBodies = 32768
+    DeadBodies = 32768,
   }
 
   /**
-  * Collision enumeration for specific collision types
-  */
+   * Collision enumeration for specific collision types
+   */
   enum Collision {
-    BLOCK_MISSILE = 2062
+    BLOCK_MISSILE = 2062,
   }
 
   interface Coords {
     /**
-    * Block bits enumeration for collision detection
-    */
+     * Block bits enumeration for collision detection
+     */
     BlockBits: typeof BlockBits;
 
     /**
-    * Collision enumeration for missile blocking
-    */
+     * Collision enumeration for missile blocking
+     */
     Collision: typeof Collision;
 
     /**
-    * Get coordinates between two points using line algorithm
-    * @param {number} x1 - Starting X coordinate
-    * @param {number} y1 - Starting Y coordinate
-    * @param {number} x2 - Ending X coordinate
-    * @param {number} y2 - Ending Y coordinate
-    * @returns {CoordinatePoint[]} Array of coordinate points
-    */
+     * Get coordinates between two points using line algorithm
+     * @param {number} x1 - Starting X coordinate
+     * @param {number} y1 - Starting Y coordinate
+     * @param {number} x2 - Ending X coordinate
+     * @param {number} y2 - Ending Y coordinate
+     * @returns {CoordinatePoint[]} Array of coordinate points
+     */
     getCoordsBetween(x1: number, y1: number, x2: number, y2: number): CoordinatePoint[];
 
     /**
-    * Convert arguments to coordinate array
-    * @param {any[]} args - Arguments to convert
-    * @param {string} caller - Name of calling function
-    * @param {number} [length=2] - Expected length of coordinate array
-    * @returns {CoordinatePoint[]} Array of coordinate points
-    */
+     * Convert arguments to coordinate array
+     * @param {any[]} args - Arguments to convert
+     * @param {string} caller - Name of calling function
+     * @param {number} [length=2] - Expected length of coordinate array
+     * @returns {CoordinatePoint[]} Array of coordinate points
+     */
     convertToCoordArray(args: any[], caller: string, length?: number): CoordinatePoint[];
 
     /**
-    * Get collision flags between coordinates
-    * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
-    * @returns {number} Collision flags as bitmask
-    */
+     * Get collision flags between coordinates
+     * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
+     * @returns {number} Collision flags as bitmask
+     */
     getCollisionBetweenCoords(...args: any[]): number;
 
     /**
-    * Check if path between coordinates is blocked
-    * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
-    * @returns {boolean} True if path is blocked
-    */
+     * Check if path between coordinates is blocked
+     * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
+     * @returns {boolean} True if path is blocked
+     */
     isBlockedBetween(...args: any[]): boolean;
 
     /**
-    * Check collision between two units with specific collision flags
-    * @param {Unit} unit1 - First unit
-    * @param {Unit} unit2 - Second unit
-    * @param {number} coll - Collision flags to check
-    * @returns {boolean} True if collision exists
-    */
+     * Check collision between two units with specific collision flags
+     * @param {Unit} unit1 - First unit
+     * @param {Unit} unit2 - Second unit
+     * @param {number} coll - Collision flags to check
+     * @returns {boolean} True if collision exists
+     */
     checkCollisionBetween(unit1: Unit, unit2: Unit, coll: number): boolean;
 
     /**
-    * Find casting spot for a specific skill
-    * @param {number} skill - Skill ID
-    * @param {Unit} unit - Target unit
-    * @param {number} [minRange=5] - Minimum casting range
-    * @param {number} [thickness=5] - Collision thickness
-    * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
-    * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
-    */
-    findCastingSpotSkill(skill: number, unit: Unit, minRange?: number, thickness?: number, collision?: number): CoordinatePoint | undefined;
+     * Find casting spot for a specific skill
+     * @param {number} skill - Skill ID
+     * @param {Unit} unit - Target unit
+     * @param {number} [minRange=5] - Minimum casting range
+     * @param {number} [thickness=5] - Collision thickness
+     * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
+     * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
+     */
+    findCastingSpotSkill(
+      skill: number,
+      unit: Unit,
+      minRange?: number,
+      thickness?: number,
+      collision?: number,
+    ): CoordinatePoint | undefined;
 
     /**
-    * Find casting spot within specified range
-    * @param {number} range - Maximum casting range
-    * @param {Unit} unit - Target unit
-    * @param {number} [minRange=5] - Minimum casting range
-    * @param {number} [thickness=5] - Collision thickness
-    * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
-    * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
-    */
-    findCastingSpotRange(range: number, unit: Unit, minRange?: number, thickness?: number, collision?: number): CoordinatePoint | undefined;
+     * Find casting spot within specified range
+     * @param {number} range - Maximum casting range
+     * @param {Unit} unit - Target unit
+     * @param {number} [minRange=5] - Minimum casting range
+     * @param {number} [thickness=5] - Collision thickness
+     * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
+     * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
+     */
+    findCastingSpotRange(
+      range: number,
+      unit: Unit,
+      minRange?: number,
+      thickness?: number,
+      collision?: number,
+    ): CoordinatePoint | undefined;
 
     /**
-    * Get valid spots around a unit for casting/positioning
-    * @param {number} collision - Collision flags to avoid
-    * @param {number} thickness - Collision thickness to check
-    * @param {Unit} unit - Reference unit
-    * @returns {CoordinatePoint[]} Array of valid coordinate spots
-    */
+     * Get valid spots around a unit for casting/positioning
+     * @param {number} collision - Collision flags to avoid
+     * @param {number} thickness - Collision thickness to check
+     * @param {Unit} unit - Reference unit
+     * @returns {CoordinatePoint[]} Array of valid coordinate spots
+     */
     getSpotsFor(collision: number, thickness: number, unit: Unit): CoordinatePoint[];
   }
 
   /**
-    * Room extension for coordinate checking
-    */
+   * Room extension for coordinate checking
+   */
   interface Room {
     /**
-    * Check if coordinates are within this room
-    * @param {...any} args - Coordinate arguments (x, y or coordinate object)
-    * @returns {boolean} True if coordinates are in room
-    */
+     * Check if coordinates are within this room
+     * @param {...any} args - Coordinate arguments (x, y or coordinate object)
+     * @returns {boolean} True if coordinates are in room
+     */
     isInRoom(...args: any[]): boolean;
   }
 
   /**
-  * Coordinate utilities module
-  */
+   * Coordinate utilities module
+   */
   const Coords: Coords;
 
   namespace GameData {
@@ -832,11 +834,11 @@ declare global {
       parent?: Monster,
       preattack?: boolean,
       all?: boolean,
-    ): { effort: number, skill: number, type: string, name?: string, cooldown?: boolean };
+    ): { effort: number; skill: number; type: string; name?: string; cooldown?: boolean };
     function effectiveMonsterEffort(
       unit: Monster,
-      areaID: number
-    ): { effort: number, skill: number, type: string, name?: string, cooldown?: boolean };
+      areaID: number,
+    ): { effort: number; skill: number; type: string; name?: string; cooldown?: boolean };
     function areaEffort(areaID: number, skills?: SkillDamage[]): number;
     function areaSoloExp(areaID: number, skills?: SkillDamage[]): number;
     function timeTillMissileImpact(skillId: number, monster: Monster): number;
@@ -846,5 +848,48 @@ declare global {
   }
 
   const Settings: SettingsInterface;
+
+  interface SoloEvents {
+    filePath: string;
+    check: boolean;
+    inGame: boolean;
+    cloneWalked: boolean;
+    townChicken: {
+      disabled: boolean;
+      running: boolean;
+    };
+    profileResponded: boolean;
+    gameInfo: {
+      gameName: string;
+      gamePass: string;
+    };
+
+    outOfGameCheck(): boolean;
+    inGameCheck(): boolean;
+    getProfiles(): string[];
+    getCharacterNames(): string[];
+    sendToProfile(profile: string, message: any, mode?: number): void;
+    sendToList(message: any, mode?: number): void;
+    dropCharm(charm: ItemUnit): boolean;
+    killdclone(): void;
+    moveSettings: {
+      allowTeleport: boolean;
+      allowClearing: boolean;
+      allowPicking: boolean;
+      allowTown: boolean;
+      allowNodeActions: boolean;
+      retry: number;
+    };
+    moveTo(x: number, y: number, givenSettings?: pathSettings): boolean;
+    skip(): void;
+    dodge(): void;
+    finishDen(): void;
+    bugAndy(): void;
+    diaEvent(bytes?: any[]): void;
+    skippedWaves: number[];
+    baalEvent(bytes?: any[]): void;
+  }
+
+  const SoloEvents: SoloEvents;
 }
-export{};
+export {};
