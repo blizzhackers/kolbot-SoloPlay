@@ -33,22 +33,28 @@
   }
 
   // Cube to Mal rune
+  const needMal = function () {
+    return !me.getItem(sdk.items.runes.Mal);
+  };
   if (!me.getItem(sdk.items.runes.Mal)) {
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needMal }]);
   }
 
   // Cube to Ohm Rune
+  const needOhm = function () {
+    return !me.getItem(sdk.items.runes.Ohm);
+  };
   if (!me.getItem(sdk.items.runes.Ohm)) {
-    Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Pul Rune", { condition: needOhm }]);
+    Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needOhm }]);
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needOhm }]);
+    Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needOhm }]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needOhm }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needOhm }]);
 
     if (me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have
       || ["Zealer", "Smiter", "Auradin", "Meteorb", "Blizzballer", "Cold"].includes(SetUp.finalBuild)) {
-      Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needOhm }]);
     }
   }
 

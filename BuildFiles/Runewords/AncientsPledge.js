@@ -1,9 +1,10 @@
 (function () {
   if (!me.checkItem({ name: sdk.locale.items.AncientsPledge }).have && !me.hell) {
-  // Cube to Ort rune
-    if (me.normal && !me.getItem(sdk.items.runes.Ort)) {
-      Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
-    }
+    // Cube to Ort rune
+    const needOrt = function () {
+      return me.normal && !me.getItem(sdk.items.runes.Ort);
+    };
+    Config.Recipes.push([Recipe.Rune, "Ort Rune", { condition: needOrt }]);
 
     const apRunes = [
       "[name] == RalRune # # [maxquantity] == 1",

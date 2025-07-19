@@ -9,17 +9,20 @@
   NTIP.buildList(Inf);
 
   // Cube to Ber rune
-  if (me.findItems(sdk.items.runes.Ber).length < 2) {
+  const needBer = function () {
+    return !me.getOwned({ classid: sdk.items.runes.Ber }).length < 2;
+  };
+  if (needBer()) {
     if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have || me.barbarian) {
-      Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needBer }]);
+      Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needBer }]);
+      Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needBer }]);
+      Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needBer }]);
+      Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needBer }]);
     }
 
-    Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Sur Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Ber Rune", { condition: needBer }]);
   }
 
   Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);

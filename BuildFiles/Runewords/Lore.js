@@ -1,4 +1,8 @@
 (function () {
+  const needSol = function () {
+    return !me.getItem(sdk.items.runes.Sol);
+  };
+
   if (!me.checkItem({ name: sdk.locale.items.Lore }).have) {
     const loreRunes = [
       "[name] == OrtRune # # [maxquantity] == 1",
@@ -7,16 +11,14 @@
     NTIP.buildList(loreRunes);
 
     // Cube to Sol rune
-    if (!me.getItem(sdk.items.runes.Sol)) {
-      Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
+    if (needSol()) {
+      Config.Recipes.push([Recipe.Rune, "Thul Rune", { condition: needSol }]);
+      Config.Recipes.push([Recipe.Rune, "Amn Rune", { condition: needSol }]);
+      Config.Recipes.push([Recipe.Rune, "Sol Rune", { condition: needSol }]);
     }
   } else {
-  // Cube to Sol rune
-    if (!me.getItem(sdk.items.runes.Sol)) {
-      Config.Recipes.push([Recipe.Rune, "Amn Rune"]);
-    }
+    // Cube to Sol rune
+    Config.Recipes.push([Recipe.Rune, "Sol Rune", { condition: needSol }]);
   }
 
   let classLoreHelm = [];

@@ -6,10 +6,14 @@
   ];
   NTIP.buildList(Crescent);
 
+  const needUm = function () {
+    return !me.getItem(sdk.items.runes.Um);
+  };
+  
   if (me.barbarian) {
-  // Cube to Um Rune
+    // Cube to Um Rune
     if (!me.getItem(sdk.items.runes.Um)) {
-      Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needUm }]);
     }
 
     // Have Shael and Um runes before looking for base
@@ -41,10 +45,10 @@
 
     // Cube to Um rune
     if (!me.getItem(sdk.items.runes.Um)) {
-      Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Fal Rune", { condition: needUm }]);
+      Config.Recipes.push([Recipe.Rune, "Lem Rune", { condition: needUm }]);
+      Config.Recipes.push([Recipe.Rune, "Pul Rune", { condition: needUm }]);
+      Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needUm }]);
     }
 
     Config.Recipes.push([Recipe.Socket.Weapon, "phaseblade", Roll.NonEth]);

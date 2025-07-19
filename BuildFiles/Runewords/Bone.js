@@ -6,12 +6,13 @@
   NTIP.buildList(Bone);
 
   // Cube to Um Rune
-  if (me.getOwned({ classid: sdk.items.runes.Um }).length < 2) {
-    Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-  }
+  const needUms = function () {
+    return me.getOwned({ classid: sdk.items.runes.Um }).length < 2;
+  };
+  Config.Recipes.push([Recipe.Rune, "Fal Rune", { condition: needUms }]);
+  Config.Recipes.push([Recipe.Rune, "Lem Rune", { condition: needUms }]);
+  Config.Recipes.push([Recipe.Rune, "Pul Rune", { condition: needUms }]);
+  Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needUms }]);
 
   // Have Um rune before looking for base
   if (me.getItem(sdk.items.runes.Um)) {

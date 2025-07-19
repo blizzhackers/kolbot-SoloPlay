@@ -7,15 +7,21 @@
   NTIP.buildList(Sanctuary);
 
   // Cube to Mal rune
-  if (!me.getItem(sdk.items.runes.Mal)) {
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+  const needMal = function () {
+    return !me.getItem(sdk.items.runes.Mal);
+  };
+  if (needMal()) {
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needMal }]);
   }
 
   // Cube to Ko rune
-  if (!me.getItem(sdk.items.runes.Ko)) {
-    Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
+  const needKos = function () {
+    return me.getOwned({ classid: sdk.items.runes.Ko }).length < 2;
+  };
+  if (needKos()) {
+    Config.Recipes.push([Recipe.Rune, "Io Rune", { condition: needKos }]);
+    Config.Recipes.push([Recipe.Rune, "Lum Rune", { condition: needKos }]);
+    Config.Recipes.push([Recipe.Rune, "Ko Rune", { condition: needKos }]);
   }
 
   if (!me.getOwned({ classid: sdk.items.Hyperion, sockets: 3 }).length) {

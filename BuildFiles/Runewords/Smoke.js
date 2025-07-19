@@ -1,9 +1,10 @@
 (function () {
   if (!me.checkItem({ name: sdk.locale.items.Smoke }).have && !me.hell) {
-  // Cube to Lum Rune
-    if (!me.getItem(sdk.items.runes.Lum)) {
-      Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-    }
+    // Cube to Lum Rune
+    const needLum = function () {
+      return !me.getItem(sdk.items.runes.Lum);
+    };
+    Config.Recipes.push([Recipe.Rune, "Io Rune", { condition: needLum }]);
 
     const smokeRunes = [
       "[name] == NefRune # # [maxquantity] == 1",

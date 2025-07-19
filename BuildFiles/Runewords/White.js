@@ -14,8 +14,11 @@
   // }
 
   // Cube to Io rune
+  const needIo = function () {
+    return !me.getItem(sdk.items.runes.Io);
+  };
   if (!me.getItem(sdk.items.runes.Io)) {
-    Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Io Rune", { condition: needIo }]);
   }
   
   Config.Runewords.push([Runeword.White, "bonewand"]);

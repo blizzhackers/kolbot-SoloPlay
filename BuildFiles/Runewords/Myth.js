@@ -7,9 +7,10 @@
   NTIP.buildList(Myth);
 
   // Cube to Hel rune
-  if (!me.getItem(sdk.items.runes.Hel)) {
-    Config.Recipes.push([Recipe.Rune, "Dol Rune"]);
-  }
+  const needHel = function () {
+    return !me.getItem(sdk.items.runes.Hel);
+  };
+  Config.Recipes.push([Recipe.Rune, "Hel Rune", { condition: needHel }]);
 
   // Have Hel rune before looking for base
   if (me.getItem(sdk.items.runes.Hel)) {

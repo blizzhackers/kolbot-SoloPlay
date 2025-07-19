@@ -262,16 +262,16 @@
         // Cube to Jah rune
         if (!me.getItem(sdk.items.runes.Jah)) {
           if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
-            Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
             Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
             Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
             Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
             Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+            Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
           }
 
-          Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
           Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
           Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Jah Rune"]);
         }
 
       }
@@ -279,13 +279,13 @@
       if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
         // Cube to Mal rune
         if (!me.getItem(sdk.items.runes.Mal) && me.equipped.get(sdk.body.RightArm).tier >= 110000) {
-          Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
         }
         
         // Cube to Ohm rune
         if (!me.getItem(sdk.items.runes.Ohm)) {
-          Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
           Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
         }
       }
 
@@ -369,13 +369,13 @@
       if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
         // Cube to Mal rune
         if (!me.getItem(sdk.items.runes.Mal) && me.equipped.get(sdk.body.RightArm).tier >= 110000) {
-          Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
         }
         
         // Cube to Ohm rune
         if (!me.getItem(sdk.items.runes.Ohm)) {
-          Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
           Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
         }
       }
 
@@ -451,44 +451,44 @@
         // Cube to Cham rune
         if (!me.getItem(sdk.items.runes.Cham) || !me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
           if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
-            Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
             Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
             Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+            Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
 
             if (me.checkItem({ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }).have) {
-              Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
               Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+              Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
             } else if (!me.checkItem({ name: sdk.locale.items.Exile, itemtype: sdk.items.type.AuricShields }).have
               && !me.getItem(sdk.items.runes.Ohm)) {
-              Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+              Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
             }
           }
 
           if (me.checkItem({ name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }).have) {
-            Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
             Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
+            Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
           } else if ((!me.haveAll([
             { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor },
             { name: sdk.locale.items.HandofJustice }
           ]) && !me.getItem(sdk.items.runes.Sur))) {
-            Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+            Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
           }
 
-          Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
           Config.Recipes.push([Recipe.Rune, "Jah Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Cham Rune"]);
         }
       }
 
       if (!me.checkItem({ name: sdk.locale.items.CalltoArms }).have) {
         // Cube to Mal rune
         if (!me.getItem(sdk.items.runes.Mal) && me.equipped.get(sdk.body.RightArm).tier >= 110000) {
-          Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
         }
         
         // Cube to Ohm rune
         if (!me.getItem(sdk.items.runes.Ohm)) {
-          Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
           Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+          Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
         }
       }
 

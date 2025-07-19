@@ -9,17 +9,26 @@
   ];
   NTIP.buildList(Pride);
 
+  const needSur = function () {
+    return !me.getItem(sdk.items.runes.Sur);
+  };
+  const needLo = function () {
+    return !me.getItem(sdk.items.runes.Lo);
+  };
+  const needSurOrLo = function () {
+    return needSur() || needLo();
+  };
   // Cube to Sur/Lo rune
-  if (!me.getItem(sdk.items.runes.Sur) || !me.getItem(sdk.items.runes.Lo)) {
+  if (needSur() || needLo()) {
     if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have || me.barbarian) {
-      Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needSurOrLo }]);
+      Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needSurOrLo }]);
+      Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needSurOrLo }]);
+      Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needSurOrLo }]);
+      Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needSurOrLo }]);
     }
     
-    !me.getItem(sdk.items.runes.Sur) && Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Sur Rune", { condition: needSur }]);
   }
 
   Config.Recipes.push([Recipe.Socket.Weapon, "giantthresher"]);

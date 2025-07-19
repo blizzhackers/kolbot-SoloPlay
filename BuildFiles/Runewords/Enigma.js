@@ -10,27 +10,50 @@
   ];
   NTIP.buildList(Enigma);
 
+  let _haveEnigma = false;
+  const haveEnigma = function () {
+    if (_haveEnigma) {
+      return true;
+    }
+    _haveEnigma = me.checkItem({ name: sdk.locale.items.Enigma }).have;
+    return _haveEnigma;
+  };
+  
   // Cube to Jah rune
+  const needJah = function () {
+    if (haveEnigma()) {
+      // If we have Enigma, we do not need Jah rune
+      return false;
+    }
+    return !me.getItem(sdk.items.runes.Jah);
+  };
   if (!me.getItem(sdk.items.runes.Jah)) {
-    Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Sur Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Ber Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Jah Rune", { condition: needJah }]);
   }
 
   // Cube to Ber rune
+  const needBer = function () {
+    if (haveEnigma()) {
+      // If we have Enigma, we do not need Ber rune
+      return false;
+    }
+    return !me.getItem(sdk.items.runes.Ber);
+  };
   if (!me.getItem(sdk.items.runes.Ber)) {
-    Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Sur Rune", { condition: needBer }]);
+    Config.Recipes.push([Recipe.Rune, "Ber Rune", { condition: needBer }]);
   }
 
   // Have Ber and Jah runes before looking for normal base

@@ -324,19 +324,25 @@
 
     if (me.equipped.get(sdk.body.LeftArm).tier < 1200) {
       // Cube to Ko Rune
+      let needKo = function () {
+        return !me.getItem(sdk.items.runes.Ko);
+      };
       if (!me.getItem(sdk.items.runes.Ko)) {
-        Config.Recipes.push([Recipe.Rune, "Hel Rune"]);
-        Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-        Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
+        Config.Recipes.push([Recipe.Rune, "Io Rune", { condition: needKo }]);
+        Config.Recipes.push([Recipe.Rune, "Lum Rune", { condition: needKo }]);
+        Config.Recipes.push([Recipe.Rune, "Ko Rune", { condition: needKo }]);
       }
 
       // Cube to Lem Rune
+      let needLem = function () {
+        return !me.getItem(sdk.items.runes.Lem);
+      };
       if (!me.getItem(sdk.items.runes.Lem)) {
-        Config.Recipes.push([Recipe.Rune, "Dol Rune"]);
-        Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-        Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
-        Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
-        Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
+        Config.Recipes.push([Recipe.Rune, "Io Rune", { condition: needLem }]);
+        Config.Recipes.push([Recipe.Rune, "Lum Rune", { condition: needLem }]);
+        Config.Recipes.push([Recipe.Rune, "Ko Rune", { condition: needLem }]);
+        Config.Recipes.push([Recipe.Rune, "Fal Rune", { condition: needLem }]);
+        Config.Recipes.push([Recipe.Rune, "Lem Rune", { condition: needLem }]);
       }
     }
 

@@ -31,21 +31,27 @@
   }
 
   // Cube to Lo Rune
+  const needLo = function () {
+    return !me.getItem(sdk.items.runes.Lo);
+  };
   if (!me.getItem(sdk.items.runes.Lo)) {
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needLo }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needLo }]);
+    Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needLo }]);
 
     if (me.checkItem({ name: sdk.locale.items.CalltoArms }).have
       || ["Smiter", "Zealer"].indexOf(SetUp.finalBuild) === -1) {
-      Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needLo }]);
     }
   }
 
   // Cube to Mal Rune
+  const needMal = function () {
+    return !me.getItem(sdk.items.runes.Mal);
+  };
   if (!me.getItem(sdk.items.runes.Mal)) {
-    Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needMal }]);
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needMal }]);
   }
 
   if (SetUp.finalBuild === "Plaguewolf") {

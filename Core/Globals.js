@@ -434,8 +434,7 @@ const SetUp = (function () {
       Config.AutoEquip = true;
 
       if (me.ladder > 0 || Settings.addLadderRW) {
-      // Runewords.ladderOverride = true;
-        Config.LadderOveride = true;
+        Config.LadderOverride = true;
       }
     
       // common items
@@ -465,8 +464,16 @@ const SetUp = (function () {
         }
         // sometimes it seems hard to find skillers, if we have the room lets try to cube some
         if (Storage.Stash.UsedSpacePercent() < 60
-        && CharmEquip.grandCharm().keep.length < CharData.charms.get("grand").count().max) {
+          && CharmEquip.grandCharm().keep.length < CharData.charms.get("grand").count().max) {
+          console.log("ÿc8Kolbot-SoloPlayÿc0: Adding Cubing skillers Recipe");
           Config.Recipes.push([Recipe.Reroll.Magic, "Grand Charm"]);
+        }
+        if (me.charlvl < 70) {
+          Config.Recipes.push([Recipe.Reroll.Charm.LowGrand, "Grand Charm", {
+            condition: function () {
+              return Storage.Stash.UsedSpacePercent() < 75;
+            },
+          }]);
         }
         // switch bow - only for zon/sorc/pal/necro classes right now
         if (me.charlvl < 12 && !me.barbarian && !me.assassin && !me.druid) {

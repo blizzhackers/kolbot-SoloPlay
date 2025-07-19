@@ -20,22 +20,25 @@
   };
 
   // Cube to Lo and Keep cubing to Jah rune
+  const needJah = function () {
+    return !me.getItem(sdk.items.runes.Jah);
+  };
   if (me.getOwned({ classid: sdk.items.runes.Lo }).length > 1
-    && me.checkItem({ name: sdk.locale.items.ChainofHonor }).have) {
+    && me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
     if (!me.getItem(sdk.items.runes.Jah)) {
-      Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needJah }]);
+      Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needJah }]);
+      Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needJah }]);
+      Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needJah }]);
+      Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needJah }]);
     }
-    !me.getItem(sdk.items.runes.Jah) && Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Ber Rune", { condition: needJah }]);
   }
   // Cube to Jah rune
-  if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({ name: sdk.locale.items.ChainofHonor }).have) {
-    Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Sur Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ber Rune"]);
+  if (!me.getItem(sdk.items.runes.Jah) && me.checkItem({ name: sdk.locale.items.ChainsofHonor }).have) {
+    Config.Recipes.push([Recipe.Rune, "Sur Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Ber Rune", { condition: needJah }]);
+    Config.Recipes.push([Recipe.Rune, "Jah Rune", { condition: needJah }]);
   }
 
   if (me.amazon) {

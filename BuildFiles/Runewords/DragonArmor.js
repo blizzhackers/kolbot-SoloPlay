@@ -7,8 +7,11 @@
   NTIP.buildList(DragonArmor);
 
   // Cube to Sur rune
+  const needSur = function () {
+    return !me.getItem(sdk.items.runes.Sur);
+  };
   if (!me.getItem(sdk.items.runes.Sur)) {
-    Config.Recipes.push([Recipe.Rune, "Lo Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Sur Rune", { condition: needSur }]);
   }
 
   // Have Sur and Lo rune before attempting to make runeword

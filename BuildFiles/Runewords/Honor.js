@@ -21,8 +21,20 @@
   };
 
   // Cube to Amn rune
+  const needAmn = function () {
+    return !me.getItem(sdk.items.runes.Amn);
+  };
   if (!me.getItem(sdk.items.runes.Amn)) {
-    Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Thul Rune", { condition: needAmn }]);
+    Config.Recipes.push([Recipe.Rune, "Amn Rune", { condition: needAmn }]);
+  }
+
+  const needSol = function () {
+    return !me.getItem(sdk.items.runes.Sol);
+  };
+  if (!me.getItem(sdk.items.runes.Sol)) {
+    Config.Recipes.push([Recipe.Rune, "Amn Rune", { condition: needSol }]);
+    Config.Recipes.push([Recipe.Rune, "Sol Rune", { condition: needSol }]);
   }
 
   // Have Sol rune before looking for base

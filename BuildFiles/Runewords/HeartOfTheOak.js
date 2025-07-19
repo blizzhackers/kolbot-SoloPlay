@@ -19,6 +19,15 @@
     }
   };
 
+  let _haveHotO = false;
+  const haveHotO = function () {
+    if (_haveHotO) {
+      return true;
+    }
+    _haveHotO = me.checkItem({ name: sdk.locale.items.HeartoftheOak }).have;
+    return _haveHotO;
+  };
+
   // Have Vex rune before looking for base
   if (me.getItem(sdk.items.runes.Vex)) {
     NTIP.addLine("([name] == flail || [name] == knout) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
@@ -32,13 +41,20 @@
   }
 
   // Cube to Vex rune
-  if (!me.getItem(sdk.items.runes.Vex)) {
-    Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+  const needVex = function () {
+    if (haveHotO()) {
+      // If we have Heart of the Oak, we do not need Vex rune
+      return false;
+    }
+    return !me.getItem(sdk.items.runes.Vex);
+  };
+  if (needVex()) {
+    Config.Recipes.push([Recipe.Rune, "Pul Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needVex }]);
   }
 
   Config.Runewords.push([Runeword.HeartoftheOak, "knout"]);

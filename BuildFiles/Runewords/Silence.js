@@ -32,19 +32,25 @@
   }
 
   // Cube to Ist rune
+  const needIst = function () {
+    return !me.getItem(sdk.items.runes.Ist);
+  };
   if (!me.getItem(sdk.items.runes.Ist)) {
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needIst }]);
+    Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needIst }]);
   }
 
   // Cube to Vex rune
+  const needVex = function () {
+    return !me.getItem(sdk.items.runes.Vex);
+  };
   if (!me.getItem(sdk.items.runes.Vex)) {
-    Config.Recipes.push([Recipe.Rune, "Lem Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Pul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Um Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Mal Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Pul Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Um Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Mal Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Ist Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needVex }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needVex }]);
   }
 
   Config.Runewords.push([Runeword.Silence, "phaseblade"]);

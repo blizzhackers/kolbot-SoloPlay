@@ -7,11 +7,14 @@
   NTIP.buildList(treach);
 
   // Cube to Lem rune
+  const needLem = function () {
+    return !me.getItem(sdk.items.runes.Lem);
+  };
   if (!me.getItem(sdk.items.runes.Lem)) {
-    Config.Recipes.push([Recipe.Rune, "Io Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Lum Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ko Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Fal Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Lum Rune", { condition: needLem }]);
+    Config.Recipes.push([Recipe.Rune, "Ko Rune", { condition: needLem }]);
+    Config.Recipes.push([Recipe.Rune, "Fal Rune", { condition: needLem }]);
+    Config.Recipes.push([Recipe.Rune, "Lem Rune", { condition: needLem }]);
   }
 
   // Have Shael and Lem before looking for base

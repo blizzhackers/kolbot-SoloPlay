@@ -32,11 +32,14 @@
   }
 
   // Cube to Lo rune
+  const needLo = function () {
+    return !me.getItem(sdk.items.runes.Lo);
+  };
   if (!me.getItem(sdk.items.runes.Lo)) {
-    Config.Recipes.push([Recipe.Rune, "Ist Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Gul Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Vex Rune"]);
-    Config.Recipes.push([Recipe.Rune, "Ohm Rune"]);
+    Config.Recipes.push([Recipe.Rune, "Gul Rune", { condition: needLo }]);
+    Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needLo }]);
+    Config.Recipes.push([Recipe.Rune, "Ohm Rune", { condition: needLo }]);
+    Config.Recipes.push([Recipe.Rune, "Lo Rune", { condition: needLo }]);
   }
 
   Config.Recipes.push([Recipe.Socket.Armor, "archonplate", Roll.NonEth]);

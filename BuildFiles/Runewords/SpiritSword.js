@@ -10,16 +10,19 @@
     NTIP.buildList(SpiritSword);
 
     // Cube to Amn Rune
+    const needAmn = function () {
+      return !me.getItem(sdk.items.runes.Amn);
+    };
     if (!me.getItem(sdk.items.runes.Amn)) {
-      Config.Recipes.push([Recipe.Rune, "Ral Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Ort Rune"]);
-      Config.Recipes.push([Recipe.Rune, "Thul Rune"]);
+      Config.Recipes.push([Recipe.Rune, "Ort Rune", { condition: needAmn }]);
+      Config.Recipes.push([Recipe.Rune, "Thul Rune", { condition: needAmn }]);
+      Config.Recipes.push([Recipe.Rune, "Amn Rune", { condition: needAmn }]);
     }
 
     if (!me.barbarian) {
       NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] == normal && [level] >= 26 && [level] <= 40 # ([sockets] == 0 || [sockets] == 4) # [maxquantity] == 1");
     } else {
-    // Have Thul and Amn before looking for base
+      // Have Thul and Amn before looking for base
       if (me.getItem(sdk.items.runes.Thul) && me.getItem(sdk.items.runes.Amn)) {
         NTIP.addLine("([name] == broadsword || [name] == crystalsword) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
       }
