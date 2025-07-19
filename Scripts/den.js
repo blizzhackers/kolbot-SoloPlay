@@ -25,6 +25,7 @@ function den () {
   me.gold > 1000 && Town.buyPots(12, "stamina", true);
 
   if (!Pather.checkWP(sdk.areas.ColdPlains) || me.charlvl < 4) {
+    myPrint("Getting Cold Plains WP - Taking scenic route for leveling");
     Pather.moveToExit(sdk.areas.BloodMoor, true);
 
     try {
