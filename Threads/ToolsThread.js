@@ -597,7 +597,7 @@ function main () {
 
     switch (msg) {
     case "remake":
-      Settings.testingMode.enabled && (quitFlag = true);
+      Settings.testingMode && (quitFlag = true);
 
       break;
     case "toggleQuitlist":
