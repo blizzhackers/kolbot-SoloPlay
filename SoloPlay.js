@@ -253,7 +253,7 @@ function main () {
   Pickit.pickItems();
   me.hpPercent <= 10 && Town.heal() && me.cancelUIFlags();
 
-  me.automap = Config.AutoMap;
+  me.automap = Config.AutoMap || Settings.debugging.pathing;
 
   // Next game = drop keys
   TorchSystem.keyCheck() && scriptBroadcast("torch");
