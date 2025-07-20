@@ -31,6 +31,7 @@ declare global {
     readonly isUnderCoS: boolean;
     readonly isUnderLowerRes: boolean;
     readonly size: number;
+    readonly speed: number;
   }
 
   interface Unit {
@@ -331,10 +332,6 @@ declare global {
     let enabled: boolean;
 
     function go(arg: clearSettings): void;
-  }
-
-  namespace PathDebug {
-    function coordsInPath(path: PathNode[], x: number, y: number): boolean;
   }
 
   namespace Pickit {

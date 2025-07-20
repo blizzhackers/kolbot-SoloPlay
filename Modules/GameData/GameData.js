@@ -2346,21 +2346,6 @@
       }, 0);
   }
 
-  Object.defineProperty(Unit.prototype, "currentVelocity", {
-    get: function () {
-      if (!this.isMoving || this.isFrozen) return 0;
-      const velocity = this.isRunning
-        ? MonsterData.get(this.classid).Run
-        : MonsterData.get(this.classid).Velocity;
-      if (this.isChilled) {
-        let malus = MonsterData.get(this.classid).ColdEffect;
-        (malus > 0) && (malus = malus - 256);
-        return Math.max(1, ~~(velocity * (1 + malus)));
-      }
-      return velocity;
-    }
-  });
-
   /**
    * @param {number} skillId 
    * @param {Monster} monster 

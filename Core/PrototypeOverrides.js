@@ -881,3 +881,33 @@ Unit.prototype.getMobs = function ({ range, coll, type }) {
         && (!coll || !checkCollision(_this, mon, coll));
     });
 };
+
+(function () {
+  const MonsterData = require("../Modules/GameData/MonsterData");
+
+  Object.defineProperty(Unit.prototype, "speed", {
+    /** @this {Monster} */
+    get: function () {
+      const velocity = this.isRunning
+        ? MonsterData.get(this.classid).Run
+        : MonsterData.get(this.classid).Velocity;
+      return velocity;
+    }
+  });
+  
+  Object.defineProperty(Unit.prototype, "currentVelocity", {
+    /** @this {Monster} */
+    get: function () {
+      if (!this.isMoving || this.isFrozen) return 0;
+      const velocity = this.isRunning
+        ? MonsterData.get(this.classid).Run
+        : MonsterData.get(this.classid).Velocity;
+      if (this.isChilled) {
+        let malus = MonsterData.get(this.classid).ColdEffect;
+        (malus > 0) && (malus = malus - 256);
+        return Math.max(1, ~~(velocity * (1 + malus)));
+      }
+      return velocity;
+    }
+  });
+}());
