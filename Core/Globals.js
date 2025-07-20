@@ -74,7 +74,7 @@ const SetUp = (function () {
     _buildTemplate: "",
 
     init: function () {
-    // ensure finalBuild is properly formatted
+      // ensure finalBuild is properly formatted
       const checkBuildTemplate = function () {
         let build = (["Bumper", "Socketmule", "Imbuemule"].includes(SetUp.finalBuild)
           ? ["Javazon", "Cold", "Bone", "Hammerdin", "Whirlwind", "Wind", "Trapsin"][me.classid]

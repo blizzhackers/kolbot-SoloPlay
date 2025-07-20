@@ -56,9 +56,7 @@ new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
   return true;
 }).apply();
 
-// ugly for now but proxy the functions I moved to Me.js in case somewhere the base functions are being used
-Town.getItemsForRepair = (repairPercent, chargedItems) => me.getItemsForRepair(repairPercent, chargedItems);
-Town.needRepair = () => me.needRepair();
+// ugly for now but proxy the functions I moved to NPCAction.js in case somewhere the base functions are being used
 Town.buyPotions = () => NPCAction.buyPotions();
 Town.fillTome = (classid, force = false) => NPCAction.fillTome(classid, force);
 Town.cainID = (force = false) => NPCAction.cainID(force);
