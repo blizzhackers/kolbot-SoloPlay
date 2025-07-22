@@ -17,7 +17,13 @@
    */
   function Container (name, width, height, location) {
     this.name = name;
+    /**
+     * @type {number} - Amount of columns
+     */
     this.width = width;
+    /**
+     * @type {number} - Amount of rows
+     */
     this.height = height;
     this.location = location;
     /** @type {number[][]} */
@@ -39,8 +45,6 @@
    * @param {ItemUnit} item 
    */
   Container.prototype.Mark = function (item) {
-    let x, y;
-
     // Make sure it is in this container.
     if (item.location !== this.location
       || (item.mode !== sdk.items.mode.inStorage && item.mode !== sdk.items.mode.inBelt)) {
@@ -48,8 +52,8 @@
     }
 
     // Mark item in buffer.
-    for (x = item.x; x < (item.x + item.sizex); x += 1) {
-      for (y = item.y; y < (item.y + item.sizey); y += 1) {
+    for (let x = item.x; x < (item.x + item.sizex); x += 1) {
+      for (let y = item.y; y < (item.y + item.sizey); y += 1) {
         this.buffer[y][x] = this.itemList.length + 1;
         this.openPositions -= 1;
       }
@@ -105,10 +109,8 @@
   };
 
   Container.prototype.Reset = function () {
-    let h, w;
-
-    for (h = 0; h < this.height; h += 1) {
-      for (w = 0; w < this.width; w += 1) {
+    for (let h = 0; h < this.height; h += 1) {
+      for (let w = 0; w < this.width; w += 1) {
         this.buffer[h][w] = 0;
       }
     }
@@ -148,6 +150,29 @@
     }
 
     return true;
+  };
+
+  /**
+   * @param {ItemUnit} item 
+   */
+  Container.prototype.IsPossibleToFit = function (item) {
+    if (!item) return false;
+    Storage.Reload();
+    // Only for the inventory as this has to deal with locked spots
+    if (this.name !== "Inventory") {
+      // For other containers, just check if enough open positions exist
+      return (item.sizex * item.sizey) <= this.openPositions;
+    }
+    let freeSpots = 0;
+    for (let y = 0; y < this.height; y += 1) {
+      for (let x = 0; x < this.width; x += 1) {
+        if (Config.Inventory[y][x] !== 0 && this.buffer[y][x] === 0) {
+          freeSpots += 1;
+        }
+      }
+    }
+    // If there are enough free spots (regardless of contiguity), return true
+    return freeSpots >= item.sizex * item.sizey;
   };
 
   /**
