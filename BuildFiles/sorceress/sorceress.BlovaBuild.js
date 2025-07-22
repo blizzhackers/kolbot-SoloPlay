@@ -148,6 +148,9 @@
       },
 
       active: function () {
+        if (me.charlvl < 64) {
+          return false;
+        }
         return (
           this.respec()
           && me.getSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints) === 20

@@ -119,6 +119,9 @@
       },
 
       active: function () {
+        if (me.charlvl < 64) {
+          return false;
+        }
         return this.respec()
           && me.getSkill(sdk.skills.Lightning, sdk.skills.subindex.HardPoints) === 20
           && !me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints);

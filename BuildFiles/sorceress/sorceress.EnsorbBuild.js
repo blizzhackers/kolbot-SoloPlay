@@ -138,6 +138,9 @@
       },
 
       active: function () {
+        if (me.charlvl < 71) {
+          return false;
+        }
         return this.respec() && me.getSkill(sdk.skills.Telekinesis, sdk.skills.subindex.HardPoints) === 20;
       },
     };

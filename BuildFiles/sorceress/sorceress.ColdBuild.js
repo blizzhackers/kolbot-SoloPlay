@@ -1,10 +1,9 @@
 /**
-*  @filename    Sorceress.ColdBuild.js
-*  @author      isid0re, theBGuy
-*  @desc        Blizzard based final build
-*
-*/
-
+ *  @filename    Sorceress.ColdBuild.js
+ *  @author      isid0re, theBGuy
+ *  @desc        Blizzard based final build
+ *
+ */
 
 (function (module) {
   module.exports = (function () {
@@ -12,13 +11,22 @@
       caster: true,
       skillstab: sdk.skills.tabs.Cold,
       wantedskills: [sdk.skills.Blizzard, sdk.skills.ColdMastery],
-      usefulskills: [sdk.skills.GlacialSpike, sdk.skills.IceBlast, sdk.skills.StaticField],
+      usefulskills: [
+        sdk.skills.GlacialSpike,
+        sdk.skills.IceBlast,
+        sdk.skills.StaticField,
+      ],
       precastSkills: [sdk.skills.FrozenArmor],
       usefulStats: [sdk.stats.PassiveColdPierce, sdk.stats.PassiveColdMastery],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [
-        ["strength", 48], ["vitality", 165], ["strength", 61],
-        ["vitality", 252], ["strength", 127], ["dexterity", "block"], ["vitality", "all"]
+        ["strength", 48],
+        ["vitality", 165],
+        ["strength", 61],
+        ["vitality", 252],
+        ["strength", 127],
+        ["dexterity", "block"],
+        ["vitality", "all"],
       ],
       skills: [
         [sdk.skills.Warmth, 1],
@@ -30,9 +38,9 @@
         [sdk.skills.IceBlast, 20], // lvl 66 w/o quest skills pts
         [sdk.skills.GlacialSpike, 20],
         [sdk.skills.IceBolt, 20],
-        [sdk.skills.ColdMastery, 20]
+        [sdk.skills.ColdMastery, 20],
       ],
-      
+
       charms: {
         ResLife: {
           max: 3,
@@ -40,8 +48,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MaxHp) === 20
+            );
+          },
         },
 
         ResMf: {
@@ -50,8 +63,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MagicBonus) === 7
+            );
+          },
         },
 
         ResFHR: {
@@ -60,8 +78,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.FHR) === 5
+            );
+          },
         },
 
         Skiller: {
@@ -70,21 +93,34 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Cold) ===
+                1 &&
+              check.getStat(sdk.stats.MaxHp) >= 40
+            );
+          },
         },
       },
 
       AutoBuildTemplate: {
-        1:	{
+        1: {
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.IceBlast, sdk.skills.Blizzard, sdk.skills.GlacialSpike, -1, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.Blizzard,
+              sdk.skills.IceBlast,
+              sdk.skills.Blizzard,
+              sdk.skills.GlacialSpike,
+              -1,
+              -1,
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.SkipImmune = ["cold"];
             Config.HPBuffer = me.expansion ? 1 : 5;
             Config.MPBuffer = me.expansion ? 1 : 5;
-          }
+          },
         },
       },
 
@@ -92,22 +128,48 @@
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
         } else {
-          return me.haveAll([
-            { name: sdk.locale.items.TalRashasBelt, quality: sdk.items.quality.Set },
-            { name: sdk.locale.items.TalRashasAmulet, quality: sdk.items.quality.Set },
-            { name: sdk.locale.items.TalRashasArmor, quality: sdk.items.quality.Set },
-            { name: sdk.locale.items.TalRashasOrb, quality: sdk.items.quality.Set },
-            { name: sdk.locale.items.TalRashasHelmet, quality: sdk.items.quality.Set },
-          ]) && me.hell && me.baal;
+          return (
+            me.haveAll([
+              {
+                name: sdk.locale.items.TalRashasBelt,
+                quality: sdk.items.quality.Set,
+              },
+              {
+                name: sdk.locale.items.TalRashasAmulet,
+                quality: sdk.items.quality.Set,
+              },
+              {
+                name: sdk.locale.items.TalRashasArmor,
+                quality: sdk.items.quality.Set,
+              },
+              {
+                name: sdk.locale.items.TalRashasOrb,
+                quality: sdk.items.quality.Set,
+              },
+              {
+                name: sdk.locale.items.TalRashasHelmet,
+                quality: sdk.items.quality.Set,
+              },
+            ]) &&
+            me.hell &&
+            me.baal
+          );
         }
       },
 
       active: function () {
-        return this.respec() && !me.checkSkill(sdk.skills.Meteor, sdk.skills.subindex.HardPoints);
+        if (me.charlvl < 71) {
+          return false;
+        }
+        return (
+          this.respec() &&
+          !me.checkSkill(sdk.skills.Meteor, sdk.skills.subindex.HardPoints)
+        );
       },
     };
-    
-    let finalGear = [ // autoequip final gear
+
+    let finalGear = [
+      // autoequip final gear
       // Weapon - Tals Orb
       "[name] == swirlingcrystal && [quality] == set && [flag] != ethereal # [skilllightningmastery]+[skillfiremastery]+[skillcoldmastery] >= 3 # [tier] == tierscore(item, 100000)",
       // Helmet - Tals Mask
