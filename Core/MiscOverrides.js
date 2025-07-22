@@ -229,33 +229,6 @@ Misc.useWell = function (range = 15) {
   return true;
 };
 
-Misc.lastShrine = new function () {
-  this.tick = 0;
-  this.duration = 0;
-  this.type = -1;
-  this.state = -1;
-
-  /** @param {ObjectUnit} unit */
-  this.update = function (unit) {
-    if (!unit || !unit.hasOwnProperty("objtype")) return;
-    // we only care about tracking shrines with states
-    if (!ShrineData.getState(unit.objtype)) return;
-    this.tick = getTickCount();
-    this.type = unit.objtype;
-    this.duration = ShrineData.getDuration(unit.objtype);
-    this.state = ShrineData.getState(unit.objtype);
-  };
-
-  this.remaining = function () {
-    return this.duration - (getTickCount() - this.tick);
-  };
-
-  this.isMyCurrentState = function () {
-    if (this.state <= 0) return false;
-    return me.getState(this.state);
-  };
-};
-
 /**
  * Use a shrine Unit
  * @param {ObjectUnit} unit 
@@ -300,10 +273,13 @@ Misc.getShrine = function (unit) {
  * @returns {boolean}
  */
 Misc.scanShrines = function (range, ignore = []) {
+  !Array.isArray(ignore) && (ignore = [ignore]);
+  if (Config.AutoShriner) {
+    return Misc.shriner(ignore);
+  }
   if (!Config.ScanShrines.length) return false;
 
   !range && (range = Pather.useTeleport() ? 25 : 15);
-  !Array.isArray(ignore) && (ignore = [ignore]);
 
   /** @type {ObjectUnit[]} */
   let shrineList = [];

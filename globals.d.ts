@@ -361,10 +361,6 @@ declare global {
     function afterAttack(pickit?: boolean): void;
   }
 
-  namespace CollMap {
-    function checkColl(unitA: Unit, unitB: Unit, coll: number, thickness: number): boolean;
-  }
-
   namespace Town {
     function doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
   }

@@ -134,7 +134,7 @@ function den () {
             if (corpsefire) {
               if (!Attack.canAttack(corpsefire)) {
                 killTracker = true;
-                throw new Error("Exit den. Corpsefire is immune");
+                throw new ScriptError("Exit den. Corpsefire is immune");
               } else {
                 // we can attack, no need to run this in the background any longer
                 return false;
@@ -151,7 +151,7 @@ function den () {
         if (me.inArea(sdk.areas.DenofEvil)) {
           if (denLights) {
             killTracker = true;
-            throw new Error("EVENT :: DEN COMPLETE");
+            throw new ScriptError("EVENT :: DEN COMPLETE");
           }
         }
 
@@ -184,7 +184,9 @@ function den () {
       }
 
     } catch (e) {
-      //
+      if (!(error instanceof ScriptError)) {
+        console.error(error);
+      }
     } finally {
       removeEventListener("gamepacket", denLightsListener);
       SoloEvents.finishDen();

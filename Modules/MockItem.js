@@ -4,10 +4,8 @@
  *
  */
 
-
-(function (module, require) {
-
-  let defaultSettings = {
+(function (module) {
+  const defaultSettings = {
     base: 0, // Can be an item it extends
     type: 4,
     classid: 0,
@@ -99,9 +97,13 @@
       // Level requirement is the max of all items (so including sockets)
       let original = typeof this.base === "object" && this.base.hasOwnProperty("getStat") && this.base.getStat.apply(this.base, [major, minor]) || 0;
       if (major === sdk.stats.Levelreq) {
-        return Math.max.apply(Math, __spreadArray([selfValue], inventory.map(function (el) { return el.getStat(sdk.stats.Levelreq); })));
+        return Math.max.apply(Math, __spreadArray([selfValue], inventory.map(function (el) {
+          return el.getStat(sdk.stats.Levelreq);
+        })));
       }
-      let socketedStats = inventory.reduce(function (a, c) { return a + c.getStat.call(c, major, minor, extra); }, 0);
+      let socketedStats = inventory.reduce(function (a, c) {
+        return a + c.getStat.call(c, major, minor, extra);
+      }, 0);
       return original + selfValue + socketedStats;
     };
 
@@ -205,5 +207,4 @@
   };
 
   module.exports = MockItem;
-
 }).call(null, module, require);
