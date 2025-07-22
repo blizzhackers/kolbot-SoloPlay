@@ -712,7 +712,8 @@ Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], onc
         // Field id when our used space is above a certain percent or if we are full try to make room with FieldID
         // or if we have an exp shrine so we don't waste it
         if ((Config.FieldID.Enabled || me.getState(sdk.states.ShrineExperience))
-          && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
+          && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)
+          && !me.inDanger()) {
           me.fieldID() && (canFit = (currItem.gid !== undefined && Storage.Inventory.CanFit(currItem)));
         }
 
@@ -794,11 +795,13 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
         // Field id when our used space is above a certain percent or if we are full try to make room with FieldID
         if (Config.FieldID.Enabled
-          && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)) {
+          && (!canFit || Storage.Inventory.UsedSpacePercent() > Config.FieldID.UsedSpace)
+          && !me.inDanger()
+        ) {
           me.fieldID() && (canFit = (_item.gid !== undefined && Storage.Inventory.CanFit(_item)));
         }
 
-        if (!canFit && !me.checkForMobs({ range: 10 })) {
+        if (!canFit && !me.checkForMobs({ range: 10 }) && Storage.Inventory.IsPossibleToFit(_item)) {
           me.sortInventory();
           canFit = (Storage.Inventory.CanFit(_item) || Pickit.canFit(_item));
         }
@@ -836,6 +839,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
 
             // Town visit failed - abort
             console.warn("Failed to visit town. ÿc7Not enough room for " + Item.color(_item) + _item.name);
+            Pickit.ignoreList.add(_item.gid);
 
             return false;
           }
