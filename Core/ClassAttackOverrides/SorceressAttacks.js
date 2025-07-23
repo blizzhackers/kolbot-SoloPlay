@@ -89,6 +89,16 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
   ]);
 
   /**
+   * @param {SkillDataInfo} skill 
+   */
+  const handleFailToGetIntoPosition = function (skill) {
+    if (me.getMobCount(8) && me.mp > skill.manaCost()) {
+      // cast on ourselves for now, maybe we could try to find closest monster but this will hopefully help clear the area
+      Skill.cast(skill.skillId, skill.hand, me.x, me.y);
+    }
+  };
+
+  /**
    * @param {Monster} unit
    * @param {{
    *  manaSort?: boolean,
@@ -538,6 +548,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @returns {AttackResult}
    */
   ClassAttack.doCast = function (unit, choosenSkill) {
+    const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
     let noMana = false;
     let skill = choosenSkill.skillId;
     let range = choosenSkill.range();
@@ -558,7 +569,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill._dmg);
     }
 
-    if (![sdk.skills.FrostNova, sdk.skills.Nova, sdk.skills.StaticField].includes(skill)) {
+    if (!novaLike.includes(skill)) {
       // need like a potential danger check, sometimes while me might not be immeadiate danger because there aren't a whole
       // lot of monsters around, we can suddenly be in danger if a ranged monsters hits us or if one of the monsters near us
       // does a lot of damage quickly
@@ -637,15 +648,25 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       }
       
       if (unit.distance > range || Coords.isBlockedBetween(me, unit)) {
+        if (Settings.debugging.skills) {
+          console.log(
+            sdk.colors.Yellow + "Get Into Position :: " + getSkillById(skill)
+            + " :: Unit Distance: " + unit.distance
+            + " :: isBlocked: " + Coords.isBlockedBetween(me, unit)
+          );
+        }
         // Allow short-distance walking for melee skills
         let walk = (
           (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7))
           && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWalk)
         );
+        // for novalike if we can see them we can cast, need to determine if monsters block line of sight
+        let posColl = novaLike.includes(skill) ? Coords.BlockBits.LineOfSight : Coords.Collision.BLOCK_MISSILE;
       
         // todo - handle nova/frost nova, BLOCK_MISSILE doesn't apply for them
         if (ranged) {
-          if (!Attack.getIntoPosition(unit, range, Coords.Collision.BLOCK_MISSILE, walk)) {
+          if (!Attack.getIntoPosition(unit, range, posColl, walk)) {
+            handleFailToGetIntoPosition(choosenSkill);
             return Attack.Result.FAILED;
           }
         } else if (!Attack.getIntoPosition(unit, range, Coords.BlockBits.Ranged, walk)) {
@@ -666,6 +687,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
               cRetry++;
               // we still might of missed so pick another coord
               if (!Attack.getIntoPosition(unit, (range - cRetry), Coords.Collision.BLOCK_MISSILE, true)) {
+                handleFailToGetIntoPosition(choosenSkill);
                 return Attack.Result.FAILED;
               }
               !unit.dead && Skill.cast(skill, Skill.getHand(skill), unit.x, unit.y);
@@ -741,11 +763,29 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       noMana = true;
     }
 
+    if (me.skillDelay && !unit.dead) {
+      // maybe look for skill that we can use that doesn't have a delay
+      let noDelaySkill = decideAttack(unit, { checkSkillDelay: true, minRange: Math.min(unit.distance, 40) });
+      if (noDelaySkill !== -1 && noDelaySkill.manaCost() <= me.mp) {
+        if (Settings.debugging.skills) {
+          console.log(sdk.colors.Yellow + "(Selected No Delay :: " + getSkillById(noDelaySkill.skillId) + ") DMG: " + noDelaySkill._dmg);
+        }
+        Skill.cast(noDelaySkill.skillId, Skill.getHand(noDelaySkill.skillId), unit);
+      } else {
+        if (Settings.debugging.skills) {
+          console.log("No valid skills found to cast while in skill delay");
+        }
+      }
+    }
+
     for (let i = 0; i < 25; i++) {
       if (!me.skillDelay) {
         break;
       }
       if (i % 5 === 0) {
+        if (Settings.debugging.skills) {
+          console.debug("Waiting for skill delay to end, " + (25 - i) + " attempts left");
+        }
         if (me.inDanger()) {
           break;
         }
