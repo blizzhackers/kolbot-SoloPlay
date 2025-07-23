@@ -1824,6 +1824,10 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       // I am already in my optimal position
       if (coord.distance < 3) return true;
 
+      if (!useTele && Pather.getWalkDistance(coord.x, coord.y) > unit.distance) {
+        continue;
+      }
+
       // we are actually able to walk to where we want to go, hopefully prevent wall hugging
       if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
         Pather.walkTo(coord.x, coord.y, 2);
