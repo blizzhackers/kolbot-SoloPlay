@@ -489,25 +489,84 @@ me.inDanger = function (checkLoc, range) {
     ? checkLoc
     : me;
   range === undefined && (range = 10);
-  let nearUnits = getUnits(sdk.unittype.Monster)
+  const nearUnits = getUnits(sdk.unittype.Monster)
     .filter(function (mon) {
       return mon && mon.attackable && getDistance(_this, mon) < 10;
     });
-  nearUnits.forEach(function (u) {
-    return u.isSpecial
-      ? [sdk.states.Fanaticism, sdk.states.Conviction].some(state => u.getState(state))
-        ? (count += 3)
-        : (count += 2)
-      : (count += 1);
-  });
-  if (count > me.maxNearMonsters) return true;
-  let dangerClose = nearUnits
+  
+  const dangerAuras = [sdk.states.Fanaticism, sdk.states.Conviction];
+  for (let mon of nearUnits) {
+    if (mon.isSpecial) {
+      if (dangerAuras.some(function (state) { return mon.getState(state); })) {
+        count += 3;
+      } else {
+        count += 2;
+      }
+    } else {
+      // TODO: speedy monsters are more dangerous, also difficulty should be taken into account as well
+      // and type of character, as if we are a caster like a sorceress we are squishier and could be 1 or 2 shotted by a normal monster
+      // vs a barbarian or paladin who can take a few hits
+      count += mon.speed > 3 ? 1.5 : 1;
+    }
+  }
+  if (count > me.maxNearMonsters) {
+    return true;
+  }
+  
+  const dangerEnchants = [
+    sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
+  ];
+  const dangerClose = nearUnits
     .find(function (mon) {
-      return [
-        sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
-      ].some(chant => mon.getEnchant(chant));
+      return dangerEnchants.some(function (chant) {
+        return mon.getEnchant(chant);
+      });
     });
-  return dangerClose;
+
+  if (dangerClose) {
+    return true;
+  }
+
+  // lets determine if we are in danger of missiles based on thier trajectory - getParent isn't working for missles /:
+  // TODO: determine why because it should work from https://github.com/noah-/d2bs/pull/40
+  // const Vector = require("../Modules/Vector");
+  // /** @type {Line[]} */
+  // let missileHooks = [];
+  // const missiles = getUnits(sdk.unittype.Missile).filter(function (missile) {
+  //   if (!missile) return false;
+  //   /** @type {Monster | Player | null} */
+  //   let parent = missile.getParent();
+  //   if (parent && (parent.gid === me.gid || parent.isNPC)) {
+  //     return false;
+  //   }
+
+  //   if (parent) {
+  //     console.debug("Missile parent: " + parent.gid + " " + parent.classid + " " + parent.name + " for missle: " + missile.classid);
+  //   }
+
+  //   // alright now to check if the missile is heading towards us
+  //   const missileTargetX = missile.targetx || missile.x;
+  //   const missileTargetY = missile.targety || missile.y;
+  //   missileHooks.push(new Line(missile.x, missile.y, missileTargetX, missileTargetY, CollMap.colors.red, true));
+  //   const toTarget = new Vector(missileTargetX - missile.x, missileTargetY - missile.y).normalize();
+  //   const toMe = new Vector(me.x - missile.x, me.y - missile.y).normalize();
+
+  //   // Compute dot product (cosine of angle between vectors)
+  //   let dot = toTarget.x * toMe.x + toTarget.y * toMe.y;
+
+  //   // If dot product is close to 1, missile is heading toward us (angle < ~30deg)
+  //   return (dot > 0.85);
+  // });
+  // if (missiles.length > 0) {
+  //   console.debug("We are in danger of missiles, count: " + missiles.length);
+  //   // return true;
+  // }
+
+  // for (let missile of missileHooks) {
+  //   missile.remove();
+  // }
+
+  return false;
 };
 
 /**
@@ -516,7 +575,9 @@ me.inDanger = function (checkLoc, range) {
  * @returns boolean
  * @description small function to force boolean return value when checking if we have a skill
  */
-me.checkSkill = (skillId = 0, subId = 0) => !!me.getSkill(skillId, subId);
+me.checkSkill = function (skillId = 0, subId = 0) {
+  return !!me.getSkill(skillId, subId);
+};
 
 me.switchToPrimary = function () {
   if (me.classic) return true;
