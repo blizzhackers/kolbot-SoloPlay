@@ -432,6 +432,8 @@ const SetUp = (function () {
 
       Config.socketables = [];
       Config.AutoEquip = true;
+      Config.AutoShriner = true;
+      Config.UseExperimentalClearLevel = true;
 
       if (me.ladder > 0 || Settings.addLadderRW) {
         Config.LadderOverride = true;
