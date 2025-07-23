@@ -7,8 +7,14 @@
 */
 
 includeIfNotIncluded("core/Pather.js");
+/** @type {import("../../manualplay/hooks/ShrineHooks")} */
+includeIfNotIncluded("manualplay/hooks/ShrineHooks.js");
 
-Settings.debugging.pathing && (PathDebug.enableHooks = true);
+if (Settings.debugging.pathing) {
+  PathDebug.enableHooks = true;
+  Config.DebugMode.Path = true;
+  Config.DebugMode.Shrines = true;
+}
 
 /** @global */
 const AreaData = require("../Modules/GameData/AreaData");
@@ -48,6 +54,9 @@ Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
  */
 NodeAction.killMonsters = function (arg = {}) {
   if (Attack.stopClear || (arg.hasOwnProperty("allowClearing") && !arg.allowClearing)) return;
+
+  // before we get into fighting lets do a quick shrine scan
+  Misc.shriner([], Skill.haveTK ? 15 : 5);
 
   const myArea = me.area;
   // I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
@@ -132,7 +141,6 @@ NodeAction.killMonsters = function (arg = {}) {
 NodeAction.popChests = function (arg = {}) {
   const range = arg.canTele ? 25 : 15;
   Config.OpenChests.Enabled && Misc.openChests(range);
-  Misc.useWell(range);
 };
 
 /** @param {clearSettings} arg */
@@ -140,49 +148,48 @@ NodeAction.pickItems = function (arg = {}) {
   if (arg.hasOwnProperty("allowPicking") && !arg.allowPicking) return;
 
   let item = Game.getItem();
+  if (!item) return;
 
-  if (item) {
-    const maxDist = Skill.haveTK ? 15 : 5;
-    const regPickRange = arg.canTele ? Config.PickRange : 8;
-    const maxRange = Math.max(maxDist, regPickRange);
-    const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
-    /** @param {ItemUnit} item */
-    const filterJunk = function (item) {
-      return !!item && item.onGroundOrDropping;
-    };
+  const maxDist = Skill.haveTK ? 15 : 5;
+  const regPickRange = arg.canTele ? Config.PickRange : 8;
+  const maxRange = Math.max(maxDist, regPickRange);
+  const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
+  /** @param {ItemUnit} item */
+  const filterJunk = function (item) {
+    return !!item && item.onGroundOrDropping;
+  };
 
-    do {
-      if (item.onGroundOrDropping) {
-        const itemDist = getDistance(me, item);
-        if (itemDist > maxRange) continue;
-        if (totalList.some(el => el.gid === item.gid)) continue;
-        if (item.itemType === sdk.items.type.Gold && Pickit.canPick(item)) {
-          itemDist < 5
-            ? Pickit.pickItem(item)
-            : Pickit.essentialList.push(copyUnit(item));
-        } else if (Pickit.essentials.includes(item.itemType)) {
-          if (itemDist <= maxDist) {
-            if (Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
-              itemDist < 5
-                ? Pickit.pickItem(item)
-                : Pickit.essentialList.push(copyUnit(item));
-            }
+  do {
+    if (item.onGroundOrDropping) {
+      const itemDist = getDistance(me, item);
+      if (itemDist > maxRange) continue;
+      if (totalList.some(el => el.gid === item.gid)) continue;
+      if (item.itemType === sdk.items.type.Gold && Pickit.canPick(item)) {
+        itemDist < 5
+          ? Pickit.pickItem(item)
+          : Pickit.essentialList.push(copyUnit(item));
+      } else if (Pickit.essentials.includes(item.itemType)) {
+        if (itemDist <= maxDist) {
+          if (Pickit.checkItem(item).result && Pickit.canPick(item) && Pickit.canFit(item)) {
+            itemDist < 5
+              ? Pickit.pickItem(item)
+              : Pickit.essentialList.push(copyUnit(item));
           }
-        } else if (itemDist <= regPickRange && item.itemType === sdk.items.type.Key) {
-          if (Pickit.canPick(item) && Pickit.checkItem(item).result) {
-            Pickit.pickList.push(copyUnit(item));
-          }
-        } else if (itemDist <= regPickRange && Pickit.checkItem(item).result) {
+        }
+      } else if (itemDist <= regPickRange && item.itemType === sdk.items.type.Key) {
+        if (Pickit.canPick(item) && Pickit.checkItem(item).result) {
           Pickit.pickList.push(copyUnit(item));
         }
+      } else if (itemDist <= regPickRange && Pickit.checkItem(item).result) {
+        Pickit.pickList.push(copyUnit(item));
       }
-    } while (item.getNext());
-    
-    Pickit.essentialList.length > 0 && (Pickit.essentialList = Pickit.essentialList.filter(filterJunk));
-    Pickit.pickList.length > 0 && (Pickit.pickList = Pickit.pickList.filter(filterJunk));
-    Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false);
-    Pickit.pickList.length > 0 && Pickit.pickItems(regPickRange);
-  }
+    }
+  } while (item.getNext());
+  
+  Pickit.essentialList.length > 0 && (Pickit.essentialList = Pickit.essentialList.filter(filterJunk));
+  Pickit.pickList.length > 0 && (Pickit.pickList = Pickit.pickList.filter(filterJunk));
+  Pickit.essentialList.length > 0 && Pickit.essessntialsPick(false);
+  Pickit.pickList.length > 0 && Pickit.pickItems(regPickRange);
 };
 
 // todo - fast shrineing, if we are right next to a shrine then grab it even with mobs around
@@ -190,42 +197,6 @@ NodeAction.pickItems = function (arg = {}) {
 Pather.haveTeleCharges = false;
 Pather.forceWalk = false;
 Pather.forceRun = false;
-
-{
-  let coords = function () {
-    if (Array.isArray(this) && this.length > 1) return [this[0], this[1]];
-
-    if (typeof this.x !== "undefined" && typeof this.y !== "undefined") {
-      return this instanceof PresetUnit && [this.roomx * 5 + this.x, this.roomy * 5 + this.y] || [this.x, this.y];
-    }
-
-    return [undefined, undefined];
-  };
-
-  Object.defineProperty(Object.prototype, "mobCount", {
-    writable: true,
-    enumerable: false,
-    configurable: true,
-    value: function (givenSettings = {}) {
-      let [x, y] = coords.apply(this);
-      const settings = Object.assign({}, {
-        range: 5,
-        coll: (
-          sdk.collision.BlockWall | sdk.collision.ClosedDoor | sdk.collision.LineOfSight | sdk.collision.BlockMissile
-        ),
-        type: 0,
-        ignoreClassids: [],
-      }, givenSettings);
-      return getUnits(sdk.unittype.Monster)
-        .filter(function (mon) {
-          return mon.attackable && getDistance(x, y, mon.x, mon.y) < settings.range
-            && (!settings.type || (settings.type & mon.spectype))
-            && (settings.ignoreClassids.indexOf(mon.classid) === -1)
-            && !CollMap.checkColl({ x: x, y: y }, mon, settings.coll, 1);
-        }).length;
-    }
-  });
-}
 
 Pather.checkForTeleCharges = function () {
   this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
@@ -477,15 +448,26 @@ Pather.move = function (target, givenSettings = {}) {
     this.node.y = node.y;
   };
 
+  /**
+   * @param {PathNode} a 
+   * @param {PathNode} b 
+   * @returns {number}
+   */
+  const pDiff = function (a, b) {
+    if (!a || !b) return 0;
+    return Math.abs(a.distance - b.distance) / ((a.distance + b.distance) / 2) * 100;
+  };
+
   let fail = 0;
   let invalidCheck = false;
   let cbCheck = false;
-  let node = { x: target.x, y: target.y };
+  let node = new PathNode(target.x, target.y);
   const leaped = new PathAction();
   const whirled = new PathAction();
   const cleared = new PathAction();
   const teleported = new PathAction();
   const picked = new PathAction();
+  const PATH_DEBUG_ID = Date.now() + Math.floor(Math.random() * 1000);
 
   Pather.clearUIFlags();
 
@@ -543,7 +525,7 @@ Pather.move = function (target, givenSettings = {}) {
 
   path.reverse();
   settings.pop && path.pop();
-  PathDebug.drawPath(path);
+  PathDebug.drawPath(PATH_DEBUG_ID, path);
   if (useTeleport && Config.TeleSwitch && path.length > 5) {
     me.switchWeapons(Attack.getPrimarySlot() ^ 1);
   }
@@ -554,9 +536,10 @@ Pather.move = function (target, givenSettings = {}) {
     // main path
     if (Pather.recursion) {
       Pather.currentWalkingPath = path;
-      PathDebug.drawPath(Pather.currentWalkingPath);
+      PathDebug.drawPath(PATH_DEBUG_ID, Pather.currentWalkingPath);
     }
     Pather.clearUIFlags();
+    Config.DebugMode.Path && ShrineHooks.check();
 
     /** @type {PathNode} */
     node = path.shift();
@@ -588,7 +571,8 @@ Pather.move = function (target, givenSettings = {}) {
         ? Pather.teleportTo(node.x, node.y)
         : useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
           ? Pather.teleUsingCharges(node.x, node.y)
-          : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+          : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)
+      ) {
         if (settings.allowNodeActions && !me.inTown) {
           if (Pather.recursion) {
             try {
@@ -622,28 +606,98 @@ Pather.move = function (target, givenSettings = {}) {
                     return pNode.distance > 5;
                   });
                   
-                if (node.distance < 40) {
-                  let goBack = false;
-                  // lets see if it's worth walking back to old node
-                  Pickit.checkSpotForItems(node, true) && (goBack = true);
-                  // @todo check shrines/chests in proximity to old node vs next node
-                  if (goBack) {
-                    // console.debug("Going back to old node. Distance: " + node.distance);
-                  } else if (nearestNode && nearestNode.distance > 5 && node.distance > 5
-                    && Math.percentDifference(node.distance, nearestNode.distance) > 5) {
-                    let newIndex = path.findIndex(node => nearestNode.x === node.x && nearestNode.y === node.y);
+                if (node.distance >= 10 && !useTeleport) {
+                  if (Config.DebugMode.Path) {
+                    console.debug(
+                      "Node distance is greater than 10. What is the closest node? "
+                      + nearestNode + " " + pDiff(node, nearestNode) + "%"
+                    );
+                  }
+                  if (nearestNode
+                    && nearestNode.distance > 5
+                    && pDiff(node, nearestNode) > 5
+                  ) {
+                    let newIndex = path.findIndex(function (node) {
+                      return nearestNode.x === node.x && nearestNode.y === node.y;
+                    });
                     if (newIndex > -1) {
+                      if (Config.DebugMode.Path) {
+                        console.debug("Found near node to start from. Resetting path from here.");
+                      }
                       path = path.slice(newIndex);
                       node = path.shift();
                     }
+                  } else {
+                    if (Config.DebugMode.Path) {
+                      console.debug("Node distance is greater than 10. Reset new path from here.");
+                    }
+                    let newPath = getPath(
+                      me.area,
+                      target.x, target.y,
+                      me.x, me.y,
+                      usingTele ? 1 : 0,
+                      usingTele ? rand(25, 35) : rand(10, 15)
+                    );
+                    if (!newPath) {
+                      if (Config.DebugMode.Path) {
+                        console.warn("Failed to generate new path. Returning to original path.");
+                      }
+                    } else {
+                      path = newPath;
+                      path.reverse();
+                      PathDebug.drawPath(PATH_DEBUG_ID, path);
+                      settings.pop && path.pop();
+                      continue;
+                    }
                   }
-
-                  if (node.distance > 5) {
-                    Pather.move(node, settings);
-                  }
-                } else {
-                  Pather.move(node, settings);
                 }
+
+                if (node.distance >= 35) {
+                  if (Config.DebugMode.Path) {
+                    console.debug(
+                      "Node distance is greater than 35. What is the closest node? "
+                        + nearestNode + " " + pDiff(node, nearestNode) + "%"
+                    );
+                  }
+                  if (nearestNode
+                      && nearestNode.distance > 5
+                      && pDiff(node, nearestNode) > 5
+                  ) {
+                    let newIndex = path.findIndex(function (node) {
+                      return nearestNode.x === node.x && nearestNode.y === node.y;
+                    });
+                    if (newIndex > -1) {
+                      if (Config.DebugMode.Path) {
+                        console.debug("Found near node to start from. Resetting path from here.");
+                      }
+                      path = path.slice(newIndex);
+                      node = path.shift();
+                    }
+                  } else {
+                    if (Config.DebugMode.Path) {
+                      console.debug("Node distance is greater than 35. Reset new path from here.");
+                    }
+                    let newPath = getPath(
+                      me.area,
+                      target.x, target.y,
+                      me.x, me.y,
+                      usingTele ? 1 : 0,
+                      usingTele ? rand(25, 35) : rand(10, 15)
+                    );
+                    if (!newPath) {
+                      if (Config.DebugMode.Path) {
+                        console.warn("Failed to generate new path. Returning to original path.");
+                      }
+                    } else {
+                      path = newPath;
+                      path.reverse();
+                      PathDebug.drawPath(PATH_DEBUG_ID, path);
+                      settings.pop && path.pop();
+                      continue;
+                    }
+                  }
+                }
+                node.distance > 5 && Pather.move(node, settings);
               }
             } finally {
               Pather.recursion = true;
@@ -752,7 +806,7 @@ Pather.move = function (target, givenSettings = {}) {
         if (!path) throw new Error("moveTo: Failed to generate path.");
 
         path.reverse();
-        PathDebug.drawPath(path);
+        PathDebug.drawPath(PATH_DEBUG_ID, path);
         settings.pop && path.pop();
 
         if (fail > 0) {
@@ -777,7 +831,8 @@ Pather.move = function (target, givenSettings = {}) {
   }
 
   me.switchToPrimary();
-  PathDebug.removeHooks();
+  PathDebug.removeHooks(PATH_DEBUG_ID);
+  Config.DebugMode.Path && ShrineHooks.flush();
 
   return cbCheck || getDistance(me, node.x, node.y) < 5;
 };
@@ -1113,20 +1168,4 @@ Pather.clearToExit = function (currentarea, targetarea, givenSettings = {}) {
 
   console.info(false, "", "clearToExit");
   return (me.area === targetarea);
-};
-
-Pather.getWalkDistance = function (x, y, area, xx, yy, reductionType, radius) {
-  area === undefined && (area = me.area);
-  xx === undefined && (xx = me.x);
-  yy === undefined && (yy = me.y);
-  reductionType === undefined && (reductionType = 2);
-  radius === undefined && (radius = 5);
-  // distance between node x and x-1
-  return (getPath(area, x, y, xx, yy, reductionType, radius) || [])
-    .map(function (e, i, s) {
-      return i && getDistance(s[i - 1], e) || 0;
-    })
-    .reduce(function (acc, cur) {
-      return acc + cur;
-    }, 0) || Infinity;
 };
