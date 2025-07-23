@@ -1,7 +1,6 @@
 /**
 *  @filename    MiscOverrides.js
 *  @author      theBGuy
-*  @credit      isid0re (get/use Well idea)
 *  @desc        miscellaneous functions, socketing/imbuing
 *
 */
@@ -173,63 +172,6 @@ Misc.openChests = function (range = 15) {
 };
 
 /**
- * @param {ObjectUnit} unit 
- * @returns {boolean}
- */
-Misc.getWell = function (unit) {
-  if (!unit || unit.mode === sdk.objects.mode.Active) return false;
-
-  for (let i = 0; i < 3; i++) {
-    if (Skill.useTK(unit) && i < 2) {
-      unit.distance > 21 && Pather.moveNearUnit(unit, 20);
-      if (checkCollision(me, unit, sdk.collision.Ranged)) {
-        Attack.getIntoPosition(unit, 20, sdk.collision.Ranged);
-      }
-      Packet.telekinesis(unit);
-    } else {
-      if (unit.distance < 4 || Pather.moveToUnit(unit, 3, 0)) {
-        Misc.click(0, 0, unit);
-      }
-    }
-
-    if (Misc.poll(function () { return unit.mode; }, 1000, 50)) return true;
-    Packet.flash(me.gid);
-  }
-
-  return false;
-};
-
-Misc.useWell = function (range = 15) {
-  // I'm in perfect health, don't need this shit
-  if (me.hpPercent >= 95 && me.mpPercent >= 95 && me.staminaPercent >= 50
-    && [
-      sdk.states.Frozen, sdk.states.Poison,
-      sdk.states.AmplifyDamage, sdk.states.Decrepify
-    ].every(function (states) {
-      return !me.getState(states);
-    })) {
-    return true;
-  }
-
-  Pather.canTeleport() && me.hpPercent < 60 && (range = 25);
-
-  let unitList = getUnits(sdk.unittype.Object, "well").filter(function (well) {
-    return well.distance < range && well.mode !== sdk.objects.mode.Active;
-  });
-
-  while (unitList.length > 0) {
-    unitList.sort(Sort.units);
-    let unit = unitList.shift();
-
-    if (unit && (Pather.useTeleport() || !checkCollision(me, unit, sdk.collision.WallOrRanged))) {
-      this.getWell(unit);
-    }
-  }
-
-  return true;
-};
-
-/**
  * Use a shrine Unit
  * @param {ObjectUnit} unit 
  * @returns {boolean} 
@@ -265,103 +207,6 @@ Misc.getShrine = function (unit) {
   }
 
   return false;
-};
-
-/**
- * @param {number} range 
- * @param {number[]} ignore 
- * @returns {boolean}
- */
-Misc.scanShrines = function (range, ignore = []) {
-  !Array.isArray(ignore) && (ignore = [ignore]);
-  if (Config.AutoShriner) {
-    return Misc.shriner(ignore);
-  }
-  if (!Config.ScanShrines.length) return false;
-
-  !range && (range = Pather.useTeleport() ? 25 : 15);
-
-  /** @type {ObjectUnit[]} */
-  let shrineList = [];
-
-  const rangeCheck = function (shrineType) {
-    switch (true) {
-    case shrineType === sdk.shrines.Refilling && (me.hpPercent < 50 || me.mpPercent < 50 || me.staminaPercent < 50):
-    case shrineType === sdk.shrines.Mana && me.mpPercent < 50:
-    case shrineType === sdk.shrines.ManaRecharge && me.mpPercent < 50 && me.charlvl < 20:
-    case [sdk.shrines.Skill, sdk.shrines.Experience].includes(shrineType):
-      return 30;
-    case [sdk.shrines.Poison, sdk.shrines.Exploding].includes(shrineType):
-      return 15;
-    }
-    return range;
-  };
-
-  // add exploding/poision shrines
-  if (me.normal) {
-    Config.ScanShrines.indexOf(sdk.shrines.Poison) === -1 && Config.ScanShrines.push(sdk.shrines.Poison);
-    Config.ScanShrines.indexOf(sdk.shrines.Exploding) === -1 && Config.ScanShrines.push(sdk.shrines.Exploding);
-  }
-
-  // Initiate shrine states
-  if (!Misc.shrineStates) {
-    Misc.shrineStates = [];
-    let i = 0;
-    for (let shrine of Config.ScanShrines) {
-      if (shrine > 0) {
-        Misc.shrineStates[i] = ShrineData.getState(shrine);
-        i++;
-      }
-    }
-  }
-
-  /**
-   * @todo - We should build a list of shrines by their preset values when we scan the area
-   */
-
-  let shrine = Game.getObject();
-
-  /**
-   * Fix for a3/a5 shrines
-   */
-  if (shrine) {
-    // Build a list of nearby shrines
-    do {
-      if (shrine.name.toLowerCase().includes("shrine") && ShrineData.has(shrine.objtype)
-        && shrine.mode === sdk.objects.mode.Inactive && !ignore.includes(shrine.objtype)
-        && getDistance(me.x, me.y, shrine.x, shrine.y) <= rangeCheck(shrine.objtype)) {
-        shrineList.push(copyUnit(shrine));
-      }
-    } while (shrine.getNext());
-    if (!shrineList.length) return false;
-
-    // Check if we have a shrine state, store its index if yes
-    const index = Misc.shrineStates.findIndex(function (state) {
-      return state > 0 && me.getState(state);
-    });
-
-    for (let i = 0; i < Config.ScanShrines.length; i += 1) {
-      for (let shrine of shrineList) {
-        // Get the shrine if we have no active state or to refresh current state or if the shrine has no state
-        // Don't override shrine state with a lesser priority shrine
-        // todo - check to make sure we can actually get the shrine for ones without states
-        // can't grab a health shrine if we are in perfect health, can't grab mana shrine if our mana is maxed
-        if (index === -1 || i <= index || this.shrineStates[i] === 0) {
-          if (shrine.objtype === Config.ScanShrines[i]
-            && (Pather.useTeleport() || !checkCollision(me, shrine, sdk.collision.WallOrRanged))) {
-            this.getShrine(shrine);
-
-            // Gem shrine - pick gem
-            if (Config.ScanShrines[i] === sdk.shrines.Gem) {
-              Pickit.pickItems();
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return true;
 };
 
 /**

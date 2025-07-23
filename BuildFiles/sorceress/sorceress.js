@@ -29,23 +29,22 @@ const CharInfo = {
     const currLevel = me.charlvl;
     const justRepeced = (nSkills >= currLevel);
 
-    switch (true) {
-    case currLevel < this.respecOne && !me.checkSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints):
+    if (currLevel < this.respecOne) {
       return "Start";
-    case currLevel >= this.respecOne && currLevel < this.respecTwo && justRepeced:
-    case (
-      currLevel >= this.respecOne
-      && currLevel < this.respecTwo
-      && me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)
-      && !me.checkSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints)
-      && !me.checkSkill(sdk.skills.FireMastery, sdk.skills.subindex.HardPoints)
-    ):
-      return "Stepping";
-    case Check.finalBuild().respec() && justRepeced:
-    case Check.finalBuild().active():
-      return SetUp.finalBuild;
-    default:
-      return "Leveling";
     }
+
+    if (currLevel < this.respecTwo) {
+      if (me.checkSkill(sdk.skills.Nova, sdk.skills.subindex.HardPoints)) {
+        // we haven't actually respeced yet
+        return "Start";
+      }
+      return "Stepping";
+    }
+
+    if ((Check.finalBuild().respec() && justRepeced) || Check.finalBuild().active()) {
+      return SetUp.finalBuild;
+    }
+
+    return "Leveling";
   },
 };

@@ -62,19 +62,14 @@ Skill.cast = function (skillId, hand, x, y, item) {
 
   if (Config.PacketCasting > 1 || [sdk.skills.Teleport, sdk.skills.Telekinesis].includes(skillId)
     || (this.forcePacket && this.casterSkills.includes(skillId)
-    && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))) {
-    switch (typeof x) {
-    case "number":
+    && (!!me.realm || [sdk.skills.Teeth, sdk.skills.Tornado].indexOf(skillId) === -1))
+  ) {
+    if (typeof x === "number") {
       Packet.castSkill(hand, x, y);
-      delay(250);
-
-      break;
-    case "object":
+    } else if (typeof x === "object") {
       Packet.unitCast(hand, x);
-      delay(250);
-
-      break;
     }
+    delay(250);
   } else {
     let [clickType, shift] = (function () {
       switch (hand) {
