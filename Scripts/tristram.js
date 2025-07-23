@@ -66,16 +66,37 @@ function tristram () {
        * @todo I know there is a way to read the correct stone order from the packet response, need to figure that out
        */
       
+      const getStones = function () {
+        return getUnits(sdk.unittype.Object).filter(function (s) {
+          return stoneIds.includes(s.classid) && !s.mode;
+        });
+      };
+      /**
+       * @param {ObjectUnit} stone 
+       * @returns {boolean}
+       */
+      const nonActiveStone = function (stone) {
+        return stone && stone.mode === 0;
+      };
       const stoneIds = [
-        sdk.quest.chest.StoneAlpha, sdk.quest.chest.StoneBeta, sdk.quest.chest.StoneGamma,
-        sdk.quest.chest.StoneDelta, sdk.quest.chest.StoneLambda
+        sdk.quest.chest.StoneAlpha,
+        sdk.quest.chest.StoneBeta,
+        sdk.quest.chest.StoneGamma,
+        sdk.quest.chest.StoneDelta,
+        sdk.quest.chest.StoneLambda
       ];
-      const getStones = () => getUnits(sdk.unittype.Object).filter(s => stoneIds.includes(s.classid) && !s.mode);
       let stones = getStones();
-      let sTick = getTickCount();
+      let stoneTick = getTickCount();
       let retry = true;
 
-      while (stones.some((stone) => !stone.mode)) {
+      for (let i = 0; i < 5; i++) {
+        for (let stone of stones) {
+          if (!stone || stone.mode) continue;
+          clickUnitAndWait(sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.NoShift, stone);
+        }
+      }
+
+      while (stones.some(nonActiveStone)) {
         for (let i = 0; i < stones.length; i++) {
           let stone = stones[i];
 
@@ -84,16 +105,20 @@ function tristram () {
             i--;
           }
 
-          if (getTickCount() - sTick < Time.minutes(2)) {
+          if (getTickCount() - stoneTick < Time.minutes(2)) {
             if (retry) {
               stones = getStones();
-              sTick = getTickCount();
+              stoneTick = getTickCount();
             } else {
               return false;
             }
           }
           Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
           delay(10);
+        }
+
+        if (Pather.getPortal(sdk.areas.Tristram)) {
+          break;
         }
       }
 
