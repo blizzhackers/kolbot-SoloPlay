@@ -206,18 +206,6 @@ const LocationAction = {
     }
   }).apply();
 
-  /** @param {number} [amount] */
-  const scrollDown = function (amount = 4) {
-    try {
-      me.blockMouse = true;
-      for (let i = 0; i < amount; i++) {
-        sendKey(sdk.keys.code.DownArrow);
-      }
-    } finally {
-      me.blockMouse = false;
-    }
-  };
-
   /**
    * @typedef {Object} CharInfo
    * @property {string} [account]
@@ -371,7 +359,8 @@ const LocationAction = {
         case sdk.game.locations.Login:
           if (getLocation() === sdk.game.locations.MainMenu
             && Profile().type === sdk.game.profiletype.SinglePlayer
-            && Controls.SinglePlayer.click()) {
+            && Controls.SinglePlayer.click()
+          ) {
             checkDifficulty();
             break;
           } else if (Starter.BNET) {
@@ -649,7 +638,7 @@ const LocationAction = {
 
   Starter.LocationEvents.login = function () {
     Starter.inGame && (Starter.inGame = false);
-    let pType = Profile().type;
+    const pType = Profile().type;
 
     if (getLocation() === sdk.game.locations.MainMenu && Starter.firstRun
       && pType === sdk.game.profiletype.SinglePlayer
@@ -1068,372 +1057,197 @@ const LocationAction = {
     Starter.LocationEvents.openCreateGameWindow();
   };
 
-  const _locations = new Map([
-    [
-      sdk.game.locations.PreSplash,
-      function () {
-        ControlAction.click();
-      }
-    ],
-    [
-      sdk.game.locations.GatewaySelect,
-      function () {
-        Controls.GatewayCancel.click();
-      }
-    ],
-    [
-      sdk.game.locations.SplashScreen,
-      function () {
-        Starter.LocationEvents.login();
-      }
-    ],
-    [
-      sdk.game.locations.MainMenu,
-      function () {
-        Starter.LocationEvents.login();
-      }
-    ],
-    [
-      sdk.game.locations.Login,
-      function () {
-        Starter.LocationEvents.login();
-      }
-    ],
-    [
-      sdk.game.locations.OtherMultiplayer,
-      function () {
-        Starter.LocationEvents.otherMultiplayerSelect();
-      }
-    ],
-    [
-      sdk.game.locations.TcpIp,
-      function () {
-        Controls.TcpIpHost.click();
-      }
-    ],
-    [
-      sdk.game.locations.TcpIpEnterIp,
-      function () {
-        Controls.TcpIpCancel.click();
-      }
-    ],
-    [
-      sdk.game.locations.LoginError,
-      function () {
-        Starter.LocationEvents.loginError();
-      }
-    ],
-    [
-      sdk.game.locations.LoginUnableToConnect,
-      function () {
-        Starter.LocationEvents.unableToConnect();
-      }
-    ],
-    [
-      sdk.game.locations.TcpIpUnableToConnect,
-      function () {
-        Starter.LocationEvents.unableToConnect();
-      }
-    ],
-    [
-      sdk.game.locations.CdKeyInUse,
-      function () {
-        Starter.LocationEvents.loginError();
-      }
-    ],
-    [
-      sdk.game.locations.InvalidCdKey,
-      function () {
-        Starter.LocationEvents.loginError();
-      }
-    ],
-    [
-      sdk.game.locations.RealmDown,
-      function () {
-        Starter.LocationEvents.realmDown();
-      }
-    ],
-    [
-      sdk.game.locations.Disconnected,
-      function () {
-        ControlAction.timeoutDelay("Disconnected", 3000);
-        Controls.OkCentered.click();
-      }
-    ],
-    [
-      sdk.game.locations.RegisterEmail,
-      function () {
-        Controls.EmailDontRegisterContinue.control
-          ? Controls.EmailDontRegisterContinue.click()
-          : Controls.EmailDontRegister.click();
-      }
-    ],
-    [
-      sdk.game.locations.MainMenuConnecting,
-      function (loc) {
-        (!Starter.locationTimeout(Starter.Config.ConnectingTimeout * 1e3, loc)
-          && Controls.LoginCancelWait.click());
-      }
-    ],
-    [
-      sdk.game.locations.CharSelectPleaseWait,
-      function (loc) {
-        (!Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc)
-          && Controls.OkCentered.click());
-      }
-    ],
-    [
-      sdk.game.locations.CharSelect,
-      function (loc) {
-        Starter.LocationEvents.charSelect(loc);
-      }
-    ],
-    [
-      sdk.game.locations.CharSelectConnecting,
-      function (loc) {
-        Starter.LocationEvents.charSelect(loc);
-      }
-    ],
-    [
-      sdk.game.locations.CharSelectNoChars,
-      function (loc) {
-        Starter.LocationEvents.charSelect(loc);
-      }
-    ],
-    [
-      sdk.game.locations.SelectDifficultySP,
-      function () {
-        Starter.LocationEvents.selectDifficultySP();
-      }
-    ],
-    [
-      sdk.game.locations.CharacterCreate,
-      function (loc) {
-        if (!Starter.locationTimeout(Time.seconds(5), loc)) {
-          Controls.BottomLeftExit.click();
-        }
-      }
-    ],
-    [
-      sdk.game.locations.ServerDown,
-      function () {
-        ControlAction.timeoutDelay("Server Down", Time.minutes(5));
-        Controls.OkCentered.click();
-      }
-    ],
-    [
-      sdk.game.locations.LobbyPleaseWait,
-      function (loc) {
-        (!Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, loc)
-          && Controls.OkCentered.click());
-      }
-    ],
-    [
-      sdk.game.locations.Lobby,
-      function () {
-        D2Bot.updateStatus("Lobby");
-        ControlAction.saveInfo(Starter.profileInfo);
+  const { locations } = require("../../oog/Locations");
 
-        me.blockKeys = false;
+  locations.set(sdk.game.locations.SplashScreen, function () {
+    Starter.LocationEvents.login();
+  });
 
-        !Starter.firstLogin && (Starter.firstLogin = true);
-        Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
+  locations.set(sdk.game.locations.MainMenu, function () {
+    Starter.LocationEvents.login();
+  });
 
-        if (Starter.Config.PingQuitDelay && Starter.pingQuit) {
-          ControlAction.timeoutDelay("Ping Delay", Starter.Config.PingQuitDelay * 1e3);
-          Starter.pingQuit = false;
-        }
+  locations.set(sdk.game.locations.Login, function () {
+    Starter.LocationEvents.login();
+  });
 
-        if (Starter.Config.JoinChannel !== "" && Controls.LobbyEnterChat.click()) return;
+  locations.set(sdk.game.locations.OtherMultiplayer, function () {
+    Starter.LocationEvents.otherMultiplayerSelect();
+  });
 
-        if (Starter.inGame || Starter.gameInfo.error) {
-          !Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
+  locations.set(sdk.game.locations.RegisterEmail, function () {
+    Controls.EmailDontRegisterContinue.control
+      ? Controls.EmailDontRegisterContinue.click()
+      : Controls.EmailDontRegister.click();
+  });
 
-          if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3 && !joinInfo) {
-            let _waitTime = Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount();
-            ControlAction.timeoutDelay("Min game time wait", _waitTime);
-          }
-        }
+  locations.set(sdk.game.locations.CharSelect, function (loc) {
+    Starter.LocationEvents.charSelect(loc);
+  });
 
-        if (Starter.inGame) {
-          if (oogCheck()) return;
+  locations.set(sdk.game.locations.CharSelectConnecting, function (loc) {
+    Starter.LocationEvents.charSelect(loc);
+  });
 
-          D2Bot.updateRuns();
+  locations.set(sdk.game.locations.CharSelectNoChars, function (loc) {
+    Starter.LocationEvents.charSelect(loc);
+  });
 
-          Starter.gameCount += 1;
-          Starter.lastGameStatus = "ready";
-          Starter.inGame = false;
-          Starter._ftj = 0;
+  locations.set(sdk.game.locations.CharacterCreate, function (loc) {
+    if (!Starter.locationTimeout(Time.seconds(5), loc)) {
+      Controls.BottomLeftExit.click();
+    }
+  });
 
-          if (Starter.Config.ResetCount && Starter.gameCount > Starter.Config.ResetCount) {
-            Starter.gameCount = 1;
-            DataFile.updateStats("runs", Starter.gameCount);
-          }
-        }
+  locations.set(sdk.game.locations.Lobby, function () {
+    D2Bot.updateStatus("Lobby");
+    ControlAction.saveInfo(Starter.profileInfo);
 
-        if (Starter.deadCheck) {
-          Controls.LobbyQuit.click();
-        } else {
-          Starter.LocationEvents.openCreateGameWindow();
-        }
+    me.blockKeys = false;
+
+    !Starter.firstLogin && (Starter.firstLogin = true);
+    Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);
+
+    if (Starter.Config.PingQuitDelay && Starter.pingQuit) {
+      ControlAction.timeoutDelay("Ping Delay", Starter.Config.PingQuitDelay * 1e3);
+      Starter.pingQuit = false;
+    }
+
+    if (Starter.Config.JoinChannel !== "" && Controls.LobbyEnterChat.click()) return;
+
+    if (Starter.inGame || Starter.gameInfo.error) {
+      !Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
+
+      if (getTickCount() - Starter.gameStart < Starter.Config.MinGameTime * 1e3 && !joinInfo) {
+        let _waitTime = Starter.Config.MinGameTime * 1e3 + Starter.gameStart - getTickCount();
+        ControlAction.timeoutDelay("Min game time wait", _waitTime);
       }
-    ],
-    [
-      sdk.game.locations.LobbyChat,
-      function () {
-        Starter.LocationEvents.lobbyChat();
+    }
+
+    if (Starter.inGame) {
+      if (oogCheck()) return;
+
+      D2Bot.updateRuns();
+
+      Starter.gameCount += 1;
+      Starter.lastGameStatus = "ready";
+      Starter.inGame = false;
+      Starter._ftj = 0;
+
+      if (Starter.Config.ResetCount && Starter.gameCount > Starter.Config.ResetCount) {
+        Starter.gameCount = 1;
+        DataFile.updateStats("runs", Starter.gameCount);
       }
-    ],
-    [
-      sdk.game.locations.CreateGame,
-      function (loc) {
-        ControlAction.timeoutDelay("Create Game Delay", Starter.Config.DelayBeforeLogin * 1e3);
-        D2Bot.updateStatus("Creating Game");
+    }
 
-        if (typeof Starter.Config.CharacterDifference === "number") {
-          if (Controls.CharacterDifference.disabled === sdk.game.controls.Disabled) {
-            Controls.CharacterDifferenceButton.click();
-          }
-          Controls.CharacterDifference.setText(Starter.Config.CharacterDifference.toString());
-        } else if (!Starter.Config.CharacterDifference && Controls.CharacterDifference.disabled === 5) {
-          Controls.CharacterDifferenceButton.click();
-        }
+    if (Starter.deadCheck) {
+      Controls.LobbyQuit.click();
+    } else {
+      Starter.LocationEvents.openCreateGameWindow();
+    }
+  });
 
-        if (typeof Starter.Config.MaxPlayerCount === "number") {
-          Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
-        }
+  locations.set(sdk.game.locations.LobbyChat, function () {
+    Starter.LocationEvents.lobbyChat();
+  });
 
-        D2Bot.requestGameInfo();
-        delay(500);
+  locations.set(sdk.game.locations.CreateGame, function (loc) {
+    ControlAction.timeoutDelay("Create Game Delay", Starter.Config.DelayBeforeLogin * 1e3);
+    D2Bot.updateStatus("Creating Game");
+
+    if (typeof Starter.Config.CharacterDifference === "number") {
+      if (Controls.CharacterDifference.disabled === sdk.game.controls.Disabled) {
+        Controls.CharacterDifferenceButton.click();
+      }
+      Controls.CharacterDifference.setText(Starter.Config.CharacterDifference.toString());
+    } else if (!Starter.Config.CharacterDifference && Controls.CharacterDifference.disabled === 5) {
+      Controls.CharacterDifferenceButton.click();
+    }
+
+    if (typeof Starter.Config.MaxPlayerCount === "number") {
+      Controls.MaxPlayerCount.setText(Starter.Config.MaxPlayerCount.toString());
+    }
+
+    D2Bot.requestGameInfo();
+    delay(500);
+    
+    // todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
+    checkDifficulty();
+
+    Starter.gameInfo.gameName = DataFile.getStats().gameName;
+    Starter.gameInfo.gamePass = Starter.randomString(5, true);
+
+    if (!Starter.gameInfo.gameName || String.isEqual(Starter.gameInfo.gameName, "name")) {
+      Starter.gameInfo.gameName = (
+        Starter.profileInfo.charName.substring(0, 7) + "-"
+        + Starter.randomString(3, false) + "-"
+      );
+    }
+
+    // FTJ handler
+    if (Starter.lastGameStatus === "pending") {
+      Starter.isUp = "no";
+
+      if (Starter.profileInfo.hardcore && Starter._ftj > 3) {
+        console.debug("3 FTJ's limit reached. Exiting to lobby, maybe we died?");
+        Controls.LobbyQuit.click();
         
-        // todo - really don't need use profiles set difficulty for online. Only single player so re-write difficulty stuff
-        checkDifficulty();
+        return;
+      }
+      
+      Starter._ftj += 1;
+      D2Bot.printToConsole("Failed to create game");
+      ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
+      D2Bot.updateRuns();
+    }
 
-        Starter.gameInfo.gameName = DataFile.getStats().gameName;
-        Starter.gameInfo.gamePass = Starter.randomString(5, true);
+    let [gameName, gamePass, difficulty, gameDelay] = [
+      (Starter.gameInfo.gameName + Starter.gameCount),
+      Starter.gameInfo.gamePass,
+      Starter.gameInfo.difficulty,
+      Time.seconds(Starter.Config.CreateGameDelay)
+    ];
 
-        if (!Starter.gameInfo.gameName || String.isEqual(Starter.gameInfo.gameName, "name")) {
-          Starter.gameInfo.gameName = (
-            Starter.profileInfo.charName.substring(0, 7) + "-"
-            + Starter.randomString(3, false) + "-"
-          );
-        }
+    ControlAction.createGame(gameName, gamePass, difficulty, gameDelay);
+    Starter.lastGameStatus = "pending";
+    Starter.setNextGame(Starter.gameInfo);
+    Starter.locationTimeout(10000, loc);
+  });
 
-        // FTJ handler
-        if (Starter.lastGameStatus === "pending") {
-          Starter.isUp = "no";
+  locations.set(sdk.game.locations.GameIsFull, function () {
+    Starter.LocationEvents.openCreateGameWindow();
+  });
 
-          if (Starter.profileInfo.hardcore && Starter._ftj > 3) {
-            console.debug("3 FTJ's limit reached. Exiting to lobby, maybe we died?");
-            Controls.LobbyQuit.click();
-            
-            return;
-          }
-          
-          Starter._ftj += 1;
-          D2Bot.printToConsole("Failed to create game");
-          ControlAction.timeoutDelay("FTJ delay", Starter.Config.FTJDelay * 1e3);
-          D2Bot.updateRuns();
-        }
+  locations.set(sdk.game.locations.OkCenteredErrorPopUp, function () {
+    let string = parseControlText(Controls.OkCenteredText);
 
-        let [gameName, gamePass, difficulty, gameDelay] = [
-          (Starter.gameInfo.gameName + Starter.gameCount),
-          Starter.gameInfo.gamePass,
-          Starter.gameInfo.difficulty,
-          Time.seconds(Starter.Config.CreateGameDelay)
-        ];
+    switch (string) {
+    case getLocaleString(sdk.locale.text.CannotCreateGamesDeadHCChar):
+      Starter.deadCheck = true;
+      Controls.OkCentered.click();
+      return;
+    case getLocaleString(sdk.locale.text.UsernameMustBeAtLeast):
+    case getLocaleString(sdk.locale.text.PasswordMustBeAtLeast):
+    case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
+    case getLocaleString(sdk.locale.text.PasswordCantBeMoreThan):
+    case getLocaleString(sdk.locale.text.AccountCantBeMoreThan):
+    case getLocaleString(sdk.locale.text.InvalidPassword):
+      D2Bot.printToConsole(string);
+      Starter.profileInfo.account = "";
+      Starter.profileInfo.password = "";
+      CharData.login.updateData({ account: "", password: "" });
 
-        ControlAction.createGame(gameName, gamePass, difficulty, gameDelay);
-        Starter.lastGameStatus = "pending";
-        Starter.setNextGame(Starter.gameInfo);
-        Starter.locationTimeout(10000, loc);
-      }
-    ],
-    [
-      sdk.game.locations.GameNameExists,
-      function () {
-        Controls.CreateGameWindow.click();
-        Starter.gameCount += 1;
-        Starter.lastGameStatus = "ready";
-      }
-    ],
-    [
-      sdk.game.locations.WaitingInLine,
-      function () {
-        Starter.LocationEvents.waitingInLine();
-      }
-    ],
-    [
-      sdk.game.locations.JoinGame,
-      function () {
-        Starter.LocationEvents.openCreateGameWindow();
-      }
-    ],
-    [
-      sdk.game.locations.Ladder,
-      function () {
-        Starter.LocationEvents.openCreateGameWindow();
-      }
-    ],
-    [
-      sdk.game.locations.ChannelList,
-      function () {
-        Starter.LocationEvents.openCreateGameWindow();
-      }
-    ],
-    [
-      sdk.game.locations.LobbyLostConnection,
-      function () {
-        ControlAction.timeoutDelay("LostConnection", 3000);
-        Controls.OkCentered.click();
-      }
-    ],
-    [
-      sdk.game.locations.GameDoesNotExist,
-      function () {
-        Starter.LocationEvents.gameDoesNotExist();
-      }
-    ],
-    [
-      sdk.game.locations.GameIsFull,
-      function () {
-        Starter.LocationEvents.openCreateGameWindow();
-      }
-    ],
-    [
-      sdk.game.locations.OkCenteredErrorPopUp,
-      function () {
-        let string = parseControlText(Controls.OkCenteredText);
+      break;
+    default:
+      D2Bot.updateStatus("Error");
+      D2Bot.printToConsole("Error - " + string);
 
-        switch (string) {
-        case getLocaleString(sdk.locale.text.CannotCreateGamesDeadHCChar):
-          Starter.deadCheck = true;
-          Controls.OkCentered.click();
-          return;
-        case getLocaleString(sdk.locale.text.UsernameMustBeAtLeast):
-        case getLocaleString(sdk.locale.text.PasswordMustBeAtLeast):
-        case getLocaleString(sdk.locale.text.AccountMustBeAtLeast):
-        case getLocaleString(sdk.locale.text.PasswordCantBeMoreThan):
-        case getLocaleString(sdk.locale.text.AccountCantBeMoreThan):
-        case getLocaleString(sdk.locale.text.InvalidPassword):
-          D2Bot.printToConsole(string);
-          Starter.profileInfo.account = "";
-          Starter.profileInfo.password = "";
-          CharData.login.updateData({ account: "", password: "" });
-
-          break;
-        default:
-          D2Bot.updateStatus("Error");
-          D2Bot.printToConsole("Error - " + string);
-
-          break;
-        }
-        Controls.OkCentered.click();
-        
-        ControlAction.timeoutDelay("Error", Time.minutes(1));
-      }
-    ]
-  ]);
+      break;
+    }
+    Controls.OkCentered.click();
+    
+    ControlAction.timeoutDelay("Error", Time.minutes(1));
+  });
 
   /**
    * Actual definition for LocationAction.run
@@ -1441,7 +1255,7 @@ const LocationAction = {
   LocationAction.run = function () {
     try {
       let loc = getLocation();
-      let func = _locations.get(loc);
+      let func = locations.get(loc);
       if (typeof func === "function") {
         func(loc);
       } else {
