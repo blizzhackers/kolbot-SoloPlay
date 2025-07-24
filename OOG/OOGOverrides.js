@@ -353,88 +353,6 @@ const LocationAction = {
 
   /**
    * @param {CharInfo} info 
-   * @returns {Control}
-   */
-  ControlAction.findCharacter = function (info) {
-    let count = 0;
-    let singlePlayer = ![sdk.game.gametype.OpenBattlenet, sdk.game.gametype.BattleNet].includes(Profile().type);
-    // offline doesn't have a character limit cap
-    let cap = singlePlayer ? 999 : 24;
-    let tick = getTickCount();
-    let firstCheck;
-
-    while (getLocation() !== sdk.game.locations.CharSelect) {
-      if (getTickCount() - tick >= 5000) {
-        break;
-      }
-
-      delay(25);
-    }
-
-    // Wrong char select screen fix
-    if ([sdk.game.locations.CharSelect, sdk.game.locations.CharSelectNoChars].includes(getLocation())) {
-      hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
-      let spCheck = Profile().type === sdk.game.profiletype.Battlenet;
-      let realmControl = !!Controls.CharSelectCurrentRealm.control;
-      if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
-        Controls.BottomLeftExit.click();
-        return false; // what about a recursive call to loginCharacter?
-      }
-    }
-
-    if (getLocation() === sdk.game.locations.CharSelectConnecting) {
-      if (!Starter.charSelectConnecting()) {
-        D2Bot.printToConsole("Stuck at connecting screen");
-        D2Bot.restart();
-      }
-    }
-
-    // start from beginning of the char list
-    sendKey(sdk.keys.code.Home);
-
-    while (getLocation() === sdk.game.locations.CharSelect && count < cap) {
-      let control = Controls.CharSelectCharInfo0.control;
-
-      if (control) {
-        firstCheck = control.getText();
-        do {
-          let text = control.getText();
-
-          if (text instanceof Array && typeof text[1] === "string") {
-            count++;
-
-            if (String.isEqual(text[1], info.charName)) {
-              return control;
-            }
-          }
-        } while (count < cap && control.getNext());
-      }
-
-      // check for additional characters up to 24 (online) or 999 offline (no character limit cap)
-      if (count > 0 && count % 8 === 0) {
-        if (Controls.CharSelectChar6.click()) {
-          scrollDown();
-          let check = Controls.CharSelectCharInfo0.control;
-
-          if (firstCheck && check) {
-            let nameCheck = check.getText();
-
-            if (String.isEqual(firstCheck[1], nameCheck[1])) {
-              return false;
-            }
-          }
-        }
-      } else {
-        // no further check necessary
-        break;
-      }
-    }
-
-    return false;
-  };
-
-  /**
-   * @param {CharInfo} info 
    * @param {boolean} startFromTop
    * @returns {boolean}
    */
@@ -462,7 +380,7 @@ const LocationAction = {
 
           break;
         case sdk.game.locations.CharSelect:
-          let control = ControlAction.findCharacter(info);
+          let control = ControlAction.findCharacter(info, true);
 
           if (control) {
             control.click();
@@ -727,19 +645,6 @@ const LocationAction = {
     }
   };
 
-  Starter.charSelectConnecting = function () {
-    if (getLocation() === sdk.game.locations.CharSelectConnecting) {
-      // bugged? lets see if we can unbug it
-      // Click create char button on infinite "connecting" screen
-      Controls.CharSelectCreate.click() && delay(1000);
-      Controls.BottomLeftExit.click() && delay(1000);
-
-      return (getLocation() !== sdk.game.locations.CharSelectConnecting);
-    } else {
-      return true;
-    }
-  };
-
   Starter.BNET = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
 
   Starter.LocationEvents.login = function () {
@@ -792,7 +697,7 @@ const LocationAction = {
                 }
 
                 if (getLocation() === sdk.game.locations.CharSelectConnecting) {
-                  if (Starter.charSelectConnecting()) {
+                  if (Starter.LocationEvents.charSelectConnecting()) {
                     break;
                   }
                 }
@@ -860,7 +765,7 @@ const LocationAction = {
         } catch (err) {
           console.error(err);
           // Try to find the character and if that fails, make character
-          if (!ControlAction.findCharacter(Starter.profileInfo)) {
+          if (!ControlAction.findCharacter(Starter.profileInfo, true)) {
             // Pop-up that happens when choosing a dead HC char
             if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
               Controls.OkCentered.click();	// Exit from that pop-up
@@ -1053,7 +958,7 @@ const LocationAction = {
     }
 
     if (Object.keys(Starter.profileInfo).length) {
-      if (!ControlAction.findCharacter(Starter.profileInfo)) {
+      if (!ControlAction.findCharacter(Starter.profileInfo, true)) {
         let currLoc = getLocation();
         if (Starter.profileInfo.charName === DataFile.getObj().name
           && currLoc !== sdk.game.locations.CharSelectNoChars
