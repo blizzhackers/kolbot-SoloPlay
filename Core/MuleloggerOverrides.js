@@ -70,6 +70,7 @@ MuleLogger.logEquippedItems = function () {
 
   let folder, string, parsedItem;
   let realm = me.realm || "Single Player";
+  let account = me.account || "Single Player";
   let finalString = "";
   let items = me.getItemsEx()
     .filter(function (item) {
@@ -90,15 +91,15 @@ MuleLogger.logEquippedItems = function () {
     folder.create("Kolbot-SoloPlay");
   }
 
-  if (!FileTools.exists("mules/" + realm + "/" + "Kolbot-SoloPlay/" + me.account)) {
+  if (!FileTools.exists("mules/" + realm + "/" + "Kolbot-SoloPlay/" + account)) {
     folder = dopen("mules/" + realm + "/Kolbot-SoloPlay");
-    folder.create(me.account);
+    folder.create(account);
   }
 
   for (let item of items) {
     parsedItem = this.logItem(item, true, "Player");
     // Always put name on Char Viewer items
-    !parsedItem.header && (parsedItem.header = (me.account || "Single Player") + " / " + me.name);
+    !parsedItem.header && (parsedItem.header = account + " / " + me.name);
     // Remove itemtype_ prefix from the name
     parsedItem.title = parsedItem.title.substr(parsedItem.title.indexOf("_") + 1);
 
