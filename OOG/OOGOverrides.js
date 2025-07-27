@@ -755,6 +755,7 @@ const LocationAction = {
           console.error(err);
           // Try to find the character and if that fails, make character
           if (!ControlAction.findCharacter(Starter.profileInfo, true)) {
+            console.debug("Character not found", Starter.profileInfo);
             // Pop-up that happens when choosing a dead HC char
             if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
               Controls.OkCentered.click();	// Exit from that pop-up

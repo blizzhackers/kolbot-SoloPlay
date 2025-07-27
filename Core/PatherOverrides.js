@@ -376,12 +376,6 @@ Pather.clearUIFlags = function () {
 };
 
 /**
- * @memberof Pather
- * @type {PathNode[]}
- */
-Pather.currentWalkingPath = [];
-
-/**
  * @param {PathNode | Unit | PresetUnit} target 
  * @param {PathSettings} givenSettings 
  * @returns {boolean}
@@ -837,26 +831,11 @@ Pather.move = function (target, givenSettings = {}) {
   return cbCheck || getDistance(me, node.x, node.y) < 5;
 };
 
-Pather.moveNear = function (x, y, minDist, givenSettings = {}) {
-  return Pather.move(
-    { x: x, y: y },
-    Object.assign({ minDist: minDist }, givenSettings)
-  );
-};
-
 Pather.moveTo = function (x, y, retry, clearPath = true, pop = false) {
   return Pather.move(
     { x: x, y: y },
     { retry: retry, pop: pop, clearSettings: { clearPath: clearPath } }
   );
-};
-
-Pather.moveToLoc = function (target, givenSettings = {}) {
-  return Pather.move(target, givenSettings);
-};
-
-Pather.moveToEx = function (x, y, givenSettings = {}) {
-  return Pather.move({ x: x, y: y }, givenSettings);
 };
 
 /**

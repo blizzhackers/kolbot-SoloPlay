@@ -350,6 +350,7 @@ NTIP.getMaxQuantity = function (item, entryList) {
  * @param {ItemUnit} item 
  * @param {NTIPList} entryList 
  * @param {boolean} verbose 
+ * @returns {number|{line: string, result: number}}
  */
 NTIP.CheckItem = function (item, entryList, verbose = false) {
   let rval = {};

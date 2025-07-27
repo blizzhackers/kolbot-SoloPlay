@@ -1,11 +1,10 @@
 /**
-*  @filename    barbarian.Singer.js
-*  @author      theBGuy
-*  @credits     isid0re, ebner20
-*  @desc        Warcry (Singer/Shout) based final build
-*
-*/
-
+ *  @filename    barbarian.Singer.js
+ *  @author      theBGuy
+ *  @credits     isid0re, ebner20
+ *  @desc        Warcry (Singer/Shout) based final build
+ *
+ */
 
 (function (module) {
   module.exports = (function () {
@@ -17,7 +16,9 @@
       precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
       wantedMerc: MercData[sdk.skills.Might],
       stats: [
-        ["dexterity", 35], ["strength", 103], ["vitality", "all"]
+        ["dexterity", 35],
+        ["strength", 103],
+        ["vitality", "all"],
       ],
       skills: [
         [sdk.skills.WarCry, 20, true],
@@ -37,8 +38,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MaxHp) === 20
+            );
+          },
         },
 
         ResMf: {
@@ -47,8 +53,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MagicBonus) === 7
+            );
+          },
         },
 
         ResFHR: {
@@ -57,8 +68,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.FHR) === 5
+            );
+          },
         },
 
         Skiller: {
@@ -67,20 +83,31 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Warcries) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Warcries) ===
+                1 &&
+              check.getStat(sdk.stats.MaxHp) >= 40
+            );
+          },
         },
       },
 
       AutoBuildTemplate: {
-        1:	{
+        1: {
           Update: function () {
-            Config.AttackSkill = [sdk.skills.BattleCry, sdk.skills.WarCry, -1, sdk.skills.WarCry, -1];
+            Config.AttackSkill = [
+              sdk.skills.BattleCry,
+              sdk.skills.WarCry,
+              -1,
+              sdk.skills.WarCry,
+              -1,
+            ];
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             Config.MPBuffer = 4;
             Config.HPBuffer = 2;
-          }
+          },
         },
       },
 
@@ -88,16 +115,23 @@
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
         } else {
-          return me.haveAll([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.HeartoftheOak }]);
+          return me.haveAll([
+            { name: sdk.locale.items.Enigma },
+            { name: sdk.locale.items.HeartoftheOak },
+          ]);
         }
       },
 
       active: function () {
-        return this.respec() && me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints) === 20;
+        return (
+          this.respec() &&
+          me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints) === 20
+        );
       },
     };
 
-    let finalGear = [ // autoequip final gear
+    let finalGear = [
+      // autoequip final gear
       // Weapon - HotO x2 dual wield
       "[type] == mace && [flag] == runeword # [itemallskills] == 3 # [tier] == 100000",
       // Helmet - Harlequin's Crest
