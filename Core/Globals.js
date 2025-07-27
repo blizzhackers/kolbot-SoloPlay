@@ -281,6 +281,7 @@ const SetUp = (function () {
       }
 
       includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
+      includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
       includeIfNotIncluded("SoloPlay/Core/Mercenary.js");
 
       Array.isArray(files) && files
