@@ -471,6 +471,7 @@
    */
   Container.prototype.MoveToSpot = function (item, mX, mY) {
     let cube;
+    const wasStashOpen = getUIFlag(sdk.uiflags.Stash);
 
     // handle getting to cube
     if (this.location === sdk.storage.Cube) {
@@ -493,13 +494,23 @@
       }
     }
 
+    if (item.isInStash && !getUIFlag(sdk.uiflags.Stash) && !Town.openStash()) {
+      return false;
+    }
+
     // Can't deal with items on ground!
-    if (item.mode === sdk.items.mode.onGround) return false;
+    if (item.mode === sdk.items.mode.onGround) {
+      return false;
+    }
     // Item already on the cursor.
-    if (me.itemoncursor && item.mode !== sdk.items.mode.onCursor) return false;
+    if (me.itemoncursor && item.mode !== sdk.items.mode.onCursor) {
+      return false;
+    }
 
     // Make sure stash is open
-    if (this.location === sdk.storage.Stash && !Town.openStash()) return false;
+    if (this.location === sdk.storage.Stash && !Town.openStash()) {
+      return false;
+    }
 
     const [orgX, orgY, orgLoc] = [item.x, item.y, item.location];
     const moveItem = function (x, y, location) {
@@ -548,8 +559,19 @@
     };
 
     if (Packet.itemToCursor(item)) {
-      if (moveItem(mX, mY, this.location)) return true;
+      if (moveItem(mX, mY, this.location)) {
+        // handle if we opened stash during process
+        if (getUIFlag(sdk.uiflags.Stash) !== wasStashOpen) {
+          me.cancelUIFlags();
+        }
+        return true;
+      }
       moveItem(orgX, orgY, orgLoc) && console.debug("Failed to move " + item.fname + " to " + mX + "/" + mY);
+    }
+
+    // handle if we opened stash or cube during process
+    if (getUIFlag(sdk.uiflags.Stash) !== wasStashOpen) {
+      me.cancelUIFlags();
     }
 
     return false;
