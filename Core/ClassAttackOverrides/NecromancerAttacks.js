@@ -5,8 +5,6 @@
 *
 */
 
-includeIfNotIncluded("core/Attacks/Necromancer.js");
-
 (function () {
   const curseIndex = (function () {
     /**
@@ -126,14 +124,14 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
       } else {
         me.overhead(unit.name + " is blocked, skipping attempt to curse");
         let [timed, untimed] = unit.isSpecial ? [1, 2] : [3, 5];
-        ClassAttack.doCast(unit, Config.AttackSkill[timed], Config.AttackSkill[untimed]);
+        ClassAttack[me.classid].doCast(unit, Config.AttackSkill[timed], Config.AttackSkill[untimed]);
       }
     }
 
     return false;
   };
 
-  ClassAttack.bpTick = 0;
+  ClassAttack[sdk.player.class.Necromancer].bpTick = 0;
 
   /** 
    * @todo
@@ -143,7 +141,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
    */
 
   // TODO: clean this up
-  ClassAttack.doAttack = function (unit, preattack, once) {
+  ClassAttack[sdk.player.class.Necromancer].doAttack = function (unit, preattack, once) {
     if (!unit) return Attack.Result.SUCCESS;
     let gid = unit.gid;
 
@@ -226,7 +224,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
                 .sort(function (a, b) {
                   return a.distance - b.distance;
                 }).first();
-              if (shaman) return ClassAttack.doAttack(shaman, null, true);
+              if (shaman) return ClassAttack[me.classid].doAttack(shaman, null, true);
             }
             if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
             if (unit.distance < 8 || me.inDanger()) {
@@ -237,7 +235,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
                 })
                 .sort(Attack.walkingSortMonsters)
                 .first();
-              if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+              if (closeMob) return ClassAttack[me.classid].doAttack(closeMob, null, true);
             }
           }
         } finally {
@@ -319,7 +317,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
    * @param {number} untimedSkill 
    * @returns {AttackResult}
    */
-  ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
+  ClassAttack[sdk.player.class.Necromancer].doCast = function (unit, timedSkill, untimedSkill) {
     // No valid skills can be found
     if (timedSkill < 0 && untimedSkill < 0) {
       return Attack.Result.CANTATTACK;
@@ -456,7 +454,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
   };
 
   /** @param {Monster} unit */
-  ClassAttack.farCast = function (unit) {
+  ClassAttack[sdk.player.class.Necromancer].farCast = function (unit) {
     let timedSkill = Config.AttackSkill[1];
     let untimedSkill = Config.AttackSkill[2];
 
@@ -517,7 +515,7 @@ includeIfNotIncluded("core/Attacks/Necromancer.js");
   };
 
   /** @param {Monster} unit */
-  ClassAttack.explodeCorpses = function (unit) {
+  ClassAttack[sdk.player.class.Necromancer].explodeCorpses = function (unit) {
     if (Config.ExplodeCorpses === 0 || unit.dead) return false;
 
     let corpseList = [];

@@ -10,9 +10,7 @@
  * Test utilizing marital art skills if we have them
  */
 
-includeIfNotIncluded("core/Attacks/Assassin.js");
-
-ClassAttack.mindBlast = function (unit) {
+ClassAttack[sdk.player.class.Assassin].mindBlast = function (unit) {
   if (!unit || !Skill.canUse(sdk.skills.MindBlast)) return;
   // Main bosses
   if (unit.isPrimeEvil) return;
@@ -40,7 +38,7 @@ ClassAttack.mindBlast = function (unit) {
   }
 };
 
-ClassAttack.switchCurse = function (unit, force) {
+ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
   if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
     const gold = me.gold;
     const isBoss = unit.isBoss;
@@ -75,7 +73,7 @@ ClassAttack.switchCurse = function (unit, force) {
   }
 };
 
-ClassAttack.placeTraps = function (unit, amount) {
+ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
   let traps = 0;
 
   this.lastTrapPos = { x: unit.x, y: unit.y };
@@ -146,7 +144,7 @@ ClassAttack.placeTraps = function (unit, amount) {
   return true;
 };
 
-ClassAttack.doAttack = function (unit, preattack) {
+ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
   if (!unit) return Attack.Result.SUCCESS;
   let gid = unit.gid;
 
@@ -207,7 +205,7 @@ ClassAttack.doAttack = function (unit, preattack) {
 
   // Handle Switch casting
   if (index === 1 && !unit.dead) {
-    ClassAttack.switchCurse(unit);
+    ClassAttack[me.classid].switchCurse(unit);
   }
 
   let skills = Attack.decideSkill(unit);
@@ -246,7 +244,7 @@ ClassAttack.doAttack = function (unit, preattack) {
   return result;
 };
 
-ClassAttack.farCast = function (unit) {
+ClassAttack[sdk.player.class.Assassin].farCast = function (unit) {
   let timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 
   // No valid skills can be found
@@ -264,7 +262,7 @@ ClassAttack.farCast = function (unit) {
     this.placeTraps(unit, checkTraps);
   }
 
-  ClassAttack.switchCurse(unit);
+  ClassAttack[me.classid].switchCurse(unit);
 
   if (timedSkill > -1 && (!me.skillDelay || !Skill.isTimed(timedSkill))) {
     !unit.dead && Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);

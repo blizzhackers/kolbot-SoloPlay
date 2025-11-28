@@ -10,8 +10,6 @@
  * Test traveling in wolf form/ utilizing wereform if we have it and need to perform normal attack
  */
 
-includeIfNotIncluded("core/Attacks/Druid.js");
-
 (function () {
   /**
    * @constructor
@@ -126,7 +124,7 @@ includeIfNotIncluded("core/Attacks/Druid.js");
   * @param {boolean} recheck 
   * @returns {AttackResult}
   */
-  ClassAttack.doAttack = function (unit, recheck) {
+  ClassAttack[sdk.player.class.Druid].doAttack = function (unit, recheck) {
     if (!unit) return Attack.Result.SUCCESS;
     let gid = unit.gid;
 
@@ -205,7 +203,7 @@ includeIfNotIncluded("core/Attacks/Druid.js");
     // console.debug(AttackData);
     // console.debug("Choose skill :: " + getSkillById(selectedSkill.skill) + " Damage: " + selectedSkill.dmg);
 
-    let result = ClassAttack.doCast(unit, selectedSkill);
+    let result = ClassAttack[me.classid].doCast(unit, selectedSkill);
 
     if (result === Attack.Result.CANTATTACK && Attack.canTeleStomp(unit)) {
       let merc = me.getMerc();
@@ -231,7 +229,7 @@ includeIfNotIncluded("core/Attacks/Druid.js");
         }
 
         let closeMob = Attack.getNearestMonster({ skipGid: gid });
-        !!closeMob && ClassAttack.doCast(closeMob, selectedSkill);
+        !!closeMob && ClassAttack[me.classid].doCast(closeMob, selectedSkill);
       }
 
       return Attack.Result.SUCCESS;
@@ -246,7 +244,7 @@ includeIfNotIncluded("core/Attacks/Druid.js");
   * @param {number} untimedSkill 
   * @returns {AttackResult} 
   */
-  ClassAttack.doCast = function (unit, choosenSkill) {
+  ClassAttack[sdk.player.class.Druid].doCast = function (unit, choosenSkill) {
     let { skill, range, mana, timed } = choosenSkill;
     // unit became invalidated
     if (!unit || !unit.attackable) return Attack.Result.SUCCESS;

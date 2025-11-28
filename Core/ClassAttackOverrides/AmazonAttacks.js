@@ -13,9 +13,7 @@
  * - test early on using a bow on switch for ranged attacks (might be worth a point in magic arrow)
  */
 
-includeIfNotIncluded("core/Attacks/Amazon.js");
-
-ClassAttack.decoyTick = getTickCount();
+ClassAttack[sdk.player.class.Amazon].decoyTick = getTickCount();
 
 /**
  * @param {Monster} unit 
@@ -23,7 +21,7 @@ ClassAttack.decoyTick = getTickCount();
  * @param {boolean} once 
  * @returns {AttackResult}
  */
-ClassAttack.doAttack = function (unit, preattack, once) {
+ClassAttack[sdk.player.class.Amazon].doAttack = function (unit, preattack, once) {
   // unit became invalidated
   if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
   
@@ -275,7 +273,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
               })
               .sort(Sort.units)
               .first();
-            if (shaman) return ClassAttack.doAttack(shaman, null, true);
+            if (shaman) return ClassAttack[me.classid].doAttack(shaman, null, true);
           }
           if (!Attack.useBowOnSwitch(unit, attackSkill, i === 5)) return Attack.Result.FAILED;
           if (unit.distance < 8 || me.inDanger()) {
@@ -286,7 +284,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
               })
               .sort(Attack.walkingSortMonsters)
               .first();
-            if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+            if (closeMob) return ClassAttack[me.classid].doAttack(closeMob, null, true);
           }
         }
       } finally {
@@ -367,7 +365,7 @@ ClassAttack.doAttack = function (unit, preattack, once) {
   return result;
 };
 
-ClassAttack.afterAttack = function () {
+ClassAttack[sdk.player.class.Amazon].afterAttack = function () {
   Precast.doPrecast(false);
 
   let needRepair = me.needRepair();
@@ -386,7 +384,7 @@ ClassAttack.afterAttack = function () {
  * @param {number} untimedSkill 
  * @returns {AttackResult} 
  */
-ClassAttack.doCast = function (unit, timedSkill, untimedSkill) {
+ClassAttack[sdk.player.class.Amazon].doCast = function (unit, timedSkill, untimedSkill) {
   // No valid skills can be found
   if (timedSkill < 0 && untimedSkill < 0) return Attack.Result.CANTATTACK;
   // unit became invalidated

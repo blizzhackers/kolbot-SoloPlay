@@ -52,8 +52,8 @@ function diablo () {
           break;
         case sdk.player.class.Assassin:
           if (Config.UseTraps) {
-            let trapCheck = ClassAttack.checkTraps({ x: 7793, y: 5293 });
-            trapCheck && ClassAttack.placeTraps({ x: 7793, y: 5293, classid: sdk.monsters.Diablo }, trapCheck);
+            let trapCheck = ClassAttack[me.classid].checkTraps({ x: 7793, y: 5293 });
+            trapCheck && ClassAttack[me.classid].placeTraps({ x: 7793, y: 5293, classid: sdk.monsters.Diablo }, trapCheck);
           }
 
           Config.AttackSkill[1] === sdk.skills.ShockWeb && Skill.cast(Config.AttackSkill[1], sdk.skills.hand.Right, 7793, 5293);

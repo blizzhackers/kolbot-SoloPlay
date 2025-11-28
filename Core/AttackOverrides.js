@@ -372,7 +372,7 @@ Attack.killTarget = function (name) {
         Skill.getRange(Config.AttackSkill[1]) < 4 && Packet.flash(me.gid);
       }
       me.overhead("KillTarget: " + target.name + " health " + target.hpPercent + " % left");
-      let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+      let result = ClassAttack[me.classid].doAttack(target, attackCount % 15 === 0);
 
       if (result === this.Result.FAILED) {
         if (retry++ > 3) {
@@ -401,7 +401,7 @@ Attack.killTarget = function (name) {
     }
 
     attackCount === Config.MaxAttackCount && (errorInfo = " (attackCount exceeded: " + attackCount + ")");
-    ClassAttack.afterAttack();
+    ClassAttack[me.classid].afterAttack();
     Pickit.pickItems();
 
     if (!!target && target.attackable) {
@@ -494,7 +494,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true, cb = null) {
 
         let _currMon = attacks.get(target.gid);
         const checkAttackSkill = (!!_currMon && _currMon.attacks > 0 && _currMon.attacks % 3 === 0);
-        const result = ClassAttack.doAttack(target, checkAttackSkill);
+        const result = ClassAttack[me.classid].doAttack(target, checkAttackSkill);
 
         if (result) {
           retry = 0;
@@ -521,7 +521,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true, cb = null) {
           let hammerCheck = me.paladin && checkSkill === sdk.skills.BlessedHammer;
 
           if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, checkSkill)
-              || (hammerCheck && !ClassAttack.getHammerPosition(target)))) {
+              || (hammerCheck && !ClassAttack[me.classid].getHammerPosition(target)))) {
             skillCheck = Config.AttackSkill[secAttack];
           } else {
             skillCheck = checkSkill;
@@ -586,7 +586,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true, cb = null) {
     }
 
     if (attackCount > 0) {
-      ClassAttack.afterAttack(pickit);
+      ClassAttack[me.classid].afterAttack(pickit);
       if (pickit) {
         Attack.openChests(range, x, y);
         Pickit.pickItems();
@@ -650,7 +650,7 @@ Attack.clearList = function (mainArg, sortFunc, refresh) {
 
       let _currMon = attacks.get(target.gid);
       const checkAttackSkill = (!!_currMon && _currMon.attacks > 0 && _currMon.attacks % 3 === 0);
-      const result = ClassAttack.doAttack(target, checkAttackSkill);
+      const result = ClassAttack[me.classid].doAttack(target, checkAttackSkill);
 
       if (result) {
         retry = 0;
@@ -676,7 +676,7 @@ Attack.clearList = function (mainArg, sortFunc, refresh) {
         let hammerCheck = me.paladin && checkSkill === sdk.skills.BlessedHammer;
 
         if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, checkSkill)
-            || (hammerCheck && !ClassAttack.getHammerPosition(target)))) {
+            || (hammerCheck && !ClassAttack[me.classid].getHammerPosition(target)))) {
           skillCheck = Config.AttackSkill[secAttack];
         } else {
           skillCheck = checkSkill;
@@ -734,7 +734,7 @@ Attack.clearList = function (mainArg, sortFunc, refresh) {
   }
 
   if (attackCount > 0) {
-    ClassAttack.afterAttack(true);
+    ClassAttack[me.classid].afterAttack(true);
     this.openChests(Config.OpenChests.Range);
     Pickit.pickItems();
   } else {
@@ -926,7 +926,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
 
       let _currMon = attacks.get(target.gid);
       const checkAttackSkill = (!!_currMon && _currMon.attacks > 0 && _currMon.attacks % 3 === 0);
-      const result = ClassAttack.doAttack(target, checkAttackSkill);
+      const result = ClassAttack[me.classid].doAttack(target, checkAttackSkill);
 
       if (result) {
         // console.debug("Attack.clear: " + result);
@@ -953,7 +953,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
         let hammerCheck = me.paladin && checkSkill === sdk.skills.BlessedHammer;
 
         if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, checkSkill)
-            || (hammerCheck && !ClassAttack.getHammerPosition(target)))) {
+            || (hammerCheck && !ClassAttack[me.classid].getHammerPosition(target)))) {
           skillCheck = Config.AttackSkill[secAttack];
         } else {
           skillCheck = checkSkill;
@@ -1037,7 +1037,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
   }
 
   if (attackCount > 0) {
-    ClassAttack.afterAttack(pickit);
+    ClassAttack[me.classid].afterAttack(pickit);
     this.openChests(range, orgx, orgy);
     pickit && Pickit.pickItems();
   }
@@ -1446,7 +1446,7 @@ Attack.pwnDury = function () {
         }).first();
         Pather.teleportTo(safeSpot.x, safeSpot.y);
       }
-      ClassAttack.doAttack(duriel, true);
+      ClassAttack[me.classid].doAttack(duriel, true);
     }
   } finally {
     Attack.stopClear = false;
@@ -1596,7 +1596,7 @@ Attack.pwnDia = function () {
 
       if (me.necromancer || me.assassin) {
         me.overhead("FarCasting: Diablo's health " + dia.hpPercent + " % left");
-        ClassAttack.farCast(dia);
+        ClassAttack[me.classid].farCast(dia);
       } else {
         // If we got enough mana to teleport close to diablo, static the bitch, and jump back
         let diabloMissiles = getUnits(sdk.unittype.Missile).filter(function (unit) {
@@ -1610,7 +1610,7 @@ Attack.pwnDia = function () {
           && diabloMissiles.length < 3 && !dia.attacking
           && dia.hpPercent > Config.CastStatic) {
           let [x, y] = me;
-          ClassAttack.switchCurse(dia, true); // curse him if we can
+          ClassAttack[me.classid].switchCurse(dia, true); // curse him if we can
           // re-check his mode
           if (!dia.attacking) {
             // Find a spot close to Diablo
@@ -1674,18 +1674,27 @@ Attack.pwnAncients = function () {
  */
 Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
   !unit && (unit = me);
+  
+  console.time("findSafeSpot");
+  
   let index, currCount;
   let count = 999;
   let monList = (this.buildMonsterList() || []).sort(Sort.units);
 
-  if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) return true;
+  if (this.getMonsterCount(me.x, me.y, distance, monList) === 0) {
+    console.timeEnd("findSafeSpot");
+    return true;
+  }
 
   CollMap.getNearbyRooms(unit.x, unit.y);
-  let grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
+  const grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
 
   if (!grid.length) return false;
+  // grid.sort(function (a, b) {
+  //   return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+  // });
   grid.sort(function (a, b) {
-    return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+    return getDistance(b.x, b.y, me.x, me.y) - getDistance(a.x, a.y, me.x, me.y);
   });
 
   let lines = new WeakMap();
@@ -1708,6 +1717,8 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
       }
     }
   }
+
+  console.timeEnd("findSafeSpot");
 
   return typeof index === "number"
     ? Pather.move(grid[index], { allowNodeActions: false })

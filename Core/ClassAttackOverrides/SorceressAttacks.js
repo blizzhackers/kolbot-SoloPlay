@@ -5,8 +5,6 @@
 *
 */
 
-includeIfNotIncluded("core/Attacks/Sorceress.js");
-
 (function () {
   /**
    * Can we slow this monster
@@ -191,7 +189,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
   const DummyData = new function () {
     this.have = false;
     this.skillId = -1;
-    this.range = 0;
+    this._range = 0;
     this.mana = 0;
     this.dmg = 0;
     this.timed = false;
@@ -199,6 +197,9 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     this.manaCost = function () {
       return 0;
+    };
+    this.range = function () {
+      this._range;
     };
   };
   /**
@@ -211,7 +212,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {boolean} force 
    * @todo keep track of when, what, and who we last casted on to prevent spamming charged skills in a short period of time
    */
-  ClassAttack.switchCurse = function (unit, force) {
+  ClassAttack[sdk.player.class.Sorceress].switchCurse = function (unit, force) {
     if (!CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken])) {
       return;
     }
@@ -254,7 +255,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {boolean} [checkDelay]
    * @returns {dataObj}
    */
-  ClassAttack.decideDistanceSkill = function (unit, checkDelay = false) {
+  ClassAttack[sdk.player.class.Sorceress].decideDistanceSkill = function (unit, checkDelay = false) {
     /**
      * For now, no skill delay check.
      * Things to consider:
@@ -274,12 +275,11 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {boolean} once 
    * @returns {AttackResult}
    */
-  ClassAttack.doAttack = function (unit, recheckSkill = false, once = false) {
-    if (Settings.debugging.skills) {
-      console.log(sdk.colors.Green + "Test Start-----------------------------------------//");
-    }
+  ClassAttack[sdk.player.class.Sorceress].doAttack = function (unit, recheckSkill = false, once = false) {
     // unit became invalidated
-    if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
+    if (!unit || !unit.attackable) {
+      return Attack.Result.SUCCESS;
+    }
   
     const currLvl = me.charlvl;
     const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
@@ -305,7 +305,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     // Handle Charge skill casting
     if (index === 1 && me.expansion && !unit.dead) {
-      ClassAttack.switchCurse(unit);
+      ClassAttack[me.classid].switchCurse(unit);
     }
 
     TELEPORT.have();
@@ -387,11 +387,18 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
 
     rebuild && setDamageValues(unit);
   
+    /** @type {Partial<Parameters<typeof decideAttack>[1]>>} */
+    const overrides = {};
+    
+    // if (me.hpPercent < 50 || (me.hpPercent < 75 && me.getState(sdk.states.HealthPot))) {
+    //   overrides.minRange = 30;
+    // }
+    
     /**
      * @todo static field is a good skill but if we are currently out of range,
      * check how dangerous it is to tele to spot before choosing that as our skill
      */
-    let selectedSkill = decideAttack(unit);
+    let selectedSkill = decideAttack(unit, overrides);
     if (selectedSkill === -1) return Attack.Result.FAILED;
 
     switch (selectedSkill.skillId) {
@@ -436,7 +443,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
                   return a.distance - b.distance;
                 })
                 .first();
-              if (shaman) return ClassAttack.doAttack(shaman, null, true);
+              if (shaman) return ClassAttack[me.classid].doAttack(shaman, null, true);
             }
             if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
             if (unit.distance < 8 || me.inDanger()) {
@@ -447,7 +454,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
                 })
                 .sort(Attack.walkingSortMonsters)
                 .first();
-              if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+              if (closeMob) return ClassAttack[me.classid].doAttack(closeMob, null, true);
             }
           }
         } finally {
@@ -471,7 +478,7 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       return Attack.Result.CANTATTACK;
     }
 
-    let result = ClassAttack.doCast(unit, selectedSkill);
+    let result = ClassAttack[me.classid].doCast(unit, selectedSkill);
 
     switch (result) {
     case Attack.Result.FAILED:
@@ -547,13 +554,13 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
    * @param {SkillDataInfo} choosenSkill
    * @returns {AttackResult}
    */
-  ClassAttack.doCast = function (unit, choosenSkill) {
+  ClassAttack[sdk.player.class.Sorceress].doCast = function (unit, choosenSkill) {
     const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
     let noMana = false;
-    let skill = choosenSkill.skillId;
+    const { skillId: skill, timed } = choosenSkill;
+    const mana = choosenSkill.manaCost();
     let range = choosenSkill.range();
-    let mana = choosenSkill.manaCost();
-    let timed = choosenSkill.timed;
+    
     // unit became invalidated
     if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
     if (!!skill && me.mp < mana) {
@@ -764,6 +771,11 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
     }
 
     if (me.skillDelay && !unit.dead) {
+      // first lets determine if we need to dodge
+      // if (me.needDodge()) {
+      //   Attack.deploy(Attack.getNearestMonster({ skipBlocked: true }), Config.DodgeRange, 5, 9);
+      // }
+      
       // maybe look for skill that we can use that doesn't have a delay
       let noDelaySkill = decideAttack(unit, { checkSkillDelay: true, minRange: Math.min(unit.distance, 40) });
       if (noDelaySkill !== -1 && noDelaySkill.manaCost() <= me.mp) {
@@ -782,6 +794,11 @@ includeIfNotIncluded("core/Attacks/Sorceress.js");
       if (!me.skillDelay) {
         break;
       }
+      // if (i % 2 === 0) {
+      //   if (me.needDodge()) {
+      //     Attack.deploy(Attack.getNearestMonster({ skipBlocked: true }), Config.DodgeRange, 5, 9);
+      //   }
+      // }
       if (i % 5 === 0) {
         if (Settings.debugging.skills) {
           console.debug("Waiting for skill delay to end, " + (25 - i) + " attempts left");

@@ -5,8 +5,6 @@
 *
 */
 
-includeIfNotIncluded("core/Attacks/Barbarian.js");
-
 /**
 *  @todo:
 *   - use leap to stun in close distance
@@ -14,7 +12,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
 *   - use leap/leap attack with dodge, useful if we can't tele it provides a similar benefit
 */
 (function () {
-  ClassAttack.warCryTick = 0;
+  ClassAttack[sdk.player.class.Barbarian].warCryTick = 0;
 
   const howlCheck = function () {
     let levelCheck = (me.getSkill(sdk.skills.Howl, sdk.skills.subindex.SoftPoints) + me.charlvl + 1);
@@ -58,7 +56,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     });
   };
 
-  ClassAttack.tauntMonsters = function (unit, attackSkill, data) {
+  ClassAttack[sdk.player.class.Barbarian].tauntMonsters = function (unit, attackSkill, data) {
     // Don't have skill
     // Only mob in these areas are bosses
     // Can't taunt Main bosses or MinionsofDestruction
@@ -151,7 +149,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
    * @param {boolean} preattack 
    * @returns {AttackResult}
    */
-  ClassAttack.doAttack = function (unit, preattack = false) {
+  ClassAttack[sdk.player.class.Barbarian].doAttack = function (unit, preattack = false) {
     if (unit === undefined || !unit || unit.dead) return true;
 
     let gid = unit.gid;
@@ -321,7 +319,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     return this.doCast(unit, attackSkill, data);
   };
 
-  ClassAttack.doCast = function (unit, attackSkill, data) {
+  ClassAttack[sdk.player.class.Barbarian].doCast = function (unit, attackSkill, data) {
     // In case of failing to switch back to main weapon slot
     me.weaponswitch === 1 && me.switchWeapons(0);
     // No attack skill
@@ -384,7 +382,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     }
   };
 
-  ClassAttack.afterAttack = function (pickit = false) {
+  ClassAttack[sdk.player.class.Barbarian].afterAttack = function (pickit = false) {
     Precast.doPrecast(false);
 
     let needRepair = me.charlvl < 5 ? [] : me.needRepair();
@@ -397,8 +395,8 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
     pickit && this.findItem(10);
   };
 
-  ClassAttack.findItemIgnoreGids = [];
-  ClassAttack.findItem = function (range = 10) {
+  ClassAttack[sdk.player.class.Barbarian].findItemIgnoreGids = [];
+  ClassAttack[sdk.player.class.Barbarian].findItem = function (range = 10) {
     if (!Config.FindItem || !Skill.canUse(sdk.skills.FindItem)) return false;
 
     Config.FindItemSwitch = (me.expansion && Precast.getBetterSlot(sdk.skills.FindItem));
@@ -493,7 +491,7 @@ includeIfNotIncluded("core/Attacks/Barbarian.js");
    * @param {number} [range] 
    * @returns {boolean}
    */
-  ClassAttack.grimWard = function (unit, range = 10) {
+  ClassAttack[sdk.player.class.Barbarian].grimWard = function (unit, range = 10) {
     if (!Skill.canUse(sdk.skills.GrimWard)) return false;
     if (!unit || !unit.dead) return false;
 

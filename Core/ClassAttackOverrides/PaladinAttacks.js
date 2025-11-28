@@ -5,8 +5,6 @@
 *
 */
 
-includeIfNotIncluded("core/Attacks/Paladin.js");
-
 /**
  * @todo build selectAura method
  */
@@ -17,7 +15,7 @@ const MercWatch = {
 
 
 // eslint-disable-next-line no-unused-vars
-ClassAttack.doAttack = function (unit = undefined, preattack = false, once = false) {
+ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, preattack = false, once = false) {
   if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 
   let gid = unit.gid;
@@ -132,7 +130,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
             const shaman = getUnits(sdk.unittype.Monster)
               .filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
               .sort((a, b) => a.distance - b.distance).first();
-            if (shaman) return ClassAttack.doAttack(shaman, null, true);
+            if (shaman) return ClassAttack[me.classid].doAttack(shaman, null, true);
           }
           if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;
           if (unit.distance < 8 || me.inDanger()) {
@@ -140,7 +138,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
             let closeMob = getUnits(sdk.unittype.Monster)
               .filter(mon => mon.distance < 10 && mon.attackable && mon.gid !== gid)
               .sort(Attack.walkingSortMonsters).first();
-            if (closeMob) return ClassAttack.doAttack(closeMob, null, true);
+            if (closeMob) return ClassAttack[me.classid].doAttack(closeMob, null, true);
           }
         }
       } finally {
@@ -192,7 +190,7 @@ ClassAttack.doAttack = function (unit = undefined, preattack = false, once = fal
   return result;
 };
 
-ClassAttack.reposition = function (x, y) {
+ClassAttack[sdk.player.class.Paladin].reposition = function (x, y) {
   if (typeof x !== "number" || typeof y !== "number") return false;
   if ([x, y].distance > 1) {
     if (Pather.useTeleport()) {
@@ -214,7 +212,7 @@ ClassAttack.reposition = function (x, y) {
   return true;
 };
 
-ClassAttack.getHammerPosition = function (unit) {
+ClassAttack[sdk.player.class.Paladin].getHammerPosition = function (unit) {
   let x, y, positions, baseId = getBaseStat("monstats", unit.classid, "baseid");
   let size = getBaseStat("monstats2", baseId, "sizex");
   const coll = unit.isMonsterObject ? sdk.collision.WallOrRanged : sdk.collision.BlockWalk;
@@ -262,7 +260,7 @@ ClassAttack.getHammerPosition = function (unit) {
   return false;
 };
 
-ClassAttack.doCast = function (unit, attackSkill = -1, aura = -1) {
+ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1, aura = -1) {
   if (attackSkill < 0) return Attack.Result.CANTATTACK;
   // unit became invalidated
   if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
@@ -390,7 +388,7 @@ ClassAttack.doCast = function (unit, attackSkill = -1, aura = -1) {
   return Attack.Result.SUCCESS;
 };
 
-ClassAttack.afterAttack = function () {
+ClassAttack[sdk.player.class.Paladin].afterAttack = function () {
   Precast.doPrecast(false);
 
   if (Skill.canUse(sdk.skills.Cleansing) && me.hpPercent < 85 && me.getState(sdk.states.Poison)

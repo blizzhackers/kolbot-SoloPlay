@@ -64,10 +64,10 @@ function baal () {
       break;
     case sdk.player.class.Assassin:
       if (Config.UseTraps) {
-        let check = ClassAttack.checkTraps({ x: 15093, y: 5029 });
+        let check = ClassAttack[me.classid].checkTraps({ x: 15093, y: 5029 });
 
         if (check) {
-          ClassAttack.placeTraps({ x: 15093, y: 5029 }, 5);
+          ClassAttack[me.classid].placeTraps({ x: 15093, y: 5029 }, 5);
 
           return true;
         }
