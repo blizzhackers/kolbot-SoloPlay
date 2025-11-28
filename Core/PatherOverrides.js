@@ -495,7 +495,7 @@ Pather.move = function (target, givenSettings = {}) {
     settings.clearSettings.clearPath = true;
   }
 
-  if (settings.retry <= 3 && target.distance > useTeleport ? 120 : 60) {
+  if (settings.retry <= 3 && target.distance > (useTeleport ? 120 : 60)) {
     settings.retry = 10;
   }
 
