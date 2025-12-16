@@ -734,19 +734,28 @@ NTIP.ParseLineInt = function (input, info) {
 
       switch (keyword) {
       // Charm equip specific
-      case "invoquantity":
-        let quantity = Number(p_section[i].split("==")[1].match(/\d+/g));
+      case "invoquantity": {
+        try {
+          let quantity = Number(p_section[i].split("==")[1].match(/\d+/g));
 
-        if (!isNaN(quantity)) {
-          p_result[2].InvoQuantity = quantity;
+          if (!isNaN(quantity)) {
+            p_result[2].InvoQuantity = quantity;
+          }
+        } catch (e) {
+          Misc.errorReport("ÿc1Pickit InvoQuantity error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
         }
 
         break;
+      }
       case "maxquantity":
-        value = Number(p_section[i].split("==")[1].match(/\d+/g));
+        try {
+          value = Number(p_section[i].split("==")[1].match(/\d+/g));
 
-        if (!isNaN(value)) {
-          p_result[2].MaxQuantity = value;
+          if (!isNaN(value)) {
+            p_result[2].MaxQuantity = value;
+          }
+        } catch (e) {
+          Misc.errorReport("ÿc1Pickit MaxQuantity error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
         }
 
         break;
