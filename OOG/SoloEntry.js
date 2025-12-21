@@ -12,8 +12,13 @@
 include("critical.js"); // required
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-const { StarterConfig } = require("./StarterConfig");
-Object.assign(Starter.Config, StarterConfig);
+const { StarterConfig } = (function () {
+  if (!FileTools.exists("libs/SoloPlay/OOG/StarterConfig.js")) {
+    throw new Error("Missing SoloPlay StarterConfig.js file. Please run setup.bat to generate it.");
+  }
+  
+  return require("./StarterConfig");
+})();
 
 /**
  * @todo
