@@ -49,6 +49,6 @@
     Config.Recipes.push([Recipe.Rune, "Cham Rune", { condition: needCham }]);
   }
 
-  Config.Runewords.push([Runeword.HandofJustice, "phaseblade"]);
+  Config.Runewords.push([Runeword.HandofJustice, "phaseblade", Roll.NonEth, 99]);
   Config.KeepRunewords.push("[type] == sword # [holyfireaura] >= 16");
 })();

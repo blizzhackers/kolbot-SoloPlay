@@ -57,7 +57,7 @@
     Config.Recipes.push([Recipe.Rune, "Vex Rune", { condition: needVex }]);
   }
 
-  Config.Runewords.push([Runeword.HeartoftheOak, "knout"]);
-  Config.Runewords.push([Runeword.HeartoftheOak, "flail"]);
+  Config.Runewords.push([Runeword.HeartoftheOak, "knout", Roll.NonEth, 99]);
+  Config.Runewords.push([Runeword.HeartoftheOak, "flail", Roll.NonEth, 99]);
   Config.KeepRunewords.push("[type] == mace # [itemallskills] == 3");
 })();

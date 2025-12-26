@@ -85,9 +85,9 @@
   Config.Recipes.push([Recipe.Socket.Armor, "duskshroud", { Ethereal: Roll.NonEth, condition: needBase }]);
   Config.Recipes.push([Recipe.Socket.Armor, "wyrmhide", { Ethereal: Roll.NonEth, condition: needBase }]);
 
-  Config.Runewords.push([Runeword.ChainsofHonor, "archonplate"]);
-  Config.Runewords.push([Runeword.ChainsofHonor, "duskshroud"]);
-  Config.Runewords.push([Runeword.ChainsofHonor, "wyrmhide"]);
+  Config.Runewords.push([Runeword.ChainsofHonor, "archonplate", Roll.NonEth, 100]);
+  Config.Runewords.push([Runeword.ChainsofHonor, "duskshroud", Roll.NonEth, 100]);
+  Config.Runewords.push([Runeword.ChainsofHonor, "wyrmhide", Roll.NonEth, 100]);
 
   Config.KeepRunewords.push("[type] == armor # [fireresist] == 65 && [hpregen] == 7");
 })();

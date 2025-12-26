@@ -31,7 +31,7 @@
     }
   }
 
-  Config.Runewords.push([Runeword.Sanctuary, "hyperion"]);
+  Config.Runewords.push([Runeword.Sanctuary, "hyperion", Roll.NonEth, 99]);
 
   Config.KeepRunewords.push("[type] == shield # [fhr] >= 20 && [enhanceddefense] >= 130 && [fireresist] >= 50");
 })();

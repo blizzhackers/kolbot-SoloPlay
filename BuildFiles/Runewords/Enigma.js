@@ -58,10 +58,10 @@
 
   // Have Ber and Jah runes before looking for normal base
   if (me.getItem(sdk.items.runes.Ber) && me.getItem(sdk.items.runes.Jah)) {
-    Config.Runewords.push([Runeword.Enigma, "mageplate", Roll.NonEth]);
-    Config.Runewords.push([Runeword.Enigma, "duskshroud", Roll.NonEth]);
-    Config.Runewords.push([Runeword.Enigma, "wyrmhide", Roll.NonEth]);
-    Config.Runewords.push([Runeword.Enigma, "scarabhusk", Roll.NonEth]);
+    Config.Runewords.push([Runeword.Enigma, "mageplate", Roll.NonEth, 100]);
+    Config.Runewords.push([Runeword.Enigma, "duskshroud", Roll.NonEth, 100]);
+    Config.Runewords.push([Runeword.Enigma, "wyrmhide", Roll.NonEth, 100]);
+    Config.Runewords.push([Runeword.Enigma, "scarabhusk", Roll.NonEth, 100]);
 
     NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
   } else {

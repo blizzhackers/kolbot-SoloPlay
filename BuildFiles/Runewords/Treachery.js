@@ -22,14 +22,14 @@
     NTIP.addLine("([name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == lightplate || [name] == mageplate || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
   }
 
-  Config.Runewords.push([Runeword.Treachery, "demonhidearmor"]);
-  Config.Runewords.push([Runeword.Treachery, "duskshroud"]);
-  Config.Runewords.push([Runeword.Treachery, "ghostarmor"]);
-  Config.Runewords.push([Runeword.Treachery, "lightplate"]);
-  Config.Runewords.push([Runeword.Treachery, "mageplate"]);
-  Config.Runewords.push([Runeword.Treachery, "serpentskinarmor"]);
-  Config.Runewords.push([Runeword.Treachery, "trellisedarmor"]);
-  Config.Runewords.push([Runeword.Treachery, "wyrmhide"]);
+  Config.Runewords.push([Runeword.Treachery, "demonhidearmor", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "duskshroud", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "ghostarmor", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "lightplate", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "mageplate", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "serpentskinarmor", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "trellisedarmor", Roll.NonEth, 98]);
+  Config.Runewords.push([Runeword.Treachery, "wyrmhide", Roll.NonEth, 98]);
 
   Config.KeepRunewords.push("[type] == armor # [ias] == 45 && [coldresist] == 30");
 })();

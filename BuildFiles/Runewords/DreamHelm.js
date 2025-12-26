@@ -7,6 +7,6 @@
   ];
   NTIP.buildList(DreamHelm);
 
-  Config.Runewords.push([Runeword.Dream, "bonevisage"]);
+  Config.Runewords.push([Runeword.Dream, "bonevisage", Roll.NonEth, 100]);
   Config.KeepRunewords.push("[type] == helm # [holyshockaura] >= 15");
 })();

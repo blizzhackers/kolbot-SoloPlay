@@ -82,9 +82,9 @@
   Config.Recipes.push([Recipe.Socket.Weapon, "crypticaxe"]);
   Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
 
-  Config.Runewords.push([Runeword.Doom, "giantthresher"]);
-  Config.Runewords.push([Runeword.Doom, "greatpoleaxe"]);
-  Config.Runewords.push([Runeword.Doom, "crypticaxe"]);
-  Config.Runewords.push([Runeword.Doom, "thresher"]);
+  Config.Runewords.push([Runeword.Doom, "giantthresher", Roll.All, 100]);
+  Config.Runewords.push([Runeword.Doom, "greatpoleaxe", Roll.All, 100]);
+  Config.Runewords.push([Runeword.Doom, "crypticaxe", Roll.All, 100]);
+  Config.Runewords.push([Runeword.Doom, "thresher", Roll.All, 100]);
   Config.KeepRunewords.push("[type] == polearm # [holyfreezeaura] == 12");
 })();

@@ -30,10 +30,10 @@
   Config.Recipes.push([Recipe.Socket.Weapon, "crypticaxe"]);
   Config.Recipes.push([Recipe.Socket.Weapon, "thresher"]);
 
-  Config.Runewords.push([Runeword.Infinity, "giantthresher"]);
-  Config.Runewords.push([Runeword.Infinity, "greatpoleaxe"]);
-  Config.Runewords.push([Runeword.Infinity, "crypticaxe"]);
-  Config.Runewords.push([Runeword.Infinity, "thresher"]);
+  Config.Runewords.push([Runeword.Infinity, "giantthresher", Roll.All, 100]);
+  Config.Runewords.push([Runeword.Infinity, "greatpoleaxe", Roll.All, 100]);
+  Config.Runewords.push([Runeword.Infinity, "crypticaxe", Roll.All, 100]);
+  Config.Runewords.push([Runeword.Infinity, "thresher", Roll.All, 100]);
 
   Config.KeepRunewords.push("[type] == polearm # [convictionaura] >= 12");
 })();

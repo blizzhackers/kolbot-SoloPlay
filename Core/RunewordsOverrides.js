@@ -38,16 +38,20 @@ Runewords.init = function () {
   for (let i = 0; i < Config.Runewords.length; i += 1) {
     const [runeword, base] = Config.Runewords[i];
 
-    if (!runeword.ladderRestricted()) {
-      if (isNaN(base)) {
-        if (NTIPAliasClassID.hasOwnProperty(base.replace(/\s+/g, "").toLowerCase())) {
-          Config.Runewords[i][1] = NTIPAliasClassID[base.replace(/\s+/g, "").toLowerCase()];
-        } else {
-          Misc.errorReport("ÿc1Invalid runewords entry:ÿc0 " + base);
-          Config.Runewords.splice(i, 1);
+    if (runeword.ladderRestricted()) {
+      continue;
+    }
 
-          i -= 1;
-        }
+    if (isNaN(base)) {
+      let cleanBase = base.replace(/\s+/g, "").toLowerCase();
+      
+      if (NTIPAliasClassID.hasOwnProperty(cleanBase)) {
+        Config.Runewords[i][1] = NTIPAliasClassID[cleanBase];
+      } else {
+        Misc.errorReport("ÿc1Invalid runewords entry:ÿc0 " + base);
+        Config.Runewords.splice(i, 1);
+
+        i -= 1;
       }
     }
   }
@@ -58,6 +62,12 @@ Runewords.init = function () {
 Runewords.checkRunewords = function () {
   // keep a const reference of our items so failed checks don't remove items from the list
   const itemsRef = me.findItems(-1, sdk.items.mode.inStorage);
+
+  Config.Runewords.sort(function (a, b) {
+    const aPriority = a[3] || 0;
+    const bPriority = b[3] || 0;
+    return bPriority - aPriority;
+  });
 
   for (let i = 0; i < Config.Runewords.length; i += 1) {
     let itemList = []; // reset item list

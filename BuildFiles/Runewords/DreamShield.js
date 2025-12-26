@@ -23,6 +23,6 @@
   }
 
   Config.Recipes.push([Recipe.Socket.Shield, "sacredtarge", Roll.NonEth]);
-  Config.Runewords.push([Runeword.Dream, "sacredtarge"]);
+  Config.Runewords.push([Runeword.Dream, "sacredtarge", Roll.NonEth, 100]);
   Config.KeepRunewords.push("[type] == auricshields # [holyshockaura] >= 15");
 })();
