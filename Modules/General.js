@@ -63,7 +63,13 @@
    * @param {(item?: ItemUnit) => boolean | void} condition 
    * @returns {{ classid: number, socketWith: number[], temp: number[], useSocketQuest: boolean, condition: (item?: ItemUnit) => boolean | void }}
    */
-  const addSocketableObj = (classid, socketWith = [], temp = [], useSocketQuest = false, condition = () => {}) => ({
+  const addSocketableObj = (
+    classid,
+    socketWith = [],
+    temp = [],
+    useSocketQuest = false,
+    condition = function () {}
+  ) => ({
     classid: classid,
     socketWith: socketWith,
     temp: temp,
@@ -152,11 +158,15 @@
   // Lidless
   basicSocketables.caster
     .push(addSocketableObj(sdk.items.GrimShield,
-      [sdk.items.runes.Um], [sdk.items.gems.Perfect.Diamond], !me.hell,
-      (item) => item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal
+      [sdk.items.runes.Um],
+      [sdk.items.gems.Perfect.Diamond],
+      !me.hell,
+      function (item) {
+        return item.unique && (item.isInStorage || (item.isEquipped && !item.isOnSwap)) && !item.ethereal;
+      }
     ));
 
-  const buildAutoBuildTempObj = (update = () => {}) => ({
+  const buildAutoBuildTempObj = (update = function () {}) => ({
     SkillPoints: [-1],
     StatPoints: [-1, -1, -1, -1, -1],
     Update: update

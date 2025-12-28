@@ -753,7 +753,7 @@ Attack.clearLevelEx = function (givenSettings = {}) {
   // credit @jaenstr
   const settings = Object.assign({}, {
     spectype: Config.ClearType,
-    quitWhen: () => {}
+    quitWhen: function () {}
   }, givenSettings);
 
   let room = getRoom();
@@ -1517,7 +1517,7 @@ Attack.pwnDia = function () {
   let tick = getTickCount();
   let lastPosition = { x: 7791, y: 5293 };
   let manaTP, manaSK, manaStatic, rangeStatic;
-  let [minDist, maxDist, minRange, maxRange] = (() => {
+  let [minDist, maxDist, minRange, maxRange] = (function () {
     // set values
     switch (me.classid) {
     case sdk.player.class.Sorceress:

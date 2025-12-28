@@ -78,7 +78,9 @@ function travincal () {
     }
 
     // Wait until exit pops open
-    Misc.poll(() => Game.getObject(sdk.objects.DuranceEntryStairs).mode === sdk.objects.mode.Active, 10000);
+    Misc.poll(function () {
+      return Game.getObject(sdk.objects.DuranceEntryStairs).mode === sdk.objects.mode.Active;
+    }, 10000);
     // Move close to the exit
     let exit_1 = Game.getObject(sdk.objects.DuranceEntryStairs);
     // Since d2 sucks, move around the thingy

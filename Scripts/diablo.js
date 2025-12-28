@@ -95,7 +95,7 @@ function diablo () {
     Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });
     Town.move("portalspot");
     Pather.usePortal(sdk.areas.ChaosSanctuary, me.name);
-    Misc.poll(() => {
+    Misc.poll(function () {
       if (me.inArea(sdk.areas.ChaosSanctuary)) {
         console.log("Returned to chaos");
         return true;

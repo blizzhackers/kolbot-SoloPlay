@@ -45,7 +45,9 @@
 
       me.cancelUIFlags();
 
-      const townAreaCheck = (area = 0) => sdk.areas.Towns.includes(area);
+      const townAreaCheck = function (area = 0) {
+        return sdk.areas.Towns.includes(area);
+      };
       const preArea = me.area;
       const leavingTown = townAreaCheck(preArea);
 
@@ -62,7 +64,8 @@
           if (useTk) {
             portal.distance > 21 && (me.inTown && me.act === 5 ? Town.move("portalspot") : Pather.moveNearUnit(portal, 20));
             if (Packet.telekinesis(portal)
-              && Misc.poll(() => targetArea ? me.inArea(targetArea) : me.area !== preArea)) {
+              && Misc.poll(function () { return targetArea ? me.inArea(targetArea) : me.area !== preArea; })
+            ) {
               Pather.lastPortalTick = getTickCount();
               delay(100);
 
@@ -104,7 +107,7 @@
           if (i === 12) {
             let p = Game.getObject("portal");
             console.debug(p);
-            if (!!p && Misc.click(0, 0, p) && Misc.poll(() => me.area !== preArea, 1000, 100)) {
+            if (!!p && Misc.click(0, 0, p) && Misc.poll(function () { return me.area !== preArea; }, 1000, 100)) {
               Pather.lastPortalTick = getTickCount();
               delay(100);
 
@@ -206,12 +209,12 @@
             Misc.errorReport(new Error("Town.goToTown: Failed to go to town and no tps available. Restart."));
             scriptBroadcast("quit");
           } else {
-            if (!Misc.poll(() => {
+            if (!Misc.poll(function () {
               if (me.inTown) return true;
               let p = Game.getObject("portal");
               console.debug(p);
               !!p && Misc.click(0, 0, p) && delay(100);
-              Misc.poll(() => me.idle, 1000, 100);
+              Misc.poll(function () { return me.idle; }, 1000, 100);
               console.debug("inTown? " + me.inTown);
               return me.inTown;
             }, 700, 100)) {

@@ -88,8 +88,12 @@ const SetUp = (function () {
         /** @type {string[]} */
         let possibleBuilds = dopen("libs/SoloPlay/BuildFiles/" + MYCLASSNAME + "/")
           .getFiles()
-          .filter(file => file.includes("Build"))
-          .map(file => file.substring(file.indexOf(".") + 1, file.indexOf("Build")));
+          .filter(function (file) {
+            return file.includes("Build");
+          })
+          .map(function (file) {
+            return file.substring(file.indexOf(".") + 1, file.indexOf("Build"));
+          });
 
         // try to see if we can correct the finalBuild
         for (let build of possibleBuilds) {
@@ -359,8 +363,9 @@ const SetUp = (function () {
 
     makeNext: function () {
       includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
-      let gameObj, printTotalTime = Settings.logPerformance;
-      printTotalTime && (gameObj = Tracker.readObj(Tracker.GTPath));
+      
+      const printTotalTime = Settings.logPerformance;
+      const gameObj = printTotalTime ? Tracker.readObj(Tracker.GTPath) : null;
 
       // log info
       myPrint(this.finalBuild + " goal reached. On to the next.");
@@ -728,7 +733,7 @@ const Check = (function () {
       finalCharms: build.hasOwnProperty("charms") ? (build.charms || {}) : {},
       maxStr: getMaxValue(build, "strength"),
       maxDex: getMaxValue(build, "dexterity"),
-      respec: build.hasOwnProperty("respec") ? build.respec : () => {},
+      respec: build.hasOwnProperty("respec") ? build.respec : function () {},
       active: build.active,
     };
   };
@@ -987,30 +992,41 @@ const Check = (function () {
     },
 
     checkSpecialCase: function () {
-      const questCompleted = (id) => !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
-      let goalReached = false, goal = "";
+      /**
+       * @param {number} id 
+       * @returns {boolean}
+       */
+      const questCompleted = function (id) {
+        return !!Misc.checkQuest(id, sdk.quest.states.ReqComplete);
+      };
+      const currentDiff = sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff));
+      const highestDiff = sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty);
 
-      switch (true) {
-      case SetUp.finalBuild === "Bumper" && me.charlvl >= 40:
-      case (SetUp.finalBuild === "Socketmule" && questCompleted(sdk.quest.id.SiegeOnHarrogath)):
-      case (SetUp.finalBuild === "Imbuemule" && questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Settings.imbue.stopLevel):
-        goal = SetUp.finalBuild;
-        goalReached = true;
+      const { goalReached, goal } = (function () {
+        switch (SetUp.finalBuild) {
+        case "Bumper":
+          return { goalReached: me.charlvl >= 40, goal: SetUp.finalBuild };
+        case "Socketmule":
+          return { goalReached: questCompleted(sdk.quest.id.SiegeOnHarrogath), goal: SetUp.finalBuild };
+        case "Imbuemule":
+          return {
+            goalReached: questCompleted(sdk.quest.id.ToolsoftheTrade) && me.charlvl >= Settings.imbue.stopLevel,
+            goal: SetUp.finalBuild
+          };
+        }
 
-        break;
-      case SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel:
-        goal = "Level: " + SetUp.stopAtLevel;
-        goalReached = true;
+        if (SetUp.stopAtLevel && me.charlvl >= SetUp.stopAtLevel) {
+          return { goalReached: true, goal: "Level: " + SetUp.stopAtLevel };
+        }
 
-        break;
-      case sdk.difficulty.Difficulties.indexOf(sdk.difficulty.nameOf(me.diff)) < sdk.difficulty.Difficulties.indexOf(me.data.highestDifficulty):
-      // TODO: fill this out, if we go back to normal from hell I want to be able to do whatever it was imbue/socket/respec then return to our orignal difficulty
-      // as it is right now if we go back it would take 2 games to get back to hell
-      // but this needs a check to ensure that one of the above reasons are why we went back in case we had gone back because low gold in which case we need to stay in the game
-        break;
-      default:
-        break;
-      }
+        if (currentDiff < highestDiff) {
+        // TODO: fill this out, if we go back to normal from hell I want to be able to do whatever it was imbue/socket/respec then return to our orignal difficulty
+        // as it is right now if we go back it would take 2 games to get back to hell
+        // but this needs a check to ensure that one of the above reasons are why we went back in case we had gone back because low gold in which case we need to stay in the game
+        }
+
+        return { goalReached: false, goal: "" };
+      })();
 
       if (goalReached) {
         const gameObj = Settings.logPerformance ? Tracker.readObj(Tracker.GTPath) : null;

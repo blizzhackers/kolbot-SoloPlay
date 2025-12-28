@@ -69,6 +69,10 @@ Misc.openChest = function (unit) {
 
   let specialChest = sdk.quest.chests.includes(unit.classid);
 
+  const openedChest = function () {
+    return !unit || unit.mode;
+  };
+
   for (let i = 0; i < 7; i++) {
     // don't use tk if we are right next to it
     let useTK = (unit.distance > 5 && Skill.useTK(unit) && i < 3);
@@ -87,7 +91,7 @@ Misc.openChest = function (unit) {
       (specialChest || i > 2) ? Misc.click(0, 0, unit) : Packet.entityInteract(unit);
     }
 
-    if (Misc.poll(() => !unit || unit.mode, 1000, 50)) {
+    if (Misc.poll(openedChest, 1000, 50)) {
       return true;
     }
     Packet.flash(me.gid);
@@ -184,6 +188,10 @@ Misc.getShrine = function (unit) {
     return false;
   }
 
+  const usedShrine = function () {
+    return unit.mode;
+  };
+
   for (let i = 0; i < 3; i++) {
     if (Skill.useTK(unit) && i < 2) {
       unit.distance > 21 && Pather.moveNearUnit(unit, 20);
@@ -196,7 +204,7 @@ Misc.getShrine = function (unit) {
       }
     }
 
-    if (Misc.poll(() => unit.mode, 1000, 40)) {
+    if (Misc.poll(usedShrine, 1000, 40)) {
       AreaData.get(me.area).updateShrine(unit);
       Misc.lastShrine.update(unit);
       if (unit.objtype === sdk.shrines.Gem) {

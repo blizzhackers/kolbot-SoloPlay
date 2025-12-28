@@ -13,7 +13,7 @@ const Quest = {
      * @param {function(): boolean} req 
      * @returns {boolean}
      */
-    const getReq = function (task, req = () => true) {
+    const getReq = function (task, req = function () { return true; }) {
       for (let i = 0; i < 5 && !req(); i++) {
         Loader.runScript(task);
       }

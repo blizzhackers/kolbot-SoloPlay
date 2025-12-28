@@ -267,7 +267,7 @@ function baal () {
 
   // Enter throne room
   const dollQuit = me.hardcore;
-  Pather.moveToEx(15095, 5029, { callback: () => {
+  Pather.moveToEx(15095, 5029, { callback: function () {
     if (dollQuit && Game.getMonster(sdk.monsters.SoulKiller)) {
       throw new ScriptError("Unsafe for hardcore, dolls found");
     }
@@ -307,7 +307,7 @@ function baal () {
 
     if (SetUp.finalBuild === "Bumper") throw new Error("BUMPER");
 
-    if (Misc.poll(() => me.getMobCount(15) > 1)) {
+    if (Misc.poll(function () { return me.getMobCount(15) > 1; })) {
       clearWaves();
     }
 

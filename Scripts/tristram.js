@@ -19,7 +19,7 @@ function tristram () {
 
   // Tristram portal hasn't been opened
   if (!Misc.checkQuest(sdk.quest.id.TheSearchForCain, 4)) {
-    const getScroll = () => {
+    const getScroll = function () {
       if (me.getItem(sdk.quest.item.ScrollofInifuss) || me.getItem(sdk.quest.item.KeytotheCairnStones)) return true;
       Precast.doPrecast(true);
       if (!Pather.moveToPreset(sdk.areas.DarkWood, sdk.unittype.Object, sdk.quest.chest.InifussTree, 5, 5)) {
@@ -53,7 +53,7 @@ function tristram () {
     ? Pather.useWaypoint(sdk.areas.StonyField)
     : Pather.getWP(sdk.areas.StonyField);
   Precast.doPrecast(true);
-  Pather.moveToPresetMonster(sdk.areas.StonyField, sdk.monsters.preset.Rakanishu, { callback: () => {
+  Pather.moveToPresetMonster(sdk.areas.StonyField, sdk.monsters.preset.Rakanishu, { callback: function () {
     let rak = Game.getMonster(getLocaleString(sdk.locale.monsters.Rakanishu));
     return rak && (rak.dead || rak.distance < 20);
   }, offX: 10, offY: 10 });

@@ -8,7 +8,9 @@
 function hellforge () {
   if (Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.ReqComplete)) {
     Town.goToTown(4) && Town.npcInteract("cain");
-    if (Misc.poll(() => Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed), 2000, 500)) return true;
+    if (Misc.poll(function () {
+      return Misc.checkQuest(sdk.quest.id.HellsForge, sdk.quest.states.Completed);
+    }, 2000, 500)) return true;
   }
   myPrint("starting hellforge");
   Town.doChores(false, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75, fullChores: true });
@@ -23,7 +25,7 @@ function hellforge () {
    * - Generate path and use callback to stop after we detect heph in range instead of moving all the way to the forge
    */
 
-  if (!Pather.moveToPresetObject(me.area, sdk.quest.chest.HellForge, { callback: () => {
+  if (!Pather.moveToPresetObject(me.area, sdk.quest.chest.HellForge, { callback: function () {
     let heph = Game.getMonster(getLocaleString(sdk.locale.monsters.HephastoTheArmorer));
     return (heph && heph.distance < 30);
   } })) {

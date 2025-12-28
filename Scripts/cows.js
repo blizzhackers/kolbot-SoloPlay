@@ -92,7 +92,7 @@ function cows() {
       }
     }
 
-    Misc.poll(() => Cubing.openCube(), Time.seconds(10), 1000);
+    Misc.poll(function () { return Cubing.openCube(); }, Time.seconds(10), 1000);
 
     let tick = getTickCount();
 
@@ -135,7 +135,7 @@ function cows() {
 
   Town.move("stash");
 
-  if (Misc.poll(() => Pather.usePortal(sdk.areas.MooMooFarm), Time.seconds(30), Time.seconds(1))) {
+  if (Misc.poll(function () { return Pather.usePortal(sdk.areas.MooMooFarm); }, Time.seconds(30), Time.seconds(1))) {
     const Worker = require("../../modules/Worker");
     let kingTick = getTickCount();
     let king;

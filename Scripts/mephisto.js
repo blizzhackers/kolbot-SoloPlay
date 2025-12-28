@@ -70,7 +70,9 @@ function mephisto () {
   Pather.moveTo(17581, 8070);
   delay(250 + me.ping * 2);
   Pather.useUnit(sdk.unittype.Object, sdk.objects.RedPortalToAct4, sdk.areas.PandemoniumFortress);
-  Misc.poll(() => me.inArea(sdk.areas.PandemoniumFortress), 1000, 30);
+  Misc.poll(function () {
+    return me.inArea(sdk.areas.PandemoniumFortress);
+  }, 1000, 30);
 
   while (!me.gameReady) {
     delay(40);

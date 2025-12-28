@@ -21,7 +21,7 @@ function anya () {
   Precast.doPrecast(true);
   Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 
-  if (!Pather.moveToPresetObject(me.area, sdk.objects.FrozenAnyasPlatform, { callback: () => {
+  if (!Pather.moveToPresetObject(me.area, sdk.objects.FrozenAnyasPlatform, { callback: function () {
     let fStein = Game.getMonster(getLocaleString(sdk.locale.monsters.Frozenstein));
     // let frozenanya = Game.getObject(sdk.objects.FrozenAnya);
     return (fStein && fStein.distance < 30) /*&& /* (frozenanya && frozenanya.distance < 35) */;
@@ -42,7 +42,9 @@ function anya () {
   let frozenanya = Game.getObject(sdk.objects.FrozenAnya);
 
   if (!frozenanya) {
-    Pather.moveToEx(presetLoc.x, presetLoc.y, { callback: () => Game.getObject(sdk.objects.FrozenAnya) });
+    Pather.moveToEx(presetLoc.x, presetLoc.y, { callback: function () {
+      return Game.getObject(sdk.objects.FrozenAnya);
+    } });
     frozenanya = Game.getObject(sdk.objects.FrozenAnya);
   }
 
@@ -62,7 +64,9 @@ function anya () {
       Pather.moveToUnit(frozenanya);
       Packet.entityInteract(frozenanya);
     }
-    Misc.poll(() => getIsTalkingNPC() || frozenanya.mode, 2000, 50);
+    Misc.poll(function () {
+      return getIsTalkingNPC() || frozenanya.mode;
+    }, 2000, 50);
     me.cancel() && me.cancel();
   }
 
@@ -75,7 +79,7 @@ function anya () {
   if (me.getItem(sdk.quest.item.MalahsPotion)) {
     console.log("Got potion, lets go unfreeze anya");
 
-    if (!Misc.poll(() => {
+    if (!Misc.poll(function () {
       Pather.usePortal(sdk.areas.FrozenRiver, me.name);
       return me.inArea(sdk.areas.FrozenRiver);
     }, Time.seconds(30), 1000)) throw new Error("Anya quest failed - Failed to return to frozen river");
@@ -86,7 +90,7 @@ function anya () {
       for (let i = 0; i < 3; i++) {
         frozenanya.distance > 5 && Pather.moveToUnit(frozenanya, 1, 2);
         Packet.entityInteract(frozenanya);
-        if (Misc.poll(() => frozenanya.mode, Time.seconds(2), 50)) {
+        if (Misc.poll(function () { return frozenanya.mode; }, Time.seconds(2), 50)) {
           me.cancel() && me.cancel();
           break;
         }
