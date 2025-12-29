@@ -33,7 +33,7 @@ const LocationAction = {
   
   const Controls = require("../../modules/Control");
   const Overrides = require("../../modules/Override");
-  const SoloEvents = (() => {
+  const SoloEvents = (function () {
     let { outOfGameCheck, check, gameInfo } = require("../Core/SoloEvents");
     return {
       check: check,
@@ -50,13 +50,15 @@ const LocationAction = {
     }
   };
 
-  const oogCheck = () => (
-    AutoMule.outOfGameCheck()
+  const oogCheck = function () {
+    return (
+      AutoMule.outOfGameCheck()
     || TorchSystem.outOfGameCheck()
     || Gambling.outOfGameCheck()
     || CraftingSystem.outOfGameCheck()
     || SoloEvents.outOfGameCheck()
-  );
+    );
+  };
 
   /**
    * @param {Control} control
@@ -186,6 +188,7 @@ const LocationAction = {
 
   new Overrides.Override(Starter, Starter.scriptMsgEvent, function (orignal, msg) {
     if (typeof msg !== "string") return;
+    
     if (msg === "event") {
       SoloEvents.check = true;
     } else if (msg === "diffChange") {
@@ -201,6 +204,8 @@ const LocationAction = {
       );
     } else if (msg === "remake") {
       Starter.deadCheck = true;
+    } else if (msg === "itemTransfer") {
+      // placeholder for future use
     } else {
       orignal(msg);
     }
@@ -303,6 +308,13 @@ const LocationAction = {
                 }
               } else if (text && text.includes("That character name is already taken.")) {
                 ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
+                Starter.profileInfo.charName = info.charName = NameGen();
+                Controls.OkCentered.click();
+                D2Bot.updateStatus("Making Character: " + info.charName);
+                Controls.OkCentered.click(); // actually cancel but whatever
+              } else if (text && text.includes(getLocaleString(sdk.locale.text.RejectedByServer))) {
+                D2Bot.printToConsole("Character Name rejected by server: " + info.charName, sdk.colors.D2Bot.Red);
+                ControlAction.timeoutDelay("Character Name rejected by server: " + info.charName + ". Trying new Name.", 5e3);
                 Starter.profileInfo.charName = info.charName = NameGen();
                 Controls.OkCentered.click();
                 D2Bot.updateStatus("Making Character: " + info.charName);
@@ -709,8 +721,12 @@ const LocationAction = {
                 : Starter.randomString(12, true);
 
               try {
-                if (Starter.profileInfo.account.length > 15) throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig");
-                if (Starter.profileInfo.password.length > 15) throw new Error("Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig");
+                if (Starter.profileInfo.account.length > 15) {
+                  throw new Error("Account name exceeds MAXIMUM length (15). Please enter a shorter name or reduce the AccountSuffixLength under StarterConfig");
+                }
+                if (Starter.profileInfo.password.length > 15) {
+                  throw new Error("Password name exceeds MAXIMUM length (15). Please enter a shorter name under StarterConfig");
+                }
               } catch (e) {
                 D2Bot.printToConsole("Kolbot-SoloPlay: " + e.message, sdk.colors.D2Bot.Gold);
                 D2Bot.setProfile("", "", null, "Normal");
