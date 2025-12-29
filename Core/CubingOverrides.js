@@ -488,7 +488,7 @@ Cubing.checkItem = function (unit) {
 
 /**
  * @param {ItemUnit} unit
- * @param {*} recipe
+ * @param {recipeObj} recipe
  */
 Cubing.validItem = function (unit, recipe) {
   // Excluded items
@@ -518,6 +518,30 @@ Cubing.validItem = function (unit, recipe) {
   let valid = true;
   const ntipResult = NTIP.CheckItem(unit);
   const ntipNoTierResult = NTIP.CheckItem(unit, NTIP.CheckList);
+
+  if (
+    recipe.Index === Recipe.Unique.Weapon.ToExceptional
+      || recipe.Index === Recipe.Unique.Armor.ToExceptional
+      || recipe.Index === Recipe.Rare.Weapon.ToExceptional
+      || recipe.Index === Recipe.Rare.Armor.ToExceptional
+  ) {
+    // make sure the item class is correct
+    if (unit.itemclass !== sdk.items.class.Normal) {
+      return false;
+    }
+  }
+
+  if (
+    recipe.Index === Recipe.Unique.Weapon.ToElite
+      || recipe.Index === Recipe.Unique.Armor.ToElite
+      || recipe.Index === Recipe.Rare.Weapon.ToElite
+      || recipe.Index === Recipe.Rare.Armor.ToElite
+  ) {
+    // make sure the item class is correct
+    if (unit.itemclass !== sdk.items.class.Exceptional) {
+      return false;
+    }
+  }
 
   if (recipe.Index >= Recipe.HitPower.Helm && recipe.Index <= Recipe.Safety.Weapon) {
     if (Math.floor(me.charlvl / 2) + Math.floor(unit.ilvl / 2) < recipe.Level) {
@@ -552,6 +576,7 @@ Cubing.validItem = function (unit, recipe) {
         return false;
       }
     }
+
     // Unique item matching pickit entry
     if (unit.unique && ntipResult === Pickit.Result.WANTED) {
       // check items name (prevents upgrading lavagout when we want to be upgrading magefist for the second time)
@@ -755,42 +780,51 @@ Cubing.doCubing = function () {
 
       Cubing.update();
 
-      items = me.findItems(-1, -1, sdk.storage.Cube);
+      let cubedItems = me.findItems(-1, -1, sdk.storage.Cube);
 
-      if (items) {
-        for (let j = 0; j < items.length; j++) {
-          let result = Pickit.checkItem(items[j]);
+      // check if cubing was successful
+      if (cubedItems.length === itemsToCubeCount) {
+        console.warn("Cubing failed, items remain in cube.");
+        if (!Cubing.emptyCube()) {
+          break;
+        }
+        continue;
+      }
+
+      if (cubedItems) {
+        for (let item of cubedItems) {
+          let result = Pickit.checkItem(item);
 
           switch (result.result) {
           case Pickit.Result.UNWANTED:
             // keep if item is worth selling
             if (
-              items[j].getItemCost(sdk.items.cost.ToSell) / (items[j].sizex * items[j].sizey)
+              item.getItemCost(sdk.items.cost.ToSell) / (item.sizex * item.sizey)
                 >= (me.normal ? 50 : me.nightmare ? 500 : 1000)
             ) {
-              if (Storage.Inventory.CanFit(items[j])) {
-                Storage.Inventory.MoveTo(items[j]);
+              if (Storage.Inventory.CanFit(item)) {
+                Storage.Inventory.MoveTo(item);
               } else {
-                Item.logger("Dropped", items[j], "doCubing");
-                items[j].drop();
+                Item.logger("Dropped", item, "doCubing");
+                item.drop();
               }
             }
 
-            Settings.debugging.crafting && Item.logItem("Crafted but didn't want", items[j]);
+            Settings.debugging.crafting && Item.logItem("Crafted but didn't want", item);
 
             break;
           case Pickit.Result.WANTED:
           case Pickit.Result.SOLOWANTS:
-            Item.logger("Cubing Kept", items[j]);
-            Item.logItem("Cubing Kept", items[j], result.line);
+            Item.logger("Cubing Kept", item);
+            Item.logItem("Cubing Kept", item, result.line);
 
             break;
           case Pickit.Result.CRAFTING: // Crafting System
-            CraftingSystem.update(items[j]);
+            CraftingSystem.update(item);
 
             break;
           case Pickit.Result.SOLOSYSTEM: // SoloWants System
-            SoloWants.update(items[j]);
+            SoloWants.update(item);
 
             break;
           }
