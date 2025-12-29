@@ -426,6 +426,9 @@ ClassAttack[sdk.player.class.Amazon].doCast = function (unit, timedSkill, untime
 
       let preHealth = unit.hp;
       let targetPoint = GameData.targetPointForSkill(timedSkill, unit);
+      let checkAttack = function () {
+        return unit.dead || unit.hp < preHealth;
+      };
 
       if (unit.attackable) {
         if (targetPoint) {
@@ -433,7 +436,7 @@ ClassAttack[sdk.player.class.Amazon].doCast = function (unit, timedSkill, untime
         } else {
           Skill.cast(timedSkill, Skill.getHand(timedSkill), unit);
         }
-        if (Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
+        if (Misc.poll(checkAttack, 300, 50)) {
           timedSkill === sdk.skills.LightningFury && (this.lightFuryTick = getTickCount());
         }
       }

@@ -201,7 +201,9 @@
           !makePortal(true) && console.warn("Town.goToTown: Failed to make TP");
           if (!me.inTown && !usePortal(townArea, me.name)) {
             console.warn("Town.goToTown: Failed to take TP");
-            if (!me.inTown && !usePortal(sdk.areas.townOf(me.area))) throw new Error("Town.goToTown: Failed to take TP");
+            if (!me.inTown && !usePortal(sdk.areas.townOf(me.area))) {
+              throw new Error("Town.goToTown: Failed to take TP");
+            }
           }
         } catch (e) {
           let tpTool = me.getTpTool();

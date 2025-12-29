@@ -295,7 +295,9 @@
       }
     }
 
-    Misc.poll(() => !me.skillDelay, 1000, 40);
+    Misc.poll(function () {
+      return !me.skillDelay;
+    }, 1000, 40);
 
     return Attack.Result.SUCCESS;
   };

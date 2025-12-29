@@ -478,7 +478,9 @@ const Overlay = {
               delay(100);
             }
 
-            Misc.poll(() => me.gameReady);
+            Misc.poll(function () {
+              return me.gameReady;
+            });
             flag = 0;
           } else {
             Overlay.text.enabled = true;

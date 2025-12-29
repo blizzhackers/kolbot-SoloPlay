@@ -383,7 +383,9 @@ ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1,
     return Attack.Result.SUCCESS;
   }
 
-  Misc.poll(() => !me.skillDelay, 1000, 40);
+  Misc.poll(function () {
+    return !me.skillDelay;
+  }, 1000, 40);
 
   return Attack.Result.SUCCESS;
 };
@@ -391,20 +393,35 @@ ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1,
 ClassAttack[sdk.player.class.Paladin].afterAttack = function () {
   Precast.doPrecast(false);
 
-  if (Skill.canUse(sdk.skills.Cleansing) && me.hpPercent < 85 && me.getState(sdk.states.Poison)
-    && !me.checkForMobs({ range: 12, coll: Coords.BlockBits.BlockWall }) && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)) {
+  if (
+    Skill.canUse(sdk.skills.Cleansing)
+    && me.hpPercent < 85
+    && me.getState(sdk.states.Poison)
+    && !me.checkForMobs({ range: 12, coll: Coords.BlockBits.BlockWall })
+    && Skill.setSkill(sdk.skills.Cleansing, sdk.skills.hand.Right)
+  ) {
     me.overhead("Delaying for a second to get rid of Poison");
-    Misc.poll(() => (!me.getState(sdk.states.Poison) || me.mode === sdk.player.mode.GettingHit), 1500, 50);
+    Misc.poll(function () {
+      return (!me.getState(sdk.states.Poison) || me.mode === sdk.player.mode.GettingHit);
+    }, 1500, 50);
   }
 
-  if (Skill.canUse(sdk.skills.Meditation) && me.mpPercent < 50 && !me.getState(sdk.states.Meditation)
-    && Skill.setSkill(sdk.skills.Meditation, sdk.skills.hand.Right)) {
-    Misc.poll(() => (me.mpPercent >= 50 || me.mode === sdk.player.mode.GettingHit), 1500, 50);
+  if (
+    Skill.canUse(sdk.skills.Meditation)
+    && me.mpPercent < 50
+    && !me.getState(sdk.states.Meditation)
+    && Skill.setSkill(sdk.skills.Meditation, sdk.skills.hand.Right)
+  ) {
+    Misc.poll(function () {
+      return (me.mpPercent >= 50 || me.mode === sdk.player.mode.GettingHit);
+    }, 1500, 50);
   }
 
   if (Skill.canUse(sdk.skills.Redemption) && Config.Redemption instanceof Array
     && (me.hpPercent < Config.Redemption[0] || me.mpPercent < Config.Redemption[1])
     && Attack.checkNearCorpses(me) > 2 && Skill.setSkill(sdk.skills.Redemption, sdk.skills.hand.Right)) {
-    Misc.poll(() => (me.hpPercent >= Config.Redemption[0] && me.mpPercent >= Config.Redemption[1]), 1500, 50);
+    Misc.poll(function () {
+      return (me.hpPercent >= Config.Redemption[0] && me.mpPercent >= Config.Redemption[1]);
+    }, 1500, 50);
   }
 };
