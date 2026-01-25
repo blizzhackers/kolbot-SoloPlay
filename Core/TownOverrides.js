@@ -723,9 +723,17 @@ Town.clearInventory = function () {
 
   // Any leftover items from a failed ID (crashed game, disconnect etc.)
   const ignoreTypes = [
-    sdk.items.type.Book, sdk.items.type.Key,
-    sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion
+    sdk.items.type.Book,
+    sdk.items.type.Key,
+    sdk.items.type.HealingPotion,
+    sdk.items.type.ManaPotion,
+    sdk.items.type.RejuvPotion
   ];
+
+  if (me.assassin) {
+    ignoreTypes.remove(sdk.items.type.Key);
+  }
+
   let items = (Storage.Inventory.Compare(Config.Inventory) || [])
     .filter(function (item) {
       if (!item) return false;
@@ -745,8 +753,11 @@ Town.clearInventory = function () {
    */
   const classItemType = function (item) {
     return [
-      sdk.items.type.Wand, sdk.items.type.VoodooHeads,
-      sdk.items.type.AuricShields, sdk.items.type.PrimalHelm, sdk.items.type.Pelt
+      sdk.items.type.Wand,
+      sdk.items.type.VoodooHeads,
+      sdk.items.type.AuricShields,
+      sdk.items.type.PrimalHelm,
+      sdk.items.type.Pelt
     ].includes(item.itemType);
   };
 
