@@ -29,7 +29,7 @@
       "[name] == fullrejuvenationpotion",
       "[name] == scrolloftownportal # # [maxquantity] == 20",
       "[name] == scrollofidentify # # [maxquantity] == 20",
-      "[name] == key # # [maxquantity] == 12",
+      "!me.assassin && [name] == key # # [maxquantity] == 12",
     ],
 
     Quest: [
