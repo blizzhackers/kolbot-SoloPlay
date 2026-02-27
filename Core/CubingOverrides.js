@@ -740,7 +740,7 @@ Cubing.doCubing = function () {
     let string = "Transmuting: ";
     let items = Cubing.checkRecipe(tempArray[i]);
 
-    if (items) {
+    if (items && items.length) {
       // If cube isn't open, attempt to open stash (the function returns true if stash is already open)
       if ((!getUIFlag(sdk.uiflags.Cube) && !Town.openStash()) || !Cubing.emptyCube()) return false;
 
