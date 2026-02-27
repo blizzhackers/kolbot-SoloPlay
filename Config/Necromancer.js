@@ -179,6 +179,13 @@
       if (LADDER_ENABLED && !me.checkItem({ name: sdk.locale.items.Grief }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
       }
+      ///Socket G Face
+      Config.socketables.push(addSocketableObj(sdk.items.WingedHelm,
+          [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
+          true, (item) => item.set && item.getStat(sdk.stats.FHR) >= 30 && !item.ethereal && item.fname.toLowerCase().includes("guillaume's face")
+        ));
+
+        Check.itemSockables(sdk.items.WingedHelm, "set", "Guillaume's Face"); 
             break;
     default:
       break;
@@ -289,3 +296,4 @@
 
   return true;
 })();
+
