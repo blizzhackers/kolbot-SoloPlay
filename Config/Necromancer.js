@@ -171,6 +171,8 @@
     // FinalBuild specific setup
     switch (SetUp.finalBuild) {
     case "Griefmancer":
+    Config.DodgeHP = 65; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
+    Skill.usePvpRange = false;
       // Infinity
       if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
@@ -296,4 +298,5 @@
 
   return true;
 })();
+
 
