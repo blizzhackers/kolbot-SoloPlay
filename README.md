@@ -44,7 +44,7 @@ For a quick kolbot+soloplay installer check out https://github.com/theBGuy/kolbo
 | Javazon | Cold | Poison | Hammerdin| Whirlwind | Wind |Trapsin|
 | *`Witchyzon`* | Blizzballer | Bone | Smiter| *`Immortalwhirl`* | Elemental | Whirlsin |
 | | Meteorb | Summon | *`Auradin`* | Frenzy | Plaguewolf |
-| | Blova | | Zealer | Uberconc | Wolf |
+| | Blova | *`Griefmancer`* | Zealer | Uberconc | Wolf |
 | | Lightning | | *`Torchadin`* | Singer |
 | |  | | Classicauradin |  |
 | |  | | Hammershock |  |

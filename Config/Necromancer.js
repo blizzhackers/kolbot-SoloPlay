@@ -171,27 +171,42 @@
     // FinalBuild specific setup
     switch (SetUp.finalBuild) {
     case "Griefmancer":
-    Config.DodgeHP = 65; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
-    Skill.usePvpRange = false;
+      Config.DodgeHP = 65; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
+      Skill.usePvpRange = false;
+      
       // Infinity
       if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
       }
+      
       // Grief
       if (LADDER_ENABLED && !me.checkItem({ name: sdk.locale.items.Grief }).have) {
         includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
       }
-      ///Socket G Face
-      Config.socketables.push(addSocketableObj(sdk.items.WingedHelm,
-          [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
-          true, (item) => item.set && item.getStat(sdk.stats.FHR) >= 30 && !item.ethereal && item.fname.toLowerCase().includes("guillaume's face")
-        ));
+      
+      // Socket G Face
+      Config.socketables.push(addSocketableObj(
+        sdk.items.WingedHelm,
+        [sdk.items.runes.Um],
+        [sdk.items.gems.Perfect.Ruby],
+        true,
+        function (item) {
+          return (
+            item.set
+            && item.getStat(sdk.stats.FHR) >= 30
+            && !item.ethereal
+            && item.fname.toLowerCase().includes("guillaume's face")
+          );
+        }
+      ));
 
-        Check.itemSockables(sdk.items.WingedHelm, "set", "Guillaume's Face"); 
-            break;
+      Check.itemSockables(sdk.items.WingedHelm, "set", "Guillaume's Face");
+      
+      break;
     default:
       break;
     }
+    
     /* Crafting */
     if (me.equipped.get(sdk.body.Neck).tier < 100000) {
       Config.Recipes.push([Recipe.Caster.Amulet]);
@@ -291,12 +306,9 @@
     }
 
     SoloWants.buildList();
-    
 
     break;
   }
 
   return true;
 })();
-
-
