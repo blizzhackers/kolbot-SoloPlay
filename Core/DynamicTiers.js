@@ -425,8 +425,10 @@
         if (eqItem) {
           // equipped resists
           [olditemFR, olditemCR, olditemLR, olditemPR] = [
-            eqItem.getStatEx(sdk.stats.FireResist), eqItem.getStatEx(sdk.stats.ColdResist),
-            eqItem.getStatEx(sdk.stats.LightResist), eqItem.getStatEx(sdk.stats.PoisonResist)
+            eqItem.getStatEx(sdk.stats.FireResist),
+            eqItem.getStatEx(sdk.stats.ColdResist),
+            eqItem.getStatEx(sdk.stats.LightResist),
+            eqItem.getStatEx(sdk.stats.PoisonResist)
           ];
         }
         // subtract olditem resists from current total resists
@@ -455,17 +457,30 @@
         resistRating += effectiveCR * _tierWeights.res.get(sdk.stats.ColdResist);
         resistRating += effectiveLR * _tierWeights.res.get(sdk.stats.LightResist);
         resistRating += effectivePR * _tierWeights.res.get(sdk.stats.PoisonResist);
+
+        if (!buildInfo.caster && item.getBodyLoc().includes(sdk.body.RightArm)) {
+          // prioritize dmg over resists
+          resistRating /= 2;
+        }
       }
 
       return ([
-        sdk.stats.MaxFireResist, sdk.stats.MaxLightResist,
-        sdk.stats.MaxColdResist, sdk.stats.MaxPoisonResist,
-        sdk.stats.AbsorbFire, sdk.stats.AbsorbLight,
-        sdk.stats.AbsorbMagic, sdk.stats.AbsorbCold,
-        sdk.stats.AbsorbFirePercent, sdk.stats.AbsorbLightPercent,
-        sdk.stats.AbsorbMagicPercent, sdk.stats.AbsorbColdPercent,
-        sdk.stats.NormalDamageReduction, sdk.stats.DamageResist,
-        sdk.stats.MagicDamageReduction, sdk.stats.MagicResist
+        sdk.stats.MaxFireResist,
+        sdk.stats.MaxLightResist,
+        sdk.stats.MaxColdResist,
+        sdk.stats.MaxPoisonResist,
+        sdk.stats.AbsorbFire,
+        sdk.stats.AbsorbLight,
+        sdk.stats.AbsorbMagic,
+        sdk.stats.AbsorbCold,
+        sdk.stats.AbsorbFirePercent,
+        sdk.stats.AbsorbLightPercent,
+        sdk.stats.AbsorbMagicPercent,
+        sdk.stats.AbsorbColdPercent,
+        sdk.stats.NormalDamageReduction,
+        sdk.stats.DamageResist,
+        sdk.stats.MagicDamageReduction,
+        sdk.stats.MagicResist
       ].reduce(function (acc, stat) {
         return acc + item.getStatEx(stat) * _tierWeights.res.get(stat);
       }, resistRating));
@@ -481,7 +496,8 @@
         || Config.AttackSkill.includes(sdk.skills.Attack)
         || Config.LowManaSkill.includes(sdk.skills.Attack)
         || ([sdk.items.type.Bow, sdk.items.type.AmazonBow, sdk.items.type.Crossbow].includes(item.itemType)
-        && CharData.skillData.bow.onSwitch)) {
+        && CharData.skillData.bow.onSwitch)
+      ) {
         let meleeRating = 0;
         const eleDmgWeight = 0.5;
         const eleDmgModifer = [sdk.items.type.Ring, sdk.items.type.Amulet].includes(item.itemType) ? 2 : 1;
@@ -491,9 +507,16 @@
         meleeRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Sanctuary) * 25; // sanctuary aura
 
         [
-          sdk.stats.ReplenishDurability, sdk.stats.IgnoreTargetDefense, sdk.stats.ToHit, sdk.stats.CrushingBlow,
-          sdk.stats.OpenWounds, sdk.stats.DeadlyStrike, sdk.stats.LifeLeech, sdk.stats.ManaLeech,
-          sdk.stats.DemonDamagePercent, sdk.stats.UndeadDamagePercent,
+          sdk.stats.ReplenishDurability,
+          sdk.stats.IgnoreTargetDefense,
+          sdk.stats.ToHit,
+          sdk.stats.CrushingBlow,
+          sdk.stats.OpenWounds,
+          sdk.stats.DeadlyStrike,
+          sdk.stats.LifeLeech,
+          sdk.stats.ManaLeech,
+          sdk.stats.DemonDamagePercent,
+          sdk.stats.UndeadDamagePercent,
         ].reduce(function (acc, stat) {
           return acc + item.getStatEx(stat) * _tierWeights.gen.get(stat);
         }, meleeRating);
@@ -599,7 +622,10 @@
     tier += ctcScore();
     tier += chargeditemscore(item, -1, buildInfo);
 
-    if (tier > 1 && tier < 50000 /* NTIP.MAX_TIER */ && NTIP.CheckItem(item, NTIP.FinalGear) === Pickit.Result.WANTED) {
+    if (
+      (tier > 1 && tier < 50000) /* NTIP.MAX_TIER */
+      && NTIP.CheckItem(item, NTIP.FinalGear) === Pickit.Result.WANTED
+    ) {
       // console.debug(item.prettyPrint + "~~~" + tier);
       tier += NTIP.MAX_TIER;
     }
