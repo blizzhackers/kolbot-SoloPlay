@@ -101,6 +101,13 @@
             ];
             Config.LowManaSkill = [-1, -1];
 
+            Config.AdvancedCustomAttack.push({
+              check: function (mon) {
+                return mon.isPrimeEvil;
+              },
+              attack: [sdk.skills.Smite, sdk.skills.Sanctuary],
+            });
+
             Config.SkipImmune = ["lightning and magic and physical"];	// Don't think this ever happens but should skip if it does
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             SetUp.belt();

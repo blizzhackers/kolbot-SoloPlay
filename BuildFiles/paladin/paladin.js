@@ -29,17 +29,20 @@ const CharInfo = {
     const currLevel = me.charlvl;
     const justRepeced = (nSkills >= currLevel);
 
+    if (currLevel < this.respecOne) {
+      return "Start";
+    }
+
     switch (true) {
-    case currLevel < this.respecOne:
+    case Check.finalBuild().respec() && justRepeced:
+    case Check.finalBuild().active():
+      return SetUp.finalBuild;
     case (
       !justRepeced
       && currLevel > this.respecOne
       && !me.checkSkill(sdk.skills.Concentration, sdk.skills.subindex.HardPoints)
     ):
       return "Start";
-    case Check.finalBuild().respec() && justRepeced:
-    case Check.finalBuild().active():
-      return SetUp.finalBuild;
     default:
       return "Leveling";
     }
