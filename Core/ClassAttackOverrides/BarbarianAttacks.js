@@ -51,7 +51,7 @@
           sdk.monsters.BaalClone, sdk.monsters.KorlictheProtector,
           sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
         ].includes(el.classid)
-        && (!el.isStunned || getTickCount() - ClassAttack.warCryTick >= 1500)
+        && (!el.isStunned || getTickCount() - ClassAttack[sdk.player.class.Barbarian].warCryTick >= 1500)
         && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
     });
   };
@@ -279,7 +279,7 @@
       data.switchCast
         ? Skill.switchCast(sdk.skills.WarCry, { hand: 0 })
         : Skill.cast(sdk.skills.WarCry, sdk.skills.hand.Right, unit);
-      this.warCryTick = getTickCount();
+      ClassAttack[sdk.player.class.Barbarian].warCryTick = getTickCount();
     }
 
     // Probably going to get rid of preattack
