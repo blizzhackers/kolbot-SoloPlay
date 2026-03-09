@@ -21,7 +21,7 @@
     let light = item.getStatEx(sdk.stats.LightMinDamage) + item.getStatEx(sdk.stats.LightMaxDamage);
     let magic = item.getStatEx(sdk.stats.MagicMinDamage) + item.getStatEx(sdk.stats.MagicMaxDamage);
     let cold = item.getStatEx(sdk.stats.ColdMinDamage) + item.getStatEx(sdk.stats.ColdMaxDamage);
-    let poison = (item.getStatEx(sdk.stats.PoisonMinDamage) * 125 / 256); // PSN damage adjusted for damage per frame (125/256)
+    let poison = (item.getStatEx(sdk.stats.PoisonMinDamage) * 25) / 256; // PSN damage per second (per_frame_x256 * 25fps / 256)
     return (fire + light + magic + cold + poison);
   };
 
@@ -263,7 +263,7 @@
       [sdk.stats.DeadlyStrike, 1.5],
       [sdk.stats.LifeLeech, 4],
       [sdk.stats.HealAfterKill, 1],
-      [sdk.stats.ManaLeech, 2],
+      [sdk.stats.ManaLeech, me.barbarian ? 1 : 2],
       [sdk.stats.ManaAfterKill, 1],
       [sdk.stats.DemonDamagePercent, 0.5],
       [sdk.stats.UndeadDamagePercent, 0.5],
