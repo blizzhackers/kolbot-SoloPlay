@@ -1,3 +1,10 @@
+/**
+ * @filename    Guard.js
+ * @author      Jaenster
+ * @desc        Display stack trace on screen for debugging purposes.
+ * 
+ */
+
 (function (module, require, thread, globalThis) {
   "use strict";
   const _Messaging = require("../../modules/Messaging");

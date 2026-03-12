@@ -1,3 +1,10 @@
+/**
+ * @filename    Coords.js
+ * @author      Jaenster
+ * @desc        Transpiled UMD coords module from ryuk
+ * 
+ */
+
 /* eslint-disable */
 /* eslint-disable dot-notation */
 (function (factory) {

@@ -227,6 +227,15 @@ add your pickit files here or uncomment the kolton nip already present.
 - If you have any questions please join me on my discord
 https://discord.gg/5pjTC2zH6N
 
+## Credits / Acknowledgements
+Special thanks to [jaenster](https://github.com/jaenster) for inspiration that helped shape parts of this project's structure.
+
+This project also draws inspiration from, and imports some modules from, the following projects:
+- [Ryuk-original](https://github.com/jaenster/Ryuk-original)
+- [jaenster-kolbot](https://github.com/jaenster/jaenster-kolbot)
+
+Credit goes to jaenster for the ideas and work that influenced portions of SoloPlay.
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 

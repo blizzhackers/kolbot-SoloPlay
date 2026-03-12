@@ -1,3 +1,10 @@
+/**
+ * @filename    MoveTo.js
+ * @author      Jaenster
+ * @desc        Transpiled UMD MoveTo module from ryuk
+ * 
+ */
+
 // eslint-disable-next-line no-var
 var __importDefault = (this && this.__importDefault) || function (mod) {
   return (mod && mod.__esModule) ? mod : { "default": mod };

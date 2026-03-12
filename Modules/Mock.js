@@ -1,3 +1,10 @@
+/**
+ * @filename    Mock.js
+ * @author      Jaenster
+ * @desc        Transpiled UMD mock item/character module from ryuk
+ * 
+ */
+
 /* eslint-disable no-var */
 var __extends = (this && this.__extends) || (function () {
   var extendStatics = function (d, b) {
