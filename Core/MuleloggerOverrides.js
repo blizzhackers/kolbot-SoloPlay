@@ -10,6 +10,7 @@ includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
 
 // Added type parameter and logging tier value under picture on char viewer tab
+/** @type {import("../../systems/mulelogger/MuleLogger").MuleLoggerType["logItem"]} */
 MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
   if (!isIncluded("core/misc.js")) {
     include("core/misc.js");
@@ -40,6 +41,46 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
     }
   }
 
+  const { btoa } = require("../../modules/external/base64");
+  const itemInfo = {
+    id: unit.classid,
+    code: unit.code,
+    mode: unit.mode,
+    name: name,
+    prefix: unit.prefix,
+    suffix: unit.suffix,
+    prefixes: unit.prefixes,
+    suffixes: unit.suffixes,
+    prefixnum: unit.prefixnum,
+    suffixnum: unit.suffixnum,
+    prefixnums: unit.prefixnums,
+    suffixnums: unit.suffixnums,
+    itemType: unit.itemType,
+    itemClass: unit.itemclass,
+    quality: unit.quality,
+    sockets: unit.sockets,
+    gfx: unit.gfx,
+    color: color,
+    ilvl: unit.ilvl,
+    lvlreq: unit.lvlreq,
+    strreq: unit.strreq,
+    dexreq: unit.dexreq,
+    flags: unit.getFlags(),
+    ethereal: unit.getFlag(sdk.items.flags.Ethereal),
+    runeword: unit.getFlag(sdk.items.flags.Runeword),
+    stats: MuleLogger.dumpItemStats(unit),
+    equipped: unit.isEquipped,
+  };
+
+  desc += (
+    "$" + unit.gid + ":"
+    + unit.classid + ":"
+    + unit.location + ":"
+    + unit.x + ":"
+    + unit.y + ":"
+    + btoa(JSON.stringify(itemInfo)) + ":"
+  );
+
   let sock = unit.getItems();
 
   if (sock) {
@@ -50,8 +91,6 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
       }
     }
   }
-
-  desc += "$" + unit.gid + ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "");
 
   return {
     itemColor: color,
