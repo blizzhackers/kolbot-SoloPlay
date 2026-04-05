@@ -12,6 +12,7 @@
 *        Bone
 *        Poison
 *        Summon
+*        Griefmancer
 *      4. Save the profile and start
 */
 
@@ -166,7 +167,46 @@
     Config.socketables.push(addSocketableObj(sdk.items.Shako, [sdk.items.runes.Um], [sdk.items.gems.Perfect.Ruby],
       true, (item) => item.unique && !item.ethereal
     ));
+    
+    // FinalBuild specific setup
+    switch (SetUp.finalBuild) {
+    case "Griefmancer":
+      Config.DodgeHP = 65; // Dodge only if HP percent is less than or equal to Config.DodgeHP. 100 = always dodge.
+      Skill.usePvpRange = false;
+      
+      // Infinity
+      if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).prefixnum !== sdk.locale.items.Infinity) {
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInfinity.js");
+      }
+      
+      // Grief
+      if (LADDER_ENABLED && !me.checkItem({ name: sdk.locale.items.Grief }).have) {
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Grief.js");
+      }
+      
+      // Socket G Face
+      Config.socketables.push(addSocketableObj(
+        sdk.items.WingedHelm,
+        [sdk.items.runes.Um],
+        [sdk.items.gems.Perfect.Ruby],
+        true,
+        function (item) {
+          return (
+            item.set
+            && item.getStat(sdk.stats.FHR) >= 30
+            && !item.ethereal
+            && item.fname.toLowerCase().includes("guillaume's face")
+          );
+        }
+      ));
 
+      Check.itemSockables(sdk.items.WingedHelm, "set", "Guillaume's Face");
+      
+      break;
+    default:
+      break;
+    }
+    
     /* Crafting */
     if (me.equipped.get(sdk.body.Neck).tier < 100000) {
       Config.Recipes.push([Recipe.Caster.Amulet]);
@@ -180,6 +220,7 @@
 
     Check.itemSockables(sdk.items.RoundShield, "unique", "Moser's Blessed Circle");
     Check.itemSockables(sdk.items.Shako, "unique", "Harlequin Crest");
+
 
     /* Crafting */
     if (me.equipped.get(sdk.body.Neck).tier < 100000) {
@@ -210,12 +251,11 @@
     if (!me.checkItem({ name: sdk.locale.items.Enigma }).have) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Enigma.js");
     }
-
     // Spirit Sword
     if (LADDER_ENABLED && me.equipped.get(sdk.body.RightArm).tier < 777) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/SpiritSword.js");
     }
-
+  
     // Spirit shield
     if (LADDER_ENABLED
       && (me.equipped.get(sdk.body.LeftArm).tier < 1000
@@ -228,6 +268,7 @@
     if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
     }
+
 
     if (!me.haveSome([{ name: sdk.locale.items.Enigma }, { name: sdk.locale.items.Bone }])
       && me.equipped.get(sdk.body.Armor).tier < 650) {

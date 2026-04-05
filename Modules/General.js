@@ -1,12 +1,19 @@
 (function (module) {
   // these builds are not possible to do on classic
   const impossibleClassicBuilds = [
-    "Bumper", "Socketmule", "Witchyzon",
-    "Auradin", "Torchadin", "Immortalwhirl",
-    "Sancdreamer", "Faithbowzon", "Wfzon"
+    "Bumper",
+    "Socketmule",
+    "Witchyzon",
+    "Auradin",
+    "Torchadin",
+    "Immortalwhirl",
+    "Sancdreamer",
+    "Faithbowzon",
+    "Wfzon",
+    "Griefmancer",
   ];
   // these builds are not possible to do without ladder runewords
-  const impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon"];
+  const impossibleNonLadderBuilds = ["Auradin", "Sancdreamer", "Faithbowzon", "Griefmancer"];
 
   // SoloPlay general gameplay items
   const nipItems = {
