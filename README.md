@@ -231,7 +231,7 @@ https://discord.gg/5pjTC2zH6N
 Special thanks to [jaenster](https://github.com/jaenster) for inspiration that helped shape parts of this project's structure.
 
 This project also draws inspiration from, and imports some modules from, the following projects:
-- [Ryuk-original](https://github.com/jaenster/Ryuk-original)
+- [Ryuk](https://github.com/jaenster/Ryuk)
 - [jaenster-kolbot](https://github.com/jaenster/jaenster-kolbot)
 
 Credit goes to jaenster for the ideas and work that influenced portions of SoloPlay.
