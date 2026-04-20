@@ -142,25 +142,27 @@ function cows() {
     let kingPreset;
 
     Worker.runInBackground.kingTracker = function () {
-      if (me.inArea(sdk.areas.MooMooFarm)) {
-        if (getTickCount() - kingTick < 1000) return true;
-        kingTick = getTickCount();
-        king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
-        // only get the preset unit once
-        !kingPreset && (kingPreset = Game.getPresetMonster(me.area, sdk.monsters.preset.TheCowKing));
+      if (getTickCount() - kingTick < 1000) return true;
+      kingTick = getTickCount();
+      
+      if (!me.inArea(sdk.areas.MooMooFarm)) {
+        return true;
+      }
+      king = Game.getMonster(getLocaleString(sdk.locale.monsters.TheCowKing));
+      // only get the preset unit once
+      !kingPreset && (kingPreset = Game.getPresetMonster(me.area, sdk.monsters.preset.TheCowKing));
 
-        if (king && kingPreset) {
-          if (
-            getDistance(
-              me.x,
-              me.y,
-              getRoom(kingPreset.roomx * 5 + kingPreset.x),
-              getRoom(kingPreset.roomy * 5 + kingPreset.y)
-            ) <= 25
-          ) {
-            myPrint("exit cows. Near the king");
-            throw new Error("exit cows. Near the king");
-          }
+      if (king && kingPreset) {
+        if (
+          getDistance(
+            me.x,
+            me.y,
+            getRoom(kingPreset.roomx * 5 + kingPreset.x),
+            getRoom(kingPreset.roomy * 5 + kingPreset.y)
+          ) <= 25
+        ) {
+          myPrint("exit cows. Near the king");
+          throw new ScriptError("exit cows. Near the king");
         }
       }
 
