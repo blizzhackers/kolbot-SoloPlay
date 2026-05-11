@@ -36,62 +36,126 @@ Loader.loadScripts = function () {
 };
 
 Loader.run = function () {
-  let updatedDifficulty = Check.nextDifficulty();
   const _toolsThread = "libs/SoloPlay/Threads/ToolsThread.js";
+  
+  let updatedDifficulty = Check.nextDifficulty();
   if (updatedDifficulty) {
     CharData.updateData("me", "setDifficulty", updatedDifficulty);
     !me.realm && Messaging.sendToScript("D2BotSoloPlay.dbj", "diffChange");
   }
 
-  for (this.scriptIndex = 0; this.scriptIndex < SoloIndex.scripts.length; this.scriptIndex++) {
-    const scriptName = SoloIndex.scripts[this.scriptIndex];
-    !me.inTown && !Loader.skipTown.includes(scriptName) && Town.goToTown();
+  for (Loader.scriptIndex = 0; Loader.scriptIndex < SoloIndex.scripts.length; Loader.scriptIndex++) {
+    const ctx = {};
+    const script = SoloIndex.scripts[this.scriptIndex];
+    
+    if (!me.inTown && !Loader.skipTown.includes(script)) {
+      Town.goToTown();
+    }
+    
     Check.checkSpecialCase();
-    if (!SoloIndex.index[scriptName]) continue;
-    if (!SoloIndex.index[scriptName].shouldRun()) continue;
+    if (!SoloIndex.index[script]) continue;
+    if (!SoloIndex.index[script].shouldRun()) continue;
 
     let j;
     let tick;
-    let currentExp;
+    let expStart;
 
     try {
-      includeIfNotIncluded("SoloPlay/Scripts/" + scriptName + ".js");
+      includeIfNotIncluded("SoloPlay/Scripts/" + script + ".js");
 
+      Loader.currentScript = global[script];
+
+      // Preload the next script
+      if (Loader.scriptIndex < Loader.scriptList.length - 1) {
+        let nextScript = this.scriptList[Loader.scriptIndex + 1];
+        if (include("SoloPlay/Scripts/" + nextScript + ".js")) {
+          if (global[nextScript] instanceof Runnable && global[nextScript].startArea) {
+            Loader.nextScript = global[nextScript];
+          }
+        }
+      }
+
+      if (Loader.currentScript instanceof Runnable) {
+        const { startArea, bossid, preAction, setup } = Loader.currentScript;
+            
+        if (startArea && Loader.scriptIndex === 0) {
+          Loader.firstScriptAct = sdk.areas.actOf(startArea);
+        }
+
+        if (bossid && Attack.haveKilled(bossid)) {
+          console.log("ÿc2Skipping script: ÿc9" + script + " ÿc2- Boss already killed.");
+          continue;
+        }
+
+        if (setup && typeof setup === "function") {
+          setup(ctx);
+        }
+            
+        if (preAction && typeof preAction === "function") {
+          preAction(ctx);
+        }
+
+        if (startArea && me.inArea(startArea)) {
+          this.skipTown.push(script);
+        }
+      } else if (typeof (Loader.currentScript) !== "function") {
+        throw new Error(
+          "Invalid script function name. "
+              + "Typeof: " + typeof (Loader.currentScript)
+              + " Name: " + script
+        );
+      }
+      
       tick = getTickCount();
-      currentExp = me.getStat(sdk.stats.Experience);
-      Messaging.sendToScript(_toolsThread, JSON.stringify({ currScript: scriptName }));
-      DataFile.updateStats("lastScript", scriptName);
+      expStart = me.getStat(sdk.stats.Experience);
+      Messaging.sendToScript(_toolsThread, JSON.stringify({ currScript: script }));
+      DataFile.updateStats("lastScript", script);
 
       for (j = 0; j < 5; j += 1) {
-        if (global[scriptName]()) {
+        if (Loader._runCurrent(ctx)) {
+          
+          if (Loader.currentScript instanceof Runnable) {
+            const { postAction } = Loader.currentScript;
+              
+            if (postAction && typeof postAction === "function") {
+              postAction(ctx);
+            }
+          }
           break;
         }
       }
 
-      (j === 5) && myPrint("script " + scriptName + " failed.");
+      (j === 5) && myPrint("script " + script + " failed.");
     } catch (e) {
       console.error(e);
     } finally {
-      SoloIndex.doneList.push(scriptName);
+      SoloIndex.doneList.push(script);
       // skip logging if we didn't actually finish it
-      if (!SoloIndex.retryList.includes(scriptName) && Settings.logPerformance) {
-        Tracker.script(tick, scriptName, currentExp);
+      if (!SoloIndex.retryList.includes(script) && Settings.logPerformance) {
+        Tracker.script(tick, script, expStart);
       }
       console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Time.format(me.maxgametime));
       me.maxgametime += (getTickCount() - tick);
       console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Time.format(me.maxgametime));
+      
+      let gain = Math.max(me.getStat(sdk.stats.Experience) - expStart, 0);
+      let duration = Time.elapsed(tick);
       console.log(
-        "ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + scriptName
-        + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
+        "ÿc8Kolbot-SoloPlayÿc0 :: ÿc8" + script
+        + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(duration) + "\n"
+        + "ÿc7 - Experience Gained: ÿc0" + gain + "\n"
+        + "ÿc7 - Exp/minute: ÿc0" + (gain / (duration / 60000)).toFixed(2)
       );
 
       // remove script function from function scope, so it can be cleared by GC
-      if (this.scriptIndex < SoloIndex.scripts.length) {
-        delete global[scriptName];
+      if (Loader.scriptIndex < SoloIndex.scripts.length) {
+        delete global[script];
+        Loader.currentScript = null;
+        Loader.nextScript = null;
       }
     }
 
-    if (me.sorceress && me.hell && scriptName === "bloodraven" && me.charlvl < 68) {
+    if (me.sorceress && me.hell && script === "bloodraven" && me.charlvl < 68) {
       console.info(false, "End-run, we are not ready to keep pushing yet");
         
       break;
@@ -139,8 +203,35 @@ Loader.runScript = function (script, configOverride) {
   this.copy(Config, unmodifiedConfig);
 
   if (includeIfNotIncluded("SoloPlay/Scripts/" + script + ".js")) {
+    const ctx = {
+      _parent: Loader.currentScript
+    };
+    Loader.currentScript = global[script];
+    
     try {
-      if (typeof (global[script]) !== "function") throw new Error("Invalid script function name");
+      if (Loader.currentScript instanceof Runnable) {
+        const { startArea, bossid, preAction, setup } = Loader.currentScript;
+
+        if (startArea && me.inArea(startArea)) {
+          Loader.skipTown.push(script);
+        }
+          
+        if (bossid && Attack.haveKilled(bossid)) {
+          console.log("ÿc2Skipping script: ÿc9" + script + " ÿc2- Boss already killed.");
+          return true;
+        }
+
+        if (setup && typeof setup === "function") {
+          setup(ctx);
+        }
+          
+        if (preAction && typeof preAction === "function") {
+          preAction(ctx);
+        }
+      } else if (typeof (Loader.currentScript) !== "function") {
+        throw new Error("Invalid script function name");
+      }
+
       if (this.skipTown.includes(script) || Town.goToTown()) {
         let mainScriptStr = (mainScript !== script ? buildScriptMsg() : "");
         this.tempList.push(script);
@@ -156,11 +247,29 @@ Loader.runScript = function (script, configOverride) {
         tick = getTickCount();
         currentExp = me.getStat(sdk.stats.Experience);
 
-        if (global[script]()) {
+        if (Loader._runCurrent(ctx)) {
           console.log(
             mainScriptStr + "ÿc7" + script
-            + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (Time.format(getTickCount() - tick))
+              + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (Time.format(getTickCount() - tick))
           );
+          let gain = Math.max(me.getStat(sdk.stats.Experience) - exp, 0);
+          let duration = Time.elapsed(tick);
+          console.log(
+            mainScriptStr + "ÿc7" + script + " :: ÿc0Complete\n"
+              + "ÿc2 Statistics:\n"
+              + "ÿc7 - Duration: ÿc0" + (Time.format(duration)) + "\n"
+              + "ÿc7 - Experience Gained: ÿc0" + gain + "\n"
+              + "ÿc7 - Exp/minute: ÿc0" + (gain / (duration / 60000)).toFixed(2)
+          );
+          this.doneScripts.add(script);
+
+          if (Loader.currentScript instanceof Runnable) {
+            const { postAction } = Loader.currentScript;
+              
+            if (postAction && typeof postAction === "function") {
+              postAction(ctx);
+            }
+          }
         }
       }
     } catch (e) {
@@ -169,8 +278,21 @@ Loader.runScript = function (script, configOverride) {
     } finally {
       SoloIndex.doneList.push(script);
       Settings.logPerformance && Tracker.script(tick, script, currentExp);
-      delete global[script];
-      this.tempList.pop();
+      // Dont run for last script as that will clear everything anyway
+      if (this.scriptIndex < this.scriptList.length) {
+        // remove script function from global scope, so it can be cleared by GC
+        delete global[script];
+      } else if (this.tempList.length) {
+        delete global[script];
+      }
+      // run cleanup if applicable
+      if (Loader.currentScript instanceof Runnable) {
+        if (Loader.currentScript.cleanup && typeof Loader.currentScript.cleanup === "function") {
+          Loader.currentScript.cleanup(ctx);
+        }
+      }
+      Loader.currentScript = ctx._parent;
+      Loader.tempList.pop();
         
       if (reconfiguration) {
         console.log("ÿc2Reverting back unmodified config properties.");
