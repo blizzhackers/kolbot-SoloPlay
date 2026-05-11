@@ -547,12 +547,17 @@ const Quest = {
 
   unfinishedQuests: function () {
     const highestAct = me.highestAct;
+    const {
+      checkItemsForImbueing,
+      checkItemsForSocketing,
+      checkSocketables
+    } = require("../Modules/ItemUtils");
     // Act 1
     // Tools of the trade
     let malus = me.getItem(sdk.items.quest.HoradricMalus);
     !!malus && Town.goToTown(1) && Town.npcInteract("charsi");
 
-    let imbueItem = Misc.checkItemsForImbueing();
+    let imbueItem = checkItemsForImbueing();
     (imbueItem) && Quest.useImbueQuest(imbueItem) && Item.autoEquip();
 
     // Drop wirts leg at startup
@@ -674,7 +679,7 @@ const Quest = {
 
     // Act 5
     if (highestAct === 5) {
-      let socketItem = Misc.checkItemsForSocketing();
+      let socketItem = checkItemsForSocketing();
       !!socketItem && Quest.useSocketQuest(socketItem);
 
       // Scroll of resistance
@@ -691,7 +696,7 @@ const Quest = {
       }
     }
 
-    Misc.checkSocketables();
+    checkSocketables();
     
     Town.heal();
     me.cancelUIFlags();

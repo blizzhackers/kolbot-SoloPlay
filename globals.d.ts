@@ -272,23 +272,8 @@ declare global {
     let openChestsEnabled: boolean;
     const shrineStates: number[];
 
-    function openChestsInArea(area: number, chestIds: number[], sort?: Function): boolean;
+    function openChestsInArea(area: number, chestIds: number[], sort?: (a: Unit, b: Unit) => number): boolean;
     function getExpShrine(shrineLocs: number[]): boolean;
-    function unsocketItem(item: ItemUnit): boolean;
-    function checkItemsForSocketing(): ItemUnit | boolean;
-    function checkItemsForImbueing(): ItemUnit | boolean;
-    function addSocketablesToItem(item: ItemUnit, runes: ItemUnit[]): boolean;
-    function getSocketables(
-      item: ItemUnit,
-      itemInfo?: {
-        classid: number;
-        socketWith: number[];
-        temp: number[];
-        useSocketQuest: boolean;
-        condition: Function;
-      },
-    ): boolean;
-    function checkSocketables(): void;
   }
 
   namespace Skill {
