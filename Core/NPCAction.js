@@ -491,6 +491,8 @@
       }
     };
 
+    const { betterBaseThanWearing, betterThanStashed } = require("../Modules/ItemUtils");
+
     for (let item of items) {
       const myGold = me.gold;
       const itemCost = item.getItemCost(sdk.items.cost.ToBuy);
@@ -503,7 +505,7 @@
         try {
           if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
             if (item.isBaseType) {
-              if (Item.betterThanStashed(item) && Item.betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
+              if (betterThanStashed(item) && betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
                 shopReport(item, "better base", line);
                 item.buy() && bought++;
               }

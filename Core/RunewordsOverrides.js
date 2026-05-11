@@ -119,6 +119,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
   const item = typeof base === "object"
     ? base
     : me.getItem(base, sdk.items.mode.inStorage);
+  const { betterBaseThanWearing } = require("../Modules/ItemUtils");
 
   if (item) {
     do {
@@ -134,7 +135,7 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
          */
 
         if (
-          (!reroll && !item.getItem() && Item.betterBaseThanWearing(item, Settings.debugging.baseCheck, runeword))
+          (!reroll && !item.getItem() && betterBaseThanWearing(item, Settings.debugging.baseCheck, runeword))
           || (
             reroll && item.getItem()
             && !NTIP.CheckItem(item, this.pickitEntries)

@@ -421,6 +421,7 @@ Cubing.emptyCube = function () {
 /** @param {ItemUnit} unit */
 Cubing.checkItem = function (unit) {
   if (!Config.Cubing || !unit) return false;
+  const { betterThanStashed } = require("../Modules/ItemUtils");
 
   for (let i = 0; i < Cubing.validIngredients.length; i++) {
     // not the same item but the same type of item
@@ -455,9 +456,9 @@ Cubing.checkItem = function (unit) {
         && unit.itemType === Cubing.validIngredients[i].type
         && unit.quality === Cubing.validIngredients[i].quality
       ) {
-        // console.debug(Cubing.validIngredients[i], "\n//~~~~//\n", unit, "\n//~~~~~/\n", Item.betterThanStashed(unit, true));
+        // console.debug(Cubing.validIngredients[i], "\n//~~~~//\n", unit, "\n//~~~~~/\n", betterThanStashed(unit, true));
         // item is better than the one we currently have, so add it to validIngredient array and remove old item
-        if (Item.betterThanStashed(unit, true) && Cubing.validItem(unit, Cubing.validIngredients[i].recipe)) {
+        if (betterThanStashed(unit, true) && Cubing.validItem(unit, Cubing.validIngredients[i].recipe)) {
           Cubing.validIngredients.push({
             classid: unit.classid,
             type: unit.itemType,
@@ -518,6 +519,7 @@ Cubing.validItem = function (unit, recipe) {
   let valid = true;
   const ntipResult = NTIP.CheckItem(unit);
   const ntipNoTierResult = NTIP.CheckItem(unit, NTIP.CheckList);
+  const { betterBaseThanWearing, betterThanStashed } = require("../Modules/ItemUtils");
 
   if (
     recipe.Index === Recipe.Unique.Weapon.ToExceptional
@@ -644,7 +646,9 @@ Cubing.validItem = function (unit, recipe) {
           sdk.items.type.Pelt,
         ].includes(unit.itemType)
       ) {
-        if (!Item.betterThanStashed(unit) || !Item.betterBaseThanWearing(unit)) return false;
+        if (!betterThanStashed(unit) || !betterBaseThanWearing(unit)) {
+          return false;
+        }
       }
       switch (recipe.Ethereal) {
       case Roll.All:

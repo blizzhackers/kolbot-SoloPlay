@@ -760,13 +760,14 @@ Town.clearInventory = function () {
       sdk.items.type.Pelt
     ].includes(item.itemType);
   };
+  const { betterBaseThanWearing, betterThanStashed } = require("../Modules/ItemUtils");
 
   items.length > 0 && items.forEach(function (item) {
     let result = Pickit.checkItem(item).result;
 
     if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
       if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
-        if (!Item.betterThanStashed(item) && !Item.betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
+        if (!betterThanStashed(item) && !betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
           if (NTIP.CheckItem(item, NTIP.CheckList) === Pickit.Result.UNWANTED) {
             result = Pickit.Result.TRASH;
           }
@@ -855,6 +856,8 @@ Town.clearJunk = function () {
     return true;
   };
 
+  const { betterBaseThanWearing, betterThanStashed } = require("../Modules/ItemUtils");
+
   while (junkItems.length > 0) {
     const junk = junkItems.shift();
     const pickitResult = Pickit.checkItem(junk).result;
@@ -885,14 +888,14 @@ Town.clearJunk = function () {
       }
 
       if (junk.isBaseType && [Pickit.Result.CUBING, Pickit.Result.SOLOWANTS].includes(pickitResult)) {
-        if (!Item.betterThanStashed(junk)) {
+        if (!betterThanStashed(junk)) {
           console.log("ÿc9BetterThanStashedCheckÿc0 :: Base: " + junk.prettyPrint + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
           getToItem("BetterThanStashedCheck", junk) && totalJunk.push(junk);
 
           continue;
         }
 
-        if (!Item.betterBaseThanWearing(junk, Settings.debugging.baseCheck)) {
+        if (!betterBaseThanWearing(junk, Settings.debugging.baseCheck)) {
           console.log("ÿc9BetterThanWearingCheckÿc0 :: Base: " + junk.prettyPrint + " Junk type: " + junk.itemType + " Pickit Result: " + pickitResult);
           getToItem("BetterThanWearingCheck", junk) && totalJunk.push(junk);
 
@@ -989,80 +992,89 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
   const preAct = me.act;
 
-  /**
-   * @todo light chores if last chores was < minute? 2 minutes idk yet
-   */
+  try {
+    /**
+     * @todo light chores if last chores was < minute? 2 minutes idk yet
+     */
+    
+    // shopping causes this to bug out sometimes so remove it for duration of chores
+    removeEventListener("itemaction", Pickit.itemEvent);
 
-  me.switchToPrimary();
-  extraTasks.fullChores && Quest.unfinishedQuests();
+    me.switchToPrimary();
+    extraTasks.fullChores && Quest.unfinishedQuests();
 
-  // Use cainId if we are low on gold or we are closer to him than the shopNPC
-  if (me.getUnids().length) {
-    // use our id tome if we have it first
-    if (!me.fieldID()) {
-      if (me.gold < 5000
-        || Town.getDistance(NPC.Cain) < Town.getDistance(Town.tasks.get(me.act).Shop)) {
-        NPCAction.cainID(true);
+    // Use cainId if we are low on gold or we are closer to him than the shopNPC
+    if (me.getUnids().length) {
+      // use our id tome if we have it first
+      if (!me.fieldID()) {
+        if (me.gold < 5000
+          || Town.getDistance(NPC.Cain) < Town.getDistance(Town.tasks.get(me.act).Shop)) {
+          NPCAction.cainID(true);
+        }
       }
     }
+
+    // maybe a check if need healing first, as we might have just used a potion
+    Town.heal();
+    Town.identify();
+    Town.clearInventory();
+    Town.fillTomes();
+    NPCAction.buyPotions();
+    Town.buyKeys();
+    extraTasks.thawing && CharData.pots.get("thawing").need() && Town.buyPots(12, "Thawing", true);
+    extraTasks.antidote && CharData.pots.get("antidote").need() && Town.buyPots(12, "Antidote", true);
+    extraTasks.stamina && Town.buyPots(12, "Stamina", true);
+    NPCAction.shopItems();
+    NPCAction.repair(repair);
+    NPCAction.reviveMerc();
+    NPCAction.gamble();
+
+    // if (me.inArea(sdk.areas.LutGholein) && me.normal && me.gold > 10000) {
+    // 	// shop at Elzix - what about others?
+    // 	NPCAction.shopAt(NPC.Elzix);
+    // }
+    Cubing.emptyCube();
+    Runewords.makeRunewords();
+    Cubing.doCubing();
+    Runewords.makeRunewords();
+    AutoEquip.run();
+    Mercenary.hireMerc();
+    Item.autoEquipMerc();
+    Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
+    Town.clearJunk();
+    Town.stash();
+
+    // check pots again, we might have enough gold now if we didn't before
+    me.needPotions() && NPCAction.buyPotions() && me.cancelUIFlags();
+    // check repair again, we might have enough gold now if we didn't before
+    me.needRepair().length && NPCAction.repair() && me.cancelUIFlags();
+
+    me.sortInventory();
+    Quest.characterRespec();
+
+    me.act !== preAct && Town.goToTown(preAct);
+    me.cancelUIFlags();
+    !me.barbarian && !Precast.checkCTA() && Precast.doPrecast(false);
+    
+    if (me.expansion) {
+      Attack.checkBowOnSwitch();
+      Attack.getCurrentChargedSkillIds();
+      Pather.checkForTeleCharges();
+    }
+
+    delay(300);
+    console.debug(
+      "doChores Ending Gold :: " + me.gold
+      + " ÿc8(ÿc7" + (me.gold - _startGold) + "ÿc8)"
+    );
+    console.info(false, null, "doChores");
+    Town.lastChores = getTickCount();
+    wantedTasks.clear();
+
+    return true;
+  } finally {
+    if (Config.FastPick) {
+      addEventListener("itemaction", Pickit.itemEvent);
+    }
   }
-
-  // maybe a check if need healing first, as we might have just used a potion
-  Town.heal();
-  Town.identify();
-  Town.clearInventory();
-  Town.fillTomes();
-  NPCAction.buyPotions();
-  Town.buyKeys();
-  extraTasks.thawing && CharData.pots.get("thawing").need() && Town.buyPots(12, "Thawing", true);
-  extraTasks.antidote && CharData.pots.get("antidote").need() && Town.buyPots(12, "Antidote", true);
-  extraTasks.stamina && Town.buyPots(12, "Stamina", true);
-  NPCAction.shopItems();
-  NPCAction.repair(repair);
-  NPCAction.reviveMerc();
-  NPCAction.gamble();
-
-  // if (me.inArea(sdk.areas.LutGholein) && me.normal && me.gold > 10000) {
-  // 	// shop at Elzix - what about others?
-  // 	NPCAction.shopAt(NPC.Elzix);
-  // }
-  Cubing.emptyCube();
-  Runewords.makeRunewords();
-  Cubing.doCubing();
-  Runewords.makeRunewords();
-  AutoEquip.run();
-  Mercenary.hireMerc();
-  Item.autoEquipMerc();
-  Town.haveItemsToSell() && Town.sellItems() && me.cancelUIFlags();
-  Town.clearJunk();
-  Town.stash();
-
-  // check pots again, we might have enough gold now if we didn't before
-  me.needPotions() && NPCAction.buyPotions() && me.cancelUIFlags();
-  // check repair again, we might have enough gold now if we didn't before
-  me.needRepair().length && NPCAction.repair() && me.cancelUIFlags();
-
-  me.sortInventory();
-  Quest.characterRespec();
-
-  me.act !== preAct && Town.goToTown(preAct);
-  me.cancelUIFlags();
-  !me.barbarian && !Precast.checkCTA() && Precast.doPrecast(false);
-  
-  if (me.expansion) {
-    Attack.checkBowOnSwitch();
-    Attack.getCurrentChargedSkillIds();
-    Pather.checkForTeleCharges();
-  }
-
-  delay(300);
-  console.debug(
-    "doChores Ending Gold :: " + me.gold
-    + " ÿc8(ÿc7" + (me.gold - _startGold) + "ÿc8)"
-  );
-  console.info(false, null, "doChores");
-  Town.lastChores = getTickCount();
-  wantedTasks.clear();
-
-  return true;
 };
