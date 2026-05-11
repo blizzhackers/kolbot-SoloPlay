@@ -476,7 +476,8 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
       let checkItem = false;
       const maxDist = (Config.FastPick || i < 1) ? 8 : 5;
       if (_pickSettings.allowMove
-        && item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)) {
+        && item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)
+      ) {
         let coll = (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor);
 
         if (!_pickSettings.allowClear && me.checkForMobs({ range: 5, coll: coll })) {
@@ -748,7 +749,9 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   if (item) {
     do {
       if (Pickit.ignoreList.has(item.gid)) continue;
-      if (Pickit.pickList.some(el => el.gid === item.gid)) continue;
+      if (Pickit.pickList.some(function (el) {
+        return el.gid === item.gid;
+      })) continue;
       if (item.onGroundOrDropping && item.distance <= range) {
         Pickit.pickList.push(copyUnit(item));
       }
@@ -816,7 +819,9 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
                 return el.distance <= 5 && (Storage.Inventory.CanFit(el) || Pickit.canFit(el));
               }).forEach(function (el) {
                 let _result = Pickit.checkItem(el);
-                return Pickit.pickItem(el, _result.result, _result.line + "(quick)", { allowMove: false });
+                if (_result.result && Pickit.canPick(_item)) {
+                  Pickit.pickItem(el, _result.result, _result.line + "(quick)", { allowMove: false });
+                }
               });
             console.log("ÿc7Trying to make room for " + Item.color(_item) + _item.name);
 
