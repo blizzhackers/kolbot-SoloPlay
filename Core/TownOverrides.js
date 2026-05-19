@@ -127,6 +127,10 @@ Town.initNPC = function (task = "", reason = "undefined") {
       let npcs = Town.tasks.get(me.act);
       let _needPots = me.needPotions();
       let _needRepair = me.needRepair().length > 0;
+      let _needScrolls = (
+        me.checkScrolls(sdk.items.TomeofTownPortal) < 13
+          || Config.FieldID.Enabled && me.checkScrolls(sdk.items.TomeofIdentify) < 13
+      );
       if (_needPots && _needRepair) {
         if (me.act === 2) {
           choices = new Set([npcs.Key, npcs.Repair]);
@@ -142,9 +146,17 @@ Town.initNPC = function (task = "", reason = "undefined") {
         if (me.act === 2) {
           choices.add(npcs.Key);
         }
-      } else if (!_needPots && !_needRepair) {
+      } else if (!_needPots && !_needRepair && !_needScrolls) {
         choices = new Set([npcs.Key, npcs.Repair, npcs.Gamble, npcs.Shop]);
       }
+
+      if (_needScrolls) {
+        choices.add(npcs.Shop);
+        choices.delete(npcs.Repair);
+        choices.delete(npcs.Gamble);
+        choices.delete(npcs.Key);
+      }
+
       if (choices.size) {
         console.log("closest npc choices", choices);
         wantedNpc = Array.from(choices.values()).sort(function (a, b) {
@@ -163,7 +175,8 @@ Town.initNPC = function (task = "", reason = "undefined") {
       } else if (reason === "buyPotions") {
         if (Town.getDistance(NPC.Drognan) > 10) {
           let _needStack = CharData.pots.get("thawing").need() || CharData.pots.get("antidote").need();
-          if (_needStack) {
+          let _needKeys = me.needKeys();
+          if (_needStack || _needKeys) {
             wantedNpc = NPC.Lysander;
           }
         }
@@ -799,7 +812,14 @@ Town.clearInventory = function () {
         }
       }
     }
-    if (this.initNPC("Shop", "clearInventory")) {
+
+    let npc;
+    // should there be multiple attempts to interact with npc or if we fail should we move everything from the sell list to the drop list?
+    for (let i = 0; i < 3 && !npc; i++) {
+      npc = Town.initNPC("Shop", "clearInventory");
+    }
+
+    if (npc) {
       sell.forEach(function (item) {
         try {
           if (getUIFlag(sdk.uiflags.Shop) || getUIFlag(sdk.uiflags.NPCMenu)) {
@@ -809,9 +829,44 @@ Town.clearInventory = function () {
             delay(100);
           }
         } catch (e) {
+          if ((e instanceof ScriptError)) {
+            throw e;
+          }
           console.error(e);
         }
       });
+
+      // quick check before closing shopui
+      if (Town.choresActive && getUIFlag(sdk.uiflags.Shop) && npc && typeof npc === "object") {
+        let _needTpScrolls = me.checkScrolls(sdk.items.TomeofTownPortal) < 13;
+        let _needIdScrolls = Config.FieldID.Enabled && me.checkScrolls(sdk.items.TomeofIdentify) < 13;
+        if (_needTpScrolls && npc.getItem(sdk.items.ScrollofTownPortal)) {
+          console.info(null, "Buying some tp scrolls before we leave");
+          Town.fillTome(sdk.items.TomeofTownPortal);
+        }
+        if (_needIdScrolls && npc.getItem(sdk.items.ScrollofIdentify)) {
+          console.info(null, "Buying some id scrolls before we leave");
+          Town.fillTome(sdk.items.TomeofIdentify);
+        }
+        let _needPots = me.needPotions();
+        /** @param {ItemUnit} item */
+        let isPot = function (item) {
+          return [
+            sdk.items.type.HealingPotion,
+            sdk.items.type.ManaPotion,
+            sdk.items.type.RejuvPotion
+          ].includes(item.itemType);
+        };
+        if (_needPots && npc.getItems().some(isPot)) {
+          console.info(null, "Buying some pots before we leave");
+          Town.buyPotions();
+        }
+        let _needRepair = me.needRepair();
+        if (_needRepair && String.isEqual(Town.tasks.get(me.act).Repair, npc.name)) {
+          console.info(null, "Repairing before we leave");
+          Town.repair(true);
+        }
+      }
     }
   }
 
@@ -993,6 +1048,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
   const preAct = me.act;
 
   try {
+    Town.choresActive = true;
     /**
      * @todo light chores if last chores was < minute? 2 minutes idk yet
      */
@@ -1073,6 +1129,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
     return true;
   } finally {
+    Town.choresActive = false;
     if (Config.FastPick) {
       addEventListener("itemaction", Pickit.itemEvent);
     }

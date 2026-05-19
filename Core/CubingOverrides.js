@@ -844,6 +844,10 @@ Cubing.doCubing = function () {
   if (getUIFlag(sdk.uiflags.Cube) || getUIFlag(sdk.uiflags.Stash)) {
     delay(1000);
 
+    if (Town.choresActive && getUIFlag(sdk.uiflags.Stash)) {
+      Town.stash();
+    }
+
     while (getUIFlag(sdk.uiflags.Cube) || getUIFlag(sdk.uiflags.Stash)) {
       me.cancel();
       delay(300);
