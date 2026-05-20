@@ -24,6 +24,7 @@ declare global {
     readonly quantityPercent: number;
 
     getItemType(): string;
+    bodyLocation(): number[];
   }
 
   interface Monster {

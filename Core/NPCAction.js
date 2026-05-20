@@ -523,10 +523,11 @@
           if (Storage.Inventory.CanFit(item) && myGold >= itemCost && (myGold - itemCost > goldLimit)) {
             let [mainTier] = [NTIP.GetTier(item)];
 
-            // we want this to be at least a 5% increase in the tier value
+            // we want this to be at least a 10% increase in the tier value
             if (Item.hasTier(item)
               && Item.autoEquipCheck(item)
-              && ((Item.getEquippedItem(item.bodyLocation().first()).tier - mainTier) / (mainTier * 100)) > 5) {
+              && (Math.percentDifference(mainTier, Item.getEquippedItem(item.bodyLocation().first()).tier) > 10)
+            ) {
               shopReport(item, "AutoEquip", line, (item.prettyPrint + " Tier: " + NTIP.GetTier(item)));
               item.buy() && bought++;
               Item.autoEquip("InShop");
