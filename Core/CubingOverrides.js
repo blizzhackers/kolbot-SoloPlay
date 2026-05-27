@@ -87,7 +87,7 @@ Cubing.buildLists = function () {
               && [
                 sdk.items.gems.Flawless.Amethyst,
                 sdk.items.gems.Flawless.Topaz,
-                sdk.items.gems.Flawed.Sapphire,
+                sdk.items.gems.Flawless.Sapphire,
                 sdk.items.gems.Flawless.Emerald,
                 sdk.items.gems.Flawless.Ruby,
                 sdk.items.gems.Flawless.Diamond,
