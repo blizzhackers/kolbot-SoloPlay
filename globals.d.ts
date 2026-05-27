@@ -870,5 +870,23 @@ declare global {
   }
 
   const SoloEvents: SoloEvents;
+
+  interface Quest {
+    preReqs(): void;
+    cubeItems(outcome: number, ...classids: number[]): boolean;
+    placeStaff(): boolean;
+    tyraelTomb(): boolean;
+    stashItem(classid: number | ItemUnit): boolean;
+    collectItem(classid: number, chestID?: number): ItemUnit | boolean;
+    equipItem(classid: number, loc: number): boolean;
+    smashSomething(classid: number): boolean;
+    npcAction(npcName: string, action: number | number[]): boolean;
+    characterRespec(): void;
+    useSocketQuest(item?: ItemUnit): boolean;
+    useImbueQuest(item?: ItemUnit): boolean;
+    unfinishedQuests(): boolean;
+  }
+
+  const Quest: Quest;
 }
 export {};
