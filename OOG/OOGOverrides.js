@@ -28,6 +28,7 @@ const LocationAction = {
 (function () {
   let joinInfo;
   
+  Starter.Config.DelayBeforeLogin = rand(5, 25);
   Starter.Config.StopOnDeadHardcore = false;
   Starter._ftj = 0;
   
