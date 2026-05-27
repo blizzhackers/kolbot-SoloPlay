@@ -440,6 +440,8 @@
       && Town.lastShopped.who === npc.name) {
       return false;
     }
+    /** @type {Map<number, number} */
+    let itemTierMap = new Map();
     let items = npc.getItemsEx()
       .filter((item) => !Town.ignoreType(item.itemType)
         && (itemTypes.length === 0 || itemTypes.includes(item.itemType))
@@ -448,10 +450,16 @@
       .sort(function (a, b) {
         let priorityA = itemTypes.includes(a.itemType);
         let priorityB = itemTypes.includes(b.itemType);
-        if (priorityA && priorityB) return NTIP.GetTier(b) - NTIP.GetTier(a);
+        let aHasTier = itemTierMap.has(a.gid);
+        let bHasTier = itemTierMap.has(b.gid);
+        let aTier = aHasTier ? itemTierMap.get(a.gid) : NTIP.GetTier(a);
+        let bTier = bHasTier ? itemTierMap.get(b.gid) : NTIP.GetTier(b);
+        !aHasTier && itemTierMap.set(a.gid, aTier);
+        !bHasTier && itemTierMap.set(b.gid, bTier);
+        if (priorityA && priorityB) return bTier - aTier;
         if (priorityA) return 1;
         if (priorityB) return -1;
-        return NTIP.GetTier(b) - NTIP.GetTier(a);
+        return bTier - aTier;
       });
     if (!items.length) return false;
 
