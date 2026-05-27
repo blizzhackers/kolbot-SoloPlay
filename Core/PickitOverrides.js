@@ -410,26 +410,40 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
    * @param {ItemUnit} unit 
    */
   function ItemStats (unit) {
-    let self = this;
-    self.x = unit.x;
-    self.y = unit.y;
-    self.ilvl = unit.ilvl;
-    self.sockets = unit.sockets;
-    self.type = unit.itemType;
-    self.classid = unit.classid;
-    self.name = unit.name;
-    self.color = Item.color(unit);
-    self.gold = unit.getStat(sdk.stats.Gold);
-    self.dist = (unit.distance || Infinity);
-    let canTk = (
-      Skill.haveTK && Pickit.tkable.includes(self.type)
-      && !_toCursorPick.has(unit.gid)
-      && self.dist > 5 && self.dist < 20
-      && !checkCollision(me, unit, sdk.collision.WallOrRanged)
-    );
-    self.useTk = canTk && (me.mpPercent > 50);
-    self.picked = false;
+    this.x = unit.x;
+    this.y = unit.y;
+    this.area = unit.area;
+    this.ilvl = unit.ilvl;
+    this.sockets = unit.sockets;
+    this.type = unit.itemType;
+    this.classid = unit.classid;
+    this.name = unit.name;
+    this.color = Item.color(unit);
+    this.gold = unit.getStat(sdk.stats.Gold);
+    this._useTk = (Skill.haveTK && Pickit.tkable.includes(this.type));
+    this.picked = false;
   }
+
+  Object.defineProperty(ItemStats.prototype, "useTk", {
+    get: function () {
+      if (!this._useTk) return false;
+      if (_toCursorPick.has(this.gid)) return false;
+      let dist = this.distance;
+      let coll = CollMap.checkColl(me, this, sdk.collision.WallOrRanged);
+      return (
+        dist > 5 && dist < 20
+        && !coll
+        && me.mpPercent > 50
+      );
+    },
+    /**
+     * @this {ItemStats}
+     * @param {boolean} value 
+     */
+    set: function (value) {
+      this._useTk = value;
+    }
+  });
 
   const itemCount = me.itemcount;
   const cancelFlags = [
@@ -442,7 +456,11 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
   let item = Game.getItem(-1, -1, gid);
   if (!item) return false;
 
-  if (cancelFlags.some(function (flag) { return getUIFlag(flag); })) {
+  let checkFlag = function (flag) {
+    return getUIFlag(flag);
+  };
+
+  if (cancelFlags.some(checkFlag)) {
     delay(500);
     me.cancel(0);
   }
@@ -469,7 +487,7 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
     }
 
     let itemDist = item.distance;
-    // todo - allow picking near potions/scrolls while attacking distance < 5
+    // @todo - allow picking near potions/scrolls while attacking distance < 5
     if (stats.useTk && me.mp > tkMana) {
       Packet.telekinesis(item);
     } else {
@@ -883,6 +901,61 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
     scriptBroadcast("quit");
 
     return false;
+  }
+
+  return true;
+};
+
+/**
+ * @param {number} retry 
+ */
+Pickit.fastPick = function (retry = 3) {
+  let item;
+  const _removeList = [];
+  const itemList = [];
+  const range = Config.FastPickRange || Config.PickRange;
+
+  for (let gid of Pickit.gidList) {
+    _removeList.push(gid);
+    item = Game.getItem(-1, -1, gid);
+    if (item
+        && item.onGroundOrDropping
+        && (
+          !Town.ignoreType(item.itemType)
+          || (
+            item.itemType >= sdk.items.type.HealingPotion
+            && item.itemType <= sdk.items.type.RejuvPotion
+          )
+        )
+        && item.itemType !== sdk.items.type.Gold
+        && getDistance(me, item) <= range
+    ) {
+      itemList.push(copyUnit(item));
+    }
+  }
+
+  while (_removeList.length > 0) {
+    Pickit.gidList.delete(_removeList.shift());
+  }
+
+  while (itemList.length > 0) {
+    itemList.sort(Pickit.sortFastPickItems);
+    let check = itemList.shift();
+    // we were passed the copied unit, lets find the real thing
+    item = Game.getItem(check.classid, -1, check.gid);
+
+    // Check if the item unit is still valid
+    if (item && item.x !== undefined) {
+      let status = Pickit.checkItem(item);
+      let isEssential = Pickit.essentials.includes(item.itemType);
+
+      if (status.result
+        && this.canPick(item)
+          && (Storage.Inventory.CanFit(item) || isEssential)
+      ) {
+        Pickit.pickItem(item, status.result, status.line + " / (fastpick)");
+      }
+    }
   }
 
   return true;
