@@ -353,6 +353,11 @@ function main () {
     console.log("//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//");
   }
 
+  if (Config.FastPick) {
+    console.log("ÿc2Fast pickit active.");
+    addEventListener("itemaction", Pickit.itemEvent);
+  }
+
   // Start Developer mode - this stops the script from progressing past this point and allows running specific scripts/functions through chat commands
   if (Settings.developerMode) {
     Settings.debugging.pathing && (me.automap = true);
