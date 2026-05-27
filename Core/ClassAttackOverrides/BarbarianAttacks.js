@@ -13,6 +13,63 @@
 */
 (function () {
   ClassAttack[sdk.player.class.Barbarian].warCryTick = 0;
+  const helpfulCurses = [
+    sdk.states.BattleCry,
+    sdk.states.AmplifyDamage,
+    sdk.states.Decrepify,
+    sdk.states.Terror,
+    sdk.states.Taunt
+  ];
+  const nonWarcryableBosses = new Set([
+    sdk.monsters.Andariel, sdk.monsters.Duriel,
+    sdk.monsters.Mephisto, sdk.monsters.Diablo,
+    sdk.monsters.Baal, sdk.monsters.Tentacle1,
+    sdk.monsters.BaalClone, sdk.monsters.KorlictheProtector,
+    sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
+  ]);
+  const rangedMobsClassIDs = new Set([
+    sdk.monsters.Afflicted, sdk.monsters.Tainted,
+    sdk.monsters.Misshapen1, sdk.monsters.Disfigured,
+    sdk.monsters.Damned1, sdk.monsters.Gloam1,
+    sdk.monsters.SwampGhost, sdk.monsters.BurningSoul2,
+    sdk.monsters.BlackSoul1, sdk.monsters.GhoulLord1,
+    sdk.monsters.NightLord, sdk.monsters.DarkLord1, sdk.monsters.BloodLord1,
+    sdk.monsters.Banished, sdk.monsters.SkeletonArcher,
+    sdk.monsters.ReturnedArcher1, sdk.monsters.BoneArcher1,
+    sdk.monsters.BurningDeadArcher1, sdk.monsters.HorrorArcher1,
+    sdk.monsters.Sexton, sdk.monsters.Cantor,
+    sdk.monsters.Heirophant1, sdk.monsters.DoomKnight,
+    sdk.monsters.VenomLord1, sdk.monsters.Horror1, sdk.monsters.Horror2,
+    sdk.monsters.Horror3, sdk.monsters.Horror4,
+    sdk.monsters.Horror5, sdk.monsters.Lord1,
+    sdk.monsters.Lord2, sdk.monsters.Lord3, sdk.monsters.Lord4,
+    sdk.monsters.Lord4, sdk.monsters.Afflicted2,
+    sdk.monsters.Tainted, sdk.monsters.Misshapen2,
+    sdk.monsters.Disfigured2, sdk.monsters.Damned2, sdk.monsters.DarkShaman2,
+    sdk.monsters.DevilkinShaman, sdk.monsters.DarkShaman2, sdk.monsters.DarkLord2
+  ]);
+  const dangerousAndSummoners = new Set([
+    sdk.monsters.Dominus2, sdk.monsters.Witch1,
+    sdk.monsters.VileWitch2, sdk.monsters.Gloam2,
+    sdk.monsters.BlackSoul2, sdk.monsters.BurningSoul1,
+    sdk.monsters.FallenShaman, sdk.monsters.CarverShaman2,
+    sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1,
+    sdk.monsters.HollowOne, sdk.monsters.Guardian1,
+    sdk.monsters.Unraveler1, sdk.monsters.Ancient1,
+    sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4,
+    sdk.monsters.VenomLord2, sdk.monsters.Ancient2,
+    sdk.monsters.Ancient3, sdk.monsters.Succubusexp1,
+    sdk.monsters.VileTemptress, sdk.monsters.StygianHarlot,
+    sdk.monsters.Temptress1, sdk.monsters.Temptress2,
+    sdk.monsters.Dominus1, sdk.monsters.VileWitch1,
+    sdk.monsters.StygianFury, sdk.monsters.Witch2, sdk.monsters.Witch3
+  ]);
+  /** @param {Monster} unit */
+  const checkHasNoHelpfulCurse = function (unit) {
+    return helpfulCurses.every(function (state) {
+      return !unit.getState(state);
+    });
+  };
 
   const howlCheck = function () {
     let levelCheck = (me.getSkill(sdk.skills.Howl, sdk.skills.subindex.SoftPoints) + me.charlvl + 1);
@@ -20,10 +77,7 @@
       .filter(function (el) {
         return (!!el && el.attackable && el.distance < 6
           && el.scareable && GameData.monsterLevel(el.classid, me.area) < levelCheck && !el.isStunned
-          && [
-            sdk.states.BattleCry, sdk.states.AmplifyDamage,
-            sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt
-          ].every(state => !el.getState(state))
+          && checkHasNoHelpfulCurse(el)
           && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
       }).length > me.maxNearMonsters;
   };
@@ -32,10 +86,7 @@
     return getUnits(sdk.unittype.Monster).some(function (el) {
       if (el === undefined) return false;
       return (el.attackable && el.distance < 5 && el.curseable
-        && [
-          sdk.states.BattleCry, sdk.states.AmplifyDamage,
-          sdk.states.Decrepify, sdk.states.Terror, sdk.states.Taunt
-        ].every(state => !el.getState(state))
+        && checkHasNoHelpfulCurse(el)
         && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
     });
   };
@@ -44,13 +95,7 @@
     return getUnits(sdk.unittype.Monster).some(function (el) {
       if (el === undefined) return false;
       return (el.attackable && el.distance < 5 && !(el.isSpecial) && el.curseable
-        && ![
-          sdk.monsters.Andariel, sdk.monsters.Duriel,
-          sdk.monsters.Mephisto, sdk.monsters.Diablo,
-          sdk.monsters.Baal, sdk.monsters.Tentacle1,
-          sdk.monsters.BaalClone, sdk.monsters.KorlictheProtector,
-          sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian
-        ].includes(el.classid)
+        && !nonWarcryableBosses.has(el.classid)
         && (!el.isStunned || getTickCount() - ClassAttack[sdk.player.class.Barbarian].warCryTick >= 1500)
         && !checkCollision(me, el, Coords.Collision.BLOCK_MISSILE));
     });
@@ -65,54 +110,18 @@
     if (unit.isPrimeEvil || unit.classid === sdk.monsters.ListerTheTormenter) return;
 
     let range = (!me.inArea(sdk.areas.ThroneofDestruction) ? 15 : 30);
-    let rangedMobsClassIDs = [
-      sdk.monsters.Afflicted, sdk.monsters.Tainted,
-      sdk.monsters.Misshapen1, sdk.monsters.Disfigured,
-      sdk.monsters.Damned1, sdk.monsters.Gloam1,
-      sdk.monsters.SwampGhost, sdk.monsters.BurningSoul2,
-      sdk.monsters.BlackSoul1, sdk.monsters.GhoulLord1,
-      sdk.monsters.NightLord, sdk.monsters.DarkLord1, sdk.monsters.BloodLord1,
-      sdk.monsters.Banished, sdk.monsters.SkeletonArcher,
-      sdk.monsters.ReturnedArcher1, sdk.monsters.BoneArcher1,
-      sdk.monsters.BurningDeadArcher1, sdk.monsters.HorrorArcher1,
-      sdk.monsters.Sexton, sdk.monsters.Cantor,
-      sdk.monsters.Heirophant1, sdk.monsters.DoomKnight,
-      sdk.monsters.VenomLord1, sdk.monsters.Horror1, sdk.monsters.Horror2,
-      sdk.monsters.Horror3, sdk.monsters.Horror4,
-      sdk.monsters.Horror5, sdk.monsters.Lord1,
-      sdk.monsters.Lord2, sdk.monsters.Lord3, sdk.monsters.Lord4,
-      sdk.monsters.Lord4, sdk.monsters.Afflicted2,
-      sdk.monsters.Tainted, sdk.monsters.Misshapen2,
-      sdk.monsters.Disfigured2, sdk.monsters.Damned2, sdk.monsters.DarkShaman2,
-      sdk.monsters.DevilkinShaman, sdk.monsters.DarkShaman2, sdk.monsters.DarkLord2
-    ];
-    let dangerousAndSummoners = [
-      sdk.monsters.Dominus2, sdk.monsters.Witch1,
-      sdk.monsters.VileWitch2, sdk.monsters.Gloam2,
-      sdk.monsters.BlackSoul2, sdk.monsters.BurningSoul1,
-      sdk.monsters.FallenShaman, sdk.monsters.CarverShaman2,
-      sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1,
-      sdk.monsters.HollowOne, sdk.monsters.Guardian1,
-      sdk.monsters.Unraveler1, sdk.monsters.Ancient1,
-      sdk.monsters.BaalSubjectMummy, sdk.monsters.Council4,
-      sdk.monsters.VenomLord2, sdk.monsters.Ancient2,
-      sdk.monsters.Ancient3, sdk.monsters.Succubusexp1,
-      sdk.monsters.VileTemptress, sdk.monsters.StygianHarlot,
-      sdk.monsters.Temptress1, sdk.monsters.Temptress2,
-      sdk.monsters.Dominus1, sdk.monsters.VileWitch1,
-      sdk.monsters.StygianFury, sdk.monsters.Witch2, sdk.monsters.Witch3
-    ];
 
     if ([sdk.areas.RiverofFlame, sdk.areas.ChaosSanctuary].includes(me.area)) {
-      rangedMobsClassIDs.push(sdk.monsters.Strangler1, sdk.monsters.StormCaster1);
+      rangedMobsClassIDs.add(sdk.monsters.Strangler1);
+      rangedMobsClassIDs.add(sdk.monsters.StormCaster1);
     }
     
     let list = getUnits(sdk.unittype.Monster)
       .filter(function (mob) {
         return ([sdk.monsters.spectype.All, sdk.monsters.spectype.Minion].includes(mob.spectype)
           && [sdk.states.BattleCry, sdk.states.Decrepify, sdk.states.Taunt].every(state => !mob.getState(state))
-          && ((rangedMobsClassIDs.includes(mob.classid) && mob.distance <= range)
-          || (dangerousAndSummoners.includes(mob.classid) && mob.distance <= 30)));
+          && ((rangedMobsClassIDs.has(mob.classid) && mob.distance <= range)
+          || (dangerousAndSummoners.has(mob.classid) && mob.distance <= 30)));
       })
       .sort(Sort.units);
 
@@ -130,11 +139,9 @@
         }
 
         if (!!currMob && !currMob.dead
-          && [
-            sdk.states.Terror, sdk.states.BattleCry,
-            sdk.states.Decrepify, sdk.states.Taunt
-          ].every(state => !currMob.getState(state))
-          && data.taunt.mana < me.mp && !Coords.isBlockedBetween(me, currMob)) {
+          && checkHasNoHelpfulCurse(currMob)
+          && data.taunt.mana < me.mp && !Coords.isBlockedBetween(me, currMob)
+        ) {
           me.overhead("Taunting: " + currMob.name + " | classid: " + currMob.classid);
           Skill.cast(sdk.skills.Taunt, sdk.skills.hand.Right, currMob);
         }
@@ -239,27 +246,30 @@
       attackSkill = Config.LowManaSkill[0];
     }
 
-    if ([sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy].includes(attackSkill)
-      && !me.dualWielding || !Skill.canUse(attackSkill)) {
+    let duelWieldSkills = [sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy];
+    if (duelWieldSkills.includes(attackSkill)
+      && !me.dualWielding || (!Skill.canUse(attackSkill) && attackSkill !== sdk.skills.WarCry)
+    ) {
       let oneHandSk = [data.bash, data.stun, data.concentrate, data.leapAttack, data.whirlwind]
         .filter((skill) => skill.have && me.mp > skill.mana)
         .sort((a, b) => GameData.physicalAttackDamage(b.skill) - GameData.physicalAttackDamage(a.skill)).first();
       attackSkill = oneHandSk ? oneHandSk.skill : 0;
     }
 
-    if (data.howl.have && attackSkill !== sdk.skills.Whirlwind
-      && data.howl.mana < me.mp && howlCheck() && me.hpPercent <= 85) {
+    if (
+      data.howl.have
+      && attackSkill !== sdk.skills.Whirlwind
+      && data.howl.mana < me.mp && howlCheck()
+      && me.hpPercent <= 85
+    ) {
       data.grimWard.have ? this.grimWard(6) : Skill.cast(sdk.skills.Howl, sdk.skills.hand.Right);
     }
 
     data.taunt.have && this.tauntMonsters(unit, attackSkill, data);
 
     if (!unit.dead && data.battleCry.have && !me.skillDelay) {
-      // Unit not already in Battle Cry, decrepify, terror, or taunt state. Don't want to overwrite helpful cureses
-      if ([
-        sdk.states.BattleCry, sdk.states.Decrepify,
-        sdk.states.Terror, sdk.states.Taunt
-      ].every(state => !unit.getState(state))) {
+      // Unit not already in Battle Cry, decrepify, terror, amplyify or taunt state. Don't want to overwrite helpful cureses
+      if (checkHasNoHelpfulCurse(unit)) {
         if (unit.distance > data.battleCry.range || checkCollision(me, unit, sdk.collision.Ranged)) {
           if (!Attack.getIntoPosition(unit, data.battleCry.range, sdk.collision.Ranged)) {
             return Attack.Result.FAILED;
