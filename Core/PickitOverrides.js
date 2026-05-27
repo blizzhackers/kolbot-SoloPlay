@@ -412,6 +412,7 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
   function ItemStats (unit) {
     this.x = unit.x;
     this.y = unit.y;
+    this.gid = unit.gid;
     this.area = unit.area;
     this.ilvl = unit.ilvl;
     this.sockets = unit.sockets;
