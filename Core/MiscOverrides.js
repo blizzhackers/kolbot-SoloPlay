@@ -6,7 +6,6 @@
 */
 
 includeIfNotIncluded("core/Misc.js");
-const ShrineData = require("../../core/GameData/ShrineData");
 
 Misc.openChestsEnabled = true;
 Misc.screenshotErrors = true;

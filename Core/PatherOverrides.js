@@ -505,8 +505,12 @@ Pather.move = function (target, givenSettings = {}) {
     let areaImmunities = GameData.areaImmunities(me.area);
     if (areaImmunities.length) {
       let mySkElems = Config.AttackSkill
-        .filter(sk => sk > 0)
-        .map(sk => Attack.getSkillElement(sk));
+        .filter(function (sk) {
+          return sk > 0;
+        })
+        .map(function (sk) {
+          return Attack.getSkillElement(sk);
+        });
       // this area has monsters that are immune to our elements. This is a basic check for now
       // a better way would probably be per list built to check the ratio of immunes to non?
       if (mySkElems.length && mySkElems.every(elem => areaImmunities.includes(elem))) {

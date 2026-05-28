@@ -236,7 +236,24 @@ const Quest = {
     !getUIFlag(sdk.uiflags.Stash) && me.cancel();
 
     if (questItem) {
-      me.dualWielding && Item.removeItem(sdk.body.LeftArm);
+      if (me.dualWielding) {
+        let offhand = me.equipped.get(sdk.body.LeftArm);
+        if (offhand) {
+          if (!Storage.Inventory.CanFit(offhand)) {
+            if (Pickit.canMakeRoom() && Town.clearInventory()) {
+              if (
+                !Storage.Inventory.CanFit(offhand)
+                && !Storage.Stash.CanFit(offhand)
+                && !Storage.Cube.CanFit(offhand)
+              ) {
+                // well that sucks, but we tried
+                console.log("ÿc8Kolbot-SoloPlayÿc0: No room to unequip offhand item. (Quest.equipItem)");
+              }
+            }
+          }
+        }
+        Item.removeItem(sdk.body.LeftArm);
+      }
       if (questItem.isInStash && !Town.openStash()) {
         console.log("ÿc8Kolbot-SoloPlayÿc0: failed to open stash. (Quest.equipItem)");
         Item.autoEquip();
