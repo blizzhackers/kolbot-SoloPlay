@@ -1710,7 +1710,7 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
   for (let i = 0; i < grid.length; i += 1) {
     if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & sdk.collision.BlockWall)
       && !CollMap.checkColl(unit, { x: grid[i].x, y: grid[i].y }, sdk.collision.Ranged)) {
-      currCount = this.getMonsterCount(grid[i].x, grid[i].y, range, monList);
+      currCount = Attack.getMonsterCount(grid[i].x, grid[i].y, range, monList);
 
       if (currCount < count) {
         index = i;

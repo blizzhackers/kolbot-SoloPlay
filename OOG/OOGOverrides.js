@@ -238,6 +238,10 @@ const LocationAction = {
       let clickCoords = [];
       let soloStats = CharData.getStats();
       let timeout = getTickCount() + Time.minutes(5);
+      // obnoxious but we can't detect checkbox changes
+      let clickedExpansion = false;
+      let clickedLadder = false;
+      let clickedHardcore = false;
 
       /** @type {Map<string, [number, number]} */
       const coords = new Map([
@@ -280,6 +284,11 @@ const LocationAction = {
           getControl().click(clickCoords[0], clickCoords[1]);
           delay(500);
 
+          // reset togglechecks in case of previous char creation attempt
+          clickedExpansion = false;
+          clickedLadder = false;
+          clickedHardcore = false;
+
           break;
         case sdk.game.locations.NewCharSelected:
           // hardcore char warning
@@ -287,10 +296,18 @@ const LocationAction = {
             Controls.CharCreateHCWarningOk.click();
           } else {
             Controls.CharCreateCharName.setText(info.charName);
-
-            !info.expansion && Controls.CharCreateExpansion.click();
-            !info.ladder && Controls.CharCreateLadder.click();
-            info.hardcore && Controls.CharCreateHardcore.click();
+            if (!info.expansion && !clickedExpansion) {
+              Controls.CharCreateExpansion.click();
+              clickedExpansion = true;
+            }
+            if (!info.ladder && !clickedLadder) {
+              Controls.CharCreateLadder.click();
+              clickedLadder = true;
+            }
+            if (info.hardcore && !clickedHardcore) {
+              Controls.CharCreateHardcore.click();
+              clickedHardcore = true;
+            }
             Controls.BottomRightOk.click();
           }
 
