@@ -252,7 +252,7 @@ Loader.runScript = function (script, configOverride) {
             mainScriptStr + "ÿc7" + script
               + " :: ÿc0Complete ÿc0- ÿc7Duration: ÿc0" + (Time.format(getTickCount() - tick))
           );
-          let gain = Math.max(me.getStat(sdk.stats.Experience) - exp, 0);
+          let gain = Math.max(me.getStat(sdk.stats.Experience) - currentExp, 0);
           let duration = Time.elapsed(tick);
           console.log(
             mainScriptStr + "ÿc7" + script + " :: ÿc0Complete\n"
