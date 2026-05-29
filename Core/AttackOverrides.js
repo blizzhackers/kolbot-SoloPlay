@@ -996,6 +996,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
           Pickit.pickItems(4);
         }
         Attack.openChests(4);
+        
         if (target.dead) {
           if ((target.isBoss || target.uniqueid > 0) && target.dead) {
             // TODO: add uniqueids to sdk
@@ -1693,14 +1694,18 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
   // grid.sort(function (a, b) {
   //   return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
   // });
-  grid.sort(function (a, b) {
-    return getDistance(b.x, b.y, me.x, me.y) - getDistance(a.x, a.y, me.x, me.y);
-  });
-
   let lines = new WeakMap();
-  for (let { x, y } of grid) {
-    lines.set(new Line(x + 1, y + 1, x, y, 0x62, true));
+  /** @type {WeakMap<WeakKey, number>} */
+  let gridDist = new WeakMap();
+
+  for (let node of grid) {
+    gridDist.set(node, getDistance(node.x, node.y, me.x, me.y));
+    lines.set(node, new Line(node.x + 1, node.y + 1, node.x, node.y, 0x62, true));
   }
+
+  grid.sort(function (a, b) {
+    return gridDist.get(b) - gridDist.get(a);
+  });
 
   for (let i = 0; i < grid.length; i += 1) {
     if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & sdk.collision.BlockWall)
@@ -1737,7 +1742,9 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
  */
 Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
   if (!unit || !unit.x || !unit.y) return false;
-  Settings.debugging.pathing && console.time("getIntoPosition");
+  if (Settings.debugging.pathing) {
+    console.time("getIntoPosition");
+  }
   const useTele = Pather.useTeleport();
   const name = unit.hasOwnProperty("name") ? unit.name : "";
   const angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
@@ -1745,7 +1752,15 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
   const caster = (force || (distance > 4 && !me.inTown && Skill.getRange(Config.AttackSkill[1]) > 8));
   const minMonCount = caster && distance < 8 ? 1 : 0;
   const _coll = (sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor);
-  const _pathSettings = { clearSettings: { allowClearing: !useTele, range: useTele ? 10 : 5, retry: 5 } };
+  /** @type {pathSettings} */
+  const _pathSettings = {
+    allowPicking: false,
+    clearSettings: {
+      allowClearing: !useTele,
+      range: useTele ? 10 : 5,
+      retry: 5
+    }
+  };
 
   walk === true && (walk = 1);
 
@@ -1789,34 +1804,37 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       let cy = Math.round((Math.sin(_angle)) * distance + unit.y);
 
       // ignore this spot as it's too close to our current position when we are forcing a new location
-      if (force && [cx, cy].distance < distance) continue;
+      if (force && getDistance(me.x, me.y, cx, cy) < distance) continue;
       if (Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) {
         coords.push({ x: cx, y: cy });
         temp.push({ x: cx, y: cy });
       }
     }
     if (!temp.length) continue;
-
-    coords.sort(Sort.units);
     
     // If one of the valid positions is a position I am at already - and we aren't trying to force a new spot
     if (!force) {
+      let meMobCount = me.getMobCount(6);
       for (let coord of temp) {
-        if ((getDistance(me, coord.x, coord.y) < 1
+        let coordDist = getDistance(me, coord.x, coord.y);
+        if ((coordDist < 1
           && !CollMap.checkColl(unit, { x: coord.x, y: coord.y }, _coll, 1))
-          || (getDistance(me, coord.x, coord.y) <= 5 && me.getMobCount(6) > 2)) {
+          || (coordDist <= 5 && meMobCount > 2)) {
           return true;
         }
       }
     }
   }
+
+  coords.sort(Sort.units);
+
   for (let coord of coords) {
     // Valid position found - no collision between the spot and the unit
     if (!CollMap.checkColl({ x: coord.x, y: coord.y }, unit, coll, 1)) {
-      const currCount = nearMobs
+      const currCount = caster ? nearMobs
         .filter(function (m) {
           return getDistance(coord.x, coord.y, m.x, m.y) < 8;
-        }).length;
+        }).length : 0;
 
       // this might be a valid spot but also check the mob count at that node
       if (caster) {
@@ -1833,7 +1851,12 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       }
 
       // I am already in my optimal position
-      if (coord.distance < 3) return true;
+      if (coord.distance < 3) {
+        if (Settings.debugging.pathing) {
+          console.timeEnd("getIntoPosition");
+        }
+        return true;
+      }
 
       if (!useTele && Pather.getWalkDistance(coord.x, coord.y) > unit.distance) {
         continue;
@@ -1843,7 +1866,17 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
       if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
         Pather.walkTo(coord.x, coord.y, 2);
       } else {
-        Pather.move(coord, _pathSettings);
+        let teleported = (
+          coord.distance < Pather.teleDistance
+          && Pather.useTeleport()
+          && Pather.teleportTo(coord.x, coord.y)
+          && Misc.poll(function () {
+            return coord.distance < 3;
+          }, 250, 5, true)
+        );
+        if (!teleported) {
+          Pather.move(coord, _pathSettings);
+        }
       }
       if (Settings.debugging.pathing) {
         console.log(
@@ -1888,6 +1921,10 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
   }
 
   console.warn("ÿc4Attackÿc0: Failed to get into valid position" + (name ? " for: " + name : ""));
+
+  if (Settings.debugging.pathing) {
+    console.timeEnd("getIntoPosition");
+  }
 
   return false;
 };

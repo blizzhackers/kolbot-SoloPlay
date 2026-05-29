@@ -37,9 +37,9 @@ Unit.prototype.canEquip = function () {
 /** @this {ItemUnit} */
 Unit.prototype.bodyLocation = function () {
   if (this.type !== sdk.unittype.Item || this.isInsertable) return [];
-  if (Item.shieldTypes.includes(this.itemType)) return [sdk.body.LeftArm];
-  if (Item.helmTypes.includes(this.itemType)) return [sdk.body.Head];
-  if (Item.weaponTypes.includes(this.itemType)) {
+  if (Item.shieldTypes.has(this.itemType)) return [sdk.body.LeftArm];
+  if (Item.helmTypes.has(this.itemType)) return [sdk.body.Head];
+  if (Item.weaponTypes.has(this.itemType)) {
     return me.barbarian && this.twoHanded && !this.strictlyTwoHanded
       ? [sdk.body.RightArm, sdk.body.LeftArm]
       : [sdk.body.RightArm];

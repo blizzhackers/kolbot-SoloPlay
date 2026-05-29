@@ -9,7 +9,7 @@
 includeIfNotIncluded("core/Item.js");
 includeIfNotIncluded("SoloPlay/Core/ItemPrototypes.js");
 
-Item.weaponTypes = [
+Item.weaponTypes = new Set([
   sdk.items.type.Scepter, sdk.items.type.Wand,
   sdk.items.type.Staff, sdk.items.type.Bow,
   sdk.items.type.Axe, sdk.items.type.Club,
@@ -20,14 +20,14 @@ Item.weaponTypes = [
   sdk.items.type.ThrowingAxe, sdk.items.type.Javelin,
   sdk.items.type.Orb, sdk.items.type.AmazonBow,
   sdk.items.type.AmazonSpear, sdk.items.type.AmazonJavelin, sdk.items.type.MissilePotion
-];
-Item.shieldTypes = [
+]);
+Item.shieldTypes = new Set([
   sdk.items.type.Shield, sdk.items.type.AuricShields,
   sdk.items.type.VoodooHeads, sdk.items.type.BowQuiver, sdk.items.type.CrossbowQuiver
-];
-Item.helmTypes = [
+]);
+Item.helmTypes = new Set([
   sdk.items.type.Helm, sdk.items.type.PrimalHelm, sdk.items.type.Circlet, sdk.items.type.Pelt
-];
+]);
 
 /**
  * @param {ItemUnit} item 
@@ -63,9 +63,9 @@ Item.identify = function (item) {
  */
 Item.getBodyLoc = function (item) {
   if (!item || item.isInsertable) return [];
-  if (Item.shieldTypes.includes(item.itemType)) return [sdk.body.LeftArm];
-  if (Item.helmTypes.includes(item.itemType)) return [sdk.body.Head];
-  if (Item.weaponTypes.includes(item.itemType)) {
+  if (Item.shieldTypes.has(item.itemType)) return [sdk.body.LeftArm];
+  if (Item.helmTypes.has(item.itemType)) return [sdk.body.Head];
+  if (Item.weaponTypes.has(item.itemType)) {
     return me.barbarian && (!item.twoHanded || (item.twoHanded && !item.strictlyTwoHanded))
       ? [sdk.body.RightArm, sdk.body.LeftArm]
       : [sdk.body.RightArm];
@@ -211,13 +211,23 @@ Item.autoEquip = function (task = "") {
 
   me.switchWeapons(sdk.player.slot.Main);
 
+  /** @type {WeakMap<ItemUnit & { _canEquip: boolean }, number>} */
+  const itemTiers = new WeakMap();
+
+  /**
+   * @param {ItemUnit & { _canEquip: boolean }} a 
+   * @param {ItemUnit & { _canEquip: boolean }} b 
+   */
   const sortEq = function (a, b) {
-    let [prioA, prioB] = [Item.canEquip(a), Item.canEquip(b)];
-    if (prioA && prioB) return NTIP.GetTier(b) - NTIP.GetTier(a);
-    if (prioA) return -1;
-    if (prioB) return 1;
+    if (a._canEquip && b._canEquip) {
+      return itemTiers.get(b) - itemTiers.get(a);
+    }
+    if (a._canEquip) return -1;
+    if (b._canEquip) return 1;
     return 0;
   };
+
+  let runSort = true;
 
   /**
    * @param {ItemUnit} item 
@@ -285,10 +295,17 @@ Item.autoEquip = function (task = "") {
   !getUIFlag(sdk.uiflags.Shop) && me.cancel();
 
   while (items.length > 0) {
-    items.sort(sortEq);
+    if (runSort) {
+      for (let item of items) {
+        item._canEquip = Item.canEquip(item);
+        itemTiers.set(item, item._canEquip ? NTIP.GetTier(item) : 0);
+      }
+      items.sort(sortEq);
+      runSort = false;
+    }
     const item = items.shift();
     if (!item.isInStorage) continue;
-    let tier = NTIP.GetTier(item);
+    let tier = itemTiers.get(item);
     if (tier <= 0) continue;
     /** @type {Array<number>} */
     const bodyLoc = this.getBodyLoc(item);
@@ -305,6 +322,8 @@ Item.autoEquip = function (task = "") {
         if (tier > equippedItem.tierScore) {
           if (!runEquip(item, loc, tier)) {
             continue;
+          } else {
+            runSort = true;
           }
           
           break;
@@ -322,7 +341,8 @@ Item.autoEquip = function (task = "") {
 
           if (!me.barbarian && loc === sdk.body.LeftArm
             && equippedItem.tier === -1
-            && me.equipped.get(sdk.body.RightArm).twoHanded) {
+            && me.equipped.get(sdk.body.RightArm).twoHanded
+          ) {
             if (tier < me.equipped.get(sdk.body.RightArm).tier) {
               continue;
             }
@@ -331,6 +351,8 @@ Item.autoEquip = function (task = "") {
 
           if (!runEquip(item, loc, tier)) {
             continue;
+          } else {
+            runSort = true;
           }
 
           break;
@@ -487,13 +509,13 @@ Item.hasSecondaryTier = function (item) {
  * @param {ItemUnit} item 
  */
 Item.getSecondaryBodyLoc = function (item) {
-  if (Item.shieldTypes.includes(item.itemType)) return [sdk.body.LeftArmSecondary];
+  if (Item.shieldTypes.has(item.itemType)) return [sdk.body.LeftArmSecondary];
   if ([sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType)) {
     return !Check.currentBuild().caster && me.assassin
       ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
       : [sdk.body.RightArmSecondary];
   }
-  if (Item.weaponTypes.includes(item.itemType)) {
+  if (Item.weaponTypes.has(item.itemType)) {
     return me.barbarian && (!item.twoHanded || (item.twoHanded && !item.strictlyTwoHanded))
       ? [sdk.body.RightArmSecondary, sdk.body.LeftArmSecondary]
       : [sdk.body.RightArmSecondary];

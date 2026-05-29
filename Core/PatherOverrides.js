@@ -211,6 +211,12 @@ Pather.canUseTeleCharges = function () {
   return this.haveTeleCharges;
 };
 
+/**
+ * @param {number} x 
+ * @param {number} y 
+ * @param {number} maxRange 
+ * @returns {boolean}
+ */
 Pather.teleportTo = function (x, y, maxRange = 5) {
   // Settings.debugging.pathing && console.log("Mob Count at next node: " + [x, y].mobCount());
   
