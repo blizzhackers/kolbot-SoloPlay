@@ -63,7 +63,10 @@
     Config.Runewords.push([Runeword.Enigma, "wyrmhide", Roll.NonEth, 100]);
     Config.Runewords.push([Runeword.Enigma, "scarabhusk", Roll.NonEth, 100]);
 
-    NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
+    NTIP.addLine(
+      // nip
+      "[name] in (mageplate, duskshroud, wyrmhide, scarabhusk) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 && [maxdurability] == 0 # [mq] == 1"
+    );
   } else {
     NTIP.addLine("([name] == mageplate || [name] == scarabhusk || [name] == wyrmhide || [name] == duskshroud) && [flag] != ethereal && [quality] == superior # [enhanceddefense] >= 10 && [sockets] == 3 # [maxquantity] == 1");
   }

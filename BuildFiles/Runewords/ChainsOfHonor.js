@@ -69,10 +69,16 @@
   // Have Ber rune before looking for normal base
   if (me.getItem(sdk.items.runes.Ber)) {
     if (!me.getOwned(wanted).length) {
-      NTIP.addLine("([name] == archonplate || [name] == duskshroud || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 0 # [maxquantity] == 1");
+      NTIP.addLine(
+        // nip
+        "[name] in (archonplate, duskshroud, wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 && [maxdurability] == 0 # [mq] == 1"
+      );
     }
 
-    NTIP.addLine("([name] == archonplate || [name] == duskshroud || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 # [maxquantity] == 1");
+    NTIP.addLine(
+      // nip
+      "[name] in (archonplate, duskshroud, wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 4 && [maxdurability] == 0 # [mq] == 1"
+    );
   } else {
     NTIP.addLine("([name] == archonplate || [name] == duskshroud || [name] == wyrmhide) && [flag] != ethereal && [quality] == superior # [enhanceddefense] >= 10 && [sockets] == 4 # [maxquantity] == 1");
   }

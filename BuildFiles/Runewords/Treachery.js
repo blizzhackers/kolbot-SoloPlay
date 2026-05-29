@@ -1,5 +1,6 @@
 (function () {
   const treach = [
+    // nip
     "[name] == ShaelRune # # [maxquantity] == 1",
     "[name] == ThulRune # # [maxquantity] == 1",
     "[name] == LemRune # # [maxquantity] == 1",
@@ -19,7 +20,10 @@
 
   // Have Shael and Lem before looking for base
   if (me.getItem(sdk.items.runes.Lem)) {
-    NTIP.addLine("([name] == demonhidearmor || [name] == duskshroud || [name] == ghostarmor || [name] == lightplate || [name] == mageplate || [name] == serpentskinarmor || [name] == trellisedarmor || [name] == wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 # [maxquantity] == 1");
+    NTIP.addLine(
+      // nip
+      "[name] in (demonhidearmor, duskshroud, ghostarmor, lightplate, mageplate, serpentskinarmor, trellisedarmor, wyrmhide) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 3 && [maxdurability] == 0 # [mq] == 1"
+    );
   }
 
   Config.Runewords.push([Runeword.Treachery, "demonhidearmor", Roll.NonEth, 98]);
