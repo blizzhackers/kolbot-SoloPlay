@@ -10,6 +10,10 @@
  * Test utilizing marital art skills if we have them
  */
 
+/**
+ * @param {Unit} unit - The unit to mind blast
+ * @returns {void}
+ */
 ClassAttack[sdk.player.class.Assassin].mindBlast = function (unit) {
   if (!unit || !Skill.canUse(sdk.skills.MindBlast)) return;
   // Main bosses
@@ -38,8 +42,14 @@ ClassAttack[sdk.player.class.Assassin].mindBlast = function (unit) {
   }
 };
 
+/**
+ * @param {Unit} unit - The unit to switch curse on
+ * @param {boolean} force - Force switch curse even if unit is in melee range (used for bosses and other dangerous mobs)
+ * @returns {void}
+ */
 ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
-  if (CharData.skillData.haveChargedSkill([sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken]) && unit.curseable) {
+  const chargedSkills = [sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken];
+  if (CharData.skillData.haveChargedSkill(chargedSkills) && unit.curseable) {
     const gold = me.gold;
     const isBoss = unit.isBoss;
     const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
@@ -49,8 +59,10 @@ ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
     // If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
     // Might be worth it to use on souls too TODO: test this idea
     if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
-      && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-      && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      && unit.getEnchant(sdk.enchant.LightningEnchanted)
+      && !unit.getState(sdk.states.SlowMissiles)
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Cast slow missiles
       Attack.castCharges(sdk.skills.SlowMissiles, unit);
     }
@@ -58,23 +70,33 @@ ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
     if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
       && (gold > 500000 || isBoss || dangerZone)
       && !unit.getState(sdk.states.LowerResist)
-      && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Switch cast lower resist
       Attack.switchCastCharges(sdk.skills.LowerResist, unit);
     }
 
     if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
       && (gold > 500000 || isBoss || dangerZone)
-      && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.LowerResist)
-      && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      && !unit.getState(sdk.states.Weaken)
+      && !unit.getState(sdk.states.LowerResist)
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Switch cast weaken
       Attack.switchCastCharges(sdk.skills.Weaken, unit);
     }
   }
 };
 
+/**
+ * @param {Unit} unit - The unit to place traps around
+ * @param {number} amount - The amount of traps to place
+ * @returns {boolean} - Whether we successfully placed the traps or not (can fail if unit dies during trap placement or we run out of traps to place)
+ */
 ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
   let traps = 0;
+  // why not andy?
+  const bosses = [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
 
   this.lastTrapPos = { x: unit.x, y: unit.y };
 
@@ -86,8 +108,10 @@ ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
         if (traps >= amount || (unit.hasOwnProperty("mode") && unit.dead)) return true;
 
         // Duriel, Mephisto, Diablo, Baal, other players
-        if ((unit.hasOwnProperty("classid") && [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal].includes(unit.classid))
-            || (unit.hasOwnProperty("type") && unit.isPlayer)) {
+        if (
+          (unit.hasOwnProperty("classid") && bosses.includes(unit.classid))
+          || (unit.hasOwnProperty("type") && unit.isPlayer)
+        ) {
           if (traps >= Config.BossTraps.length) {
             return true;
           }
@@ -144,6 +168,11 @@ ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
   return true;
 };
 
+/**
+ * @param {Unit} unit - The unit to attack
+ * @param {boolean} preattack - Whether this attack is being called from the preattack sequence or not (used to determine whether we should use preattack skills or not)
+ * @returns {AttackResult} - The result of the attack attempt
+ */
 ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
   if (!unit) return Attack.Result.SUCCESS;
   let gid = unit.gid;
@@ -160,12 +189,21 @@ ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
   }
 
   let mercRevive = 0;
-  let shouldUseCloak = (Skill.canUse(sdk.skills.CloakofShadows) && !unit.isUnderLowerRes && unit.getMobCount(15, sdk.collision.BlockWall) > 1);
+  let shouldUseCloak = (
+    Skill.canUse(sdk.skills.CloakofShadows)
+    && !unit.isUnderLowerRes
+    && unit.getMobCount(15, sdk.collision.BlockWall) > 1
+  );
   const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
   this.mindBlast(unit);
 
-  if (preattack && Config.AttackSkill[0] > 0 && Attack.checkResist(unit, Config.AttackSkill[0]) && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))) {
+  if (
+    preattack
+    && Config.AttackSkill[0] > 0
+    && Attack.checkResist(unit, Config.AttackSkill[0])
+    && (!me.skillDelay || !Skill.isTimed(Config.AttackSkill[0]))
+  ) {
     if (unit.distance > Skill.getRange(Config.AttackSkill[0]) || checkCollision(me, unit, sdk.collision.Ranged)) {
       if (!Attack.getIntoPosition(unit, Skill.getRange(Config.AttackSkill[0]), sdk.collision.Ranged)) {
         return Attack.Result.FAILED;
@@ -178,7 +216,13 @@ ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
   }
 
   // Cloak of Shadows (Aggressive) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-  if (Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
+  if (
+    Config.AggressiveCloak
+    && Config.UseCloakofShadows
+    && shouldUseCloak
+    && !me.skillDelay
+    && !me.getState(sdk.states.CloakofShadows)
+  ) {
     if (unit.distance < 20) {
       Skill.cast(sdk.skills.CloakofShadows, sdk.skills.hand.Right);
     } else if (!Attack.getIntoPosition(unit, 20, sdk.collision.Ranged)) {
@@ -190,7 +234,13 @@ ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
 
   if (checkTraps) {
     if (unit.distance > this.trapRange || checkCollision(me, unit, sdk.collision.Ranged)) {
-      if (!Attack.getIntoPosition(unit, this.trapRange, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall))) {
+      if (
+        !Attack.getIntoPosition(unit, this.trapRange, sdk.collision.Ranged)
+        || (
+          checkCollision(me, unit, sdk.collision.BlockWall)
+          && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall)
+        )
+      ) {
         return Attack.Result.FAILED;
       }
     }
@@ -199,7 +249,14 @@ ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
   }
 
   // Cloak of Shadows (Defensive; default) - can't be cast again until previous one runs out and next to useless if cast in precast sequence (won't blind anyone)
-  if (!Config.AggressiveCloak && Config.UseCloakofShadows && shouldUseCloak && unit.distance < 20 && !me.skillDelay && !me.getState(sdk.states.CloakofShadows)) {
+  if (
+    !Config.AggressiveCloak
+    && Config.UseCloakofShadows
+    && shouldUseCloak
+    && unit.distance < 20
+    && !me.skillDelay
+    && !me.getState(sdk.states.CloakofShadows)
+  ) {
     Skill.cast(sdk.skills.CloakofShadows, sdk.skills.hand.Right);
   }
 
@@ -254,7 +311,13 @@ ClassAttack[sdk.player.class.Assassin].farCast = function (unit) {
 
   if (checkTraps) {
     if (unit.distance > 30 || checkCollision(me, unit, sdk.collision.Ranged)) {
-      if (!Attack.getIntoPosition(unit, 30, sdk.collision.Ranged) || (checkCollision(me, unit, sdk.collision.BlockWall) && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall))) {
+      if (
+        !Attack.getIntoPosition(unit, 30, sdk.collision.Ranged)
+        || (
+          checkCollision(me, unit, sdk.collision.BlockWall)
+          && (getCollision(me.area, unit.x, unit.y) & sdk.collision.BlockWall)
+        )
+      ) {
         return false;
       }
     }

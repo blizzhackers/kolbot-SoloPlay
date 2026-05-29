@@ -80,7 +80,9 @@ function diablo () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting diablo");
 
-  Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
+  Pather.checkWP(sdk.areas.RiverofFlame, true)
+    ? Pather.useWaypoint(sdk.areas.RiverofFlame)
+    : Pather.getWP(sdk.areas.RiverofFlame);
   Precast.doPrecast(true);
 
   let attempts = 0;
@@ -141,7 +143,9 @@ function diablo () {
       Messaging.sendToScript(SoloEvents.filePath, "addDiaEvent");
     }
 
-    (me.sorceress || me.necromancer || me.assassin) ? Pather.moveNear(7792, 5292, 37) : Pather.moveTo(7788, 5292, 3, 30);
+    (me.sorceress || me.necromancer || me.assassin)
+      ? Pather.moveNear(7792, 5292, 37)
+      : Pather.moveTo(7788, 5292, 3, 30);
     
     diabloPrep();
     let theD = Game.getMonster(sdk.monsters.Diablo);
@@ -156,7 +160,9 @@ function diablo () {
         //
       }
 
-      (me.sorceress || me.necromancer || me.assassin) ? Pather.moveNear(7792, 5292, 37) : Pather.moveTo(7788, 5292, 3, 30);
+      (me.sorceress || me.necromancer || me.assassin)
+        ? Pather.moveNear(7792, 5292, 37)
+        : Pather.moveTo(7788, 5292, 3, 30);
       diabloPrep();
     }
 

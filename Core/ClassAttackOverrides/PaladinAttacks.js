@@ -13,8 +13,11 @@ const MercWatch = {
   last: 0,
 };
 
-
-// eslint-disable-next-line no-unused-vars
+/**
+ * @param {Monster} unit - The unit to attack
+ * @param {boolean} preattack - Whether this attack is being called from the precast sequence or not, used to prevent certain skills from being used in precast
+ * @param {boolean} once - Whether this is the first attempt at attacking this unit, used to prevent infinite loops of trying to attack an unattackable unit
+ */
 ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, preattack = false, once = false) {
   if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
 
@@ -39,29 +42,50 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
   }
 
   if (me.expansion && index === 1 && unit.curseable) {
-    const commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+    const commonCheck = (
+      gold > 500000
+      || unit.isBoss
+      || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)
+    );
 
-    if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
-      && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-      && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (
+      CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
+      && unit.getEnchant(sdk.enchant.LightningEnchanted)
+      && !unit.getState(sdk.states.SlowMissiles)
+      && (gold > 500000 && !unit.isBoss)
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Cast slow missiles
       Attack.castCharges(sdk.skills.SlowMissiles, unit);
     }
 
-    if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-      && gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (
+      CharData.skillData.haveChargedSkill(sdk.skills.InnerSight)
+      && !unit.getState(sdk.states.InnerSight)
+      && gold > 500000
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Cast Inner sight
       Attack.castCharges(sdk.skills.InnerSight, unit);
     }
 
-    if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-      && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (
+      CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
+      && !unit.getState(sdk.states.Decrepify)
+      && commonCheck
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Switch cast decrepify
       Attack.switchCastCharges(sdk.skills.Decrepify, unit);
     }
     
-    if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-      && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+    if (
+      CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+      && !unit.getState(sdk.states.Weaken)
+      && !unit.getState(sdk.states.Decrepify)
+      && commonCheck
+      && !checkCollision(me, unit, sdk.collision.Ranged)
+    ) {
       // Switch cast weaken
       Attack.switchCastCharges(sdk.skills.Weaken, unit);
     }
@@ -88,7 +112,13 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
       [attackSkill, aura] = [-1, -1];
 
       // Set to secondary if not immune, check if using secondary attack aura if not check main skill for immunity
-      if (Config.AttackSkill[5] > -1 && Attack.checkResist(unit, (this.attackAuras.includes(Config.AttackSkill[6]) ? Config.AttackSkill[6] : Config.AttackSkill[5]))) {
+      if (
+        Config.AttackSkill[5] > -1
+        && Attack.checkResist(
+          unit,
+          (this.attackAuras.includes(Config.AttackSkill[6]) ? Config.AttackSkill[6] : Config.AttackSkill[5])
+        )
+      ) {
         attackSkill = Config.AttackSkill[5];
         aura = Config.AttackSkill[6];
       }
@@ -112,7 +142,11 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
   }
 
   // Low mana skill
-  if (Config.LowManaSkill[0] > -1 && Skill.getManaCost(attackSkill) > me.mp && Attack.checkResist(unit, Config.LowManaSkill[0])) {
+  if (
+    Config.LowManaSkill[0] > -1
+    && Skill.getManaCost(attackSkill) > me.mp
+    && Attack.checkResist(unit, Config.LowManaSkill[0])
+  ) {
     [attackSkill, aura] = Config.LowManaSkill;
   }
 
@@ -148,10 +182,15 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
     return unit.dead ? Attack.Result.SUCCESS : Attack.Result.FAILED;
   };
 
-  if (CharData.skillData.bow.onSwitch
+  if (
+    CharData.skillData.bow.onSwitch
     && (index !== 1 || !unit.name.includes(getLocaleString(sdk.locale.text.Ghostly)))
-    && (unit.distance >= 12 || (unit.distance >= 8 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y)))
-    && ([-1, sdk.skills.Attack].includes(attackSkill) || Skill.getManaCost(attackSkill) > me.mp)) {
+    && (
+      unit.distance >= 12
+      || (unit.distance >= 8 && unit.isMoving && (unit.targetx !== me.x || unit.targety !== me.y))
+    )
+    && ([-1, sdk.skills.Attack].includes(attackSkill) || Skill.getManaCost(attackSkill) > me.mp)
+  ) {
     if (switchBowAttack(unit) === Attack.Result.SUCCESS) return Attack.Result.SUCCESS;
   }
 
@@ -190,6 +229,10 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
   return result;
 };
 
+/**
+ * @param {number} x
+ * @param {number} y
+ */
 ClassAttack[sdk.player.class.Paladin].reposition = function (x, y) {
   if (typeof x !== "number" || typeof y !== "number") return false;
   if ([x, y].distance > 1) {
@@ -212,6 +255,10 @@ ClassAttack[sdk.player.class.Paladin].reposition = function (x, y) {
   return true;
 };
 
+/**
+ * @param {Player | Monster} unit
+ * @return {boolean}
+ */
 ClassAttack[sdk.player.class.Paladin].getHammerPosition = function (unit) {
   let x, y, positions, baseId = getBaseStat("monstats", unit.classid, "baseid");
   let size = getBaseStat("monstats2", baseId, "sizex");
@@ -260,6 +307,12 @@ ClassAttack[sdk.player.class.Paladin].getHammerPosition = function (unit) {
   return false;
 };
 
+/**
+ * @param {Monster} unit - The unit to attack
+ * @param {number} attackSkill - The skill to attack with
+ * @param {number} aura - The aura to use with the attack
+ * @returns {AttackResult}
+ */
 ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1, aura = -1) {
   if (attackSkill < 0) return Attack.Result.CANTATTACK;
   // unit became invalidated
@@ -286,7 +339,11 @@ ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1,
     // hammers cut a pretty wide arc so likely this would be enough to clear our path
     if (!this.getHammerPosition(unit)) {
       // Fallback to secondary skill if it exists
-      if (Config.AttackSkill[5] > -1 && Config.AttackSkill[5] !== sdk.skills.BlessedHammer && Attack.checkResist(unit, Config.AttackSkill[5])) {
+      if (
+        Config.AttackSkill[5] > -1
+        && Config.AttackSkill[5] !== sdk.skills.BlessedHammer
+        && Attack.checkResist(unit, Config.AttackSkill[5])
+      ) {
         return this.doCast(unit, Config.AttackSkill[5], Config.AttackSkill[6]);
       }
 
@@ -361,18 +418,31 @@ ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1,
 
     if (unit.attackable) {
       aura > -1 && Skill.setSkill(aura, sdk.skills.hand.Right);
-      return (Skill.cast(attackSkill, sdk.skills.hand.LeftNoShift, unit) ? Attack.Result.SUCCESS : Attack.Result.FAILED);
+      return (
+        Skill.cast(attackSkill, sdk.skills.hand.LeftNoShift, unit)
+          ? Attack.Result.SUCCESS
+          : Attack.Result.FAILED
+      );
     }
 
     break;
   default:
-    if (currSkill.Range < 4 && !Attack.validSpot(unit.x, unit.y, attackSkill, unit.classid)) return Attack.Result.FAILED;
+    if (currSkill.Range < 4 && !Attack.validSpot(unit.x, unit.y, attackSkill, unit.classid)) {
+      return Attack.Result.FAILED;
+    }
 
     if (unit.distance > currSkill.Range || checkCollision(me, unit, sdk.collision.Ranged)) {
-      let walk = (attackSkill !== sdk.skills.Smite && currSkill.Range < 4 && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWall));
+      let walk = (
+        attackSkill !== sdk.skills.Smite
+        && currSkill.Range < 4
+        && unit.distance < 10
+        && !checkCollision(me, unit, sdk.collision.BlockWall)
+      );
 
       // walk short distances instead of tele for melee attacks. teleport if failed to walk
-      if (!Attack.getIntoPosition(unit, currSkill.Range, sdk.collision.Ranged, walk)) return Attack.Result.FAILED;
+      if (!Attack.getIntoPosition(unit, currSkill.Range, sdk.collision.Ranged, walk)) {
+        return Attack.Result.FAILED;
+      }
     }
 
     if (!unit.dead) {

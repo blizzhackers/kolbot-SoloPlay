@@ -148,28 +148,50 @@
     Precast.doPrecast();
 
     if (index === 1 && !unit.dead && unit.curseable) {
-      const commonCheck = (gold > 500000 || unit.isBoss || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area));
+      const commonCheck = (
+        gold > 500000
+        || unit.isBoss
+        || [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area)
+      );
 
-      if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && unit.getEnchant(sdk.enchant.LightningEnchanted) && !unit.getState(sdk.states.SlowMissiles)
-        && (gold > 500000 && !unit.isBoss) && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      if (
+        CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles)
+        && unit.getEnchant(sdk.enchant.LightningEnchanted)
+        && !unit.getState(sdk.states.SlowMissiles)
+        && (gold > 500000 && !unit.isBoss)
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
         // Cast slow missiles
         Attack.castCharges(sdk.skills.SlowMissiles, unit);
       }
 
-      if (CharData.skillData.haveChargedSkill(sdk.skills.InnerSight) && !unit.getState(sdk.states.InnerSight)
-        && gold > 500000 && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      if (
+        CharData.skillData.haveChargedSkill(sdk.skills.InnerSight)
+        && !unit.getState(sdk.states.InnerSight)
+        && gold > 500000
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
         // Cast slow missiles
         Attack.castCharges(sdk.skills.InnerSight, unit);
       }
 
-      if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
-        && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      if (
+        CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Decrepify)
+        && !unit.getState(sdk.states.Decrepify)
+        && commonCheck
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
         // Switch cast decrepify
         Attack.switchCastCharges(sdk.skills.Decrepify, unit);
       }
       
-      if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-        && !unit.getState(sdk.states.Weaken) && !unit.getState(sdk.states.Decrepify) && commonCheck && !checkCollision(me, unit, sdk.collision.Ranged)) {
+      if (
+        CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+        && !unit.getState(sdk.states.Weaken)
+        && !unit.getState(sdk.states.Decrepify)
+        && commonCheck
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
         // Switch cast weaken
         Attack.switchCastCharges(sdk.skills.Weaken, unit);
       }
@@ -195,7 +217,13 @@
 
     switch (selectedSkill.skill) {
     case sdk.skills.Attack:
-      if (!me.normal || (me.charlvl > 6 && !me.checkForMobs({ range: 10, coll: (sdk.collision.BlockWall | sdk.collision.ClosedDoor) }))) {
+      if (
+        !me.normal
+        || (
+          me.charlvl > 6
+          && !me.checkForMobs({ range: 10, coll: (sdk.collision.BlockWall | sdk.collision.ClosedDoor) })
+        )
+      ) {
         selectedSkill = DummyData;
       }
     }
