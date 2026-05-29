@@ -214,6 +214,32 @@ NTIP.buildList = function (...arraystoloop) {
 };
 
 /**
+ * @param {ItemUnit} item
+ * @param {(item: ItemUnit) => boolean} type
+ * @param {(item: ItemUnit) => boolean} stat
+ * @returns {-1|0|1}
+ */
+NTIP._evaluateRuleMatch = function (item, type, stat) {
+  if (typeof type === "function") {
+    if (!type(item)) {
+      return 0;
+    }
+
+    if (typeof stat === "function") {
+      return stat(item) ? 1 : -1;
+    }
+
+    return 1;
+  }
+
+  if (typeof stat === "function") {
+    return stat(item) ? 1 : -1;
+  }
+
+  return 0;
+};
+
+/**
  * @param {ItemUnit} item 
  * @param {NTIPList} entryList 
  * @param {boolean} verbose 
@@ -236,14 +262,13 @@ NTIP.hasStats = function (item, entryList, verbose = false) {
       if (typeof type !== "function" || typeof stat !== "function") {
         continue;
       }
-      if (type(item)) {
-        if (stat(item)) {
-          hasStat = true;
-          stats = stat;
-          line = stringArr[i].file + " #" + stringArr[i].line + " " + stringArr[i].string;
 
-          break;
-        }
+      if (NTIP._evaluateRuleMatch(item, type, stat) === 1) {
+        hasStat = true;
+        stats = stat;
+        line = stringArr[i].file + " #" + stringArr[i].line + " " + stringArr[i].string;
+
+        break;
       }
     } catch (e) {
       console.log(e);
@@ -271,29 +296,13 @@ NTIP.getInvoQuantity = function (item, entryList) {
     ? entryList.list
     : NTIP.SoloList.list;
 
-  for (let el of list) {
+  for (let i = 0; i < list.length; i++) {
     try {
-      const [type, stat, wanted] = el;
+      const [type, stat, wanted] = list[i];
 
-      if (typeof type === "function") {
-        if (type(item)) {
-          if (typeof stat === "function") {
-            if (stat(item)) {
-              if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-                return wanted.InvoQuantity;
-              }
-            }
-          } else {
-            if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-              return wanted.InvoQuantity;
-            }
-          }
-        }
-      } else if (typeof stat === "function") {
-        if (stat(item)) {
-          if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
-            return wanted.InvoQuantity;
-          }
+      if (NTIP._evaluateRuleMatch(item, type, stat) === 1) {
+        if (wanted && wanted.InvoQuantity && !isNaN(wanted.InvoQuantity)) {
+          return wanted.InvoQuantity;
         }
       }
     } catch (e) {
@@ -313,29 +322,13 @@ NTIP.getMaxQuantity = function (item, entryList) {
     ? entryList.list
     : NTIP.SoloList.list;
 
-  for (let el of list) {
+  for (let i = 0; i < list.length; i++) {
     try {
-      let [type, stat, wanted] = el;
+      let [type, stat, wanted] = list[i];
 
-      if (typeof type === "function") {
-        if (type(item)) {
-          if (typeof stat === "function") {
-            if (stat(item)) {
-              if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-                return wanted.MaxQuantity;
-              }
-            }
-          } else {
-            if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-              return wanted.MaxQuantity;
-            }
-          }
-        }
-      } else if (typeof stat === "function") {
-        if (stat(item)) {
-          if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-            return wanted.MaxQuantity;
-          }
+      if (NTIP._evaluateRuleMatch(item, type, stat) === 1) {
+        if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+          return wanted.MaxQuantity;
         }
       }
     } catch (e) {
@@ -357,121 +350,101 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
   let result = 0;
   const identified = item.getFlag(sdk.items.flags.Identified);
 
+  const parent = item.getParent();
+  const isOwnItemInStorage = !!(parent && parent.name === me.name && item.mode === sdk.items.mode.inStorage);
+
+  // Per-call cache so repeated MaxQuantity rules do not rescan stash/inventory.
+  // Keys are function object identities (type/stat) encoded to integer ids.
+  const quantityCache = {};
+  const fnIdMap = new WeakMap();
+  let nextFnId = 1;
+  const getFnId = function (fn) {
+    if (fn === null) {
+      return 0;
+    }
+
+    if (fnIdMap.has(fn)) {
+      return fnIdMap.get(fn);
+    }
+
+    const id = nextFnId;
+    fnIdMap.set(fn, id);
+    nextFnId += 1;
+
+    return id;
+  };
+
+  const getOwnedQuantity = function (typeFn, statFn) {
+    const typeId = getFnId(typeFn);
+    const statId = getFnId(statFn);
+    const key = typeId + ":" + statId;
+
+    if (quantityCache.hasOwnProperty(key)) {
+      return quantityCache[key];
+    }
+
+    const num = NTIP.CheckQuantityOwned(typeFn, statFn);
+    quantityCache[key] = num;
+
+    return num;
+  };
+
   /**
-   * @param {any[]} list 
-   * @param {string[]} stringArr 
-   * @returns 
+   * @param {any[]} list
+   * @param {string[]} stringArr
+   * @returns
    */
   const iterateList = function (list, stringArr) {
     let i, num;
 
     for (i = 0; i < list.length; i++) {
       try {
-        // Get the values in separated variables (its faster)
-        const [type, stat, wanted] = list[i];
+        const rule = list[i];
+        const type = rule[0];
+        const stat = rule[1];
+        const wanted = rule[2];
 
-        if (typeof type === "function") {
-          if (type(item)) {
-            if (typeof stat === "function") {
-              if (stat(item)) {
-                if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-                  num = NTIP.CheckQuantityOwned(type, stat);
+        const matchState = NTIP._evaluateRuleMatch(item, type, stat);
 
-                  if (num < wanted.MaxQuantity) {
-                    result = 1;
+        if (matchState === 1) {
+          if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
+            num = getOwnedQuantity(
+              typeof type === "function" ? type : null,
+              typeof stat === "function" ? stat : null
+            );
 
-                    break;
-                  } else {
-                    // attempt at inv fix for maxquantity
-                    if (item.getParent() && item.getParent().name === me.name
-                      && item.mode === sdk.items.mode.inStorage
-                      && num === wanted.MaxQuantity) {
-                      result = 1;
-
-                      break;
-                    }
-                  }
-                } else {
-                  result = 1;
-
-                  break;
-                }
-              } else if (!identified && result === 0 || !identified && result === 1) {
-                result = -1;
-
-                if (verbose && stringArr[i] !== undefined) {
-                  rval.line = stringArr[i].file + " #" + stringArr[i].line;
-                }
-              }
-            } else {
-              if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-                num = NTIP.CheckQuantityOwned(type, null);
-
-                if (num < wanted.MaxQuantity) {
-                  result = 1;
-
-                  break;
-                } else {
-                  // attempt at inv fix for maxquantity
-                  if (item.getParent() && item.getParent().name === me.name
-                    && item.mode === sdk.items.mode.inStorage
-                    && num === wanted.MaxQuantity) {
-                    result = 1;
-
-                    break;
-                  }
-                }
-              } else {
-                result = 1;
-
-                break;
-              }
-            }
-          }
-        } else if (typeof stat === "function") {
-          if (stat(item)) {
-            if (wanted && wanted.MaxQuantity && !isNaN(wanted.MaxQuantity)) {
-              num = NTIP.CheckQuantityOwned(null, stat);
-
-              if (num < wanted.MaxQuantity) {
-                result = 1;
-
-                break;
-              } else {
-                // attempt at inv fix for maxquantity
-                if (item.getParent() && item.getParent().name === me.name
-                  && item.mode === sdk.items.mode.inStorage
-                  && num === wanted.MaxQuantity) {
-                  result = 1;
-
-                  break;
-                }
-              }
-            } else {
+            if (num < wanted.MaxQuantity || (isOwnItemInStorage && num === wanted.MaxQuantity)) {
               result = 1;
-
               break;
             }
-          } else if (!identified && result === 0 || !identified && result === 1) {
-            result = -1;
+          } else {
+            result = 1;
+            break;
+          }
+        } else if (matchState === -1 && !identified && result !== -1) {
+          result = -1;
 
-            if (verbose && stringArr[i] !== undefined) {
-              rval.line = stringArr[i].file + " #" + stringArr[i].line;
-            }
+          if (verbose && stringArr[i] !== undefined) {
+            rval.line = stringArr[i].file + " #" + stringArr[i].line;
           }
         }
       } catch (pickError) {
         showConsole();
 
         if (!entryList) {
+          if (item && !item.fname) {
+            console.debug(item);
+          }
+
           Misc.errorReport(
             "ÿc1Pickit error! Line # ÿc2" + stringArr[i].line
             + " ÿc1Entry: ÿc0" + stringArr[i].string + " (" + stringArr[i].file
             + ") Error message: " + pickError.message
-            + " Trigger item: " + item.fname.split("\n").reverse().join(" ")
+            + " Trigger item: " + (item ? item.fname ? item.fname.split("\n").reverse().join(" ") : item.name : "null")
           );
-          list.splice(i, 1); // Remove the element from the list
-          stringArr.splice(i, 1); // Remove the element from the list
+
+          list.splice(i, 1);
+          stringArr.splice(i, 1);
         } else {
           Misc.errorReport("ÿc1Pickit error in runeword config!");
         }
@@ -487,7 +460,10 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
 
       rval.result = result;
       rval.line = (function () {
-        if (stringArr[i] === undefined) return null;
+        if (stringArr[i] === undefined) {
+          return null;
+        }
+
         return result === 1
           ? stringArr[i].file + " #" + stringArr[i].line + " [" + stringArr[i].string + "]"
           : null;
@@ -503,15 +479,15 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
     return iterateList(entryList.list, entryList.strArray);
   }
 
-  const listOfLists = [
-    NTIP.SoloList,
-    NTIP.NoTier,
-    NTIP.Runtime,
-    NTIP.CheckList,
-  ];
+  const listOfLists = [NTIP.SoloList, NTIP.NoTier, NTIP.Runtime, NTIP.CheckList];
 
   for (let obj of listOfLists) {
+    if (!obj.list.length) {
+      continue;
+    }
+
     iterateList(obj.list, obj.strArray);
+
     if (verbose ? rval.result !== 0 : result !== 0) {
       break;
     }
