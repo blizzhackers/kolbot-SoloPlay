@@ -723,6 +723,7 @@ NTIP.ParseLineInt = function (input, info) {
 
         break;
       }
+      case "mq":
       case "maxquantity":
         try {
           value = Number(p_section[i].split("==")[1].match(/\d+/g));
