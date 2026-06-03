@@ -350,7 +350,7 @@ NTIP.CheckItem = function (item, entryList, verbose = false) {
   let result = 0;
   const identified = item.getFlag(sdk.items.flags.Identified);
 
-  const parent = item.getParent();
+  const parent = typeof item.getParent === "function" ? item.getParent() : "";
   const isOwnItemInStorage = !!(parent && parent.name === me.name && item.mode === sdk.items.mode.inStorage);
 
   // Per-call cache so repeated MaxQuantity rules do not rescan stash/inventory.
