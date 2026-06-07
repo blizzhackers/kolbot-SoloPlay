@@ -92,6 +92,7 @@ function tristram () {
       for (let i = 0; i < 5; i++) {
         for (let stone of stones) {
           if (!stone || stone.mode) continue;
+          Pather.walkTo(stone.x, stone.y, 4);
           clickUnitAndWait(sdk.clicktypes.click.map.LeftDown, sdk.clicktypes.shift.NoShift, stone);
         }
       }
