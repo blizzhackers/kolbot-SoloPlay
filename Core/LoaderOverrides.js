@@ -59,6 +59,7 @@ Loader.run = function () {
     let j;
     let tick;
     let expStart;
+    let failed = false;
 
     try {
       includeIfNotIncluded("SoloPlay/Scripts/" + script + ".js");
@@ -108,6 +109,7 @@ Loader.run = function () {
       
       tick = getTickCount();
       expStart = me.getStat(sdk.stats.Experience);
+      Settings.logPerformance && Tracker.scriptStart(script, tick, expStart);
       Messaging.sendToScript(_toolsThread, JSON.stringify({ currScript: script }));
       DataFile.updateStats("lastScript", script);
 
@@ -128,12 +130,16 @@ Loader.run = function () {
       (j === 5) && myPrint("script " + script + " failed.");
     } catch (e) {
       console.error(e);
+      if (!(e instanceof ScriptError)) {
+        failed = true;
+      }
     } finally {
       SoloIndex.doneList.push(script);
       // skip logging if we didn't actually finish it
       if (!SoloIndex.retryList.includes(script) && Settings.logPerformance) {
-        Tracker.script(tick, script, expStart);
+        Tracker.script(tick, script, expStart, !failed);
       }
+      Settings.logPerformance && Tracker.clearInProgress();
       console.log("ÿc8Kolbot-SoloPlayÿc0: Old maxgametime: " + Time.format(me.maxgametime));
       me.maxgametime += (getTickCount() - tick);
       console.log("ÿc8Kolbot-SoloPlayÿc0: New maxgametime: " + Time.format(me.maxgametime));
@@ -152,6 +158,7 @@ Loader.run = function () {
         delete global[script];
         Loader.currentScript = null;
         Loader.nextScript = null;
+        failed = false;
       }
     }
 
@@ -277,7 +284,7 @@ Loader.runScript = function (script, configOverride) {
       console.warn("ÿc8Kolbot-SoloPlayÿc0: " + (e.message ? e.message : e));
     } finally {
       SoloIndex.doneList.push(script);
-      Settings.logPerformance && Tracker.script(tick, script, currentExp);
+      Settings.logPerformance && Tracker.script(tick, script, currentExp, !failed);
       // Dont run for last script as that will clear everything anyway
       if (this.scriptIndex < this.scriptList.length) {
         // remove script function from global scope, so it can be cleared by GC
