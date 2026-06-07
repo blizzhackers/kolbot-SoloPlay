@@ -11,6 +11,7 @@ const Tracker = {
   GTPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-GameTime.json",
   LPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
   SPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
+  IPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-InProgress.json",
   // Leveling Performance
   LPHeader: [
     "Total Time",
@@ -44,7 +45,8 @@ const Tracker = {
     "Cold Resist",
     "Light Resist",
     "Poison Resist",
-    "Current Build"
+    "Current Build",
+    "Result"
   ].join(",") + "\n",
   tick: 0,
   /**
@@ -76,6 +78,125 @@ const Tracker = {
     !FileTools.exists(this.LPPath) && FileAction.write(this.LPPath, this.LPHeader);
     !FileTools.exists(this.SPPath) && FileAction.write(this.SPPath, this.SPHeader);
 
+    return true;
+  },
+
+  /**
+   * Save the current script's starting state to disk so it can be logged if the bot
+   * chickens or crashes before the script completes.
+   * @param {string} script
+   * @param {number} tick
+   * @param {number} expStart
+   */
+  scriptStart: function (script, tick, expStart) {
+    const data = {
+      script: script,
+      tick: tick,
+      expStart: expStart,
+      charlvl: me.charlvl,
+      diff: me.diff,
+      build: SetUp.currentBuild
+    };
+    Tracker.writeObj(data, this.IPPath);
+  },
+
+  /**
+   * Remove the in-progress tracking file once a script has been fully logged.
+   */
+  clearInProgress: function () {
+    FileTools.exists(this.IPPath) && FileTools.remove(this.IPPath);
+  },
+
+  /**
+   * Log the in-progress script as a Chicken result.
+   * Called from ToolsThread when a life/mana chicken fires.
+   * All me.* stats are still accessible at this point.
+   * @returns {boolean}
+   */
+  scriptChicken: function () {
+    if (!FileTools.exists(this.IPPath)) return false;
+    const data = Tracker.readObj(this.IPPath);
+    if (!data) return false;
+
+    const GameTracker = Tracker.readObj(this.GTPath);
+    GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
+    const newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
+    GameTracker.InGame += Time.elapsed(newTick);
+    GameTracker.Total += Time.elapsed(newTick);
+    GameTracker.LastSave = getTickCount();
+    Tracker.writeObj(GameTracker, Tracker.GTPath);
+
+    const scriptTime = Time.elapsed(data.tick);
+    const currLevel = me.charlvl;
+    const diffString = sdk.difficulty.nameOf(data.diff);
+    const gainAMT = me.getStat(sdk.stats.Experience) - data.expStart;
+    const gainTime = (gainAMT / (scriptTime / 60000)).toFixed(2);
+    const gainPercent = currLevel === 99
+      ? 0
+      : (gainAMT * 100 / Experience.nextExp[currLevel]).toFixed(2);
+    const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
+    const string = (
+      Time.format(GameTracker.Total) + ","
+      + Time.format(GameTracker.InGame) + ","
+      + Time.format(scriptTime) + ","
+      + data.script + ","
+      + currLevel + ","
+      + gainAMT.toFixed(2) + ","
+      + gainTime + ","
+      + gainPercent + ","
+      + diffString + ","
+      + GOLD + ","
+      + FR + ","
+      + CR + ","
+      + LR + ","
+      + PR + ","
+      + data.build + ","
+      + "Chicken"
+      + "\n"
+    );
+
+    FileAction.append(Tracker.SPPath, string);
+    FileTools.remove(this.IPPath);
+    Tracker.tick = GameTracker.LastSave;
+    return true;
+  },
+
+  /**
+   * On game startup, check for a leftover in-progress file from a prior crash.
+   * Logs the interrupted script as Crashed with zero duration/exp since tick
+   * count reset and those values are unrecoverable.
+   * @returns {boolean}
+   */
+  recoverFromCrash: function () {
+    if (!FileTools.exists(this.IPPath)) return false;
+    const data = Tracker.readObj(this.IPPath);
+    if (!data) return false;
+
+    const GameTracker = Tracker.readObj(this.GTPath);
+    const diffString = sdk.difficulty.nameOf(data.diff);
+    const string = (
+      Time.format(GameTracker.Total) + ","
+      + Time.format(GameTracker.InGame) + ","
+      + Time.format(0) + ","
+      + data.script + ","
+      + data.charlvl + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + diffString + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + data.build + ","
+      + "Crashed"
+      + "\n"
+    );
+
+    FileAction.append(Tracker.SPPath, string);
+    FileTools.remove(this.IPPath);
+    console.log("ÿc8Kolbot-SoloPlayÿc0: Recovered crashed script: ÿc9" + data.script);
     return true;
   },
 
@@ -162,7 +283,7 @@ const Tracker = {
     return days.toString().padStart(1, "0");
   },
 
-  script: function (starttime, subscript, startexp) {
+  script: function (starttime, subscript, startexp, result) {
     const GameTracker = Tracker.readObj(Tracker.GTPath);
 
     // GameTracker
@@ -187,10 +308,23 @@ const Tracker = {
     const currentBuild = SetUp.currentBuild;
     const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
     const string = (
-      Time.format(GameTracker.Total) + "," + Time.format(GameTracker.InGame) + "," + Time.format(scriptTime)
-      + "," + subscript + "," + currLevel + "," + (gainAMT).toFixed(2)
-      + "," + gainTime + "," + gainPercent + "," + diffString
-      + "," + GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
+      Time.format(GameTracker.Total) + ","
+      + Time.format(GameTracker.InGame) + ","
+      + Time.format(scriptTime) + ","
+      + subscript + ","
+      + currLevel + ","
+      + (gainAMT).toFixed(2) + ","
+      + gainTime + ","
+      + gainPercent + ","
+      + diffString + ","
+      + GOLD + ","
+      + FR + ","
+      + CR + ","
+      + LR + ","
+      + PR + ","
+      + currentBuild + ","
+      + (result ? "Success" : "Failure")
+      + "\n"
     );
 
     FileAction.append(Tracker.SPPath, string);

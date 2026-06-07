@@ -219,6 +219,7 @@ function main () {
   }
 
   DataFile.updateStats(["experience", "name"]);
+  Settings.logPerformance && Tracker.recoverFromCrash();
 
   // Load threads
   load("libs/SoloPlay/Threads/ToolsThread.js");

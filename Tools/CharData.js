@@ -342,6 +342,7 @@ const CharData = (function () {
         
       FileTools.exists(this.filePath) && FileTools.remove(this.filePath);
       FileTools.exists(Tracker.GTPath) && FileTools.remove(Tracker.GTPath);
+      FileTools.exists(Tracker.IPPath) && FileTools.remove(Tracker.IPPath);
 
       return !(
         FileTools.exists(this.filePath)

@@ -95,6 +95,7 @@ function main () {
 
   const exit = function (chickenExit = false) {
     chickenExit && D2Bot.updateChickens();
+    chickenExit && Settings.logPerformance && Tracker.scriptChicken();
     Config.LogExperience && Experience.log();
     Settings.logPerformance && Tracker.update();
     console.log("ÿc8Run duration ÿc2" + Time.format(getTickCount() - me.gamestarttime));
