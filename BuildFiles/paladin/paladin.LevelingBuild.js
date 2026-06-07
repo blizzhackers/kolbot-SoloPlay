@@ -13,7 +13,7 @@
       caster: true,
       skillstab: sdk.skills.tabs.PalaCombat,
       wantedskills: [sdk.skills.BlessedHammer, sdk.skills.Concentration],
-      usefulskills: [sdk.skills.HolyShield, sdk.skills.BlessedAim],
+      usefulskills: [sdk.skills.HolyShield, sdk.skills.Vigor],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [],
       skills: [
@@ -99,7 +99,12 @@
       },
 
       active: function () {
-        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.checkSkill(sdk.skills.Concentration, sdk.skills.subindex.HardPoints) && !Check.finalBuild().active());
+        return (
+          me.charlvl > CharInfo.respecOne
+          && me.charlvl > CharInfo.respecTwo
+          && me.checkSkill(sdk.skills.Concentration, sdk.skills.subindex.HardPoints)
+          && !Check.finalBuild().active()
+        );
       },
     };
 

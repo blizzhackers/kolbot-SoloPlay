@@ -16,8 +16,7 @@
       usefulskills: [
         (me.checkSkill(sdk.skills.HolyFire, sdk.skills.subindex.SoftPoints)
           ? sdk.skills.Sacrifice
-          : sdk.skills.Might),
-        sdk.skills.ResistFire
+          : sdk.skills.Might)
       ],
       wantedMerc: MercData[sdk.skills.HolyFreeze],
       stats: [
@@ -68,21 +67,38 @@
 
       Config.BeltColumn = ["hp", "hp", "hp", "hp"];
       Config.HPBuffer = 8;
-      const bossSkill = (me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
+      const bossSkill = (
+        me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints)
+          ? sdk.skills.Sacrifice
+          : sdk.skills.Attack
+      );
       Config.AttackSkill = [-1, bossSkill, sdk.skills.Might, sdk.skills.Attack, sdk.skills.Might, -1, -1];
       Config.LowManaSkill = [sdk.skills.Attack, sdk.skills.Might];
     });
     build.AutoBuildTemplate[6] = buildAutoBuildTempObj(() => {
       Config.HPBuffer = 8;
-      const bossSkill = (me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
-      Config.AttackSkill = [-1, bossSkill, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.HolyFire, sdk.skills.Attack, sdk.skills.Might];
+      const bossSkill = (
+        me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints)
+          ? sdk.skills.Sacrifice
+          : sdk.skills.Attack
+      );
+      Config.AttackSkill = [
+        -1,
+        bossSkill, sdk.skills.HolyFire,
+        sdk.skills.Attack, sdk.skills.HolyFire,
+        sdk.skills.Attack, sdk.skills.Might
+      ];
       Config.LowManaSkill = [sdk.skills.Attack, sdk.skills.HolyFire];
     });
     build.AutoBuildTemplate[9] = buildAutoBuildTempObj(() => {
       Config.HPBuffer = me.expansion ? 2 : 4;
       Config.MPBuffer = 6;
       Config.AttackSkill[0] = -1;
-      Config.AttackSkill[1] = (me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints) ? sdk.skills.Sacrifice : sdk.skills.Attack);
+      Config.AttackSkill[1] = (
+        me.checkSkill(sdk.skills.Sacrifice, sdk.skills.subindex.HardPoints)
+          ? sdk.skills.Sacrifice
+          : sdk.skills.Attack
+      );
       Config.AttackSkill[2] = sdk.skills.HolyFire;
       Config.AttackSkill[3] = sdk.skills.Attack;
       Config.AttackSkill[4] = sdk.skills.HolyFire;
@@ -91,7 +107,12 @@
     });
     build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
       if (me.checkSkill(sdk.skills.Zeal, sdk.skills.subindex.HardPoints)) {
-        Config.AttackSkill = [-1, sdk.skills.Zeal, sdk.skills.HolyFire, sdk.skills.Zeal, sdk.skills.HolyFire, 0, sdk.skills.Might];
+        Config.AttackSkill = [
+          -1,
+          sdk.skills.Zeal, sdk.skills.HolyFire,
+          sdk.skills.Zeal, sdk.skills.HolyFire,
+          sdk.skills.Attack, sdk.skills.Might
+        ];
       }
       Config.Charge = true;
     });

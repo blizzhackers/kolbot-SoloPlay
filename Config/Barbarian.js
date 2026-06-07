@@ -38,7 +38,10 @@
   /* AutoEquip configuration. */
   Config.AutoEquip = true;
 
-  // AutoEquip setup
+  /**
+   * AutoEquip setup
+   * @type {NipString[]}
+   */
   const levelingTiers = [
     // Weapon
     "me.charlvl < 12 && [type] == sword && ([quality] >= normal || [flag] == runeword) && [flag] != ethereal && [wsm] <= 20 # [itemchargedskill] >= 0 # [tier] == tierscore(item)",
@@ -49,6 +52,7 @@
     "([type] == primalhelm) && [quality] >= normal && [flag] != ethereal # [itemchargedskill] >= 0 && ([sockets] == 1 || [sockets] == 3) # [tier] == tierscore(item)",
   ];
 
+  /** @type {NipString[]} */
   const expansionTiers = [
     // Charms
     "[name] == smallcharm && [quality] == magic # # [invoquantity] == 8 && [charmtier] == charmscore(item)",

@@ -1,10 +1,9 @@
 /**
-*  @filename    barbarian.WhirlwindBuild.js
-*  @author      theBGuy
-*  @desc        Whirlwind based final build
-*
-*/
-
+ *  @filename    barbarian.WhirlwindBuild.js
+ *  @author      theBGuy
+ *  @desc        Whirlwind based final build
+ *
+ */
 
 (function (module) {
   module.exports = (function () {
@@ -16,7 +15,9 @@
       precastSkills: [sdk.skills.BattleOrders, sdk.skills.BattleCommand],
       wantedMerc: MercData[sdk.skills.Might],
       stats: [
-        ["strength", 118], ["dexterity", 136], ["vitality", "all"]
+        ["strength", 118],
+        ["dexterity", 136],
+        ["vitality", "all"],
       ],
       skills: [
         [sdk.skills.Whirlwind, 20, true],
@@ -38,8 +39,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MaxHp) === 20
+            );
+          },
         },
 
         ResMf: {
@@ -48,8 +54,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.MagicBonus) === 7
+            );
+          },
         },
 
         ResFHR: {
@@ -58,8 +69,13 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.allRes === 5 &&
+              check.getStat(sdk.stats.FHR) === 5
+            );
+          },
         },
 
         Skiller: {
@@ -68,21 +84,25 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Masteries) === 1
-              && check.getStat(sdk.stats.MaxHp) >= 40);
-          }
+            return (
+              !check.unique &&
+              check.classid === this.classid &&
+              check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Masteries) === 1 &&
+              check.getStat(sdk.stats.MaxHp) >= 40
+            );
+          },
         },
       },
 
       AutoBuildTemplate: {
-        1:	{
+        1: {
           Update: function () {
             Config.AttackSkill = [sdk.skills.BattleCry, sdk.skills.Whirlwind, -1, sdk.skills.Whirlwind, -1];
             Config.LowManaSkill = [0, -1];
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             Config.MPBuffer = 2;
             Config.HPBuffer = 2;
-          }
+          },
         },
       },
 
@@ -100,7 +120,9 @@
       },
     };
 
-    let finalGear = [ // autoequip final gear
+    /** @type {NipString[]} */
+    let finalGear = [
+      // autoequip final gear
       // Weapon - Grief x2 dual wield
       "[type] == sword && [flag] == runeword # [ias] >= 30 && [itemdeadlystrike] == 20 && [passivepoispierce] >= 20 # [tier] == 100000",
       // Final Helmet - Upp'ed Arreat's Face
