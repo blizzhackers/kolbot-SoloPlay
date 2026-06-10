@@ -1007,6 +1007,7 @@ Item.logItem = function (action, unit, keptLine, force) {
     image: code,
     textColor: unit.quality,
     itemColor: color,
+    invTrans: (getBaseStat("items", unit.classid, "InvTrans") || 0),
     header: "",
     sockets: this.getItemSockets(unit)
   };

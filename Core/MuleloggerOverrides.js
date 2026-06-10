@@ -94,6 +94,7 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
 
   return {
     itemColor: color,
+    invTrans: (getBaseStat("items", unit.classid, "InvTrans") || 0),
     image: code,
     title: name,
     description: desc,
