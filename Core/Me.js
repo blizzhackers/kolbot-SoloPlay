@@ -418,6 +418,14 @@ if (!me.hasOwnProperty("equipped")) {
   })();
 }
 
+if (!me.hasOwnProperty("telekinesis")) {
+  Object.defineProperty(me, "telekinesis", {
+    get: function () {
+      return Skill.haveTK;
+    }
+  });
+}
+
 /** @returns {boolean} */
 me.canTpToTown = function () {
   // can't tp if dead - or not currently enabled to
@@ -434,7 +442,7 @@ me.canTpToTown = function () {
 };
 
 me.getMercEx = function () {
-  if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
+  if (!Config.UseMerc || me.classic || !me.mercrevivecost) return null;
   let merc = Misc.poll(function () {
     return me.getMerc();
   }, 250, 50);

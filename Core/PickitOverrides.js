@@ -397,13 +397,14 @@ const _toCursorPick = new Set();
  * @param {ItemUnit} unit 
  * @param {PickitResult} status 
  * @param {string} keptLine 
- * @param {{ allowClear: boolean, allowMove: boolean }} givenSettings 
+ * @param {{ allowClear: boolean, allowMove: boolean, retry: number }} givenSettings 
  */
 Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
   if (!unit || unit === undefined) return false;
   const _pickSettings = Object.assign({
     allowClear: true,
-    allowMove: true
+    allowMove: true,
+    retry: 3
   }, givenSettings);
   /**
    * @constructor
@@ -473,7 +474,7 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
     : Infinity;
 
   MainLoop:
-  for (let i = 0; i < 3; i += 1) {
+  for (let i = 0; i < _pickSettings.retry; i += 1) {
     if (me.dead) return false;
     if (!Game.getItem(-1, -1, gid)) {
       break;
@@ -762,20 +763,35 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   let needMule = false;
   const canUseMule = AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo");
   const _pots = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
+  const origin = new PathNode(me.x, me.y);
 
-  let item = Game.getItem();
+  const buildPickList = function () {
+    let item = Game.getItem();
 
-  if (item) {
-    do {
-      if (Pickit.ignoreList.has(item.gid)) continue;
-      if (Pickit.pickList.some(function (el) {
-        return el.gid === item.gid;
-      })) continue;
-      if (item.onGroundOrDropping && item.distance <= range) {
-        Pickit.pickList.push(copyUnit(item));
-      }
-    } while (item.getNext());
-  }
+    if (item) {
+      do {
+        if (Pickit.ignoreList.has(item.gid)) continue;
+        if (
+          item.classid === sdk.items.Gold
+          && item.distance <= 4
+          && Pickit.canPick(item)
+        ) {
+          // Gold doesn't take up inventory space so pick it up if it's close enough and we can pick it
+          // we tend to endlessly need it
+          if (Pickit.pickItem(item, Pickit.Result.WANTED, "gold", 1)) {
+            continue;
+          }
+        }
+        if (Pickit.pickList.some(function (el) {
+          return el.gid === item.gid;
+        })) continue;
+        if (item.onGroundOrDropping && item.distance <= range) {
+          Pickit.pickList.push(copyUnit(item));
+        }
+      } while (item.getNext());
+    }
+  };
+  buildPickList();
 
   if (Pickit.pickList.some(function (el) {
     return _pots.includes(el.itemType);
@@ -826,6 +842,12 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
         if (!canFit && !me.checkForMobs({ range: 10 }) && Storage.Inventory.IsPossibleToFit(_item)) {
           me.sortInventory();
           canFit = (Storage.Inventory.CanFit(_item) || Pickit.canFit(_item));
+        }
+
+        if (!_item || _item.gid === undefined) {
+          console.warn("Item disappeared or became invalid while trying to pick " + itemName);
+          Pickit.pickList.shift();
+          continue;
         }
 
         // Try to make room by selling items in town
@@ -883,7 +905,16 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
         // Item can fit - pick it up
         if (canFit) {
           let picked = this.pickItem(_item, status.result, status.line);
-          if (picked && once) return true;
+          if (picked) {
+            if (once) {
+              return true;
+            }
+
+            // we may have moved so lets check and build a new list of items near us before trying to pick the next item in the list
+            if (origin.distance > 2) {
+              buildPickList();
+            }
+          }
         }
       }
     }
