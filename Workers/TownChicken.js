@@ -397,4 +397,7 @@
 
     console.log("ÿc8Kolbot-SoloPlayÿc0: Start TownChicken");
   }
+  // Feature-probe: use a thread-published Worker global when present, else require the module.
+  // The bare read is typeof-guarded, so it can never throw - safe to except from no-undef.
+  // eslint-disable-next-line no-undef
 })(module, require, typeof Worker === "object" && Worker || require("../../modules/Worker"));

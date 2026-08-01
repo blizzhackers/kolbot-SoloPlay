@@ -596,10 +596,12 @@ const CharmEquip = (function () {
       if (!items.length) return true;
 
       let quantityCap = NTIP.getInvoQuantity(item);
-      let have = 0;
+      let have;
       let charms = CharmEquip.sort(items);
       let charmType = CharmEquip.getCharmType(item);
-      let cInfo, newList = [];
+      let cInfo;
+      /** @type {ItemUnit[]} */
+      let newList;
 
       switch (item.classid) {
       case sdk.items.SmallCharm:

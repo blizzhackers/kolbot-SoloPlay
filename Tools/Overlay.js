@@ -109,7 +109,8 @@ const Overlay = {
         case "dashboard":
           this.hooks.push({
             name: "dashboard",
-            hook: new Box(Overlay.dashboard.x + Overlay.resfix.x, Overlay.dashboard.y + Overlay.resfix.y, 370, 80, 0x0, 4, 0)
+            hook: new Box(Overlay.dashboard.x + Overlay.resfix.x, Overlay.dashboard.y + Overlay.resfix.y,
+              370, 80, 0x0, 4, 0)
           });
 
           this.hooks.push({
@@ -398,12 +399,14 @@ const Overlay = {
         case "questbox":
           _qHooks.push({
             name: "questbox",
-            hook: new Box(Overlay.quest.x - 8, Overlay.quest.y + Overlay.resfix.y - 17, 145, 10 + [0, 105, 90, 90, 60, 90][me.act], 0x0, 4, 0)
+            hook: new Box(Overlay.quest.x - 8, Overlay.quest.y + Overlay.resfix.y - 17, 145,
+              10 + [0, 105, 90, 90, 60, 90][me.act], 0x0, 4, 0)
           });
 
           _qHooks.push({
             name: "questframe",
-            hook: new Frame(Overlay.quest.x - 8, Overlay.quest.y + Overlay.resfix.y - 17, 145, 10 + [0, 105, 90, 90, 60, 90][me.act], 0)
+            hook: new Frame(Overlay.quest.x - 8, Overlay.quest.y + Overlay.resfix.y - 17, 145,
+              10 + [0, 105, 90, 90, 60, 90][me.act], 0)
           });
 
           this.getHook("questbox").hook.zorder = 0;

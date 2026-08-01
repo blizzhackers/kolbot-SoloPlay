@@ -33,7 +33,8 @@ const CharInfo = {
     case currLevel < this.respecOne && !me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints):
       return "Start";
     case currLevel >= this.respecOne && currLevel < this.respecTwo && justRepeced:
-    case (currLevel >= this.respecOne && currLevel < this.respecTwo && me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints)):
+    case (currLevel >= this.respecOne && currLevel < this.respecTwo
+      && me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints)):
       return "Stepping";
     case Check.finalBuild().respec() && justRepeced:
     case Check.finalBuild().active():

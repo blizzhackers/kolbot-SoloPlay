@@ -37,7 +37,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -58,7 +59,8 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },
@@ -83,7 +85,10 @@
       },
 
       respec: function () {
-        return me.haveAll([{ name: sdk.locale.items.Destruction }, { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }]);
+        return me.haveAll([
+          { name: sdk.locale.items.Destruction },
+          { name: sdk.locale.items.Dragon, itemtype: sdk.items.type.Armor }
+        ]);
       },
 
       active: function () {

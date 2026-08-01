@@ -10,7 +10,9 @@ function ancients () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting ancients");
 
-  Pather.checkWP(sdk.areas.AncientsWay) ? Pather.useWaypoint(sdk.areas.AncientsWay) : Pather.getWP(sdk.areas.AncientsWay);
+  Pather.checkWP(sdk.areas.AncientsWay)
+    ? Pather.useWaypoint(sdk.areas.AncientsWay)
+    : Pather.getWP(sdk.areas.AncientsWay);
   Precast.doPrecast(true);
   Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
 

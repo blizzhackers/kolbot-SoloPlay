@@ -9,7 +9,8 @@ function hephasto () {
   myPrint("starting hephasto");
   Town.doChores(null, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75 });
 
-  Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
+  Pather.checkWP(sdk.areas.RiverofFlame, true)
+    ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
   Precast.doPrecast(true);
 
   if (!Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HellForge)) {

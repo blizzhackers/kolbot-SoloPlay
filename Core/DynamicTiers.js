@@ -65,7 +65,8 @@
 
     let mercRating = 1;
     // start
-    item.prefixnum === sdk.locale.items.Treachery && (mercRating += item.getStatEx(sdk.stats.SkillWhenStruck, 2) * 1000); // fade
+    item.prefixnum === sdk.locale.items.Treachery
+      && (mercRating += item.getStatEx(sdk.stats.SkillWhenStruck, 2) * 1000); // fade
     mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Conviction) * 1000; // conviction aura
     mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Meditation) * 100; // meditation aura
     mercRating += item.getStatEx(sdk.stats.AllSkills) * mercWeights.ALL; // add all skills
@@ -83,9 +84,12 @@
     mercRating += item.getStatEx(sdk.stats.ColdResist) * mercWeights.CR; // add CR
     mercRating += item.getStatEx(sdk.stats.LightResist) * mercWeights.LR; // add LR
     mercRating += item.getStatEx(sdk.stats.PoisonResist) * mercWeights.PR; // add PR
-    mercRating += (item.getStatEx(sdk.stats.Vitality) + item.getStatEx(sdk.stats.MaxHp) + (item.getStatEx(sdk.stats.PerLevelHp) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
+    mercRating += (item.getStatEx(sdk.stats.Vitality) + item.getStatEx(sdk.stats.MaxHp)
+      + (item.getStatEx(sdk.stats.PerLevelHp) / 2048 * me.charlvl)) * mercWeights.HP; // add HP
     mercRating += sumElementalDmg(item) * mercWeights.ELEDMG; // add elemental damage
-    mercRating += (item.getStatEx(sdk.stats.AbsorbFirePercent) + item.getStatEx(sdk.stats.AbsorbLightPercent) + item.getStatEx(sdk.stats.AbsorbMagicPercent) + item.getStatEx(sdk.stats.AbsorbColdPercent)) * mercWeights.ABS; // add absorb damage
+    mercRating += (item.getStatEx(sdk.stats.AbsorbFirePercent) + item.getStatEx(sdk.stats.AbsorbLightPercent)
+      + item.getStatEx(sdk.stats.AbsorbMagicPercent)
+      + item.getStatEx(sdk.stats.AbsorbColdPercent)) * mercWeights.ABS; // add absorb damage
     mercRating += item.getStatEx(sdk.stats.NormalDamageReduction) * mercWeights.DR; // add integer damage resist
     mercRating += item.getStatEx(sdk.stats.DamageResist) * mercWeights.DR * 2; // add damage resist %
     mercRating += item.getStatEx(sdk.stats.MagicDamageReduction) * mercWeights.MR; // add integer magic damage resist
@@ -394,8 +398,10 @@
 
       // start generalRating
       !item.isRuneword && (generalRating += (item.sockets * 10)); // priortize sockets
-      generalRating += ((item.getStatEx(sdk.stats.PerLevelHp) / 2048 * me.charlvl)) * _tierWeights.gen.get(sdk.stats.PerLevelHp);
-      generalRating += ((item.getStatEx(sdk.stats.PerLevelMana) / 2048 * me.charlvl)) * _tierWeights.gen.get(sdk.stats.PerLevelMana);
+      generalRating += ((item.getStatEx(sdk.stats.PerLevelHp) / 2048 * me.charlvl))
+        * _tierWeights.gen.get(sdk.stats.PerLevelHp);
+      generalRating += ((item.getStatEx(sdk.stats.PerLevelMana) / 2048 * me.charlvl))
+        * _tierWeights.gen.get(sdk.stats.PerLevelMana);
 
       return [
         sdk.stats.FHR, sdk.stats.FRW, sdk.stats.FBR, sdk.stats.FCR, sdk.stats.ToBlock,
@@ -682,12 +688,16 @@
         charmRating += item.getStatEx(sdk.stats.ReducedPrices) * 1.5;
         charmRating += item.getStatEx(sdk.stats.MagicBonus) * _tierWeights.charms.get(sdk.stats.MagicBonus);
       } else {
-        charmRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * _tierWeights.charms.get(sdk.stats.AddClassSkills);
+        charmRating += item.getStatEx(sdk.stats.AddClassSkills, me.classid)
+          * _tierWeights.charms.get(sdk.stats.AddClassSkills);
       }
     } else {
-      charmRating += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * _tierWeights.charms.get(sdk.stats.AddSkillTab);
-      charmRating += ((item.getStatEx(sdk.stats.PerLevelHp) / 2048 * me.charlvl)) * _tierWeights.charms.get(sdk.stats.PerLevelHp);
-      charmRating += ((item.getStatEx(sdk.stats.PerLevelMana) / 2048 * me.charlvl)) * _tierWeights.charms.get(sdk.stats.PerLevelMana);
+      charmRating += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills)
+        * _tierWeights.charms.get(sdk.stats.AddSkillTab);
+      charmRating += ((item.getStatEx(sdk.stats.PerLevelHp) / 2048 * me.charlvl))
+        * _tierWeights.charms.get(sdk.stats.PerLevelHp);
+      charmRating += ((item.getStatEx(sdk.stats.PerLevelMana) / 2048 * me.charlvl))
+        * _tierWeights.charms.get(sdk.stats.PerLevelMana);
 
       if (!buildInfo.caster) {
         charmRating += item.getStatEx(sdk.stats.MinDamage) * 3; // add MIN damage

@@ -32,7 +32,8 @@
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            let mainSkill = Skill.canUse(sdk.skills.LightningStrike) ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike;
+            let mainSkill = Skill.canUse(sdk.skills.LightningStrike)
+              ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike;
             Config.AttackSkill = [-1, sdk.skills.ChargedStrike, 0, mainSkill, 0, -1, -1];
             Config.BeltColumn = ["hp", "hp", "mp", "mp"];
             Config.HPBuffer = me.expansion ? 2 : 4;
@@ -43,12 +44,15 @@
       },
 
       active: function () {
-        return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo && me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints) && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) <= 5;
+        return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo
+          && me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints)
+          && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) <= 5;
       },
     };
     
     // Has to be set after its loaded
-    me.classic && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
+    me.classic
+      && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
     build.stats = me.classic
       ? [
         ["dexterity", 65], ["strength", 75], ["vitality", "all"]

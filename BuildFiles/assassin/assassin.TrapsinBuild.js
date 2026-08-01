@@ -47,7 +47,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20);
           }
         },
 
@@ -57,7 +58,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -67,7 +69,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.FHR) === 5);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.FHR) === 5);
           }
         },
 
@@ -77,7 +80,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.MaxHp) === 20 && check.getStat(sdk.stats.MaxMana) === 17);
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.MaxHp) === 20 && check.getStat(sdk.stats.MaxMana) === 17);
           }
         },
 
@@ -87,7 +91,8 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Traps) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.Traps) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },
@@ -97,15 +102,25 @@
         1:	{
           Update: function () {
             Config.UseTraps = true;
-            Config.AttackSkill = [-1, sdk.skills.ShockWeb, sdk.skills.FireBlast, sdk.skills.ShockWeb, sdk.skills.FireBlast, -1, -1];
-            Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
-            Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
+            Config.AttackSkill = [
+              -1, sdk.skills.ShockWeb, sdk.skills.FireBlast, sdk.skills.ShockWeb, sdk.skills.FireBlast, -1, -1,
+            ];
+            Config.Traps = [
+              sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry,
+              sdk.skills.DeathSentry, sdk.skills.DeathSentry,
+            ];
+            Config.BossTraps = [
+              sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry, sdk.skills.LightningSentry,
+            ];
           }
         },
       },
 
       respec: function () {
-        return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity) && !Misc.poll(() => me.getMerc(), 200, 50))) && me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
+        return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity)
+          && !Misc.poll(() => me.getMerc(), 200, 50)))
+          && me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
       },
 
       active: function () {

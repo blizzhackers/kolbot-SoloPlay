@@ -99,7 +99,8 @@ function orgtorch () {
         Precast.doPrecast(true);
         Pather.moveTo(7811, 5872);
 
-        me.paladin && me.checkSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints) && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
+        me.paladin && me.checkSkill(sdk.skills.Salvation, sdk.skills.subindex.SoftPoints)
+          && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
 
         while (!me.getState(sdk.states.Fade)) {
           delay(100);
@@ -145,7 +146,8 @@ function orgtorch () {
         do {
           switch (mode) {
           case 0:
-            if ([sdk.areas.MatronsDen, sdk.areas.ForgottenSands, sdk.areas.FurnaceofPain].indexOf(portal.objtype) > -1 && this.doneAreas.indexOf(portal.objtype) === -1) {
+            if ([sdk.areas.MatronsDen, sdk.areas.ForgottenSands, sdk.areas.FurnaceofPain].indexOf(portal.objtype) > -1
+              && this.doneAreas.indexOf(portal.objtype) === -1) {
               this.doneAreas.push(portal.objtype);
 
               return copyUnit(portal);
@@ -182,7 +184,10 @@ function orgtorch () {
     case sdk.areas.ForgottenSands:
       Precast.doPrecast(true);
 
-      findLoc = [20196, 8694, 20308, 8588, 20187, 8639, 20100, 8550, 20103, 8688, 20144, 8709, 20263, 8811, 20247, 8665];
+      findLoc = [
+        20196, 8694, 20308, 8588, 20187, 8639, 20100, 8550,
+        20103, 8688, 20144, 8709, 20263, 8811, 20247, 8665
+      ];
 
       for (i = 0; i < findLoc.length; i += 2) {
         Pather.moveTo(findLoc[i], findLoc[i + 1]);

@@ -54,7 +54,8 @@ const SoloWants = {
       .filter(item => item.isEquipped)
       .forEach(item => SoloWants.addToList(item));
     myItems
-      .filter(item => item.isInStorage && item.quality >= sdk.items.quality.Magic && item.getItemType() && AutoEquip.wanted(item))
+      .filter(item => item.isInStorage && item.quality >= sdk.items.quality.Magic
+        && item.getItemType() && AutoEquip.wanted(item))
       .forEach(item => SoloWants.addToList(item));
     
     return myItems.forEach(item => SoloWants.checkItem(item));
@@ -83,7 +84,8 @@ const SoloWants = {
         let merc = me.getMerc();
         switch (true) {
         case Item.autoEquipCheck(item, true) && me.trueStr >= item.strreq && me.trueDex >= item.dexreq:
-        case Item.autoEquipCheckMerc(item, true) && !!merc && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
+        case Item.autoEquipCheckMerc(item, true) && !!merc
+          && merc.rawStrength >= item.strreq && merc.rawDexterity >= item.dexreq:
           curr.socketWith.splice(curr.socketWith.indexOf(sdk.items.runes.Hel), 1);
           break;
         }
@@ -137,7 +139,9 @@ const SoloWants = {
       // Tir rune in normal, Io rune otherwise and Shael's if assassin TODO: use jewels too
       !gemType && (runeType = me.normal ? "Tir" : me.assassin ? "Shael" : "Io");
 
-      hasWantedItems = socketedWith.some(el => gemType ? el.itemType === sdk.items.type[gemType] : el.classid === sdk.items.runes[runeType]);
+      hasWantedItems = socketedWith.some(el => gemType
+        ? el.itemType === sdk.items.type[gemType]
+        : el.classid === sdk.items.runes[runeType]);
       if (hasWantedItems && socketedWith.length === numSockets) {
         return true; // this item is full
       }
@@ -200,8 +204,11 @@ const SoloWants = {
       for (let i = 0; i < el.needed.length; i++) {
         switch (true) {
         case [
-          sdk.items.gems.Perfect.Ruby, sdk.items.gems.Perfect.Sapphire, sdk.items.gems.Perfect.Topaz, sdk.items.gems.Perfect.Emerald,
-          sdk.items.gems.Perfect.Amethyst, sdk.items.gems.Perfect.Diamond, sdk.items.gems.Perfect.Skull].includes(el.needed[i]):
+          sdk.items.gems.Perfect.Ruby, sdk.items.gems.Perfect.Sapphire,
+          sdk.items.gems.Perfect.Topaz, sdk.items.gems.Perfect.Emerald,
+          sdk.items.gems.Perfect.Amethyst, sdk.items.gems.Perfect.Diamond,
+          sdk.items.gems.Perfect.Skull,
+        ].includes(el.needed[i]):
           if (Cubing.subRecipes.indexOf(el.needed[i]) === -1) {
             Cubing.subRecipes.push(el.needed[i]);
             Cubing.recipes.push({

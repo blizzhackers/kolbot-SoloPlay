@@ -13,7 +13,9 @@ function duriel () {
   // Start
   Town.doChores(false, { fullChores: true });
   myPrint("starting duriel");
-  Pather.checkWP(sdk.areas.CanyonofMagic, true) ? Pather.useWaypoint(sdk.areas.CanyonofMagic) : Pather.getWP(sdk.areas.CanyonofMagic);
+  Pather.checkWP(sdk.areas.CanyonofMagic, true)
+    ? Pather.useWaypoint(sdk.areas.CanyonofMagic)
+    : Pather.getWP(sdk.areas.CanyonofMagic);
   Precast.doPrecast(true);
   Pather.moveToExit(getRoom().correcttomb, true);
   Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.objects.HoradricStaffHolder);
@@ -44,7 +46,8 @@ function duriel () {
       }
     }
 
-    if (!me.inArea(sdk.areas.DurielsLair) && !Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair)) {
+    if (!me.inArea(sdk.areas.DurielsLair)
+      && !Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair)) {
       Attack.clear(10);
       Pather.useUnit(sdk.unittype.Object, sdk.objects.PortaltoDurielsLair, sdk.areas.DurielsLair);
     }

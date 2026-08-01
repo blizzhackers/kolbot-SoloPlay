@@ -53,7 +53,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     };
     let searchShrine = function () {
       return getUnits(2, "shrine")
-        .filter(function (el) { return el.mode === sdk.objects.mode.Inactive && Config.ScanShrines.includes(el.objtype); })
+        .filter(function (el) {
+          return el.mode === sdk.objects.mode.Inactive &&
+            Config.ScanShrines.includes(el.objtype);
+        })
         .filter(function (el) {
           // Dont do anything with shrines we already found
           if (skipShrine.includes(el.gid)) return false;
@@ -69,7 +72,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
           return false;
         })
         .filter(function (el) { return Pather.getWalkDistance(el.x, el.y, el.area, me.x, me.y, 0, 5) <= 40; })
-        .sort(function (a, b) { return (Config.ScanShrines.indexOf(a.objtype) - Config.ScanShrines.indexOf(b.objtype)) || a.distance - b.distance; })
+        .sort(function (a, b) {
+          return (Config.ScanShrines.indexOf(a.objtype) - Config.ScanShrines.indexOf(b.objtype)) ||
+            a.distance - b.distance;
+        })
         .first();
     };
     // convert presetunit to x,y target
@@ -117,7 +123,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
       }
 
       path_1.reverse();
-      let lines = path_1.map(function (node, i, self) { return i /*skip first*/ && new Line(self[i - 1].x, self[i - 1].y, node.x, node.y, 0x33, true); });
+      let lines = path_1.map(function (node, i, self) {
+        return i /*skip first*/ &&
+          new Line(self[i - 1].x, self[i - 1].y, node.x, node.y, 0x33, true);
+      });
       path_1.forEach(function (el, idx) {
         if (el.hook && idx) {
           console.log("path ", idx, "has a hook");
@@ -137,7 +146,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
           j = i + 1;
           let monsters = getUnits(sdk_1.default.unittype.Monster)
             .filter(function (m) { return m.attackable && settings.clearFilter(m, path_1[j]); });
-          while (j < path_1.length && !path_1[j].hook && monsters.length === 0 && exports.getWalkDistance(path_1[j].x, path_1[j].y) < 100 - 14 && settings.allowClearing) {
+          while (j < path_1.length && !path_1[j].hook && monsters.length === 0
+            && exports.getWalkDistance(path_1[j].x, path_1[j].y) < 100 - 14 && settings.allowClearing) {
             j += 1;
             monsters = getUnits(sdk_1.default.unittype.Monster)
               .filter(function (m) { return m.attackable && settings.clearFilter(m, path_1[j]); });
@@ -151,7 +161,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (me.inTown && !didSkipTown) {
           didSkipTown = true;
           console.log("Total nodes -> " + path_1.length);
-          let area = void 0, exits = [];
+          let area, exits = [];
           (area = getArea(me.area)) && (exits = area.exits);
           let target_1 = exits.find(function (exit) {
             let closeExitNode = path_1.findIndex(function (node) { return getDistance(node, exit) < 10; });
@@ -211,7 +221,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         // ToDo; only if clearing makes sense in this area due to effort
         let range = 14 / 100 * clearPercentage;
         if (settings.allowClearing) {
-          clear_1.default({ nodes: path_1, range: settings.rangeOverride || Math.max(4, range), callback: settings.callback });
+          clear_1.default({
+            nodes: path_1,
+            range: settings.rangeOverride || Math.max(4, range),
+            callback: settings.callback
+          });
         }
         // console.log('after clear');
         // console.log('before pick');
@@ -221,7 +235,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         // if shrine found, click on it
         if ((shrine_1 = searchShrine())) {
           skipShrine.push(shrine_1.gid);
-          let nearestShrine_1 = path_1.slice().sort(function (a, b) { return getDistance(shrine_1, a) - getDistance(shrine_1, b); }).first();
+          let nearestShrine_1 = path_1.slice()
+            .sort(function (a, b) { return getDistance(shrine_1, a) - getDistance(shrine_1, b); })
+            .first();
           if (nearestShrine_1) {
             (function (originalHook, shrineId) {
               // First run original hook on this spot, if it had any
@@ -257,13 +273,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             // Sometimes we go way out track due to clearing,
             // lets find the nearest node on the path and go from there
             // but not of the next node path
-            let nearestNode_1 = pathCopy.filter(function (el) { return el.index === node.index; }).sort(function (a, b) { return a.distance - b.distance; }).first();
+            let nearestNode_1 = pathCopy.filter(function (el) { return el.index === node.index; })
+              .sort(function (a, b) { return a.distance - b.distance; })
+              .first();
             // let nearestNode = path.slice(Math.min(path.index-10,0), path.index + 30).sort((a, b) => a.distance - b.distance).first();
             // if the nearest node is still in 95% of our current node, we dont need to reset
             if (nearestNode_1.distance > 5 && node.distance > 5 && 100 / node.distance * nearestNode_1.distance < 95) {
               console.debug("reseting path to other node");
               // reset i to the nearest node
-              let newIndex = path_1.findIndex(function (node) { return nearestNode_1.x === node.x && nearestNode_1.y === node.y; });
+              let newIndex = path_1.findIndex(function (node) {
+                return nearestNode_1.x === node.x &&
+                  nearestNode_1.y === node.y;
+              });
               // Move forward
               if (newIndex > i) {
                 // Hook all skipped nodes

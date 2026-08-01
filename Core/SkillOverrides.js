@@ -146,7 +146,8 @@ Skill.switchCast = function (skillId, givenSettings = {}) {
   // Check mana cost, charged skills don't use mana
   if (this.getManaCost(skillId) > me.mp) {
     // Maybe delay on ALL skills that we don't have enough mana for?
-    if (Config.AttackSkill.concat([sdk.skills.StaticField, sdk.skills.Teleport]).concat(Config.LowManaSkill).includes(skillId)) {
+    if (Config.AttackSkill.concat([sdk.skills.StaticField, sdk.skills.Teleport])
+      .concat(Config.LowManaSkill).includes(skillId)) {
       delay(300);
     }
 

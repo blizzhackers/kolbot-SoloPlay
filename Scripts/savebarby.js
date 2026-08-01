@@ -12,7 +12,9 @@ function savebarby () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting barbies");
 
-  Pather.checkWP(sdk.areas.FrigidHighlands, true) ? Pather.useWaypoint(sdk.areas.FrigidHighlands) : Pather.getWP(sdk.areas.FrigidHighlands);
+  Pather.checkWP(sdk.areas.FrigidHighlands, true)
+    ? Pather.useWaypoint(sdk.areas.FrigidHighlands)
+    : Pather.getWP(sdk.areas.FrigidHighlands);
   Precast.doPrecast(true);
   let barbies = (Game.getPresetObjects(me.area, sdk.quest.chest.BarbCage) || []);
 

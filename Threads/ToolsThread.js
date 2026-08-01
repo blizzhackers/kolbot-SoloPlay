@@ -711,7 +711,7 @@ function main () {
 
       if (me.gameReady) {
         // handle d2bot# profile display
-        let statusString = "";
+        let statusString;
 
         try {
           statusString = [

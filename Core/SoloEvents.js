@@ -86,7 +86,14 @@
             }
 
             if (torch || anni) {
-              for (let j = 0; j < 12 || me.findItem((anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), sdk.items.mode.inStorage, -1, sdk.items.quality.Unique); j++) {
+              let foundCharm = function () {
+                return me.findItem(
+                  (anni ? sdk.items.SmallCharm : sdk.items.LargeCharm), sdk.items.mode.inStorage,
+                  -1,
+                  sdk.items.quality.Unique
+                );
+              };
+              for (let j = 0; j < 12 || foundCharm(); j++) {
                 Town.move("stash");
                 me.overhead("Looking for " + (anni ? "Annihilus" : "Torch"));
                 Pickit.pickItems();

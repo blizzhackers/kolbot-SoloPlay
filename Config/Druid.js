@@ -199,7 +199,7 @@
 
       // Phoenix Shield
       if (LADDER_ENABLED && SetUp.finalBuild === "Elemental" && me.checkItem({ name: sdk.locale.items.Enigma }).have && !me.checkItem({ name: sdk.locale.items.Phoenix, itemtype: sdk.items.type.Shield }).have) {
-        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoneixShield.js");
+        includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/PhoenixShield.js");
       }
     }
 

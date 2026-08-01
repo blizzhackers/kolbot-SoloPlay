@@ -211,7 +211,8 @@
       Mercs.splice(0, Mercs.length);
       break;
     case 0x4e:
-      let name = ((pByte[1]) | (pByte[2] << 8)), seed = ((pByte[3]) | (pByte[4] << 8) | (pByte[5] << 16) | (pByte[6] << 24)) >>> 0;
+      let name = ((pByte[1]) | (pByte[2] << 8)),
+        seed = ((pByte[3]) | (pByte[4] << 8) | (pByte[5] << 16) | (pByte[6] << 24)) >>> 0;
       Mercs.push(new Merc(name, seed));
       break;
     }

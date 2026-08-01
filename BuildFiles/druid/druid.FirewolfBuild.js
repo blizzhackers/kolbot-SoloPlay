@@ -12,7 +12,10 @@
       caster: false,
       skillstab: sdk.skills.tabs.ShapeShifting,
       wantedskills: [sdk.skills.Werewolf, sdk.skills.Lycanthropy, sdk.skills.FireClaws],
-      usefulskills: [sdk.skills.HeartofWolverine, sdk.skills.Grizzly, sdk.skills.Rabies, sdk.skills.Volcano, sdk.skills.Fissure, sdk.skills.Firestorm],
+      usefulskills: [
+        sdk.skills.HeartofWolverine, sdk.skills.Grizzly, sdk.skills.Rabies, sdk.skills.Volcano, sdk.skills.Fissure,
+        sdk.skills.Firestorm,
+      ],
       precastSkills: [sdk.skills.Werewolf, sdk.skills.HeartofWolverine, sdk.skills.Grizzly],
       usefulStats: [sdk.stats.PassiveFireMastery, sdk.stats.PassiveFirePierce, sdk.stats.PierceFire],
       wantedMerc: MercData[sdk.skills.Might],
@@ -40,7 +43,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -61,7 +65,8 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.ShapeShifting) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },

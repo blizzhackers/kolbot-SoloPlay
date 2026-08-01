@@ -499,7 +499,7 @@ me.inDanger = function (checkLoc, range) {
   range === undefined && (range = 10);
   const nearUnits = getUnits(sdk.unittype.Monster)
     .filter(function (mon) {
-      return mon && mon.attackable && getDistance(_this, mon) < 10;
+      return mon && mon.attackable && getDistance(_this, mon) < range;
     });
   
   const dangerAuras = [sdk.states.Fanaticism, sdk.states.Conviction];

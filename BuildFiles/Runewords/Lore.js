@@ -21,13 +21,15 @@
     Config.Recipes.push([Recipe.Rune, "Sol Rune", { condition: needSol }]);
   }
 
-  let classLoreHelm = [];
+  let classLoreHelm;
+  /** @type {NipString[]} */
   const loreHelm = [
     "!me.hell && ([name] == crown || [name] == bonehelm || [name] == fullhelm) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
     "([name] == casque || [name] == sallet || [name] == deathmask || [name] == grimhelm) && [flag] != ethereal && [quality] >= normal && [quality] <= superior # [sockets] == 2 # [maxquantity] == 1",
   ];
 
   if (me.druid) {
+    /** @type {NipString[]} */
     classLoreHelm = [
       "[name] == OrtRune # # [maxquantity] == 1",
       "[name] == SolRune # # [maxquantity] == 1",
@@ -77,6 +79,7 @@
   }
 
   if (me.barbarian) {
+    /** @type {NipString[]} */
     classLoreHelm = [
       "[name] == OrtRune # # [maxquantity] == 1",
       "[name] == SolRune # # [maxquantity] == 1",

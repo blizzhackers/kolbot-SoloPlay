@@ -63,13 +63,17 @@
 
     build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
       if (me.checkSkill(sdk.skills.Fissure, sdk.skills.subindex.HardPoints)) {
-        Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
+        Config.AttackSkill = [
+          -1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0,
+        ];
       }
     });
 
     build.AutoBuildTemplate[13] = buildAutoBuildTempObj(() => {
       if (Skill.canUse(sdk.skills.Fissure)) {
-        Config.AttackSkill = [-1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0];
+        Config.AttackSkill = [
+          -1, sdk.skills.Fissure, sdk.skills.Firestorm, sdk.skills.Fissure, sdk.skills.Firestorm, 0, 0,
+        ];
       }
     });
 

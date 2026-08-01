@@ -146,7 +146,7 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
               rolledBack = true;
             }
 
-            !this.shouldKeep() && this.drop();
+            cursorItem && !cursorItem.shouldKeep() && cursorItem.drop();
           }
         }
 

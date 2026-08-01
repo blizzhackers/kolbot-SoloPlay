@@ -103,7 +103,6 @@ Cubing.buildLists = function () {
           // Remove from item list to prevent counting the same item more than once
           items.splice(k, 1);
 
-          k -= 1;
 
           // Enable recipes for gem/jewel pickup
           // Enable rune recipe after 2 bases are found

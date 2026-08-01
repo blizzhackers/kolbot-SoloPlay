@@ -18,3 +18,4 @@ Config/*
 Settings/AdvancedSettings.js
 Settings/Settings.js
 OOG/StarterConfig.js
+/Modules/Mock.js

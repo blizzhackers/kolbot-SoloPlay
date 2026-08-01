@@ -417,7 +417,7 @@ Item.equip = function (item, bodyLoc) {
           if (cursorItem) {
             // rollback check
             let justEquipped = me.equipped.get(bodyLoc);
-            let checkScore = 0;
+            let checkScore;
             switch (cursorItem.itemType) {
             case sdk.items.type.Ring:
               checkScore = tierscore(cursorItem, 1, bodyLoc);

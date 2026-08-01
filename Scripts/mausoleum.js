@@ -30,7 +30,8 @@ function mausoleum () {
   Pather.moveToExit([sdk.areas.BurialGrounds, sdk.areas.Mausoleum], true);
   // need to figure out better clearLevel method, for now just clear to superchest
 
-  me.inArea(sdk.areas.Mausoleum) && Pather.moveToPreset(sdk.areas.Mausoleum, sdk.unittype.Object, sdk.objects.SmallSparklyChest);
+  me.inArea(sdk.areas.Mausoleum)
+    && Pather.moveToPreset(sdk.areas.Mausoleum, sdk.unittype.Object, sdk.objects.SmallSparklyChest);
   Misc.openChests(5);
   
   return true;

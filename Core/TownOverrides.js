@@ -375,7 +375,6 @@ Town.checkScrolls = function (id, force = false) {
  * @returns {void}
  */
 Town.itemResult = function (item, result, system = "", sell = false) {
-  let timer = 0;
   sell && !getInteractedNPC() && (sell = false);
 
   switch (result.result) {
@@ -433,7 +432,7 @@ Town.itemResult = function (item, result, system = "", sell = false) {
     }
 
     item.sell();
-    timer = getTickCount() - this.sellTimer; // shop speedup test
+    let timer = getTickCount() - this.sellTimer; // shop speedup test
 
     if (timer > 0 && timer < 500) {
       delay(timer);

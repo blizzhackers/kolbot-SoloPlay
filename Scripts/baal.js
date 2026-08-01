@@ -252,7 +252,9 @@ function baal () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting baal");
 
-  Pather.checkWP(sdk.areas.WorldstoneLvl2, true) ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2) : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
+  Pather.checkWP(sdk.areas.WorldstoneLvl2, true)
+    ? Pather.useWaypoint(sdk.areas.WorldstoneLvl2)
+    : Pather.getWP(sdk.areas.WorldstoneLvl2, true);
   Precast.doPrecast(true);
   const oldCPRange = Config.ClearPath.Range;
   const canTele = Pather.canTeleport();
@@ -260,7 +262,8 @@ function baal () {
     canTele && (Config.ClearPath.Range = 0);
     canTele
       ? Pather.moveToExit([sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction], true, false)
-      : (Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true) && Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true));
+      : (Pather.clearToExit(sdk.areas.WorldstoneLvl2, sdk.areas.WorldstoneLvl3, true)
+        && Pather.clearToExit(sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction, true));
   } finally {
     oldCPRange !== Config.ClearPath.Range && (Config.ClearPath.Range = oldCPRange);
   }

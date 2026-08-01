@@ -234,7 +234,8 @@
       // In case we are trying to use different runes, check if item already has current rune inserted
       // or if its already in the muliple list. If it is, remove that socketables classid from the list of wanted classids
         if (itemInfo.socketWith.length > 1
-        && (itemSocketInfo.some(el => el.classid === socketables[i].classid) || multiple.some(el => el.classid === socketables[i].classid))) {
+        && (itemSocketInfo.some(el => el.classid === socketables[i].classid)
+          || multiple.some(el => el.classid === socketables[i].classid))) {
           itemInfo.socketWith.remove(socketables[i].classid);
         }
 
@@ -343,7 +344,8 @@
           continue;
         }
         // Any magic, rare, or crafted item with open sockets
-        if (item.isEquipped && [sdk.body.Head, sdk.body.Armor, sdk.body.RightArm, sdk.body.LeftArm].includes(item.bodylocation)) {
+        if (item.isEquipped
+          && [sdk.body.Head, sdk.body.Armor, sdk.body.RightArm, sdk.body.LeftArm].includes(item.bodylocation)) {
           getSocketables(item);
         }
 
@@ -408,7 +410,7 @@
     let name = "";
     let itemsResists, baseResists, itemsTotalDmg, baseDmg, itemsDefense, baseDefense;
     let baseSkillsTier, equippedSkillsTier;
-    let result = false, preSocketCheck = false;
+    let result = false, preSocketCheck;
     let bodyLoc = Item.getBodyLoc(base);
 
     /** @param {ItemUnit} item */
@@ -480,19 +482,19 @@
         name = getLocaleString(eqItem.prefixnum);
         // todo logic checking before this to ensure we aren't keeping extra merc stuff
         if (base.sockets === 0) return true;
-        switch (equippedItem.prefixnum) {
+        switch (eqItem.prefixnum) {
         case sdk.locale.items.Insight:
-          [itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 260), getDmg(base)];
+          [itemsTotalDmg, baseDmg] = [getRealDmg(eqItem, 260), getDmg(base)];
           if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
           break;
         case sdk.locale.items.Infinity:
-          [itemsTotalDmg, baseDmg] = [getRealDmg(equippedItem, 325), getDmg(base)];
+          [itemsTotalDmg, baseDmg] = [getRealDmg(eqItem, 325), getDmg(base)];
           if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
           break;
         case sdk.locale.items.Treachery:
-          [itemsDefense, baseDefense] = [getRealDef(equippedItem), getDef(base)];
+          [itemsDefense, baseDefense] = [getRealDef(eqItem), getDef(base)];
           if (baseDefense !== itemsDefense && defCheck(itemsDefense, baseDefense)) return true;
 
           break;
@@ -753,7 +755,8 @@
     /** @param {ItemUnit} item */
     const dmgScore = (item) => ({
       dmg: Math.round((item.getStatEx(sdk.stats.MinDamagePercent) + item.getStatEx(sdk.stats.MaxDamagePercent)) / 2),
-      twoHandDmg: Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage) + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2),
+      twoHandDmg: Math.round((item.getStatEx(sdk.stats.SecondaryMinDamage)
+        + item.getStatEx(sdk.stats.SecondaryMaxDamage)) / 2),
       eDmg: item.getStatEx(sdk.stats.EnhancedDamage)
     });
 
@@ -962,7 +965,8 @@
         switch (true) {
         case (baseDmg.twoHandDmg > checkItemDmg.twoHandDmg):
         case ((baseDmg.twoHandDmg === checkItemDmg.twoHandDmg) && (baseDmg.eDmg > checkItemDmg.eDmg)):
-        case ((baseDmg.twoHandDmg === checkItemDmg.twoHandDmg) && (baseDmg.eDmg === checkItemDmg.eDmg) && base.ilvl > checkItem.ilvl):
+        case ((baseDmg.twoHandDmg === checkItemDmg.twoHandDmg) && (baseDmg.eDmg === checkItemDmg.eDmg)
+          && base.ilvl > checkItem.ilvl):
           verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: ", baseDmg, " itemToCheckScore: ", checkItemDmg);
           return true;
         }

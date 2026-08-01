@@ -25,7 +25,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MaxHp) === 20);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.MaxHp) === 20);
           }
         },
 
@@ -35,7 +36,8 @@
           classid: sdk.items.SmallCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.allRes === 5 && check.getStat(sdk.stats.MagicBonus) === 7);
+            return (!check.unique && check.classid === this.classid && check.allRes === 5
+              && check.getStat(sdk.stats.MagicBonus) === 7);
           }
         },
 
@@ -45,7 +47,8 @@
           classid: sdk.items.GrandCharm,
           /** @param {ItemUnit} check */
           stats: function (check) {
-            return (!check.unique && check.classid === this.classid && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.NecroSummoning) === 1
+            return (!check.unique && check.classid === this.classid
+              && check.getStat(sdk.stats.AddSkillTab, sdk.skills.tabs.NecroSummoning) === 1
               && check.getStat(sdk.stats.MaxHp) >= 40);
           }
         },

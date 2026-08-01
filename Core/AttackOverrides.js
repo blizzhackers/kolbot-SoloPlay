@@ -1423,7 +1423,6 @@ Attack.pwnDury = function () {
 
   if (!duriel) return false;
   const tick = getTickCount();
-  const gid = duriel.gid;
   const saveSpots = [
     { x: 22648, y: 15688 },
     { x: 22624, y: 15725 },

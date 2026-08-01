@@ -71,9 +71,11 @@
       Config.HPBuffer = 4;
       Config.MPBuffer = 10;
       if (me.checkSkill(sdk.skills.IceBlast, sdk.skills.subindex.SoftPoints)) {
-        Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBlast, sdk.skills.ChargedBolt, sdk.skills.IceBlast, sdk.skills.IceBlast, 0];
+        Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBlast, sdk.skills.ChargedBolt,
+          sdk.skills.IceBlast, sdk.skills.IceBlast, 0];
       } else if (me.checkSkill(sdk.skills.IceBolt, sdk.skills.subindex.SoftPoints)) {
-        Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
+        Config.AttackSkill = [-1, sdk.skills.ChargedBolt, sdk.skills.IceBolt, sdk.skills.ChargedBolt,
+          sdk.skills.IceBolt, sdk.skills.IceBolt, 0];
       } else {
         let secondSkill = Skill.canUse(sdk.skills.FireBolt) ? sdk.skills.FireBolt : sdk.skills.Attack;
         Config.AttackSkill = [-1, sdk.skills.ChargedBolt, secondSkill, sdk.skills.ChargedBolt, secondSkill, 0, 0];
@@ -83,13 +85,15 @@
     build.AutoBuildTemplate[12] = buildAutoBuildTempObj(() => {
       Config.HPBuffer = 4;
       Config.MPBuffer = 8;
-      Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.FrostNova, sdk.skills.IceBlast];
+      Config.AttackSkill = [-1, sdk.skills.Nova, sdk.skills.ChargedBolt, sdk.skills.Nova, sdk.skills.ChargedBolt,
+        sdk.skills.FrostNova, sdk.skills.IceBlast];
       Config.DodgeHP = 50;
       Config.DodgeRange = me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.SoftPoints) ? 15 : 7;
     });
     build.AutoBuildTemplate[24] = buildAutoBuildTempObj(() => {
       if (me.checkSkill(sdk.skills.Blizzard, sdk.skills.subindex.HardPoints)) {
-        Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Nova, sdk.skills.ChargedBolt];
+        Config.AttackSkill = [-1, sdk.skills.Blizzard, sdk.skills.Nova, sdk.skills.Blizzard, sdk.skills.Nova,
+          sdk.skills.Nova, sdk.skills.ChargedBolt];
       }
     });
 

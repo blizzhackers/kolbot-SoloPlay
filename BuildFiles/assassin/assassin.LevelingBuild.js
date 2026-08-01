@@ -58,18 +58,37 @@
       ],
 
       active: function () {
-        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints) === 20 && !Check.finalBuild().active());
+        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
+          && me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints) === 20
+          && !Check.finalBuild().active());
       },
 
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            Config.AttackSkill = [-1, sdk.skills.ShockWeb, sdk.skills.FireBlast, sdk.skills.ShockWeb, sdk.skills.FireBlast, -1, -1];
+            Config.AttackSkill = [
+              -1,
+              sdk.skills.ShockWeb, sdk.skills.FireBlast,
+              sdk.skills.ShockWeb, sdk.skills.FireBlast,
+              -1, -1
+            ];
             Config.LowManaSkill = [-1, -1];
             Config.UseTraps = true;
             Config.UseFade = true;
-            Config.Traps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.DeathSentry, sdk.skills.DeathSentry];
-            Config.BossTraps = [sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry, sdk.skills.LightningSentry];
+            Config.Traps = [
+              sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry,
+              sdk.skills.DeathSentry,
+              sdk.skills.DeathSentry
+            ];
+            Config.BossTraps = [
+              sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry,
+              sdk.skills.LightningSentry
+            ];
             Config.TownHP = me.hardcore ? 0 : 35;
             Config.BeltColumn = ["hp", "hp", "mp", "mp"];
             Config.HPBuffer = 2;

@@ -557,7 +557,7 @@
 
     // merc tier'ed items
     if (haveMerc && !lowLevelShop) {
-      items = npc.getItemsEx()
+      npc.getItemsEx()
         .filter(function (item) {
           return !Town.ignoreType(item.itemType) && NTIP.GetMercTier(item) > 0;
         })
@@ -776,7 +776,7 @@
         }
       }
 
-      let merc = null;
+      let merc;
       let tick = getTickCount();
       const orignalHash = md5(JSON.stringify(me.data));
 

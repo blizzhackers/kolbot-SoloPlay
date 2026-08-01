@@ -9,7 +9,9 @@ function lowerkurast () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting lower kurast");
 
-  Pather.checkWP(sdk.areas.LowerKurast, true) ? Pather.useWaypoint(sdk.areas.LowerKurast) : Pather.getWP(sdk.areas.LowerKurast);
+  Pather.checkWP(sdk.areas.LowerKurast, true)
+    ? Pather.useWaypoint(sdk.areas.LowerKurast)
+    : Pather.getWP(sdk.areas.LowerKurast);
   Precast.doPrecast(true);
   Misc.openChestsInArea(sdk.areas.LowerKurast);
 

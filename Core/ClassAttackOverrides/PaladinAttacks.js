@@ -24,7 +24,7 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
   let gid = unit.gid;
   let mercRevive = 0;
   let gold = me.gold;
-  let [attackSkill, aura] = [-1, -1];
+  let attackSkill, aura;
   const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
 
   // prevent running back to town quickly if our merc is just weak

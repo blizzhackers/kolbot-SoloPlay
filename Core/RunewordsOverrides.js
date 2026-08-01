@@ -86,8 +86,6 @@ Runewords.checkRunewords = function () {
             itemList.push(items[k]); // push into the item list
             items.splice(k, 1); // remove from item list as to not count it twice
 
-            k -= 1;
-
             break; // stop item cycle - we found the item
           }
         }

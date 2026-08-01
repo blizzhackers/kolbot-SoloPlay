@@ -22,7 +22,9 @@ function mephisto () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting mephisto");
 
-  Pather.checkWP(sdk.areas.DuranceofHateLvl2, true) ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2) : Pather.getWP(sdk.areas.DuranceofHateLvl2);
+  Pather.checkWP(sdk.areas.DuranceofHateLvl2, true)
+    ? Pather.useWaypoint(sdk.areas.DuranceofHateLvl2)
+    : Pather.getWP(sdk.areas.DuranceofHateLvl2);
   Precast.doPrecast(true);
   const oldCPRange = Config.ClearPath.Range;
   const canTele = Pather.canTeleport();

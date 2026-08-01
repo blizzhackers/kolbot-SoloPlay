@@ -419,7 +419,6 @@
     }
 
     if (untimedSkill > -1 && me.mp > Skill.getManaCost(untimedSkill)) {
-      lowMana = false;
       let untimedSkillRange = Skill.getRange(untimedSkill);
 
       if (untimedSkillRange < 4 && !Attack.validSpot(unit.x, unit.y)) {

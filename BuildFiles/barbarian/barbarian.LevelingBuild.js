@@ -13,7 +13,8 @@
       caster: false,
       skillstab: sdk.skills.tabs.BarbCombat,
       wantedskills: [sdk.skills.BattleOrders, sdk.skills.Frenzy, sdk.skills.DoubleSwing, sdk.skills.SwordMastery],
-      usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed, sdk.skills.Shout, sdk.skills.FindItem],
+      usefulskills: [sdk.skills.NaturalResistance, sdk.skills.IronSkin, sdk.skills.IncreasedSpeed,
+        sdk.skills.Shout, sdk.skills.FindItem],
       wantedMerc: MercData[sdk.skills.Might],
       stats: [
         ["dexterity", 136], ["strength", 150], ["vitality", 125],
@@ -40,7 +41,9 @@
       ],
 
       active: function () {
-        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints) >= 5 && !Check.finalBuild().active());
+        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
+          && me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints) >= 5
+          && !Check.finalBuild().active());
       },
 
       AutoBuildTemplate: {

@@ -15,7 +15,9 @@ function hellforge () {
   myPrint("starting hellforge");
   Town.doChores(false, { thawing: me.coldRes < 75, antidote: me.poisonRes < 75, fullChores: true });
   
-  Pather.checkWP(sdk.areas.RiverofFlame, true) ? Pather.useWaypoint(sdk.areas.RiverofFlame) : Pather.getWP(sdk.areas.RiverofFlame);
+  Pather.checkWP(sdk.areas.RiverofFlame, true)
+    ? Pather.useWaypoint(sdk.areas.RiverofFlame)
+    : Pather.getWP(sdk.areas.RiverofFlame);
   Precast.doPrecast(true);
 
   /** 
@@ -40,7 +42,8 @@ function hellforge () {
 
   Pickit.pickItems();
   let forge = Game.getObject(sdk.quest.chest.HellForge);
-  !!forge && Attack.clearPos(forge.x, forge.y, 25) && Attack.securePosition(forge.x, forge.y, { range: 25, duration: 3000 });
+  !!forge && Attack.clearPos(forge.x, forge.y, 25)
+    && Attack.securePosition(forge.x, forge.y, { range: 25, duration: 3000 });
 
   if (!me.getItem(sdk.items.quest.HellForgeHammer)) {
     // we don't have the hammer, is Hephasto dead?

@@ -1029,7 +1029,7 @@
           let rarity = _monster.Rarity * (_monster.GroupCount.Min + _monster.GroupCount.Max) / 2;
           cb(_monster, rarity, null);
           _monster.Minions.forEach(function (minionID) {
-            // eslint-disable-next-line max-len
+            // eslint-disable-next-line @stylistic/max-len
             let minionrarity = (_monster.Rarity * (_monster.MinionCount.Min + _monster.MinionCount.Max) / 2 / _monster.Minions.length);
             cb(MonsterData.get(minionID), minionrarity, _monster);
           });

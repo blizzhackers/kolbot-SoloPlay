@@ -184,8 +184,8 @@ function den () {
       }
 
     } catch (e) {
-      if (!(error instanceof ScriptError)) {
-        console.error(error);
+      if (!(e instanceof ScriptError)) {
+        console.error(e);
       }
     } finally {
       removeEventListener("gamepacket", denLightsListener);

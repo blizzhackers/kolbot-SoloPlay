@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+/* eslint-disable @stylistic/max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-irregular-whitespace */
 /**
@@ -665,7 +665,7 @@
     },
     dmgModifier: function (skillID, target) {
       let aps = (typeof target === "number" ? this.averagePackSize(target) : 1);
-      let eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap = 1;
+      let eliteBonus = (target.spectype && target.isSpecial) ? 1 : 0, hitcap;
 
       switch (skillID) { // charged bolt/strike excluded, it's so unreliably random
       case sdk.skills.PoisonJavelin: // poison javalin
@@ -837,7 +837,7 @@
       }
 
       let dmg = this.baseSkillDamage(skillID);
-      let mastery = 1, psynergy = 1, synergy = 1, shots = 1, sl = 0;
+      let mastery, psynergy = 1, synergy = 1, shots, sl;
 
       if (this.synergyCalc[skillID]) {
         let sc = this.synergyCalc[skillID];
@@ -1008,7 +1008,7 @@
         let hpReal = maxReal / 100 * percentLeft;
         let potencialDmg = (hpReal / 100 * percentLeft) * 0.25;
 
-        let tmpDmg = (maxReal / 100 * percentLeft) * (0.25);
+        let tmpDmg;
 
         // We do need to calculate the extra damage, or less damage due to resistance
         let resist = this.monsterResist(unit, "Lightning");
@@ -1174,7 +1174,7 @@
        */
       const calculateChainDamage = function (skill, target) {
         skill === undefined && (skill = -1);
-        let rawDmg = 0, totalDmg = 0, range = 0, hits = 0;
+        let rawDmg, totalDmg = 0, range = 0, hits = 0;
         switch (skill) {
         case sdk.skills.ChainLightning:
           hits = Math.round((25 + me.getSkill(sdk.skills.ChainLightning, sdk.skills.subindex.SoftPoints)) / 5);
@@ -1639,8 +1639,8 @@
             }
 
             totalDmg += sk !== sdk.skills.StaticField
-              && 0
-              || avgDmg * (100 - resist) / 100;
+              ? avgDmg * (100 - resist) / 100
+              : 0;
 
           }
           console.debug(hp, "---/", totalDmg);
@@ -1779,7 +1779,7 @@
               resist = 100;
             }
 
-            totalDmg += sk !== sdk.skills.StaticField && 0 || avgDmg * (100 - resist) / 100;
+            totalDmg += sk !== sdk.skills.StaticField ? avgDmg * (100 - resist) / 100 : 0;
 
           }
 
@@ -1843,7 +1843,7 @@
         dmgAcc += (rarity * GameData.monsterAvgDmg(mon.Index, areaID));
       });
 
-      let log = 1, avgDmg = 0;
+      let log, avgDmg = 0;
       if (brokeness !== 1) {
         log = ((5 - Math.log(areaID)) * (brokeness * 0.6));
         avgDmg = (raritypool ? dmgAcc / raritypool : Infinity) * log;
@@ -2394,7 +2394,7 @@
       if (path && path.length) {
       // path is reversed from target to monster, we will check from last path position (target) to monster position
         path.reverse();
-        let [diffS, diffF, found] = [0, 0, 0];
+        let diffS = 0, diffF, found = 0;
         let time = { missile: {}, monster: {} };
         for (let i = 0; i < path.length; i++) {
           let pos = path[i];

@@ -173,7 +173,6 @@
    * @returns {boolean}
    */
   const isHighestDmg = function (checkSkill) {
-    // eslint-disable-next-line no-unused-vars
     for (let [_, skill] of Skills) {
       if (!skill.have()) continue;
       if (skill._dmg > checkSkill._dmg) {
@@ -281,7 +280,6 @@
       return Attack.Result.SUCCESS;
     }
   
-    const currLvl = me.charlvl;
     const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
     let gid = unit.gid;
     let tick = getTickCount();
@@ -296,7 +294,6 @@
           console.debug("Lost reference to unit");
           return Attack.Result.SUCCESS;
         }
-        gold = me.gold; // reset value after town
       }
     }
 
@@ -556,7 +553,7 @@
    */
   ClassAttack[sdk.player.class.Sorceress].doCast = function (unit, choosenSkill) {
     const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
-    let noMana = false;
+    let noMana;
     const { skillId: skill, timed } = choosenSkill;
     const mana = choosenSkill.manaCost();
     let range = choosenSkill.range();

@@ -239,7 +239,7 @@ function main () {
   }
 
   if (Config.PublicMode) {
-    Config.PublicMode === true ? require("libs/modules/SimpleParty") : load("threads/Party.js");
+    Config.PublicMode === true ? require("libs/modules/workers/SimpleParty") : load("threads/Party.js");
   }
 
   // One time maintenance - check cursor, get corpse, clear leftover items, pick items in case anything important was dropped

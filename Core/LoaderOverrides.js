@@ -158,7 +158,6 @@ Loader.run = function () {
         delete global[script];
         Loader.currentScript = null;
         Loader.nextScript = null;
-        failed = false;
       }
     }
 

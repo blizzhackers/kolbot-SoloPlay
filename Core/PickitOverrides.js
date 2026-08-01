@@ -815,9 +815,10 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
     const _item = Game.getItem(-1, -1, currItem.gid);
     if (!_item || copyUnit(_item).x === undefined) {
       Pickit.pickList.shift();
-      
+
       continue;
     }
+    const itemName = _item.prettyPrint;
 
     // Check if the item unit is still valid and if it's on ground or being dropped
     // Don't pick items behind walls/obstacles when walking

@@ -19,13 +19,19 @@
       skills: [],
 
       active: function () {
-        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) === 20 && !Check.finalBuild().active());
+        return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
+          && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) === 20
+          && !Check.finalBuild().active());
       },
 
       AutoBuildTemplate: {
         1:	{
           Update: function () {
-            let mainSkill = Skill.canUse(sdk.skills.LightningStrike) ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike;
+            let mainSkill = (
+              Skill.canUse(sdk.skills.LightningStrike)
+                ? sdk.skills.LightningStrike
+                : sdk.skills.ChargedStrike
+            );
             Config.AttackSkill = [-1, sdk.skills.ChargedStrike, 0, mainSkill, 0, -1, -1];
             Config.TownHP = me.hardcore ? 0 : 35;
             Config.BeltColumn = ["hp", "hp", "mp", "mp"];
@@ -38,7 +44,8 @@
     };
     
     // Has to be set after its loaded
-    me.classic && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
+    me.classic
+      && build.usefulStats.push(sdk.stats.PassivePoisonMastery, sdk.stats.PassivePoisonPierce, sdk.stats.PiercePois);
     build.stats = me.classic
       ? [
         ["dexterity", 65], ["strength", 75], ["vitality", "all"]

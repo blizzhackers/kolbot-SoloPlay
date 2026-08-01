@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
+    // "5.0" is the only value TS 5.9 accepts; silences the module:"None"/moduleResolution:"classic"
+  // deprecations until this config is modernized like the root one (module preserve + bundler).
+  "ignoreDeprecations": "5.0",
     "module": "None",
     "lib": [
       "ES2015",
@@ -19,6 +21,9 @@
     "noImplicitAny": true,
     "noEmit": true,
     "strict": true,
+    // Keep node_modules/@types (e.g. @types/node from the parent repo) out - its ambient
+    // console/File/Storage globals collide with the D2BS SDK's own.
+    "types": [],
     "baseUrl": "./",
     // "rootDir": "./",
     "outFile": "./out.js",

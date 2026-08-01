@@ -800,7 +800,6 @@ const Check = (function () {
 
       let myGold = me.gold;
       let repairCost = me.getRepairCost();
-      let items = (me.getItemsForRepair(100, false) || []);
       let meleeChar = !Check.currentBuild().caster;
       let msg = "";
       let diff = -1;
@@ -926,7 +925,8 @@ const Check = (function () {
     itemSockables: function (type, quality, iName) {
       quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
       typeof iName === "string" && (iName = iName.toLowerCase());
-      let [isClassID, itemCHECK, typeCHECK] = [false, false, false];
+      let isClassID = false;
+      let itemCHECK, typeCHECK;
 
       switch (typeof type) {
       case "string":

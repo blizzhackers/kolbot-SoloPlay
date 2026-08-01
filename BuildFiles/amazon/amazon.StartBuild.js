@@ -41,7 +41,8 @@
       ],
 
       active: function () {
-        return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints);
+        return me.charlvl < CharInfo.respecOne
+          && !me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints);
       },
     };
 
