@@ -42,6 +42,7 @@ function myPrint (str = "", toConsole = false, color = 0) {
 }
 
 // general settings
+/** @type {SetUp} */
 const SetUp = (function () {
   /**
    * Set up autoskill, autostat, and autobuild configurations.
@@ -665,6 +666,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 };
 
 // General Game functions
+/** @type {Check} */
 const Check = (function () {
   const resistance = function () {
     let resPenalty = me.getResPenalty(me.diff + 1);

@@ -2,6 +2,92 @@
 
 // @ts-nocheck
 declare global {
+  /** Core/Globals.js myPrint - ambient declaration guarantees resolution program-wide. */
+  function myPrint(str?: string, toConsole?: boolean, color?: number): void;
+
+  // --- Ambient value declarations for MAIN-repo singletons ---------------------------------
+  // This PROGRAM includes main's d.ts (types-only interfaces) but not main's .js, so these
+  // names have no value symbol here without the consts below. They live in THIS file, not
+  // main's d.ts, deliberately: main's program has the implementing js consts and an ambient
+  // const there can TS2451 (observed for CollMap) - main's tsconfig excludes SoloPlay, so
+  // this placement is collision-free in both programs.
+  const Item: Item;
+  const Cubing: ICubing;
+  const Loader: Loader;
+  const Recipe: IRecipe;
+  const AutoSkill: AutoSkill;
+  const AutoStat: AutoStat;
+  const Precast: Precast;
+  const Town: Town;
+  const Pather: Pather;
+  const Pickit: Pickit;
+  const CollMap: CollMapInstance;
+  const NPC: NPCList;
+  const Packet: Packet;
+  const PathDebug: PathDebug;
+  const Experience: Experience;
+  const ClassAttack: IClassAttack;
+  const TorchSystem: ITorchSystem;
+  const CraftingSystem: ICraftingSystem;
+  const Scripts: Scripts;
+
+  // SoloPlay-added members on main singletons that have no namespace history - declared here
+  // so the ambient consts (interface-authoritative) keep every runtime addition visible.
+  interface Item {
+    autoEquipCheckMerc(item: ItemUnit, basicCheck?: boolean): boolean;
+    autoEquipCheckSecondary(item: ItemUnit): boolean;
+    autoEquipMerc(): boolean;
+    autoEquipSecondary(task?: string): boolean;
+    canEquipMerc(item: ItemUnit, bodyLoc: number): boolean;
+    equipMerc(item: ItemUnit, bodyLoc: number): boolean;
+    getBodyLocMerc(item: ItemUnit): number[];
+    getMercEquipped(bodyLoc?: number): { classid: number; prefixnum: number; tier: number; name: string; str: number; dex: number };
+    getSecondaryBodyLoc(item: ItemUnit): number[];
+    hasDependancy(item: ItemUnit): 526 | 528 | false;
+    hasMercTier(item: ItemUnit): boolean;
+    hasSecondaryTier(item: ItemUnit): boolean;
+    helmTypes: Set<number>;
+    identify(item: ItemUnit): boolean;
+    removeItem(bodyLoc?: number, item?: ItemUnit): boolean;
+    removeItemsMerc(droppedItems?: ItemUnit[]): boolean;
+    secondaryEquip(item: ItemUnit, bodyLoc: 11 | 12): boolean;
+    shieldTypes: Set<number>;
+    weaponTypes: Set<number>;
+  }
+
+  /** Instance shape of the NTIPList constructor in Core/NTIPOverrides.js. Named -Instance, not
+   * NTIPList: a same-named ambient type merging with a this-assignment constructor function is
+   * the TS 5.9 getConstructorDefinedThisAssignmentTypes crash shape (see IPathNode). */
+  interface NTIPListInstance {
+    list: ((item: ItemUnit) => boolean)[][];
+    strArray: { line: string; file: string; string: string }[];
+    add(parsedLine: ((item: ItemUnit) => boolean)[], info: { line: string; file: string; string: string }): void;
+    remove(index: number): void;
+    clear(): void;
+  }
+
+  interface NTIP {
+    CheckList: NTIPListInstance;
+    FinalGear: NTIPListInstance;
+    GetCharmTier(item: ItemUnit): number;
+    GetSecondaryTier(item: ItemUnit): number;
+    MAX_TIER: number;
+    NoTier: NTIPListInstance;
+    Runtime: NTIPListInstance;
+    SoloList: NTIPListInstance;
+    _evaluateRuleMatch(item: ItemUnit, type: (item: ItemUnit) => boolean, stat: (item: ItemUnit) => boolean): -1 | 0 | 1;
+    addToRuntime(itemString: string): boolean;
+    buildFinalGear(arr: string[]): boolean;
+    buildList(...arraystoloop: string[][]): boolean;
+    getInvoQuantity(item: ItemUnit, entryList?: NTIPListInstance): number;
+    getMaxQuantity(item: ItemUnit, entryList?: NTIPListInstance): number;
+    hasStats(item: ItemUnit, entryList?: NTIPList, verbose?: boolean): boolean;
+  }
+
+  interface Loader {
+    run(): boolean;
+  }
+
   interface Math {
     percentDifference(value1: number, value2: number): number;
   }
@@ -257,31 +343,37 @@ declare global {
     actMap: Map<number | symbol, number | Merc[]>;
   }
 
-  namespace Mercenary {
-    let minCost: number;
+  interface Mercenary {
+    minCost: number;
 
-    function getMercSkill(merc?: MercUnit): string | false;
-    function getMercDifficulty(merc?: MercUnit): number;
-    function getMercAct(merc?: MercUnit): number;
-    function getMercInfo(merc?: MercUnit): { classid: number; act: number; difficulty: number; type: string | false };
-    function checkMercSkill(wanted: string, merc?: MercUnit): boolean;
-    function hireMerc(): boolean;
+    getMercSkill(merc?: MercUnit): string | false;
+    getMercDifficulty(merc?: MercUnit): number;
+    getMercAct(merc?: MercUnit): number;
+    getMercInfo(merc?: MercUnit): { classid: number; act: number; difficulty: number; type: string | false };
+    checkMercSkill(wanted: string, merc?: MercUnit): boolean;
+    hireMerc(): boolean;
+    timeout: number;
+  }
+  const Mercenary: Mercenary;
+
+  interface Misc {
+    townEnabled: boolean;
+    openChestsEnabled: boolean;
+    shrineStates: number[];
+
+    openChestsInArea(area: number, chestIds: number[], sort?: (a: Unit, b: Unit) => number): boolean;
+    getExpShrine(shrineLocs: number[]): boolean;
+    recursiveSearch(o: Record<string, unknown>, n: Record<string, unknown>, changed?: Record<string, unknown>): Record<string, unknown>;
+    updateRecursively(oldObj: Record<string, unknown>, newObj: Record<string, unknown>, path?: string[]): void;
   }
 
-  namespace Misc {
-    let townEnabled: boolean;
-    let openChestsEnabled: boolean;
-    const shrineStates: number[];
-
-    function openChestsInArea(area: number, chestIds: number[], sort?: (a: Unit, b: Unit) => number): boolean;
-    function getExpShrine(shrineLocs: number[]): boolean;
-  }
-
-  namespace Skill {
-    function switchCast(
+  interface Skill {
+    switchCast(
       skillId: number,
       givenSettings: { hand?: number; x?: number; y?: number; switchBack?: boolean; oSkill?: boolean },
     ): boolean;
+    casterSkills: number[];
+    forcePacket: boolean;
   }
 
   type pathSettings = {
@@ -304,194 +396,241 @@ declare global {
     sort?: Function;
   };
 
-  namespace Pather {
-    let initialized: boolean;
-    function canTeleport(): boolean;
-    function teleUsingCharges(x: number, y: number, maxRange: number): boolean;
-    function changeAct(act: number): boolean;
-    function checkWP(area: number, keepMenuOpen?: boolean): boolean;
-    function clearToExit(currentarea: number, targetarea: number, givenSettings: pathSettings): boolean;
+  interface Pather {
+    initialized: boolean;
+    canTeleport(): boolean;
+    teleUsingCharges(x: number, y: number, maxRange: number): boolean;
+    changeAct(act: number): boolean;
+    checkWP(area: number, keepMenuOpen?: boolean): boolean;
+    clearToExit(currentarea: number, targetarea: number, givenSettings: pathSettings): boolean;
+    canUseTeleCharges(): boolean;
+    checkForTeleCharges(): void;
+    clearUIFlags(): void;
+    currentWalkingPath: IPathNode[];
+    forceRun: boolean;
+    forceWalk: boolean;
+    haveTeleCharges: boolean;
+    inAnnoyingArea(currArea: number, includeArcane?: boolean): boolean;
+    move(target: IPathNode | Unit | PresetUnit, givenSettings?: PathSettings): boolean;
   }
 
-  namespace NodeAction {
-    const shrinesToIgnore: number[];
-    let enabled: boolean;
-
-    function go(arg: clearSettings): void;
-  }
-
-  namespace Pickit {
-    function pickItem(
+  interface Pickit {
+    pickItem(
       unit: ItemUnit,
       status: PickitResult,
       keptLine?: string,
       givenSettings?: { allowClear: boolean; allowMove: boolean },
     ): boolean;
+    amountOfPotsNeeded(): Record<number, Record<number, number>>;
+    canFit(item: ItemUnit): boolean;
+    checkSpotForItems(spot: IPathNode | { x: number; y: number }, checkVsMyDist?: boolean, range?: number): boolean;
+    readonly classicMode: boolean;
+    essentialList: ItemUnit[];
+    essessntialsPick(clearBeforePick?: boolean, builtList?: ItemUnit[], once?: boolean): boolean;
+    minItemKeepGoldValue(): number;
   }
 
-  namespace Attack {
-    function clearPos(x: number, y: number, range?: number, pickit?: boolean, cb?: () => boolean): boolean;
-    function killTarget(name: Monster | string | number): boolean;
+  interface Attack {
+    clearPos(x: number, y: number, range?: number, pickit?: boolean, cb?: () => boolean): boolean;
+    killTarget(name: Monster | string | number): boolean;
+    castCharges(skillId: number, unit: Monster): boolean;
+    castableSpot(x?: number, y?: number): boolean;
+    checkBowOnSwitch(firstInit?: boolean): void;
+    clearCoordList(list: { x: number; y: number; radius: number }[], pick?: number): void;
+    clearLevelEx(givenSettings?: { spectype?: number; quitWhen?: () => boolean }): boolean;
+    clearLevelUntilLevel(charlvl?: number, spectype?: number): boolean;
+    clearLocations(list?: Array<[number, number]>): boolean;
+    decideSkill(unit: Monster): { timed: number; untimed: number };
+    dollAvoid(unit: Monster): boolean;
+    getCurrentChargedSkillIds(init?: boolean): boolean;
+    getItemCharges(skillId: number): boolean;
+    haveDependancy(itemType: number): ItemUnit | false;
+    inverseSpotDistance(spot: { x: number; y: number }, distance: number, otherSpot?: Unit): IPathNode | { x: number; y: number };
+    pwnAncients(): void;
+    pwnDia(): Monster | false;
+    pwnDury(): boolean;
+    pwnMeph(): void;
+    shouldDodge(coord: { x: number; y: number }, monster: Monster): boolean;
+    stopClear: boolean;
+    switchCastCharges(skillId: number, unit: Monster): boolean;
+    useBowOnSwitch(unit: Monster, skillId?: number, switchBack?: boolean): boolean;
+    walkingSortMonsters(unitA: Monster, unitB: Monster): number;
   }
 
-  namespace ClassAttack {
-    function doAttack(unit: Monster): AttackResult;
-    function doAttack(unit: Monster, precast?: boolean): AttackResult;
-    function doAttack(unit: Monster, recheck?: boolean): AttackResult;
-    function doAttack(unit: Monster, precast?: boolean, once?: boolean): AttackResult;
-    function doCast(unit: Monster, timedSkill: number, untimedSkill: number): AttackResult;
-    function doCast(
+  interface ClassAttack {
+    doAttack(unit: Monster): AttackResult;
+    doAttack(unit: Monster, precast?: boolean): AttackResult;
+    doAttack(unit: Monster, recheck?: boolean): AttackResult;
+    doAttack(unit: Monster, precast?: boolean, once?: boolean): AttackResult;
+    doCast(unit: Monster, timedSkill: number, untimedSkill: number): AttackResult;
+    doCast(
       unit: Monster,
       choosenSkill: { have: boolean; skill: number; range: number; mana: number; timed: boolean },
     ): AttackResult;
-    function afterAttack(pickit?: boolean): void;
+    afterAttack(pickit?: boolean): void;
+    lightFuryTick: number;
   }
 
-  namespace Town {
-    function doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
+  interface Town {
+    doChores(repair?: boolean, givenTasks?: extraTasks): boolean;
+    clearJunk(): boolean;
+    fillTomes(): void;
+    haveItemsToSell(): number;
+    itemResult(item: ItemUnit, result: { result: PickitResult; line: string | null }, system?: string, sell?: boolean): void;
+    lastShopped: { who: string; tick: number };
+    needForceID(item: ItemUnit): boolean;
+    sell: ItemUnit[];
+    sellItems(itemList?: ItemUnit[]): boolean;
+    sortStash(force?: boolean): boolean;
+    systemsKeep(item: ItemUnit): boolean;
   }
 
-  namespace Precast {
-    function checkCTA(): boolean;
-  }
+  interface CharData {
+    filePath: string;
+    threads: string[];
 
-  namespace CharData {
-    const filePath: string;
-    const threads: string[];
-
-    namespace login {
-      function create(): any;
-      function getObj(): any;
-      function getStats(): any;
-      function updateData(arg: string, property: object | string, value: any): boolean;
-    }
+    login: {
+      create(): any;
+      getObj(): any;
+      getStats(): any;
+      updateData(arg: string, property: object | string, value: any): boolean;
+    };
 
     // ignoring the sub objs for now
-    function updateConfig(): void;
-    function create(): MyData;
-    function getObj(): MyData;
-    function getStats(): MyData;
-    function updateData(arg: string, property: object | string, value: any): boolean;
+    updateConfig(): void;
+    create(): MyData;
+    getObj(): MyData;
+    getStats(): MyData;
+    updateData(arg: string, property: object | string, value: any): boolean;
     /** @alias CharData.delete */
-    function _delete(deleteMain: boolean): boolean;
+    _delete(deleteMain: boolean): boolean;
+    _default: MyData;
+    charms: Map<number | string, { classid: number; count(): { curr: number; max: number } }>;
+    pots: Map<number | string, { state: number; check: () => boolean; tick: number; duration: number; active(): boolean; timeLeft(): number; need(): boolean }>;
+    skillData: {
+        skills: number[];
+        currentChargedSkills: number[];
+        chargedSkills: { skill: number; level: number; charges: number; maxcharges: number; gid: number }[];
+        chargedSkillsOnSwitch: { skill: number; level: number; charges: number; maxcharges: number; gid: number }[];
+        bow: {
+            initialized: boolean;
+            onSwitch: boolean;
+            bowGid: number;
+            bowType: number;
+            bowOnSwitch: boolean;
+            arrows: number;
+            quiverType: number;
+            setBowInfo(bow: ItemUnit, init?: boolean): void;
+            setArrowInfo(quiver: ItemUnit): void;
+            resetBowData(): void;
+        };
+        init(skillIds: number[], mainSkills: { skill: number; level: number; charges: number; maxcharges: number; gid: number }[], switchSkills: { skill: number; level: number; charges: number; maxcharges: number; gid: number }[]): void;
+        update(): void;
+        haveChargedSkill(skillid?: number | number[]): boolean;
+        haveChargedSkillOnSwitch(skillid?: number): boolean;
+    };
+    delete(deleteMain?: boolean): boolean;
+  }
+  const CharData: CharData;
+
+
+  interface GameTracker {
+    Total: number;
+    InGame: number;
+    OOG: number;
+    LastLevel: number;
+    LastSave: number;
   }
 
-  namespace Developer {
-    const plugyMode: boolean;
-    const logPerformance: boolean;
-    const overlay: boolean;
-    const displayClockInConsole: boolean;
-    const logEquipped: boolean;
-    const hideChickens: boolean;
-    const addLadderRW: boolean;
-    const forcePacketCasting: {
-      enabled: boolean;
-      excludeProfiles: string[];
-    };
-    const fillAccount: {
-      bumpers: boolean;
-      socketMules: boolean;
-      imbueMule: boolean;
-    };
-    const imbueStopLevel: number;
-    const stopAtLevel: {
-      enabled: boolean;
-      profiles: Array<[string, number]>;
-    };
-    const developerMode: {
-      enabled: boolean;
-      profiles: string[];
-    };
-    const testingMode: {
-      enabled: boolean;
-      profiles: string[];
-    };
-    const setEmail: {
-      enabled: boolean;
-      profiles: string[];
-      realms: string[];
-    };
-    const debugging: {
-      smallCharm: boolean;
-      largeCharm: boolean;
-      grandCharm: boolean;
-      baseCheck: boolean;
-      junkCheck: boolean;
-      autoEquip: boolean;
-      crafting: boolean;
-      pathing: boolean;
-      skills: boolean;
-      showStack: {
-        enabled: boolean;
-        profiles: string[];
-      };
-    };
+  interface Tracker {
+    GTPath: string;
+    LPPath: string;
+    SPPath: string;
+    LPHeader: string;
+    SPHeader: string;
+    tick: number;
+    _default: GameTracker;
+    initialize(): boolean;
+    getObj(path: string): GameTracker | false;
+    readObj(jsonPath: string): GameTracker | false;
+    writeObj(obj: GameTracker, path: string): boolean;
+    resetGameTime(): void;
+    reset(): void;
+    checkValidity(): void;
+    totalDays(milliseconds: number): string;
+    script(starttime: number, subscript: string, startexp: number): boolean;
+    leveling(): boolean;
+    update(oogTick?: number): boolean;
+    IPPath: string;
+    scriptStart(script: string, tick: number, expStart: number): void;
+    clearInProgress(): void;
+    scriptChicken(): boolean;
+    recoverFromCrash(): boolean;
+  }
+  const Tracker: Tracker;
+
+  interface SetUp {
+    mercEnabled: boolean;
+    currentBuild: StandardBuild | FinalBuild;
+    finalBuild: FinalBuild;
+    stopAtLevel: number | false;
+
+    init(): void;
+    include(): void;
+    finalRespec(): number;
+    getTemplate(): { buildType: string; template: string };
+    specPush(specType: string): number[];
+    makeNext(): void;
+    belt(): void;
+    buffers(): void;
+    bowQuiver(): void;
+    imbueItems(): string[];
+    config(): void;
+    _buildTemplate: string;
+    readonly mercwatch: boolean;
+    autoBuild(): boolean;
+  }
+  const SetUp: SetUp;
+
+  interface Check {
+    lowGold: boolean;
+
+    gold(): boolean;
+    brokeAf(): boolean;
+    broken(): 0 | 1 | 2;
+    brokeCheck(): boolean;
+    resistance(): { Status: boolean; FR: number; CR: number; LR: number; PR: number };
+    nextDifficulty(announce: boolean): string | false;
+    runes(): boolean;
+    haveItem(type: string | number, flag?: string | number, iName?: string): boolean;
+    currentBuild(): Build;
+    finalBuild(): Build;
+    itemSockables(type: string | number, quality?: string | number, iName?: string): boolean;
+    checkSpecialCase(): void;
+    usePreviousSocketQuest(): void;
+  }
+  const Check: Check;
+
+  interface SoloWantsNeedEntry {
+    classid: number;
+    /** Socketable classids still needed to fill this item's sockets. */
+    needed: number[];
   }
 
-  namespace Tracker {
-    const GTPath: string;
-    const LPPath: string;
-    const SPPath: string;
-    const LPHeader: string;
-    const SPHeader: string;
-    const tick: number;
-    interface GameTracker {
-      Total: number;
-      InGame: number;
-      OOG: number;
-      LastLevel: number;
-      LastSave: number;
-    }
-    const _default: GameTracker;
-    function initialize(): boolean;
-    function getObj(path: string): GameTracker | false;
-    function readObj(jsonPath: string): GameTracker | false;
-    function writeObj(obj: GameTracker, path: string): boolean;
-    function resetGameTime(): void;
-    function reset(): void;
-    function checkValidity(): void;
-    function totalDays(milliseconds: number): string;
-    function script(starttime: number, subscript: string, startexp: number): boolean;
-    function leveling(): boolean;
-    function update(oogTick?: number): boolean;
+  // Value shape of the global `SoloWants` const in SoloWants.js (bound there via JSDoc @type).
+  // Declaring the const here as well would collide: both files are global scripts.
+  interface SoloWants {
+    needList: SoloWantsNeedEntry[];
+    validGids: number[];
+
+    checkItem(item: ItemUnit): boolean;
+    keepItem(item: ItemUnit): boolean;
+    buildList(): void;
+    addToList(item: ItemUnit): boolean;
+    update(item: ItemUnit): boolean;
+    ensureList(): void;
+    checkSubrecipes(): boolean;
   }
-
-  namespace SetUp {
-    let mercEnabled: boolean;
-    const currentBuild: StandardBuild | FinalBuild;
-    const finalBuild: FinalBuild;
-    const stopAtLevel: number | false;
-
-    function init(): void;
-    function include(): void;
-    function finalRespec(): number;
-    function getTemplate(): { buildType: string; template: string };
-    function specPush(specType: string): number[];
-    function makeNext(): void;
-    function belt(): void;
-    function buffers(): void;
-    function bowQuiver(): void;
-    function imbueItems(): string[];
-    function config(): void;
-  }
-
-  namespace Check {
-    let lowGold: boolean;
-
-    function gold(): boolean;
-    function brokeAf(): boolean;
-    function broken(): 0 | 1 | 2;
-    function brokeCheck(): boolean;
-    function resistance(): { Status: boolean; FR: number; CR: number; LR: number; PR: number };
-    function nextDifficulty(announce: boolean): string | false;
-    function runes(): boolean;
-    function haveItem(type: string | number, flag?: string | number, iName?: string): boolean;
-    function itemSocketables(type: string | number, quality: string | number, iName?: string): boolean;
-    function currentBuild(): Build;
-    function finalBuild(): Build;
-  }
-
-  namespace SoloWants {}
 
   namespace NPCAction {
     function shopAt(npcName: string): boolean;
@@ -503,19 +642,28 @@ declare global {
     function repair(force?: boolean): boolean;
     function reviveMerc(): boolean;
   }
+  const SoloWants: SoloWants;
 
-  namespace AutoEquip {}
+  // Value shape of the global `AutoEquip` const in ItemOverrides.js (bound there via JSDoc @type).
+  // Declaring the const here as well would collide: both files are global scripts.
+  interface AutoEquip {
+    hasTier(item: ItemUnit): boolean;
+    wanted(item: ItemUnit): boolean;
+    run(): void;
+  }
 
   type extraTasks = {
     thawing?: boolean;
     antidote?: boolean;
     stamina?: boolean;
     fullChores?: boolean;
-  };
-
-  namespace LocationAction {
-    function run(): void;
   }
+  const AutoEquip: AutoEquip;
+
+  interface LocationAction {
+    run(): void;
+  }
+  const LocationAction: LocationAction;
 
   type PresetObjectUnit = {
     x: number;
@@ -732,99 +880,7 @@ declare global {
    */
   const Coords: Coords;
 
-  namespace GameData {
-    const myReference: Unit;
-    const townAreas: number[];
-
-    function monsterLevel(monsterID: number, areaID: number, adjustLevel: number): number;
-    function eliteExp(monsterID: number, areaID: number): number;
-    function monsterAvgHP(monsterID: number, areaID: number, adjustLevel: number): number;
-    function monsterMaxHP(monsterID: number, areaID: number, adjustLevel: number): number;
-    function eliteAvgHP(monsterID: number, areaID: number): number;
-    function monsterDamageModifier(): number;
-    function monsterMaxDmg(monsterID: number, areaID: number, adjustLevel: number): number;
-    function monsterAttack1AvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
-    function monsterAttack2AvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
-    function monsterSkill1AvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
-    function monsterAvgDmg(monsterID: number, areaID: number, adjustLevel: number): number;
-    function averagePackSize(monsterID: number): number;
-    function areaLevel(areaID: number): number;
-    function areaImmunites(areaID: number): string[];
-    function levelModifier(clvl: number, mlvl: number): number;
-    function multiplayerModifier(count: number): number;
-    function partyModifier(playerID: number): number;
-    function killExp(playerID: number, monsterID: number, areaID: number): number;
-    function baseLevel(...skillIDs: number[]): number;
-    function skillLevel(...skillIDs: number[]): number;
-    function skillCooldown(skillId: number): boolean;
-    function stagedDamage(
-      l: number,
-      a: number,
-      b: number,
-      c: number,
-      d: number,
-      e: number,
-      f: number,
-      hitshift: number,
-      mult: number,
-    ): number;
-    const damageTypes: string[];
-    const synergyCalc: Record<number, nuumber[]>;
-    const noMinSynergy: number[];
-    const skillMult: Record<number, number>;
-    function baseSkillDamage(skillId: number): number;
-    const skillRadius: Record<number, number>;
-    const novaLike: Record<number, boolean>;
-    const wolfBanned: Record<number, boolean>;
-    const bearBanned: Record<number, boolean>;
-    const humanBanned: Record<number, boolean>;
-    const nonDamage: Record<number, boolean>;
-    function shiftState(): string;
-    function bestForm(skillID: number): number;
-    function physicalAttackDamage(skillID: number): number;
-    function dmgModifier(skillID: number, target: Monster): number;
-
-    interface SkillDamage {
-      type: string;
-      pmin: number;
-      pmax: number;
-      min: number;
-      max: number;
-      undeadOnly?: boolean;
-    }
-    function skillDamage(skillID: number, unit?: Monster): SkillDamage;
-    function avgSkillDamage(skillID: number, unit?: Monster): number;
-    function allSkillDamage(unit: Monster): SkillDamage[];
-    const convictionEligible: Record<string, boolean>;
-    const lowerResistEligible: Record<string, boolean>;
-    const resistMap: Record<string, number>;
-    const masteryMap: Record<string, number>;
-    const pierceMap: Record<string, number>;
-    const ignoreSkill: Record<number, boolean>;
-    const buffs: Record<number, number>;
-    const preAttackable: number[];
-    function monsterResist(unit: Monster, type: string): number;
-    function getConviction(): number;
-    function getAmp(): number;
-    function monsterEffort(
-      unit: Monster,
-      areaID: number,
-      skillDamageInfo?: SkillDamage,
-      parent?: Monster,
-      preattack?: boolean,
-      all?: boolean,
-    ): { effort: number; skill: number; type: string; name?: string; cooldown?: boolean };
-    function effectiveMonsterEffort(
-      unit: Monster,
-      areaID: number,
-    ): { effort: number; skill: number; type: string; name?: string; cooldown?: boolean };
-    function areaEffort(areaID: number, skills?: SkillDamage[]): number;
-    function areaSoloExp(areaID: number, skills?: SkillDamage[]): number;
-    function timeTillMissileImpact(skillId: number, monster: Monster): number;
-    function calculateKillableFallensByFrostNova(): number;
-    function calculateKillableSummonsByNova(): number;
-    function targetPointForSkill(skillId: number, monster: Monster): PathNode;
-  }
+  const GameData: typeof import("./Modules/GameData/GameData");
 
   const Settings: SettingsInterface;
 

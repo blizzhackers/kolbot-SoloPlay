@@ -24,4 +24,28 @@ export default {
   "Overrides": "writable",
   // tsc-emitted helper in Modules/Mock.js, read by Modules/MockItem.js
   "__spreadArray": "writable",
+  // --- names below moved off SoloPlay globals.d.ts value declarations when the type layer
+  // was standardized (namespace -> interface, 2026-08-01); the parent generator no longer
+  // scans submodule d.ts, so this manifest is the single source for SoloPlay lint globals ---
+  // Core singletons
+  "NPCAction": "writable",
+  "Quest": "writable",
+  "SoloWants": "writable",
+  "AutoEquip": "writable",
+  "Mercenary": "writable",
+  "SetUp": "writable",
+  "Check": "writable",
+  // Tools/
+  "CharData": "writable",
+  "Tracker": "writable",
+  // OOG/OOGOverrides.js
+  "LocationAction": "writable",
+  // data/config surfaces (ambient consts in globals.d.ts; runtime from their modules)
+  "GameData": "writable",
+  "AreaData": "writable",
+  "Coords": "writable",
+  "Settings": "writable",
+  "SoloEvents": "writable",
+  "Merc": "writable",
+  "MercData": "writable",
 };

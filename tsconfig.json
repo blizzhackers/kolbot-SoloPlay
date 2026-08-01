@@ -27,10 +27,17 @@
     "baseUrl": "./",
     // "rootDir": "./",
     "outFile": "./out.js",
+    // Editor-only: loads the parent repo tooling plugin (implementation-preferring
+    // go-to-definition). Requires the workspace TypeScript, same as the root project.
+    "plugins": [{ "name": "kolbot-ts-plugin" }],
   },
   "include": [
     "../../sdk/globals.d.ts",
     "../../sdk/types/*.d.ts",
+    "../../libs/systems/**/*.d.ts",
+    "../../libs/manualplay/**/*.d.ts",
+    "../../libs/modules/*.d.ts",
+    "../../libs/oog/*.d.ts",
     "globals.d.ts",
     "*.js",
     "./**/*.js",

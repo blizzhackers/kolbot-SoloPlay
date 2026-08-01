@@ -68,6 +68,7 @@ const MercData = new function MercData () {
   };
 };
 
+/** @type {Mercenary} */
 const Mercenary = {
   minCost: -1,
   timeout: 0,

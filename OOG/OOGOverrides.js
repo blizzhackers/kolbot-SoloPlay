@@ -19,6 +19,7 @@ includeIfNotIncluded("OOG.js");
   };
 })([].filter.constructor("return this")(), login);
 
+/** @type {LocationAction} */
 const LocationAction = {
   run: function () {
     // placeholder
