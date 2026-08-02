@@ -26,6 +26,11 @@
   exports.mercPacket = exports.Merc = exports.Rnd = void 0;
   let bigInt_1 = require("./bigInt");
   /// The actual Merc.js code of dzik
+  /**
+   * @param {number[]} val - bigInt digit array (see bigInt.js); may be reallocated.
+   * @param {number} shift - Bit count to shift left.
+   * @returns {number[]} The (possibly reallocated) shifted bigInt array.
+   */
   function leftShift(val, shift) {
     let l;
     while (shift >= bigInt_1.bpe) {
@@ -45,6 +50,11 @@
     }
     return val;
   }
+  /**
+   * Mutates `val` in place (unlike leftShift, never reallocates).
+   * @param {number[]} val - bigInt digit array.
+   * @param {number} shift - Bit count to shift right.
+   */
   function rightShift(val, shift) {
     while (shift >= bigInt_1.bpe) {
       bigInt_1.rightShift_(val, bigInt_1.bpe - 1);
@@ -55,11 +65,15 @@
     }
   }
   let Rnd = /** @class */ (function () {
+    /** @param {number} seed */
     function Rnd(seed) {
       let tmp = bigInt_1.int2bigInt(666, 16, 0);
       tmp = leftShift(tmp, 32);
       this.val = bigInt_1.add(tmp, bigInt_1.str2bigInt(seed.toString(16), 16, 33));
     }
+    /**
+     * Advances the internal LCG state in place; call get() to read the resulting word.
+     */
     Rnd.prototype.roll = function () {
       let tmp = bigInt_1.modInt(this.val, 0x100000000);
       let tmp2 = bigInt_1.mult(bigInt_1.str2bigInt(tmp.toString(16), 16, 33), bigInt_1.int2bigInt(1791398085, 33, 0));
@@ -70,6 +84,7 @@
       res = bigInt_1.sub(res, rescopy);
       this.val = res;
     };
+    /** @returns {number} */
     Rnd.prototype.get = function () {
       return bigInt_1.modInt(this.val, 0x100000000);
     };
@@ -77,6 +92,12 @@
   }());
   exports.Rnd = Rnd;
   let Merc = /** @class */ (function () {
+    /**
+     * Derives this merc's stats (hp, defense, skills, cost, etc.) from `MercTable` via seed-driven
+     * rolls, mirroring the client's mercenary-generation algorithm.
+     * @param {number} name - Locale string id encoding the mercenary's name/act.
+     * @param {number} seed - Server-assigned seed (from the gamepacket) that drives the stat rolls.
+     */
     function Merc(name, seed) {
       this.id = name;
       this.name = getLocaleString(name);
@@ -187,6 +208,11 @@
         this.resists = 1;
       }
     }
+    /**
+     * Sends the hire packet directly; throws if not interacting with an NPC, the cost is invalid,
+     * or gold is short.
+     * @returns {boolean}
+     */
     Merc.prototype.hire = function () {
       let npc = getInteractedNPC();
       if (!npc) throw new Error("To buy merc you need to interact with npc first");
@@ -204,6 +230,11 @@
   exports.Merc = Merc;
   let Mercs = [];
   exports.default = Mercs;
+  /**
+   * gamepacket listener; 0x4f clears the tracked merc list, 0x4e parses a merc-info packet and
+   * appends a new Merc to it (see commented addEventListener calls below).
+   * @param {number[]} pByte
+   */
   function mercPacket(pByte) {
     switch (pByte[0]) {
     case 0x4f:

@@ -44,6 +44,7 @@ const SoloWants = {
     return this.validGids.includes(item.gid);
   },
 
+  /** @returns {void} */
   buildList: function () {
     let myItems = me.getItemsEx()
       .filter(function (item) {
@@ -186,6 +187,7 @@ const SoloWants = {
     return false;
   },
 
+  /** @returns {void} */
   ensureList: function () {
     let i = 0;
     for (let el of this.needList) {
@@ -199,6 +201,7 @@ const SoloWants = {
   },
 
   // Cube ingredients
+  /** @returns {boolean} */
   checkSubrecipes: function () {
     for (let el of this.needList) {
       for (let i = 0; i < el.needed.length; i++) {

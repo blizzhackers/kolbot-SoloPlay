@@ -92,6 +92,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level bracket's attack-skill, mana, and shapeshift/summon config.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -107,6 +110,7 @@
         },
       },
 
+      /** @returns {boolean} True once Ribcracker and Chains of Honor are owned. */
       respec: function () {
         return (
           me.checkItem({ name: sdk.locale.items.Ribcracker, classid: sdk.items.Stalagmite }).have
@@ -114,6 +118,7 @@
         );
       },
 
+      /** @returns {boolean} True once `respec` gear is owned and Werewolf is fully hard-pointed (20). */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Werewolf, sdk.skills.subindex.HardPoints) === 20;
       },

@@ -27,16 +27,24 @@ function NTIPList () {
   this.strArray = [];
 }
 
+/**
+ * @param {((item: ItemUnit) => boolean)[]} parsedLine - Compiled [typeFn, statFn, wantedObj] rule for one nip line.
+ * @param {{line: string, file: string, string: string}} info - Source metadata paired with `parsedLine` for errors.
+ */
 NTIPList.prototype.add = function (parsedLine, info) {
   this.list.push(parsedLine);
   this.strArray.push(info);
 };
 
+/** @param {number} index - Index of the entry to remove; `list` and `strArray` are kept in sync. */
 NTIPList.prototype.remove = function (index) {
   this.list.splice(index, 1);
   this.strArray.splice(index, 1);
 };
 
+/**
+ * Empties both `list` and `strArray`.
+ */
 NTIPList.prototype.clear = function () {
   this.list = [];
   this.strArray = [];
@@ -50,6 +58,11 @@ NTIP.NoTier = new NTIPList();
 NTIP.CheckList = new NTIPList();
 // NTIP.CheckListNoTier = new NTIPList(); // all items in a normal pickit are treated as no tier
 
+/**
+ * Builds a tier-lookup function that scans `NTIP.SoloList` for lines whose `wanted[tierType]` matches an item.
+ * @param {string} tierType - Name of the tier method to invoke on each matched rule's `wanted` object.
+ * @returns {(item: ItemUnit) => number} Function returning the highest matching tier, or -1 if none match.
+ */
 NTIP.generateTierFunc = function (tierType) {
   return /** @param {ItemUnit} item */ function (item) {
     let tier = -1;
@@ -128,6 +141,11 @@ NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
  */
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
+/**
+ * @param {string} itemString - Raw nip line to parse and register on `NTIP.SoloList` or `NTIP.NoTier`.
+ * @param {string} [filename] - Source label used in error messages; defaults to "Kolbot-SoloPlay".
+ * @returns {boolean} Always true; parse failures are logged but do not throw.
+ */
 NTIP.addLine = function (itemString, filename = "Kolbot-SoloPlay") {
   const tierdItem = itemString.toLowerCase().includes("tier");
   const info = {
@@ -184,6 +202,10 @@ NTIP.buildFinalGear = function (arr) {
 
 // currently just using for quiver's but if that changes need to figure out way to seperate out sections
 // so things can be deleted without affecting the entire list
+/**
+ * @param {string} itemString - Raw nip line to parse and register on `NTIP.Runtime`.
+ * @returns {boolean} Always true; parse failures are logged but do not throw.
+ */
 NTIP.addToRuntime = function (itemString) {
   const info = {
     line: NTIP.Runtime.list.length + 1,
@@ -200,6 +222,11 @@ NTIP.addToRuntime = function (itemString) {
   return true;
 };
 
+/**
+ * Registers each string as a nip line; the source filename is derived from the caller's stack trace.
+ * @param {...string[]} arraystoloop - One or more arrays of raw nip lines to register.
+ * @returns {boolean} Always true; parse failures for individual lines are logged but do not throw.
+ */
 NTIP.buildList = function (...arraystoloop) {
   const filename = (new Error()).stack.match(/[^\r\n]+/g).at(1).split("\\").last() || "";
   for (let arr of arraystoloop) {
@@ -525,9 +552,7 @@ NTIP.OpenFile = function (filepath, notify) {
   let lineNumber = 1;
   nipfile.close();
 
-  /**
-   * @note removed tier'd check for normal pick files as soloplay handles that
-   */
+  /** @note removed tier'd check for normal pick files as soloplay handles that */
   for (let entry of lines) {
     const info = {
       index: NTIP.CheckList.list.length + 1,
@@ -556,6 +581,13 @@ NTIP.OpenFile = function (filepath, notify) {
   return true;
 };
 
+/**
+ * Compiles a raw nip line into a [typeFn, statFn, wantedObj] rule understood by `NTIP._evaluateRuleMatch`.
+ * @param {string} input - Raw nip line text (e.g. from a pickit file or SoloList).
+ * @param {{line: string, file: string, string: string}} info - Source metadata used in error messages.
+ * @returns {[((item: ItemUnit) => boolean)|undefined, ((item: ItemUnit) => boolean)|undefined, object]|false|null}
+ * The compiled rule tuple, or false/null if the line failed to parse.
+ */
 NTIP.ParseLineInt = function (input, info) {
   let i, property, p_start, p_section, p_keyword, value;
 

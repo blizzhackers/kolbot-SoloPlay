@@ -9,6 +9,7 @@ function orgtorch () {
   this.doneAreas = [];
 
   // Identify & mule
+  /** @returns {boolean} */
   this.checkTorch = function () {
     if (me.inArea(sdk.areas.UberTristram)) {
       Pather.moveTo(25105, 5140);
@@ -39,6 +40,7 @@ function orgtorch () {
   };
 
   // Check whether the killer is alone in the game
+  /** @returns {boolean} */
   this.aloneInGame = function () {
     let party = getParty();
 
@@ -54,6 +56,10 @@ function orgtorch () {
   };
 
   // Try to lure a monster - wait until it's close enough
+  /**
+   * @param {number} bossId
+   * @returns {boolean}
+   */
   this.lure = function (bossId) {
     let tick,
       unit = Game.getMonster(bossId);
@@ -74,6 +80,7 @@ function orgtorch () {
   };
 
   // Check if we have complete sets of organs
+  /** @returns {boolean} */
   this.completeSetCheck = function () {
     let horns = me.findItems(sdk.items.quest.DiablosHorn),
       brains = me.findItems(sdk.items.quest.MephistosBrain),
@@ -88,6 +95,7 @@ function orgtorch () {
   };
 
   // Get fade in River of Flames
+  /** @returns {boolean} */
   this.getFade = function () {
     if (!me.getState(sdk.states.Fade)
       && (me.checkItem({ name: sdk.locale.items.Treachery, equipped: true }).have
@@ -114,6 +122,10 @@ function orgtorch () {
   };
 
   // Open a red portal. Mode 0 = mini ubers, mode 1 = Tristram
+  /**
+   * @param {number} mode
+   * @returns {ObjectUnit | boolean}
+   */
   this.openPortal = function (mode) {
     let portal,
       item1 = mode === 0
@@ -169,6 +181,7 @@ function orgtorch () {
   };
 
   // Do mini ubers or Tristram based on area we're already in
+  /** @returns {void} */
   this.pandemoniumRun = function () {
     let i, findLoc;
 
@@ -261,6 +274,7 @@ function orgtorch () {
     }
   };
 
+  /** @returns {number} */
   this.juvCheck = function () {
     let i,
       needJuvs = 0,

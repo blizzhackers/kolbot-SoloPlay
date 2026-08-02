@@ -40,6 +40,7 @@
         [sdk.skills.BattleOrders, 15, false],    // total left 0
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
           && me.getSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints) >= 5
@@ -48,6 +49,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level tier's Config overrides (attack skills, belt columns, buffers).
+           */
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.Frenzy, sdk.skills.Berserk, sdk.skills.Frenzy, sdk.skills.Berserk];
             Config.LowManaSkill = [sdk.skills.DoubleSwing, 0];

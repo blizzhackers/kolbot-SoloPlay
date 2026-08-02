@@ -16,6 +16,7 @@ function jail () {
     myPrint("clearing jail level " + i);
 
     Precast.doPrecast(true);
+    /** @returns {boolean} True to stop clearing this level early (a Tainted mob was found, Hell only). */
     Attack.clearLevelEx({ quitWhen: function () {
       if (!me.hell) return false; // don't quit
       let dangerMob = Game.getMonster();

@@ -26,9 +26,17 @@
   };
   // eslint-disable-next-line no-var
   var Events = /** @class */ (function () {
+    /** @constructor */
     function Events () {
     }
     // Generic type S to give to EventHandler<S> to typehint this function gets the same this as where the event is registered
+    /**
+     * Registers a handler for an event, keyed by the calling Unit instance.
+     * @param {string} key
+     * @param {(...args: any[]) => void} handler
+     * @param {WeakMap<object, Map<string, Function[]>>} [handlerType] internal - selects the once vs. persistent handler store
+     * @returns {this}
+     */
     Events.prototype.on = function (key, handler, handlerType) {
       if (handlerType === void 0) {
         handlerType = handlers;
@@ -48,9 +56,20 @@
       // console.trace();
       return this;
     };
+    /**
+     * Registers a handler that fires at most once, then is removed.
+     * @param {string} key
+     * @param {(...args: any[]) => void} handler
+     * @returns {this}
+     */
     Events.prototype.once = function (key, handler) {
       return this.on(key, handler, onceHandlers);
     };
+    /**
+     * @param {string} key
+     * @param {(...args: any[]) => void} handler
+     * @returns {this}
+     */
     Events.prototype.off = function (key, handler) {
       let _this = this;
       [handlers, onceHandlers].forEach(function (handlerType) {
@@ -68,6 +87,11 @@
       });
       return this;
     };
+    /**
+     * Emits an event, invoking all registered handlers with any extra arguments forwarded positionally.
+     * @param {string} key
+     * @returns {this}
+     */
     Events.prototype.emit = function (key) {
       let _this = this;
       let _a, _b;

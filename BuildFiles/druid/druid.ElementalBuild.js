@@ -139,6 +139,9 @@
 
       AutoBuildTemplate: {
         1: {
+          /**
+           * Sets Fissure/Firestorm/Arctic Blast as the primary attack and the Grizzly/Oak Sage summons.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -155,10 +158,12 @@
         },
       },
 
+      /** @returns {boolean} True once an Enigma armor is equipped */
       respec: function () {
         return me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.checkSkill(sdk.skills.Volcano, sdk.skills.subindex.HardPoints);
       },

@@ -27,6 +27,10 @@ function hellforge () {
    * - Generate path and use callback to stop after we detect heph in range instead of moving all the way to the forge
    */
 
+  /**
+   * Stop callback for Pather.moveToPresetObject; returns true once Hephasto is within range 30.
+   * @returns {boolean}
+   */
   if (!Pather.moveToPresetObject(me.area, sdk.quest.chest.HellForge, { callback: function () {
     let heph = Game.getMonster(getLocaleString(sdk.locale.monsters.HephastoTheArmorer));
     return (heph && heph.distance < 30);

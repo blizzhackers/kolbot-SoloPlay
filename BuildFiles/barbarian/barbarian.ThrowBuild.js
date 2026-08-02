@@ -96,6 +96,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -110,6 +111,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return false;
@@ -120,6 +122,7 @@
         );
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.DoubleThrow, sdk.skills.subindex.HardPoints) === 20;
       },

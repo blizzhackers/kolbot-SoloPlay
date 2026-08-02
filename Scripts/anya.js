@@ -21,6 +21,7 @@ function anya () {
   Precast.doPrecast(true);
   Pather.clearToExit(sdk.areas.CrystalizedPassage, sdk.areas.FrozenRiver, Pather.useTeleport());
 
+  /** @returns {boolean} True once Frozenstein is close enough to the platform to proceed. */
   if (!Pather.moveToPresetObject(me.area, sdk.objects.FrozenAnyasPlatform, { callback: function () {
     let fStein = Game.getMonster(getLocaleString(sdk.locale.monsters.Frozenstein));
     // let frozenanya = Game.getObject(sdk.objects.FrozenAnya);
@@ -42,6 +43,7 @@ function anya () {
   let frozenanya = Game.getObject(sdk.objects.FrozenAnya);
 
   if (!frozenanya) {
+    /** @returns {ObjectUnit | false} FrozenAnya's object once it spawns after moving closer. */
     Pather.moveToEx(presetLoc.x, presetLoc.y, { callback: function () {
       return Game.getObject(sdk.objects.FrozenAnya);
     } });
@@ -121,7 +123,9 @@ function anya () {
       Town.npcInteract("anya");
     }
 
-    /** Handles using the scroll, no need to repeat the same code here */
+    /**
+     * Handles using the scroll, no need to repeat the same code here
+     */
     Quest.unfinishedQuests();
   }
 

@@ -80,6 +80,12 @@ new Overrides.Override(Precast, Precast.doPrecast, function (orignal, force, par
   return true;
 }).apply();
 
+/**
+ * Repeatedly casts a summon skill at random nearby spots until the minion count cap is reached.
+ * @param {number} skillId
+ * @param {number} minionType
+ * @returns {boolean}
+ */
 Precast.summon = function (skillId, minionType) {
   if (!Skill.canUse(skillId)) return false;
 

@@ -157,6 +157,9 @@ const CharmEquip = (function () {
       return me.data.charmGids.includes(item.gid);
     },
 
+    /**
+     * Reconciles `me.data.charms.*.have` against currently owned charms, calling `me.update()` if it changed.
+     */
     init: function () {
       // No charms in classic
       if (me.classic) return;
@@ -697,6 +700,9 @@ const CharmEquip = (function () {
       return (tierParamItem >= tierLowestItem);
     },
 
+    /**
+     * Auto-equips the best small/large/grand charms and sells the rest; a no-op in classic or if unchanged.
+     */
     run: function () {
       // No charms in classic
       if (me.classic) return;

@@ -22,9 +22,7 @@ include("SoloPlay/Tools/SoloIndex.js");
 include("SoloPlay/Core/ConfigOverrides.js");
 include("SoloPlay/Core/Globals.js");
 
-/**
- * @todo trim the uneeded files/global variables from this file
- */
+/** @todo trim the uneeded files/global variables from this file */
 
 function main () {
   let ironGolem, tick, quitListDelayTime;
@@ -680,6 +678,10 @@ function main () {
     let _timeout = 0;
     let gameTracker;
 
+    /**
+     * Builds the elapsed-time suffix for the D2Bot status line, including cumulative totals when enabled.
+     * @returns {string}
+     */
     function timer () {
       const currInGame = (getTickCount() - me.gamestarttime);
       let timeStr = " (Time: " + Time.format(currInGame) + ") ";
@@ -705,6 +707,10 @@ function main () {
       return timeStr;
     }
     
+    /**
+     * Worker.runInBackground tick: refreshes the D2Bot status line and overlay display.
+     * @returns {boolean} Always true (keep the background worker running).
+     */
     this.run = function () {
       if (getTickCount() - _timeout < 500) return true;
       _timeout = getTickCount();

@@ -96,6 +96,9 @@
 
       AutoBuildTemplate: {
         1: {
+          /**
+           * Applies this level bracket's attack-skill, belt, and buffer config.
+           */
           Update: function () {
             Config.AttackSkill = [
               sdk.skills.BattleCry,
@@ -111,6 +114,10 @@
         },
       },
 
+      /**
+       * @returns {boolean} True once level 75+ and Diablo is dead (Classic), or Enigma + Heart of the Oak
+       * are owned (Expansion).
+       */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -122,6 +129,7 @@
         }
       },
 
+      /** @returns {boolean} True once `respec` gear is owned and War Cry is fully hard-pointed (20). */
       active: function () {
         return (
           this.respec() &&

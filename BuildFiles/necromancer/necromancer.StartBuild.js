@@ -38,6 +38,7 @@
         [sdk.skills.BoneSpear, 20],      // charlvl -> Until respec at 26
       ],
 
+      /** @returns {boolean} True while below respecOne and Bone Prison hasn't been learned */
       active: function () {
         return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.BonePrison, sdk.skills.subindex.HardPoints);
       },

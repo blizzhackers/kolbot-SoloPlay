@@ -353,6 +353,11 @@ Cubing.buildLists = function () {
 };
 
 // Added try again to emptying cube if it fails it will clear inventory then organize it
+/**
+ * Move every item out of the cube into stash or inventory, then close the cube.
+ * @returns {boolean} true if the cube is empty (or nothing to move), false if the cube is missing or
+ * any item couldn't be moved to the stash
+ */
 Cubing.emptyCube = function () {
   const locToName = {};
   locToName[sdk.storage.Cube] = "Cube";
@@ -730,6 +735,12 @@ Cubing.validItem = function (unit, recipe) {
   return false;
 };
 
+/**
+ * Cubes every completable recipe, routing crafted/kept items through Pickit and the
+ * crafting/SoloWants systems, then closes any leftover cube/stash UI.
+ * @returns {boolean} true once all recipes have been processed, false on failure (no cube, items
+ * couldn't be moved, or a cubing attempt produced no change)
+ */
 Cubing.doCubing = function () {
   if (!Config.Cubing || !me.getItem(sdk.items.quest.Cube)) return false;
 

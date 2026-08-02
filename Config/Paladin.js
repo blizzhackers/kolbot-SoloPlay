@@ -557,9 +557,7 @@
       includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/Lore.js");
     }
 
-    /**
-     * @todo Rhyme and Splendor
-     */
+    /** @todo Rhyme and Splendor */
 
     // Ancients' Pledge
     if (me.equipped.get(sdk.body.LeftArm).tier < 500) {

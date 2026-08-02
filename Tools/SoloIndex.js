@@ -38,9 +38,7 @@ const SoloIndex = {
     "shenk", "savebarby", "anya", "pindle", "nith", "ancients", "baal", "a5chests",
   ],
 
-  /**
-   * @type {Record<SoloScript, { preReq?: () => boolean, skipIf?: () => boolean, shouldRun: () => boolean }>}
-   */
+  /** @type {Record<SoloScript, { preReq?: () => boolean, skipIf?: () => boolean, shouldRun: () => boolean }>} */
   index: {
     "corpsefire": {
       preReq: function () {

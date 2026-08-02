@@ -147,9 +147,7 @@
     // Calculate the distance between each generated point
     let step = distance / numberOfPoints;
 
-    /**
-     * @type {Vector[]}
-     */
+    /** @type {Vector[]} */
     let points = [];
 
     // Generate an array of points from point A to point B

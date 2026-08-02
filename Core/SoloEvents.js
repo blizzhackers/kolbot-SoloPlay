@@ -30,6 +30,7 @@
       gamePass: "",
     },
 
+    /** @returns {boolean} */
     outOfGameCheck: function () {
       if (!this.check) return false;
 
@@ -61,6 +62,7 @@
       return false;
     },
 
+    /** @returns {boolean} */
     inGameCheck: function () {
       if (me.ingame && me.hell && !me.classic && Misc.getPlayerCount() > 1) {
         let possibleChars = this.getCharacterNames();
@@ -114,6 +116,7 @@
       return false;
     },
 
+    /** @returns {string[]} */
     getProfiles: function () {
       let profileInfo, realm = me.realm.toLowerCase(), profileList = [];
       //realm = "useast";	// testing purposes
@@ -138,6 +141,7 @@
       return profileList;
     },
 
+    /** @returns {string[]} */
     getCharacterNames: function () {
       let characterInfo, realm = me.realm.toLowerCase(), charList = [];
       //realm = "useast";	// testing purposes
@@ -162,12 +166,22 @@
       return charList;
     },
 
+    /**
+     * @param {string} profile
+     * @param {any} message
+     * @param {number} [mode]
+     */
     sendToProfile: function (profile, message, mode = 65) {
       if (profile.toLowerCase() !== me.profile.toLowerCase()) {
         sendCopyData(null, profile, mode, JSON.stringify(message));
       }
     },
 
+    /**
+     * Broadcasts a message to every known profile except the caller's own.
+     * @param {any} message
+     * @param {number} [mode]
+     */
     sendToList: function (message, mode = 55) {
       let profiles = this.getProfiles();
 
@@ -182,6 +196,11 @@
       });
     },
 
+    /**
+     * Moves to stash to drop the charm, then returns to the location it was called from.
+     * @param {ItemUnit} charm
+     * @returns {boolean}
+     */
     dropCharm: function (charm) {
       if (!charm || charm === undefined) return false;
 
@@ -209,6 +228,9 @@
 
     // @todo redo this, I think better option would be to make this it's own script
     // end the current script but insert it to be continued after dclone is dead
+    /**
+     * Travels to kill Diablo Clone, coordinates the Annihilus handoff with other profiles, then returns.
+     */
     killdclone: function () {
       D2Bot.printToConsole("Kolbot-SoloPlay :: Trying to kill DClone.", sdk.colors.D2Bot.Orange);
       let orginalLocation = { area: me.area, x: me.x, y: me.y };
@@ -288,6 +310,12 @@
       retry: 10,
     },
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {pathSettings} [givenSettings]
+     * @returns {boolean}
+     */
     moveTo: function (x, y, givenSettings) {
       // Abort if dead
       if (me.dead) return false;
@@ -434,6 +462,9 @@
       return cbCheck || getDistance(me, node.x, node.y) < 5;
     },
 
+    /**
+     * Exploits throne room re-entry timing to skip a Baal wave.
+     */
     skip: function () {
       let tick = getTickCount();
       myPrint("Attempting baal wave skip");
@@ -480,6 +511,9 @@
       }
     },
 
+    /**
+     * Sidesteps incoming Diablo/Diablo Clone lightning missiles targeted at us.
+     */
     dodge: function () {
       let diablo = me.inArea(sdk.areas.ChaosSanctuary)
         ? Game.getMonster(sdk.monsters.Diablo)
@@ -537,6 +571,9 @@
       }
     },
 
+    /**
+     * Wraps up the Den of Evil quest, using town if no tome/scrolls are available for an in-place waypoint route.
+     */
     finishDen: function () {
       Pickit.pickItems();
 
@@ -553,6 +590,9 @@
       Town.npcInteract("akara");
     },
 
+    /**
+     * Forces an act change to trigger the Andariel act-transition bug.
+     */
     bugAndy: function () {
       Town.goToTown();
       Pather.changeAct();
@@ -566,6 +606,10 @@
       }
     },
 
+    /**
+     * gamepacket listener; emits a "dodge" soloEvent when Diablo's lightning packet is seen.
+     * @param {any[]} [bytes]
+     */
     diaEvent: function (bytes = []) {
       if (!bytes.length) return;
       // dia lightning
@@ -576,6 +620,10 @@
 
     skippedWaves: [],
 
+    /**
+     * gamepacket listener; auto-skips certain Baal waves per class/difficulty heuristics.
+     * @param {any[]} [bytes]
+     */
     baalEvent: function (bytes = []) {
       if (!bytes.length) return;
       // baal wave

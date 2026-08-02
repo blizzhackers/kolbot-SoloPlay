@@ -36,6 +36,7 @@
       ],
       stats: [],
 
+      /** @returns {boolean} True once both respecs are past and this build hasn't yet given way to the final build. */
       active: function () {
         return (me.charlvl > CharInfo.respecOne
           && me.charlvl > CharInfo.respecTwo
@@ -45,6 +46,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level bracket's attack-skill, golem, belt, and buffer config.
+           */
           Update: function () {
             Config.TownHP = me.hardcore ? 0 : 35;
             Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];

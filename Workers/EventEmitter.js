@@ -31,6 +31,9 @@
   const _AutoBuild = new function () {
     this.enabled = true;
 
+    /**
+     * Checks for a level-up and, if found, re-runs AutoSkill/AutoStat and advances the tracked level.
+     */
     this.run = function () {
       if (!this.enabled) return;
 
@@ -41,7 +44,12 @@
           scriptBroadcast("toggleQuitlist");
           AutoBuild.print("Level up detected (", old.level, "-->", me.charlvl, ")");
           AutoSkill.init(Config.AutoSkill.Build, Config.AutoSkill.Save);
-          AutoStat.init(Config.AutoStat.Build, Config.AutoStat.Save, Config.AutoStat.BlockChance, Config.AutoStat.UseBulk);
+          AutoStat.init(
+            Config.AutoStat.Build,
+            Config.AutoStat.Save,
+            Config.AutoStat.BlockChance,
+            Config.AutoStat.UseBulk
+          );
           scriptBroadcast({ event: "level up" });
           AutoBuild.applyConfigUpdates(); // scriptBroadcast() won't trigger listener on this thread.
 
@@ -63,6 +71,10 @@
   };
 
   // Start
+  /**
+   * Background process invoked periodically; runs the level-up check at most once per second.
+   * @returns {boolean} always true, to keep the background worker looping
+   */
   Worker.runInBackground.EventWatcher = function () {
     // AutoBuild
     if (getTickCount() - levelTimeout > 1000) {

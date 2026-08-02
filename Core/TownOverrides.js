@@ -57,12 +57,27 @@ new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
 }).apply();
 
 // ugly for now but proxy the functions I moved to NPCAction.js in case somewhere the base functions are being used
+/** @returns {boolean} */
 Town.buyPotions = () => NPCAction.buyPotions();
+/**
+ * @param {number} classid
+ * @param {boolean} force
+ * @returns {boolean}
+ */
 Town.fillTome = (classid, force = false) => NPCAction.fillTome(classid, force);
+/**
+ * @param {boolean} force
+ * @returns {boolean}
+ */
 Town.cainID = (force = false) => NPCAction.cainID(force);
 Town.lastShopped = { who: "", tick: 0 };
 // todo - allow earlier shopping, mainly to get a belt
+/**
+ * @param {boolean} force
+ * @returns {boolean}
+ */
 Town.shopItems = (force = false) => NPCAction.shopItems(force);
+/** @returns {boolean} */
 Town.gamble = () => NPCAction.gamble();
 
 Town.sell = [];
@@ -256,9 +271,7 @@ Town.initNPC = function (task = "", reason = "undefined") {
   return npc;
 };
 
-/**
- * @description Go to a town healer if we are below certain hp/mp percent or have a status effect
- */
+/** @description Go to a town healer if we are below certain hp/mp percent or have a status effect */
 Town.heal = function (force = false) {
   if (!me.needHealing() && !force) return true;
   if (me.act === 3
@@ -303,6 +316,7 @@ Town.needForceID = function (item) {
     && !item.identified && AutoEquip.hasTier(item));
 };
 
+/** @returns {number} */
 Town.haveItemsToSell = function () {
   let temp = [];
   while (Town.sell.length) {
@@ -350,6 +364,11 @@ Town.sellItems = function (itemList = []) {
   return !itemList.length;
 };
 
+/**
+ * @param {number | string} id
+ * @param {boolean} force
+ * @returns {number}
+ */
 Town.checkScrolls = function (id, force = false) {
   let tome = me.findItem(id, sdk.items.mode.inStorage, sdk.storage.Inventory);
 
@@ -442,10 +461,9 @@ Town.itemResult = function (item, result, system = "", sell = false) {
   }
 };
 
+/** @returns {boolean} */
 Town.identify = function () {
-  /**
-   * @todo use cain we are closer to him than our shop npc
-   */
+  /** @todo use cain we are closer to him than our shop npc */
   if (me.gold < 15000 && NPCAction.cainID(true)) return true;
   
   let list = (Storage.Inventory.Compare(Config.Inventory) || [])
@@ -549,6 +567,7 @@ Town.identify = function () {
   return true;
 };
 
+/** @returns {boolean} */
 Town.needStash = function () {
   if (Config.StashGold
     && me.getStat(sdk.stats.Gold) >= Config.StashGold
@@ -565,9 +584,7 @@ Town.needStash = function () {
     });
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Town.canStash = function (item) {
   if (Town.ignoreType(item.itemType)
     || [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)
@@ -580,6 +597,10 @@ Town.canStash = function (item) {
   return Storage.Stash.CanFit(item);
 };
 
+/**
+ * @param {boolean} stashGold
+ * @returns {boolean}
+ */
 Town.stash = function (stashGold = true) {
   if (!this.needStash()) return true;
   !getUIFlag(sdk.uiflags.Stash) && me.cancel();
@@ -628,11 +649,16 @@ Town.stash = function (stashGold = true) {
   return true;
 };
 
+/**
+ * @param {boolean} force
+ * @returns {boolean}
+ */
 Town.sortStash = function (force = false) {
   if (Storage.Stash.UsedSpacePercent() < 50 && !force) return true;
   return Storage.Stash.SortItems();
 };
 
+/** @returns {boolean} */
 Town.clearInventory = function () {
   console.log("ÿc8Start ÿc0:: ÿc8clearInventory");
   let clearInvoTick = getTickCount();
@@ -880,6 +906,7 @@ Town.clearInventory = function () {
   return true;
 };
 
+/** @returns {boolean} */
 Town.clearJunk = function () {
   let junkItems = me.getItemsEx()
     .filter(function (i) {
@@ -890,9 +917,7 @@ Town.clearJunk = function () {
   console.log("ÿc8Start ÿc0:: ÿc8clearJunk");
   let clearJunkTick = getTickCount();
 
-  /**
-   * @type {ItemUnit[][]}
-   */
+  /** @type {ItemUnit[][]} */
   let [totalJunk, junkToSell, junkToDrop] = [[], [], []];
 
   /**
@@ -1010,6 +1035,9 @@ Town.clearJunk = function () {
 
 Town.lastChores = 0;
 
+/**
+ * Restocks TP (and ID, if field-ID is enabled) tomes, then clears redundant TP scrolls if a tome is held.
+ */
 Town.fillTomes = function () {
   NPCAction.fillTome(sdk.items.TomeofTownPortal);
   Config.FieldID.Enabled && NPCAction.fillTome(sdk.items.TomeofIdentify);
@@ -1048,9 +1076,7 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
   try {
     Town.choresActive = true;
-    /**
-     * @todo light chores if last chores was < minute? 2 minutes idk yet
-     */
+    /** @todo light chores if last chores was < minute? 2 minutes idk yet */
     
     // shopping causes this to bug out sometimes so remove it for duration of chores
     removeEventListener("itemaction", Pickit.itemEvent);

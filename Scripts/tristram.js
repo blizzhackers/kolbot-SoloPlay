@@ -53,6 +53,9 @@ function tristram () {
     ? Pather.useWaypoint(sdk.areas.StonyField)
     : Pather.getWP(sdk.areas.StonyField);
   Precast.doPrecast(true);
+  /**
+   * Path-stop condition for moveToPresetMonster below: true once Rakanishu is dead or within 20 tiles.
+   */
   Pather.moveToPresetMonster(sdk.areas.StonyField, sdk.monsters.preset.Rakanishu, { callback: function () {
     let rak = Game.getMonster(getLocaleString(sdk.locale.monsters.Rakanishu));
     return rak && (rak.dead || rak.distance < 20);

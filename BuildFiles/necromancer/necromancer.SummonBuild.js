@@ -56,6 +56,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Sets the primary attack (Poison Nova/Bone Spear), max minion counts, Clay Golem, and mana buffer.
+           */
           Update: function () {
             Config.AttackSkill = me.classic
               ? [-1, sdk.skills.PoisonNova, -1, sdk.skills.PoisonNova, -1, sdk.skills.BoneSpear, -1]
@@ -71,6 +74,7 @@
         },
       },
 
+      /** @returns {boolean} In classic, true at level 75+ with Diablo killed; otherwise true once Enigma is equipped */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -79,6 +83,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.RaiseSkeleton, sdk.skills.subindex.HardPoints) === 20;
       },

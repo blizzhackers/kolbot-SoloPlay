@@ -12,9 +12,7 @@
  */
 
 (function (global) {
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   const sumElementalDmg = function (item) {
     if (!item) return 0;
     let fire = item.getStatEx(sdk.stats.FireMinDamage) + item.getStatEx(sdk.stats.FireMaxDamage);
@@ -25,9 +23,7 @@
     return (fire + light + magic + cold + poison);
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   const mercscore = function (item) {
     const mercWeights = {
       IAS: 3.5,
@@ -571,9 +567,7 @@
       const stats = item.getStat(-2);
       const ctcSkillObj = (ctcType, skill, level) => ({ ctcType: ctcType, skill: skill, level: level });
       const meleeCheck = !buildInfo.caster;
-      /**
-       * @param {number} type 
-       */
+      /** @param {number} type */
       const buildList = function (type) {
         let skill, level;
         if (stats.hasOwnProperty(type)) {
@@ -639,9 +633,7 @@
     return Math.max(1, tier);
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   const secondaryscore = function (item) {
     let tier = 0;
 
@@ -662,9 +654,7 @@
     }, tier);
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   const charmscore = function (item) {
     if (me.data.charmGids.includes(item.gid)) return 1000;
     // depending on invo space it might be worth it early on to keep 1 or 2 non-skiller grandcharms - @todo test that out

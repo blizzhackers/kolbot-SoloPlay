@@ -57,6 +57,11 @@
     }
   };
 
+  /**
+   * Buys belt/buffer potions to fill BeltColumn gaps and HP/MP buffer targets, preferring cheaper
+   * potions when gold is low.
+   * @returns {boolean}
+   */
   NPCAction.buyPotions = function () {
     if (me.gold < 450 || !me.getItem(sdk.items.TomeofTownPortal)) return false;
 
@@ -334,6 +339,11 @@
     return true;
   };
 
+  /**
+   * Identifies unidentified items via Cain and routes each through Pickit/Cubing/Runewords/CraftingSystem/SoloWants.
+   * @param {boolean} [force]
+   * @returns {boolean}
+   */
   NPCAction.cainID = function (force = false) {
     if ((!Config.CainID.Enable && !force)
       || !Misc.checkQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) {
@@ -405,6 +415,12 @@
   };
 
   // todo - allow earlier shopping, mainly to get a belt
+  /**
+   * MiniShopBot pass: scans the current NPC's stock for AutoEquip/SoloWants upgrades (or early
+   * bow/belt items while leveling) and buys anything better than what's equipped or stashed.
+   * @param {boolean} [force]
+   * @returns {boolean}
+   */
   NPCAction.shopItems = function (force = false) {
     if (!Config.MiniShopBot) return true;
     if (!me.getTome(sdk.items.TomeofTownPortal)) return false;
@@ -595,6 +611,10 @@
     return true;
   };
 
+  /**
+   * Gambles gold on items in Config.GambleItems until GambleGoldStop is reached.
+   * @returns {boolean}
+   */
   NPCAction.gamble = function () {
     if (!Town.needGamble() || Config.GambleItems.length === 0) return true;
 
@@ -692,6 +712,11 @@
     return true;
   };
 
+  /**
+   * Repairs equipment and buys a replacement quiver if needed, then re-runs shopItems.
+   * @param {boolean} [force]
+   * @returns {boolean}
+   */
   NPCAction.repair = function (force = false) {
     if (Town.cubeRepair()) return true;
 
@@ -745,6 +770,11 @@
     return true;
   };
 
+  /**
+   * Revives a dead mercenary, refreshes the cached merc stats in CharData, and optionally precasts
+   * Battle Orders for it.
+   * @returns {boolean}
+   */
   NPCAction.reviveMerc = function () {
     if (!me.needMerc()) return true;
     let preArea = me.area;

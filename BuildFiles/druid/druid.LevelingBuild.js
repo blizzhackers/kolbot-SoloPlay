@@ -39,6 +39,7 @@
         [sdk.skills.Twister, 20],
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
           && me.checkSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints)
@@ -47,6 +48,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Called by AutoBuild.applyConfigUpdates() when charlvl reaches this template's level key.
+           */
           Update: function () {
             Config.SkipImmune = ["cold and physical"];
             Config.AttackSkill = [-1, sdk.skills.Tornado, -1, sdk.skills.Tornado, -1, sdk.skills.ArcticBlast, -1];

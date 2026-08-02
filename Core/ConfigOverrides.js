@@ -7,6 +7,12 @@
 
 includeIfNotIncluded("core/Config.js");
 
+/**
+ * Loads the character-specific SoloPlay config file (by class/profile/charname/realm precedence),
+ * then silences the say command and boots AutoBuild if enabled.
+ * @param {boolean} [notify]
+ * @returns {void}
+ */
 Config.init = function (notify) {
   const formats = ((className, profile, charname, realm) => ({
     // Class.Profile.js
@@ -45,6 +51,7 @@ Config.init = function (notify) {
   if (Config.Silence && !Config.LocalChat.Enabled) {
     // Override the say function with print, so it just gets printed to console
     global._say = global.say;
+    /** @param {string} what */
     global.say = function (what) {
       console.log("Tryed to say: " + what);
     };

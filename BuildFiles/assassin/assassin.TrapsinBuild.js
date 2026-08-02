@@ -100,6 +100,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.UseTraps = true;
             Config.AttackSkill = [
@@ -117,12 +118,14 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         return (Attack.checkInfinity() || (me.data.merc.gear.includes(sdk.locale.items.Infinity)
           && !Misc.poll(() => me.getMerc(), 200, 50)))
           && me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints) === 20;
       },

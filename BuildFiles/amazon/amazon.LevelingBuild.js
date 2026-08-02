@@ -18,6 +18,10 @@
       stats: [],
       skills: [],
 
+      /**
+       * @returns {boolean} True once past both respec levels, Plague Javelin is maxed, and the final build isn't
+       * active
+       */
       active: function () {
         return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
           && me.getSkill(sdk.skills.PlagueJavelin, sdk.skills.subindex.HardPoints) === 20
@@ -26,6 +30,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Sets Charged Strike/Lightning Strike as the primary attack, belt layout, and mana/HP buffers.
+           */
           Update: function () {
             let mainSkill = (
               Skill.canUse(sdk.skills.LightningStrike)

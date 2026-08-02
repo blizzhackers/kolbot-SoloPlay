@@ -105,22 +105,40 @@ const CharData = (function () {
       };
     })(),
 
+    /**
+     * @typedef {Object} LoginData
+     * @property {string} account
+     * @property {string} pass
+     * @property {string} currentChar
+     * @property {string} tag
+     * @property {number} charCount
+     * @property {boolean} existing
+     */
     login: (function () {
       return {
         filePath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-LoginData.json",
         _default: { account: "", pass: "", currentChar: "", tag: "", charCount: 0, existing: false },
 
+        /** @returns {LoginData} */
         create: function () {
           return _create.call(this);
         },
+        /** @returns {LoginData} */
         getObj: function () {
           return _getObj.call(this);
         },
 
+        /** @returns {LoginData} */
         getStats: function () {
           return _getStats.call(this);
         },
 
+        /**
+         * @param {string} arg
+         * @param {object | string} property
+         * @param {any} value
+         * @returns {boolean}
+         */
         updateData: function (arg, property, value) {
           return _updateData.call(this, arg, property, value);
         },
@@ -136,6 +154,7 @@ const CharData = (function () {
         this.classid = classid;
       }
 
+      /** @returns {{curr: number, max: number}} */
       Charm.prototype.count = function () {
         let [curr, max] = [0, 0];
         Object.keys(me.data.charms).forEach(function (cKey) {
@@ -176,14 +195,17 @@ const CharData = (function () {
         this.duration = 0;
       }
 
+      /** @returns {boolean} */
       BuffPot.prototype.active = function () {
         return me.getState(this.state);
       };
 
+      /** @returns {number} */
       BuffPot.prototype.timeLeft = function () {
         return this.duration > 0 ? this.duration - (getTickCount() - this.tick) : 0;
       };
 
+      /** @returns {boolean} */
       BuffPot.prototype.need = function () {
         return (this.check() && (!this.active() || this.timeLeft() < Time.minutes(5)));
       };
@@ -220,14 +242,24 @@ const CharData = (function () {
       return _buffPots;
     }()),
 
+    /**
+     * @typedef {Object} ChargedSkillInfo
+     * @property {number} skill
+     * @property {number} level
+     * @property {number} charges
+     * @property {number} maxcharges
+     * @property {number} gid
+     */
     skillData: {
+      /** @type {number[]} */
       skills: [],
+      /** @type {number[]} */
       currentChargedSkills: [],
+      /** @type {ChargedSkillInfo[]} */
       chargedSkills: [],
+      /** @type {ChargedSkillInfo[]} */
       chargedSkillsOnSwitch: [],
-      /**
-      * @todo fix this, it's ugly
-      */
+      /** @todo fix this, it's ugly */
       bow: {
         initialized: false,
         onSwitch: false,
@@ -235,6 +267,10 @@ const CharData = (function () {
         bowType: 0,
         arrows: 0,
         quiverType: 0,
+        /**
+         * @param {ItemUnit} bow
+         * @param {boolean} [init]
+         */
         setBowInfo: function (bow, init = false) {
           if (bow === undefined) return;
           this.bowGid = bow.gid;
@@ -244,11 +280,15 @@ const CharData = (function () {
           init && (this.initialized = true);
           !init && CharData.skillData.update();
         },
+        /** @param {ItemUnit} quiver */
         setArrowInfo: function (quiver) {
           if (quiver === undefined) return;
           this.arrows = Math.floor((quiver.getStat(sdk.stats.Quantity) * 100) / getBaseStat("items", quiver.classid, "maxstack"));
           this.quiverType = quiver.itemType;
         },
+        /**
+         * Resets bow/quiver tracking state and clears the NTIP runtime item-name cache.
+         */
         resetBowData: function () {
           this.bowOnSwitch = false;
           [this.bowGid, this.bowType, this.arrows, this.quiverType] = [0, 0, 0, 0];
@@ -257,6 +297,11 @@ const CharData = (function () {
         },
       },
 
+      /**
+       * @param {number[]} skillIds
+       * @param {ChargedSkillInfo[]} mainSkills
+       * @param {ChargedSkillInfo[]} switchSkills
+       */
       init: function (skillIds, mainSkills, switchSkills) {
         this.currentChargedSkills = skillIds.slice(0);
         this.chargedSkills = mainSkills.slice(0);
@@ -264,6 +309,9 @@ const CharData = (function () {
         this.skills = me.getSkill(4).map((skill) => skill[0]);
       },
 
+      /**
+       * Serializes skillData and broadcasts it to CharData's other running threads.
+       */
       update: function () {
         let obj = JSON.stringify(copyObj(this));
         let myThread = getScript(true).name;
@@ -275,6 +323,10 @@ const CharData = (function () {
         });
       },
 
+      /**
+       * @param {number | number[]} [skillid]
+       * @returns {boolean}
+       */
       haveChargedSkill: function (skillid = []) {
         // convert to array if not one
         !Array.isArray(skillid) && (skillid = [skillid]);
@@ -284,6 +336,10 @@ const CharData = (function () {
           });
       },
 
+      /**
+       * @param {number} [skillid]
+       * @returns {boolean}
+       */
       haveChargedSkillOnSwitch: function (skillid = 0) {
         return this.chargedSkillsOnSwitch
           .some(function (chargeSkill) {
@@ -293,6 +349,9 @@ const CharData = (function () {
     },
 
     // updates config obj across all threads - excluding our current
+    /**
+     * Serializes Config and broadcasts it to CharData's other running threads.
+     */
     updateConfig: function () {
       let obj = JSON.stringify(copyObj(Config));
       let myThread = getScript(true).name;
@@ -304,27 +363,28 @@ const CharData = (function () {
       });
     },
 
-    /**
-     * @returns {MyData}
-     */
+    /** @returns {MyData} */
     create: function () {
       return _create.call(this);
     },
 
-    /**
-     * @returns {MyData}
-     */
+    /** @returns {MyData} */
     getObj: function () {
       return _getObj.call(this);
     },
 
-    /**
-     * @returns {MyData}
-     */
+    /** @returns {MyData} */
     getStats: function () {
       return _getStats.call(this);
     },
 
+    /**
+     * Blocks until the game is ready before persisting the update (also logs a stack trace for debugging).
+     * @param {string} arg
+     * @param {object | string} property
+     * @param {any} value
+     * @returns {boolean}
+     */
     updateData: function (arg, property, value) {
       while (me.ingame && !me.gameReady) {
         delay(100);
@@ -335,6 +395,10 @@ const CharData = (function () {
       return _updateData.call(this, arg, property, value);
     },
 
+    /**
+     * @param {boolean} [deleteMain]
+     * @returns {boolean}
+     */
     delete: function (deleteMain = false) {
       if (deleteMain && FileTools.exists("data/" + me.profile + ".json")) {
         FileTools.remove("data/" + me.profile + ".json");

@@ -40,6 +40,7 @@
         [sdk.skills.ColdMastery, 1, false], // charlvl 30 (never gets here)
       ],
 
+      /** @returns {boolean} */
       active: function () {
         const { respecOne } = CharInfo;
         return me.charlvl < respecOne && !me.checkSkill(sdk.skills.ColdMastery, sdk.skills.subindex.HardPoints);

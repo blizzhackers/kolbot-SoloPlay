@@ -16,9 +16,7 @@
   ][me.diff && 1]; // mon is for normal, nmon is for nm/hell, umon is specific to picking champion/uniques in normal
   const AREA_INDEX_COUNT = 137;
 
-  /**
-   * @todo Still need to handle exits
-   */
+  /** @todo Still need to handle exits */
   const AreaData = (function () {
     /** @type {Map<number, AreaDataInstance>} */
     const _map = new Map();

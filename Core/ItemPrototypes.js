@@ -158,6 +158,11 @@ Unit.prototype.equipItem = function (bodyLoc = -1) {
   return false;
 };
 
+/**
+ * @this {ItemUnit}
+ * @param {number} [bodyLoc]
+ * @returns {boolean}
+ */
 Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
   // can't equip
   if (this === undefined || this.type !== sdk.unittype.Item || (!this.canEquip() && me.expansion)) return false;
@@ -192,6 +197,11 @@ Unit.prototype.secondaryEquip = function (bodyLoc = -1) {
   return false;
 };
 
+/**
+ * @this {ItemUnit}
+ * @param {number} [bodyLoc]
+ * @returns {boolean}
+ */
 Unit.prototype.equipMerc = function (bodyLoc = -1) {
   // can't equip
   if (this === undefined || this.type !== sdk.unittype.Item || !this.canEquipMerc()) return false;

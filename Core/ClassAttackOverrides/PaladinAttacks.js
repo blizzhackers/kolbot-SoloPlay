@@ -5,9 +5,7 @@
 *
 */
 
-/**
- * @todo build selectAura method
- */
+/** @todo build selectAura method */
 
 const MercWatch = {
   last: 0,
@@ -460,6 +458,7 @@ ClassAttack[sdk.player.class.Paladin].doCast = function (unit, attackSkill = -1,
   return Attack.Result.SUCCESS;
 };
 
+/** @returns {void} */
 ClassAttack[sdk.player.class.Paladin].afterAttack = function () {
   Precast.doPrecast(false);
 

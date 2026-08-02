@@ -18,6 +18,7 @@
       stats: [],
       skills: [],
 
+      /** @returns {boolean} */
       active: function () {
         const { respecOne, respecTwo } = CharInfo;
         return (
@@ -30,6 +31,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [
               -1,

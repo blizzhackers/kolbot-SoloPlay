@@ -255,6 +255,7 @@ Misc.getShrinesInArea = function (area, type, use) {
       shrineLocs.sort(Sort.units);
       let coords = shrineLocs.shift();
 
+      /** @returns {boolean} True once the shrine object has reached the target coordinates. */
       Pather.move(coords, { minDist: Skill.haveTK ? 20 : 5, callback: function () {
         let shrine = Game.getObject("shrine");
         return !!shrine && shrine.x === coords.x && shrine.y === coords.y;
@@ -292,6 +293,11 @@ Misc.getShrinesInArea = function (area, type, use) {
   return result;
 };
 
+/**
+ * Travels to each candidate area looking for the experience shrine buff, stopping once obtained.
+ * @param {number[]} [shrineLocs=[]]
+ * @returns {boolean}
+ */
 Misc.getExpShrine = function (shrineLocs = []) {
   if (me.getState(sdk.states.ShrineExperience)) return true;
 
@@ -338,6 +344,13 @@ Misc.getExpShrine = function (shrineLocs = []) {
   return true;
 };
 
+/**
+ * Recursively copies changed primitive/array values from `newObj` into `oldObj` in place, skipping functions.
+ * @param {Record<string, unknown>} oldObj
+ * @param {Record<string, unknown>} newObj
+ * @param {string[]} [path]
+ * @returns {void}
+ */
 Misc.updateRecursively = function (oldObj, newObj, path) {
   if (path === void 0) { path = []; }
   Object.keys(newObj).forEach(function (key) {
@@ -361,6 +374,13 @@ Misc.updateRecursively = function (oldObj, newObj, path) {
   });
 };
 
+/**
+ * Recursively diffs `n` against `o`, returning only the keys/values that changed.
+ * @param {Record<string, unknown>} o
+ * @param {Record<string, unknown>} n
+ * @param {Record<string, unknown>} [changed]
+ * @returns {Record<string, unknown>}
+ */
 Misc.recursiveSearch = function (o, n, changed) {
   if (changed === void 0) { changed = {}; }
   Object.keys(n).forEach(function (key) {

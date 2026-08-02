@@ -114,6 +114,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level bracket's attack-skill and low-mana-skill config.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -126,6 +129,7 @@
         },
       },
 
+      /** @returns {boolean} True once Dream, Brand, and Chains of Honor are owned (false in Classic mode). */
       respec: function () {
         if (me.classic) {
           return false;
@@ -137,6 +141,7 @@
         ]);
       },
 
+      /** @returns {boolean} True once `respec` gear is owned and Freezing Arrow is hard-pointed. */
       active: function () {
         return this.respec() && me.checkSkill(sdk.skills.FreezingArrow, sdk.skills.subindex.HardPoints);
       },

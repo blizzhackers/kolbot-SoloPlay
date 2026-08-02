@@ -1286,10 +1286,7 @@
         return totalDmg;
       };
 
-      /**
-       * 
-       * @param {Monster} unit 
-       */
+      /** @param {Monster} unit */
       const calcVolcanoDamage = function (unit) {
         let velocity = unit.currentVelocity;
         /** @type {skillDmgObj} */

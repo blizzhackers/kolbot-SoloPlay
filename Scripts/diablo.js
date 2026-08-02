@@ -7,6 +7,7 @@
 
 // todo: clean this up, listen for lights game packet while opening/checking seals
 
+/** @returns {boolean} Always true */
 function diablo () {
   // Start Diablo Quest
   const diabloPrep = function () {

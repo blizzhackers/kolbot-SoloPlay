@@ -13,6 +13,34 @@
 */
 (function () {
   ClassAttack[sdk.player.class.Barbarian].warCryTick = 0;
+  /**
+   * @typedef {Object} BarbSkillState
+   * @property {boolean} have
+   * @property {number} skill
+   * @property {number} range
+   * @property {number} mana
+   * @property {boolean} timed
+   * @property {number} reqLvl
+   * @property {(range?: number) => void} assignValues
+   */
+  /**
+   * @typedef {Object} BarbAttackData
+   * @property {boolean} switchCast
+   * @property {BarbSkillState} howl
+   * @property {BarbSkillState} bash
+   * @property {BarbSkillState} taunt
+   * @property {BarbSkillState} leap
+   * @property {BarbSkillState} doubleSwing
+   * @property {BarbSkillState} stun
+   * @property {BarbSkillState} battleCry
+   * @property {BarbSkillState} concentrate
+   * @property {BarbSkillState} leapAttack
+   * @property {BarbSkillState} grimWard
+   * @property {BarbSkillState} warCry
+   * @property {BarbSkillState} whirlwind
+   * @property {BarbSkillState} main
+   * @property {BarbSkillState} secondary
+   */
   const helpfulCurses = [
     sdk.states.BattleCry,
     sdk.states.AmplifyDamage,
@@ -101,6 +129,11 @@
     });
   };
 
+  /**
+   * @param {Monster} unit
+   * @param {number} attackSkill
+   * @param {BarbAttackData} data
+   */
   ClassAttack[sdk.player.class.Barbarian].tauntMonsters = function (unit, attackSkill, data) {
     // Don't have skill
     // Only mob in these areas are bosses
@@ -208,6 +241,10 @@
 
     const buildDataObj = (skillId = -1, reqLvl = 1) => ({
       have: false, skill: skillId, range: Infinity, mana: Infinity, timed: false, reqLvl: reqLvl,
+      /**
+       * @this {BarbSkillState}
+       * @param {number} [range]
+       */
       assignValues: function (range) {
         this.have = Skill.canUse(this.skill);
         if (!this.have) return;
@@ -329,6 +366,12 @@
     return this.doCast(unit, attackSkill, data);
   };
 
+  /**
+   * @param {Monster} unit
+   * @param {number} attackSkill
+   * @param {BarbAttackData} data
+   * @returns {AttackResult}
+   */
   ClassAttack[sdk.player.class.Barbarian].doCast = function (unit, attackSkill, data) {
     // In case of failing to switch back to main weapon slot
     me.weaponswitch === 1 && me.switchWeapons(0);
@@ -392,6 +435,7 @@
     }
   };
 
+  /** @param {boolean} [pickit] */
   ClassAttack[sdk.player.class.Barbarian].afterAttack = function (pickit = false) {
     Precast.doPrecast(false);
 
@@ -406,6 +450,10 @@
   };
 
   ClassAttack[sdk.player.class.Barbarian].findItemIgnoreGids = [];
+  /**
+   * @param {number} [range]
+   * @returns {boolean}
+   */
   ClassAttack[sdk.player.class.Barbarian].findItem = function (range = 10) {
     if (!Config.FindItem || !Skill.canUse(sdk.skills.FindItem)) return false;
 

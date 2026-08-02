@@ -82,6 +82,11 @@
       });
     });
 
+    /**
+     * @param {number} major - Primary stat ID (see sdk.stats).
+     * @param {number} minor - Sub-stat index.
+     * @returns {number} The matching override stat value, or 0 if none is set.
+     */
     this.internalGetStat = function (major, minor) {
       let _a;
       let stat = ((_a = this.overrides.stats) !== null && _a !== void 0 ? _a : []).find(function (_a) {
@@ -91,6 +96,12 @@
       return (stat === null || stat === void 0 ? void 0 : stat[2]) || 0;
     };
 
+    /**
+     * @param {number} major - Primary stat ID (see sdk.stats).
+     * @param {number} minor - Sub-stat index.
+     * @param {number} [extra] - Unused; kept for parity with `Unit.getStat`'s signature.
+     * @returns {number} Combined stat value from the base item, this mock's overrides, and its sockets.
+     */
     this.getStat = function (major, minor, extra) {
       let selfValue = this.internalGetStat(major, minor);
       let inventory = (this.getItems() || undefined);
@@ -107,10 +118,12 @@
       return original + selfValue + socketedStats;
     };
 
+    /** @returns {MockItem[]} The items overridden onto this mock item, or an empty array. */
     this.getItems = function () {
       return this.overrides.items || [];
     };
 
+    /** @returns {string} JSON string of only the keys originally passed into the constructor. */
     this.toJSON = function () {
       let _this = this;
       let obj = {};
@@ -119,24 +132,39 @@
       });
       return JSON.stringify(obj);
     };
+    /**
+     * @param {number} id - State ID to look up.
+     * @returns {number} The overridden state value, or 0 if unset.
+     */
     this.getState = function (id) {
       let _a;
       return ((_a = this.overrides.states) === null || _a === void 0 ? void 0 : _a[id]) || 0;
     };
+    /**
+     * @param {number} flags - Flag bitmask to test.
+     * @returns {boolean} True if the override flags include the given bitmask.
+     */
     this.getFlag = function (flags) {
       let _a;
       return !!(((_a = this.overrides.flags) !== null && _a !== void 0 ? _a : 0) & (flags | 0));
     };
 
+    /** @returns {MockItem[]} The items socketed into this mock item. */
     this.getItemsEx = function () {
       return this.socketedWith;
     };
 
     // make it work with pickit lines
+    /**
+     * @param {number} major - Primary stat ID (see sdk.stats).
+     * @param {number} minor - Sub-stat index.
+     * @returns {number} Delegates to `Unit.prototype.getStatEx` so this mock works with pickit lines.
+     */
     this.getStatEx = function (major, minor) {
       return Unit.prototype.getStatEx.apply(this, [major, minor]);
     };
 
+    /** @returns {string} JSON string of this mock's constructor settings, re-read from current values. */
     this.store = () => JSON.stringify(Object.keys(settings).reduce((a, key) => a[key] = this[key], {}));
 
     Object.keys(Unit.prototype)
@@ -144,6 +172,10 @@
       .forEach(key => this[key] = (...args) => Unit.prototype[key].apply(this, args));
   }
 
+  /**
+   * @param {ItemUnit} item - Real item to snapshot stats from.
+   * @returns {Array<[number, number, number]>} Flat list of [major, minor, value] stat triples.
+   */
   MockItem.getAllItemStats = function (item) {
     let stats = [];
     if (!item.getFlag(sdk.items.flags.Runeword)) {
@@ -167,6 +199,11 @@
     return stats;
   };
 
+  /**
+   * @param {ItemUnit} item - Real item to clone into a mock.
+   * @param {object} [settings] - Extra properties merged onto the clone; mutated in place.
+   * @returns {MockItem} A new mock item reproducing `item`'s properties, stats, flags, and sockets.
+   */
   MockItem.fromItem = function (item, settings) {
     if (settings === void 0) { settings = {}; }
     console.log(JSON.stringify(settings));
@@ -199,6 +236,7 @@
     return new MockItem(initializer);
   };
 
+  /** @returns {MockItem[]} Mock items for every equipped item and inventory charm on the character. */
   MockItem.fromGear = function () {
     return me.getItemsEx()
       .filter(item => item.location === sdk.storage.Equipped

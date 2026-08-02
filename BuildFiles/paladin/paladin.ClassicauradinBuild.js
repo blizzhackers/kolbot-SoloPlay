@@ -79,6 +79,9 @@
       
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Switches to Zeal/Holy Shock/Holy Freeze combat auras once final gear is equipped.
+           */
           Update: function () {
             Config.Vigor = false;
             Config.AttackSkill = [
@@ -95,6 +98,11 @@
         },
       },
 
+      /**
+       * In classic, gates on character level and having killed Diablo instead of gear, since Dream
+       * doesn't exist there.
+       * @returns {boolean} true once the respec condition for the current game mode is met
+       */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -105,6 +113,7 @@
         ]);
       },
 
+      /** @returns {boolean} true once the respec condition is met and Holy Shock is maxed */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.HolyShock, sdk.skills.subindex.HardPoints) === 20;
       },

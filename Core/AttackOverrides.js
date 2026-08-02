@@ -11,6 +11,10 @@ includeIfNotIncluded("core/Attack.js");
 Attack.stopClear = false;
 Attack.Result.NOOP = 4;
 
+/**
+ * Loads this build's class attack overrides (or a custom/wereform attack file), warns on bad
+ * Config.AttackSkill entries, and initializes charge tracking for expansion characters.
+ */
 Attack.init = function () {
   const CLASSNAME = sdk.player.class.nameOf(me.classid);
   if (Config.Wereform) {
@@ -99,6 +103,10 @@ Attack.decideSkill = function (unit) {
   return skills;
 };
 
+/**
+ * Also accounts for a charged Lower Resist item on the weapon switch, unlike the base implementation.
+ * @returns {number} lower resist percent to apply, 0 if unavailable
+ */
 Attack.getLowerResistPercent = function () {
   const calc = function (level) {
     return Math.floor(Math.min(25 + (45 * ((110 * level) / (level + 6)) / 100), 70));
@@ -407,7 +415,7 @@ Attack.killTarget = function (name) {
     if (!!target && target.attackable) {
       console.warn("ÿc1Failed to kill ÿc0" + who + errorInfo);
     } else {
-      if (target.dead && (target.isBoss || target.uniqueid > -1)) {
+      if (target && target.dead && (target.isBoss || target.uniqueid > -1)) {
         // a little obnoxious, but we need to track bosses killed and this handles if we are attempting to check by id or name
         target.isBoss && Attack._killed.add(target.classid);
         target.uniqueid > -1 && Attack._killed.add(target.name);
@@ -422,6 +430,10 @@ Attack.killTarget = function (name) {
   return (!target || !copyUnit(target).x || target.dead || !target.attackable || Attack.haveKilled(who));
 };
 
+/**
+ * @param {Array<[number, number]>} [list] coordinates to clear and walk to in order
+ * @returns {boolean} always true
+ */
 Attack.clearLocations = function (list = []) {
   for (let x = 0; x < list.length; x++) {
     Attack.clear(20);
@@ -745,7 +757,18 @@ Attack.clearList = function (mainArg, sortFunc, refresh) {
 };
 
 // Clear an entire area based on settings
+/**
+ * Walks room-by-room across the whole level (nearest room first), clearing monsters in each.
+ * @param {{ spectype?: number, quitWhen?: () => boolean }} [givenSettings]
+ * @returns {boolean} true once quitWhen() signals stop or every room has been visited, false if the
+ * area has no rooms or a clear attempt fails
+ */
 Attack.clearLevelEx = function (givenSettings = {}) {
+  /**
+   * @param {[number, number]} a
+   * @param {[number, number]} b
+   * @returns {number}
+   */
   function RoomSort (a, b) {
     return getDistance(myRoom[0], myRoom[1], a[0], a[1]) - getDistance(myRoom[0], myRoom[1], b[0], b[1]);
   }
@@ -753,6 +776,9 @@ Attack.clearLevelEx = function (givenSettings = {}) {
   // credit @jaenstr
   const settings = Object.assign({}, {
     spectype: Config.ClearType,
+    /**
+     * Default no-op quit check; treated as falsy so clearLevelEx never stops early on its own.
+     */
     quitWhen: function () {}
   }, givenSettings);
 
@@ -801,10 +827,16 @@ Attack.clearLevelEx = function (givenSettings = {}) {
   return true;
 };
 
+/**
+ * @param {number} [charlvl] target character level to clear until; defaults to me.charlvl + 1
+ * @param {number} [spectype]
+ * @returns {boolean}
+ */
 Attack.clearLevelUntilLevel = function (charlvl = undefined, spectype = 0) {
   !charlvl && (charlvl = me.charlvl + 1);
   myPrint("Starting Clear until level My level: " + me.charlvl + " wanted level: " + charlvl);
 
+  /** @returns {boolean} true once Attack.stopClear is set or charlvl has been reached */
   function quitWhen () {
     if (Attack.stopClear) {
       Attack.stopClear = false;	// Reset value
@@ -953,7 +985,7 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
         let hammerCheck = me.paladin && checkSkill === sdk.skills.BlessedHammer;
 
         if (Config.AttackSkill[secAttack] > -1 && (!Attack.checkResist(target, checkSkill)
-            || (hammerCheck && !ClassAttack[me.classid].getHammerPosition(target)))) {
+            || (hammerCheck && !ClassAttack[sdk.player.class.Paladin].getHammerPosition(target)))) {
           skillCheck = Config.AttackSkill[secAttack];
         } else {
           skillCheck = checkSkill;
@@ -1060,6 +1092,10 @@ Attack.clear = function (range, spectype, bossId, sortfunc, pickit = true) {
 // Take a array of coords - path and clear
 // pick parameter is range of items to pick
 // From legacy sonic
+/**
+ * @param {Array<{x: number, y: number, radius: number}>} list
+ * @param {number} [pick] range to pick items in after each node; skipped when falsy
+ */
 Attack.clearCoordList = function (list, pick) {
   for (let node of list) {
     Attack.clear(node.radius);
@@ -1069,6 +1105,10 @@ Attack.clearCoordList = function (list, pick) {
   }
 };
 
+/**
+ * Refreshes CharData's cached on-switch bow/quiver state from currently equipped swap-slot gear.
+ * @param {boolean} [firstInit]
+ */
 Attack.checkBowOnSwitch = function (firstInit = false) {
   const preBow = CharData.skillData.bow.onSwitch;
   const _bows = [sdk.items.type.AmazonBow, sdk.items.type.Bow, sdk.items.type.Crossbow];
@@ -1098,12 +1138,22 @@ Attack.checkBowOnSwitch = function (firstInit = false) {
   });
 };
 
+/**
+ * @param {number} itemType
+ * @returns {ItemUnit} the equipped quiver required for `itemType`'s ammo (arrow or bolt quiver)
+ */
 Attack.haveDependancy = function (itemType) {
   return [sdk.items.type.AmazonBow, sdk.items.type.Bow, sdk.items.type.Crossbow].includes(itemType)
     ? me.getItem("aqv", sdk.items.mode.Equipped)
     : me.getItem("cqv", sdk.items.mode.Equipped);
 };
 
+/**
+ * @param {Monster} unit
+ * @param {number} [skillId]
+ * @param {boolean} [switchBack]
+ * @returns {boolean} false if bow-on-switch isn't active or the required quiver is missing
+ */
 Attack.useBowOnSwitch = function (unit, skillId = 0, switchBack = true) {
   if (!CharData.skillData.bow.onSwitch) return false;
   if (!this.haveDependancy(CharData.skillData.bow.bowType)) return false;
@@ -1111,6 +1161,12 @@ Attack.useBowOnSwitch = function (unit, skillId = 0, switchBack = true) {
 };
 
 // maybe store the copyUnit of the item or at least gid so we don't need to iterate through all our items to find the one with the charged skill when we need it
+/**
+ * Rebuilds the equipped/on-switch charged-skill cache from current gear and broadcasts the update
+ * to other threads if anything changed (or this is the initial call).
+ * @param {boolean} [init]
+ * @returns {boolean} always true
+ */
 Attack.getCurrentChargedSkillIds = function (init = false) {
   /**
    * @typedef {Object} Charge
@@ -1280,6 +1336,13 @@ Attack.dollAvoid = function (unit) {
 };
 
 // Its the inverse of spotOnDistance, its a spot going in the direction of the spot
+/**
+ * @param {PathNode} spot
+ * @param {number} distance
+ * @param {PathNode} [otherSpot] defaults to me
+ * @returns {PathNode | {x: number, y: number}} first node past `distance` from `otherSpot` along
+ * the path to `spot`, or `otherSpot`'s coords as a fallback if no path/node qualifies
+ */
 Attack.inverseSpotDistance = function (spot, distance, otherSpot) {
   otherSpot === undefined && (otherSpot = me);
   let x = otherSpot.x, y = otherSpot.y, area = otherSpot.area;
@@ -1415,6 +1478,11 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
   return getDistance(me, unitA) - getDistance(me, unitB);
 };
 
+/**
+ * Fights Duriel in place, teleporting to a safe spot when he's frozen and close, until he dies or
+ * 10 minutes elapse.
+ * @returns {boolean} always true
+ */
 Attack.pwnDury = function () {
   const getDuriel = function () {
     return Game.getMonster(sdk.monsters.Duriel);
@@ -1455,11 +1523,20 @@ Attack.pwnDury = function () {
   return true;
 };
 
+/**
+ * Stub: not yet implemented.
+ */
 Attack.pwnMeph = function () {
   // TODO: fill out
 };
 
 // Credit @Jaenster - modified by me(theBGuy) for other classes
+/**
+ * Fights Diablo: farcasts for necromancer/assassin, or alternates Static Field with the primary
+ * attack skill while repositioning for other classes; requires a farcast-capable attack skill.
+ * @returns {boolean | Monster} false if the build/skill can't do this fight or Diablo wasn't found,
+ * otherwise the Diablo unit once the fight loop ends
+ */
 Attack.pwnDia = function () {
   // Can't farcast if our skill main attack isn't meant for it
   if ((!me.sorceress && !me.necromancer && !me.assassin)
@@ -1543,6 +1620,10 @@ Attack.pwnDia = function () {
     }
   })();
   
+  /**
+   * @param {PathNode} spot 
+   * @returns {boolean}
+   */
   const shouldWalk = function (spot) {
     if (!Pather.canTeleport()) return true;
     return (spot.distance < 10 || me.gold < 10000 || me.mpPercent < 50);
@@ -1661,6 +1742,9 @@ Attack.pwnDia = function () {
   return dia;
 };
 
+/**
+ * Stub: not yet implemented.
+ */
 Attack.pwnAncients = function () {
   // @todo fillout
 };
@@ -1928,6 +2012,12 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
   return false;
 };
 
+/**
+ * @param {number} [x]
+ * @param {number} [y]
+ * @returns {boolean} true if the spot is on the current area's collision grid and clear of
+ * casting/missile/object/wall blockers
+ */
 Attack.castableSpot = function (x = undefined, y = undefined) {
   // Just in case
   if (!me.area || !x || !y) return false;

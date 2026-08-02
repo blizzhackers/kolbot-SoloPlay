@@ -7,6 +7,9 @@
 js_strict(true);
 include("critical.js");
 
+/**
+ * Stops all other bot threads/scripts, waits 5s, then reloads default.dbj.
+ */
 function main () {
   let tick = getTickCount();
   let scripts = [

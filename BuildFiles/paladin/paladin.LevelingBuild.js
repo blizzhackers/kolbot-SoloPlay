@@ -81,6 +81,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.TownHP = me.hardcore ? 0 : 35;
             Config.AttackSkill = [
@@ -98,6 +99,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         return (
           me.charlvl > CharInfo.respecOne

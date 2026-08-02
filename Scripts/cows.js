@@ -141,6 +141,10 @@ function cows() {
     let king;
     let kingPreset;
 
+    /**
+     * Background process: throws to abort cows.js once the Cow King preset is within 25 yards.
+     * @returns {boolean} True to keep this background process queued each low-prio check.
+     */
     Worker.runInBackground.kingTracker = function () {
       if (getTickCount() - kingTick < 1000) return true;
       kingTick = getTickCount();

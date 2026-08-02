@@ -29,9 +29,7 @@ Item.helmTypes = new Set([
   sdk.items.type.Helm, sdk.items.type.PrimalHelm, sdk.items.type.Circlet, sdk.items.type.Pelt
 ]);
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.hasDependancy = function (item) {
   switch (item.itemType) {
   case sdk.items.type.Bow:
@@ -44,9 +42,7 @@ Item.hasDependancy = function (item) {
   }
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.identify = function (item) {
   if (item.identified) return true;
   let idTool = me.getIdTool();
@@ -58,9 +54,7 @@ Item.identify = function (item) {
   return false;
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.getBodyLoc = function (item) {
   if (!item || item.isInsertable) return [];
   if (Item.shieldTypes.has(item.itemType)) return [sdk.body.LeftArm];
@@ -93,9 +87,7 @@ Item.getBodyLoc = function (item) {
   return [];
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.canEquip = function (item) {
   if (!item || item.type !== sdk.unittype.Item || !item.identified) return false;
   return (
@@ -189,9 +181,7 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
   return false;
 };
 
-/**
- * @param {string} task 
- */
+/** @param {string} task */
 Item.autoEquip = function (task = "") {
   if (!Config.AutoEquip) return true;
   task = task + "AutoEquip";
@@ -461,6 +451,11 @@ Item.equip = function (item, bodyLoc) {
   return false;
 };
 
+/**
+ * @param {number} [bodyLoc]
+ * @param {ItemUnit} [item]
+ * @returns {boolean}
+ */
 Item.removeItem = function (bodyLoc = -1, item = undefined) {
   let removable = item && typeof item === "object"
     ? item
@@ -498,16 +493,12 @@ Item.removeItem = function (bodyLoc = -1, item = undefined) {
   return false;
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.hasSecondaryTier = function (item) {
   return Config.AutoEquip && me.expansion && NTIP.GetSecondaryTier(item) > 0;
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.getSecondaryBodyLoc = function (item) {
   if (Item.shieldTypes.has(item.itemType)) return [sdk.body.LeftArmSecondary];
   if ([sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw].includes(item.itemType)) {
@@ -564,9 +555,7 @@ Item.secondaryEquip = function (item, bodyLoc) {
   return equipped;
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.autoEquipCheckSecondary = function (item) {
   if (!Config.AutoEquip) return true;
   if (me.classic) return false;
@@ -585,9 +574,7 @@ Item.autoEquipCheckSecondary = function (item) {
   return false;
 };
 
-/**
- * @param {string} task 
- */
+/** @param {string} task */
 Item.autoEquipSecondary = function (task = "") {
   if (!Config.AutoEquip || me.classic) return true;
 
@@ -649,9 +636,7 @@ Item.autoEquipSecondary = function (task = "") {
   return true;
 };
 
-/**
- * @param {ItemUnit} item 
- */
+/** @param {ItemUnit} item */
 Item.hasMercTier = (item) => Config.AutoEquip && me.expansion && NTIP.GetMercTier(item) > 0;
 
 /**
@@ -721,6 +706,10 @@ Item.equipMerc = function (item, bodyLoc) {
   return false;
 };
 
+/**
+ * @param {number} [bodyLoc]
+ * @returns {{ classid: number, prefixnum: number, tier: number, name: string, str: number, dex: number }}
+ */
 Item.getMercEquipped = function (bodyLoc = -1) {
   let mercenary = me.getMercEx();
 
@@ -824,6 +813,7 @@ Item.autoEquipCheckMerc = function (item, basicCheck = false) {
   return false;
 };
 
+/** @returns {boolean} */
 Item.autoEquipMerc = function () {
   if (!Config.AutoEquip || !me.getMercEx()) return true;
 
@@ -835,6 +825,11 @@ Item.autoEquipMerc = function () {
     });
   if (!items.length) return false;
 
+  /**
+   * @param {ItemUnit} a
+   * @param {ItemUnit} b
+   * @returns {number}
+   */
   function sortEq (a, b) {
     let [prioA, prioB] = [Item.canEquipMerc(a), Item.canEquipMerc(b)];
     if (prioA && prioB) return NTIP.GetMercTier(b) - NTIP.GetMercTier(a);
@@ -1018,9 +1013,7 @@ Item.logItem = function (action, unit, keptLine, force) {
 };
 
 const AutoEquip = {
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   hasTier: function (item) {
     if (me.classic) return Item.hasTier(item);
     if (item.isCharm) {
@@ -1029,9 +1022,7 @@ const AutoEquip = {
     return Item.hasMercTier(item) || Item.hasTier(item) || Item.hasSecondaryTier(item);
   },
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   wanted: function (item) {
     if (me.classic) return Item.autoEquipCheck(item, true);
     if (item.isCharm) {
@@ -1040,6 +1031,7 @@ const AutoEquip = {
     return Item.autoEquipCheckMerc(item, true) || Item.autoEquipCheck(item, true) || Item.autoEquipCheckSecondary(item);
   },
 
+  /** @returns {void} */
   run: function () {
     console.time("AutoEquip");
     Item.autoEquip();

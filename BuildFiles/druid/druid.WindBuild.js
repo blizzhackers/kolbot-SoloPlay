@@ -94,6 +94,9 @@
 
       AutoBuildTemplate: {
         1: {
+          /**
+           * Called by AutoBuild.applyConfigUpdates() when charlvl reaches this template's level key.
+           */
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.Tornado, -1, sdk.skills.Tornado, -1, sdk.skills.ArticBlast, -1];
             Config.LowManaSkill = [-1, -1];
@@ -103,10 +106,12 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         return me.checkItem({ name: sdk.locale.items.Enigma, itemtype: sdk.items.type.Armor }).have;
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints) === 20;
       },

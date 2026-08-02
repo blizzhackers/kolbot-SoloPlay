@@ -110,6 +110,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.Strafe, -1, sdk.skills.Strafe, -1, sdk.skills.MagicArrow, -1];
             Config.LowManaSkill = [0, -1];
@@ -117,6 +118,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return false;
@@ -127,6 +129,7 @@
         );
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.checkSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
       },

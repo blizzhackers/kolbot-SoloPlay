@@ -16,6 +16,9 @@ Runeword.PDiamondShield = Runeword.addRuneword(
 
 Runewords.pickitEntries = new NTIPList();
 
+/**
+ * Rebuilds the SoloPlay runeword pickit list and resolves configured runeword bases to classids.
+ */
 Runewords.init = function () {
   if (!Config.MakeRunewords) return;
 
@@ -59,6 +62,7 @@ Runewords.init = function () {
   this.buildLists();
 };
 
+/** @returns {ItemUnit[] | false} The base + rune items making up a completable runeword, or false. */
 Runewords.checkRunewords = function () {
   // keep a const reference of our items so failed checks don't remove items from the list
   const itemsRef = me.findItems(-1, sdk.items.mode.inStorage);
@@ -152,6 +156,10 @@ Runewords.getBase = function (runeword, base, ethFlag, reroll) {
   return false;
 };
 
+/**
+ * @param {...number} runes - Rune classids to check.
+ * @returns {boolean} True if any of the given rune classids is still needed for a runeword.
+ */
 Runewords.checkRune = function (...runes) {
   if (!Config.MakeRunewords || runes.length < 1) return false;
 

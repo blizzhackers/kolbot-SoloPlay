@@ -24,6 +24,11 @@ const CharInfo = {
     return me.softcore ? softcoreMode[currentDiff] : hardcoreMode[currentDiff];
   })(),
 
+  /**
+   * Determines the active build stage: "Start" until leveling requirements are met, the final
+   * build name once its respec/active conditions are satisfied, otherwise "Leveling".
+   * @returns {StandardBuild | FinalBuild}
+   */
   getActiveBuild: function () {
     const nSkills = me.getStat(sdk.stats.NewSkills);
     const currLevel = me.charlvl;

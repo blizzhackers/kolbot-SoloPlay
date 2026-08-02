@@ -93,6 +93,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Called by AutoBuild.applyConfigUpdates() when charlvl reaches this template's level key.
+           */
           Update: function () {
             Config.AttackSkill = [sdk.skills.BattleCry, sdk.skills.Whirlwind, -1, sdk.skills.Whirlwind, -1];
             Config.LowManaSkill = [0, -1];
@@ -103,6 +106,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return false;
@@ -117,6 +121,7 @@
         ]);
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.MaceMastery, sdk.skills.subindex.HardPoints) === 20;
       },

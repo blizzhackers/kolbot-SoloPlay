@@ -30,6 +30,13 @@ const GameData = require("../Modules/GameData/GameData");
 const MYCLASSNAME = sdk.player.class.nameOf(me.classid).toLowerCase();
 includeIfNotIncluded("SoloPlay/BuildFiles/" + MYCLASSNAME + "/" + MYCLASSNAME + ".js");
 
+/**
+ * Logs the message via console.log and character overhead text; optionally also sends it to the D2Bot console.
+ * @param {string} [str=""]
+ * @param {boolean} [toConsole=false]
+ * @param {number} [color=0]
+ * @returns {void}
+ */
 function myPrint (str = "", toConsole = false, color = 0) {
   console.log("ÿc8Kolbot-SoloPlayÿc0: " + str);
   me.overhead(str);
@@ -74,6 +81,11 @@ const SetUp = (function () {
     mercEnabled: true,
     _buildTemplate: "",
 
+    /**
+     * Syncs `me.data` with current character state (build, merc, charms, difficulty progress) and
+     * persists any changes via CharData.
+     * @returns {void}
+     */
     init: function () {
       // ensure finalBuild is properly formatted
       const checkBuildTemplate = function () {
@@ -273,6 +285,7 @@ const SetUp = (function () {
     // which in doing so would include globals anyway but does this always need to be included first?
     // really need a centralized way to make sure all files use/have the custom functions and all threads stay updated without having to
     // scriptBroadcast all the time
+    /** @returns {void} */
     include: function () {
       let files = dopen("libs/SoloPlay/Core/").getFiles();
       if (!files.length) throw new Error("Failed to find my files");
@@ -302,12 +315,18 @@ const SetUp = (function () {
         });
     },
 
+    /** @returns {StandardBuild | FinalBuild} */
     get currentBuild() {
       return me.data.currentBuild;
     },
+    /** @returns {FinalBuild} */
     get finalBuild() {
       return me.data.finalBuild;
     },
+    /**
+     * Whether merc revival is currently affordable (gold above a level-scaled threshold and above revive cost).
+     * @returns {boolean}
+     */
     get mercwatch() {
       const myGold = me.gold;
       const cLvl = me.charlvl;
@@ -322,6 +341,11 @@ const SetUp = (function () {
     })(),
 
     // pulls respec requirments from final build file
+    /**
+     * Returns the level at which to trigger a respec, or 100 (unreachable) to defer/disable it
+     * when the final build wants a respec but the character is under level 60.
+     * @returns {number}
+     */
     finalRespec: function () {
       let respec = Check.finalBuild().respec() ? me.charlvl : 100;
 
@@ -337,6 +361,10 @@ const SetUp = (function () {
       return respec;
     },
 
+    /**
+     * Applies the current build's stats/skills to AutoStat, AutoSkill, and AutoBuild config.
+     * @returns {boolean} Always true.
+     */
     autoBuild: function () {
       let build = me.currentBuild;
       if (!build) throw new Error("Failed to include template: " + SetUp._buildTemplate);
@@ -362,6 +390,10 @@ const SetUp = (function () {
       return true;
     },
 
+    /**
+     * Logs the build-goal completion, rerolls to a new profile/name, wipes CharData, and restarts the bot.
+     * @returns {void}
+     */
     makeNext: function () {
       includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
       
@@ -382,6 +414,10 @@ const SetUp = (function () {
       D2Bot.restart();
     },
 
+    /**
+     * Recomputes Config.MinColumn belt-slot reserves from the current belt size and column layout.
+     * @returns {void}
+     */
     belt: function () {
       let beltSlots = Math.max(1, Storage.BeltSize() - 1);
       Config.BeltColumn.forEach(function (col, index) {
@@ -389,6 +425,10 @@ const SetUp = (function () {
       });
     },
 
+    /**
+     * Recomputes Config.MPBuffer and Config.HPBuffer from belt size, class role, and pool sizes.
+     * @returns {void}
+     */
     buffers: function () {
       const isCaster = Check.currentBuild().caster;
       const beltModifer = 4 - Storage.BeltSize();
@@ -399,6 +439,10 @@ const SetUp = (function () {
       Config.HPBuffer = Math.floor(hpFactor / Math.sqrt(me.hpmax)) + (beltModifer * 2);
     },
 
+    /**
+     * Rebuilds the NTIP runtime quiver pickit rule for the equipped bow's quiver type.
+     * @returns {void}
+     */
     bowQuiver: function () {
       NTIP.Runtime.clear();
       if (CharData.skillData.bow.onSwitch) {
@@ -412,6 +456,10 @@ const SetUp = (function () {
       }
     },
 
+    /**
+     * Builds NIP lines for configured imbueable items whose condition currently passes.
+     * @returns {string[]}
+     */
     imbueItems: function () {
       if (SetUp.finalBuild === "Imbuemule") return [];
       let temp = [];
@@ -431,6 +479,10 @@ const SetUp = (function () {
       return temp;
     },
 
+    /**
+     * Builds the full SoloPlay Config (pickit, chicken, potions, belt, gamble, shrines, etc.) for the current build.
+     * @returns {void}
+     */
     config: function () {
       me.equipped.init();
       // just initializes the data
@@ -479,6 +531,7 @@ const SetUp = (function () {
         }
         if (me.charlvl < 70) {
           Config.Recipes.push([Recipe.Reroll.Charm.LowGrand, "Grand Charm", {
+            /** @returns {boolean} */
             condition: function () {
               return Storage.Stash.UsedSpacePercent() < 75;
             },
@@ -743,6 +796,10 @@ const Check = (function () {
   return {
     lowGold: false,
 
+    /**
+     * Whether current gold clears the difficulty-scaled low-gold threshold (or access to act 2 isn't yet open).
+     * @returns {boolean}
+     */
     gold: function () {
       let gold = me.gold;
       let goldLimit = [25000, 50000, 100000][me.diff];
@@ -756,6 +813,11 @@ const Check = (function () {
       return false;
     },
 
+    /**
+     * Whether gold is critically low relative to a level-scaled threshold and repair costs.
+     * @param {boolean} [announce=true] When true, prints a status message and requests gold pickup via NTIP.
+     * @returns {boolean}
+     */
     brokeAf: function (announce = true) {
       let gold = me.gold;
       let lowGold = Math.min(Math.floor(500 + (me.charlvl * 100 * Math.sqrt(me.charlvl - 1))), 250000);
@@ -776,6 +838,10 @@ const Check = (function () {
       return true;
     },
 
+    /**
+     * Checks primary weapon durability for near-broken/broken states (melee-only concern).
+     * @returns {0 | 1 | 2} 0 = fine, 1 = nearly broken, 2 = broken.
+     */
     broken: function () {
       const gold = me.gold;
       const rightArm = me.equipped.get(sdk.body.RightArm);
@@ -797,6 +863,10 @@ const Check = (function () {
       return 0;
     },
 
+    /**
+     * Runs town chores, then falls back to an easier difficulty when gold can't cover repairs.
+     * @returns {boolean} True when a difficulty regression was triggered.
+     */
     brokeCheck: function () {
       Town.doChores();
 
@@ -840,6 +910,11 @@ const Check = (function () {
       return false;
     },
 
+    /**
+     * Determines whether requirements (level, resistances) are met to advance to the next difficulty.
+     * @param {boolean} [announce=true] When true, prints the outcome to the D2Bot console.
+     * @returns {string | false} The next difficulty's name, or false if not ready to advance.
+     */
     nextDifficulty: function (announce = true) {
       let currDiff = me.diff;
       if (currDiff === sdk.difficulty.Hell) return false;
@@ -876,6 +951,11 @@ const Check = (function () {
       return sdk.difficulty.nameOf(nextDiff);
     },
 
+    /**
+     * Whether difficulty-appropriate socket/upgrade runes are still needed (false once satisfied by
+     * owned runes or equivalent unique/runeword substitutes).
+     * @returns {boolean}
+     */
     runes: function () {
       if (me.classic) return false;
       let needRunes = true;
@@ -924,6 +1004,13 @@ const Check = (function () {
       return needRunes;
     },
 
+    /**
+     * Whether an owned item matches the given type/quality/name and still has empty sockets to fill.
+     * @param {string | number} type
+     * @param {string | number} [quality]
+     * @param {string} [iName]
+     * @returns {boolean}
+     */
     itemSockables: function (type, quality, iName) {
       quality && typeof quality === "string" && (quality = sdk.items.quality[quality.capitalize(true)]);
       typeof iName === "string" && (iName = iName.toLowerCase());
@@ -973,6 +1060,10 @@ const Check = (function () {
       return false;
     },
 
+    /**
+     * Normalizes `me.currentBuild` into the standard processed build shape.
+     * @returns {Build}
+     */
     currentBuild: function () {
       let build = me.currentBuild;
     
@@ -983,6 +1074,10 @@ const Check = (function () {
       return processBuild(build);
     },
 
+    /**
+     * Normalizes `me.finalBuild` into the standard processed build shape.
+     * @returns {Build}
+     */
     finalBuild: function () {
       let finalBuild = me.finalBuild;
 
@@ -993,6 +1088,10 @@ const Check = (function () {
       return processBuild(finalBuild);
     },
 
+    /**
+     * Handles mule/level-cap/manual stop goals: rerolls to a new profile or stops the bot when reached.
+     * @returns {void}
+     */
     checkSpecialCase: function () {
       /**
        * @param {number} id 
@@ -1049,6 +1148,10 @@ const Check = (function () {
     },
 
     // TODO: enable this for other items, i.e maybe don't socket tal helm in hell but instead go back and use nightmare so then we can use hell socket on tal armor?
+    /**
+     * Drops back to an earlier difficulty to use its unused Horadric Cube socket quest on the Lidless Wall.
+     * @returns {void}
+     */
     usePreviousSocketQuest: function () {
       if (me.classic) return;
       if (!resistance().Status) {

@@ -112,6 +112,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Sets Strafe/Magic Arrow as the primary attack and mana-shield fallback.
+           */
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.Strafe, -1, sdk.skills.Strafe, -1, sdk.skills.MagicArrow, -1];
             Config.LowManaSkill = [0, -1];
@@ -119,6 +122,7 @@
         },
       },
 
+      /** @returns {boolean} True once classic is off and the Witchwild String bow and Nosferatu's Coil are equipped */
       respec: function () {
         if (me.classic) {
           return false;
@@ -129,6 +133,7 @@
         );
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.checkSkill(sdk.skills.Strafe, sdk.skills.subindex.HardPoints);
       },

@@ -81,6 +81,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.BoneSpear, -1, sdk.skills.BoneSpear, -1, -1, -1];
             Config.ExplodeCorpses = sdk.skills.CorpseExplosion;
@@ -89,6 +90,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -97,6 +99,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.BoneSpear, sdk.skills.subindex.HardPoints) === 20;
       },

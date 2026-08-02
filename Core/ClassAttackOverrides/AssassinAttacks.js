@@ -301,6 +301,10 @@ ClassAttack[sdk.player.class.Assassin].doAttack = function (unit, preattack) {
   return result;
 };
 
+/**
+ * @param {Monster} unit
+ * @returns {boolean}
+ */
 ClassAttack[sdk.player.class.Assassin].farCast = function (unit) {
   let timedSkill = Config.AttackSkill[1], untimedSkill = Config.AttackSkill[2];
 

@@ -10,7 +10,7 @@ includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
 
 // Added type parameter and logging tier value under picture on char viewer tab
-/** @type {import("../../systems/mulelogger/MuleLogger").MuleLoggerType["logItem"]} */
+/** @type {MuleLoggerType["logItem"]} */
 MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
   if (!isIncluded("core/misc.js")) {
     include("core/misc.js");
@@ -103,6 +103,10 @@ MuleLogger.logItem = function (unit, logIlvl, type = "Player") {
   };
 };
 
+/**
+ * Writes all equipped items (plus merc items and stashed runes) to a mule log text file for this account/realm.
+ * @returns {void}
+ */
 MuleLogger.logEquippedItems = function () {
   while (!me.gameReady) {
     delay(100);

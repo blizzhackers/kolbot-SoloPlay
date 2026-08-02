@@ -68,6 +68,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Switches to Fury/Rabies werewolf melee with a Grizzly and Heart of Wolverine spirit.
+           */
           Update: function () {
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             Config.AttackSkill = [
@@ -82,10 +85,12 @@
         },
       },
 
+      /** @returns {boolean} true once the Grief runeword weapon and Chains of Honor armor are owned */
       respec: function () {
         return me.haveAll([{ name: sdk.locale.items.Grief }, { name: sdk.locale.items.ChainsofHonor }]);
       },
 
+      /** @returns {boolean} true once respec gear is owned and Rabies is maxed */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Rabies, sdk.skills.subindex.HardPoints) === 20;
       },

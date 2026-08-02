@@ -24,6 +24,7 @@ const CharInfo = {
     return me.softcore ? softcoreMode[currentDiff] : hardcoreMode[currentDiff];
   })(),
 
+  /** @returns {StandardBuild | FinalBuild} The build stage this character should currently be running. */
   getActiveBuild: function () {
     const nSkills = me.getStat(sdk.stats.NewSkills);
     const currLevel = me.charlvl;

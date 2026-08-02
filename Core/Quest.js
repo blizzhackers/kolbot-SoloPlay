@@ -7,6 +7,9 @@
 */
 
 const Quest = {
+  /**
+   * Runs the needed leveling scripts (cube/amulet/staff, eye/heart/brain) until each item is in inventory.
+   */
   preReqs: function () {
     /**
      * @param {string} task 
@@ -96,6 +99,7 @@ const Quest = {
     return me.getItem(outcome);
   },
 
+  /** @returns {boolean} True once the Horadric Staff is placed/combined; false if a step failed or timed out. */
   placeStaff: function () {
     if (me.horadricstaff) return true;
 
@@ -156,6 +160,10 @@ const Quest = {
     return true;
   },
 
+  /**
+   * Walks to Tyrael's Tomb and talks to Tyrael up to 3 times until a portal appears.
+   * @returns {boolean} False if Tyrael's NPC couldn't be found; otherwise true.
+   */
   tyraelTomb: function () {
     Pather.moveTo(22629, 15714);
     Pather.moveTo(22609, 15707);
@@ -204,6 +212,11 @@ const Quest = {
     return questItem.isInStash;
   },
 
+  /**
+   * @param {number} classid - Quest item classid to collect.
+   * @param {number} [chestID] - Object classid of a chest to open before picking up the item.
+   * @returns {boolean|ItemUnit} True if already owned, the picked-up item, or false if it couldn't be collected.
+   */
   collectItem: function (classid, chestID) {
     if (me.getItem(classid)) return true;
 
@@ -358,6 +371,9 @@ const Quest = {
   },
 
   // Akara reset for build change
+  /**
+   * Triggers a build-change respec at Akara once level/build thresholds are met; restarts the script afterward.
+   */
   characterRespec: function () {
     if (me.respec || SetUp.currentBuild === SetUp.finalBuild) return;
 
@@ -562,6 +578,10 @@ const Quest = {
     return true;
   },
 
+  /**
+   * Sweeps every act for quest items left to consume, imbue, socket, drop, or turn in, then heals up in town.
+   * @returns {boolean} Always true.
+   */
   unfinishedQuests: function () {
     const highestAct = me.highestAct;
     const {

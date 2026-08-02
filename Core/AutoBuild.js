@@ -26,6 +26,9 @@ const AutoBuild = new function AutoBuild () {
   // Apply all Update functions from the build template in order from level 1 to me.charlvl.
   // By reapplying all of the changes to the Config object, we preserve
   // the state of the Config file without altering the saved char config.
+  /**
+   * Re-applies every build-template Update from `configUpdateLevel` up to `me.charlvl`, in order.
+   */
   function applyConfigUpdates () {
     let cLvl = me.charlvl;
     debug && this.print("Updating Config from level " + configUpdateLevel + " to " + cLvl);
@@ -45,12 +48,17 @@ const AutoBuild = new function AutoBuild () {
     }
   }
 
+  /** @returns {string} Log file path for today, scoped to this realm and character. */
   function getLogFilename () {
     let d = new Date();
     let dateString = d.getMonth() + "_" + d.getDate() + "_" + d.getFullYear();
     return "logs/AutoBuild." + me.realm + "." + me.charname + "." + dateString + ".log";
   }
 
+  /**
+   * Registers the level-up listener (outside soloplay.js) and resynchronizes Config with the
+   * AutoBuild changes already applied at the character's current level.
+   */
   function initialize () {
     let currentScript = getCurrentScript();
     this.print("Including build template " + SetUp._buildTemplate + " into " + currentScript);
@@ -68,6 +76,7 @@ const AutoBuild = new function AutoBuild () {
     applyConfigUpdates();
   }
 
+  /** @param {{event?: string}} obj - Broadcast scriptmsg payload; triggers on `event === "level up"`. */
   function levelUpHandler (obj) {
     if (typeof obj === "object" && obj.hasOwnProperty("event") && obj.event === "level up") {
       applyConfigUpdates();
@@ -76,6 +85,10 @@ const AutoBuild = new function AutoBuild () {
 
   // Only print to console from autobuildthread.js,
   // but log from all scripts
+  /**
+   * Only prints to console when verbose, but always logs to file when debug is enabled.
+   * @param {...unknown} args - Values to print, joined with spaces (like `console.log`).
+   */
   function myPrint () {
     if (!debug && !verbose) return;
     let args = Array.prototype.slice.call(arguments);

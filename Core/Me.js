@@ -7,11 +7,10 @@
 
 includeIfNotIncluded("core/Prototypes.js");
 
-/**
- * @description me prototypes for soloplay with checks to ensure forwards compatibility
- */
+/** @description me prototypes for soloplay with checks to ensure forwards compatibility */
 if (!me.hasOwnProperty("maxNearMonsters")) {
   Object.defineProperty(me, "maxNearMonsters", {
+    /** @returns {number} */
     get: function () {
       return Math.floor((4 * (1 / me.hpmax * me.hp)) + 1);
     }
@@ -20,6 +19,7 @@ if (!me.hasOwnProperty("maxNearMonsters")) {
 
 if (!me.hasOwnProperty("dualWielding")) {
   Object.defineProperty(me, "dualWielding", {
+    /** @returns {boolean} */
     get: function () {
       // only classes that can duel wield
       if (!me.assassin && !me.barbarian) return false;
@@ -37,6 +37,7 @@ if (!me.hasOwnProperty("dualWielding")) {
 
 if (!me.hasOwnProperty("realFR")) {
   Object.defineProperty(me, "realFR", {
+    /** @returns {number} */
     get: function () {
       return me.getStat(sdk.stats.FireResist);
     }
@@ -45,6 +46,7 @@ if (!me.hasOwnProperty("realFR")) {
 
 if (!me.hasOwnProperty("realCR")) {
   Object.defineProperty(me, "realCR", {
+    /** @returns {number} */
     get: function () {
       return me.getStat(sdk.stats.ColdResist);
     }
@@ -53,6 +55,7 @@ if (!me.hasOwnProperty("realCR")) {
 
 if (!me.hasOwnProperty("realLR")) {
   Object.defineProperty(me, "realLR", {
+    /** @returns {number} */
     get: function () {
       return me.getStat(sdk.stats.LightResist);
     }
@@ -61,6 +64,7 @@ if (!me.hasOwnProperty("realLR")) {
 
 if (!me.hasOwnProperty("realPR")) {
   Object.defineProperty(me, "realPR", {
+    /** @returns {number} */
     get: function () {
       return me.getStat(sdk.stats.PoisonResist);
     }
@@ -69,6 +73,7 @@ if (!me.hasOwnProperty("realPR")) {
 
 if (!me.hasOwnProperty("FR")) {
   Object.defineProperty(me, "FR", {
+    /** @returns {number} */
     get: function () {
       return Math.min(75 + this.getStat(sdk.stats.MaxFireResist), me.realFR - me.resPenalty);
     }
@@ -77,6 +82,7 @@ if (!me.hasOwnProperty("FR")) {
 
 if (!me.hasOwnProperty("CR")) {
   Object.defineProperty(me, "CR", {
+    /** @returns {number} */
     get: function () {
       return Math.min(75 + this.getStat(sdk.stats.MaxColdResist), me.realCR - me.resPenalty);
     }
@@ -85,6 +91,7 @@ if (!me.hasOwnProperty("CR")) {
 
 if (!me.hasOwnProperty("LR")) {
   Object.defineProperty(me, "LR", {
+    /** @returns {number} */
     get: function () {
       return Math.min(75 + this.getStat(sdk.stats.MaxLightResist), me.realLR - me.resPenalty);
     }
@@ -93,6 +100,7 @@ if (!me.hasOwnProperty("LR")) {
 
 if (!me.hasOwnProperty("PR")) {
   Object.defineProperty(me, "PR", {
+    /** @returns {number} */
     get: function () {
       return Math.min(75 + this.getStat(sdk.stats.MaxPoisonResist), me.realPR - me.resPenalty);
     }
@@ -101,6 +109,7 @@ if (!me.hasOwnProperty("PR")) {
 
 if (!me.hasOwnProperty("className")) {
   Object.defineProperty(me, "className", {
+    /** @returns {"Amazon" | "Sorceress" | "Necromancer" | "Paladin" | "Barbarian" | "Druid" | "Assassin" | false} */
     get: function () {
       return sdk.player.class.nameOf(me.classid);
     }
@@ -112,6 +121,7 @@ if (!me.hasOwnProperty("className")) {
  */
 if (!me.hasOwnProperty("onFinalBuild")) {
   Object.defineProperty(me, "onFinalBuild", {
+    /** @returns {boolean} */
     get: function () {
       return me.data.currentBuild === me.data.finalBuild;
     }
@@ -120,6 +130,10 @@ if (!me.hasOwnProperty("onFinalBuild")) {
 
 if (!me.hasOwnProperty("mercid")) {
   Object.defineProperty(me, "mercid", {
+    /**
+     * Lazily resolves and caches the mercenary classid into me.data.merc.classid.
+     * @returns {number} Mercenary classid, or 0 if no merc is present.
+     */
     get: function () {
       return me.data.merc.classid || (function () {
         let merc = me.getMercEx();
@@ -133,6 +147,10 @@ if (!me.hasOwnProperty("mercid")) {
 
 if (!me.hasOwnProperty("trueStr")) {
   Object.defineProperty(me, "trueStr", {
+    /**
+     * Lazily resolves and caches the character's raw strength into me.data.strength.
+     * @returns {number}
+     */
     get: function () {
       return me.data.strength || (function () {
         let str = me.rawStrength;
@@ -145,6 +163,10 @@ if (!me.hasOwnProperty("trueStr")) {
 
 if (!me.hasOwnProperty("trueDex")) {
   Object.defineProperty(me, "trueDex", {
+    /**
+     * Lazily resolves and caches the character's raw dexterity into me.data.dexterity.
+     * @returns {number}
+     */
     get: function () {
       return me.data.dexterity || (function () {
         let dex = me.rawDexterity;
@@ -160,6 +182,10 @@ if (!me.hasOwnProperty("finalBuild")) {
   let _finalBuild = null;
 
   Object.defineProperty(me, "finalBuild", {
+    /**
+     * Lazily requires and caches the character's final build module based on SetUp.finalBuild.
+     * @returns {Build}
+     */
     get: function () {
       if (_finalBuild) return _finalBuild;
       let className = me.className.toLowerCase();
@@ -169,6 +195,10 @@ if (!me.hasOwnProperty("finalBuild")) {
       _finalBuild = require("../BuildFiles/" + className + "/" + className + "." + build);
       return _finalBuild;
     },
+    /**
+     * Only assigns when v has an AutoBuildTemplate property; otherwise silently ignored.
+     * @param {Build} v
+     */
     set: function (v) {
       if (v.hasOwnProperty("AutoBuildTemplate")) {
         // Object.assign(this.finalBuild, v);
@@ -183,6 +213,10 @@ if (!me.hasOwnProperty("currentBuild")) {
   let _currentBuild = null;
 
   Object.defineProperty(me, "currentBuild", {
+    /**
+     * Lazily requires and caches the character's current build module based on SetUp.currentBuild.
+     * @returns {Build}
+     */
     get: function () {
       if (_currentBuild) return _currentBuild;
       let className = me.className.toLowerCase();
@@ -190,6 +224,10 @@ if (!me.hasOwnProperty("currentBuild")) {
       _currentBuild = require("../BuildFiles/" + className + "/" + className + "." + build);
       return _currentBuild;
     },
+    /**
+     * Only assigns when v has an AutoBuildTemplate property; otherwise silently ignored.
+     * @param {Build} v
+     */
     set: function (v) {
       if (v.hasOwnProperty("AutoBuildTemplate")) {
         // Object.assign(this.currentBuild, v);
@@ -203,6 +241,10 @@ if (!me.hasOwnProperty("data")) {
   let _data = null;
 
   Object.defineProperty(me, "data", {
+    /**
+     * Lazily loads and caches character data, migrating older data-file shapes on first access.
+     * @returns {MyData}
+     */
     get: function () {
       if (_data) return _data;
       _data = CharData.getStats();
@@ -219,6 +261,10 @@ if (!me.hasOwnProperty("data")) {
       }
       return _data;
     },
+    /**
+     * Only assigns when v has a startTime property; otherwise silently ignored.
+     * @param {MyData} v
+     */
     set: function (v) {
       if (v.hasOwnProperty("startTime")) {
         _data = v;
@@ -227,6 +273,10 @@ if (!me.hasOwnProperty("data")) {
   });
 
   Object.defineProperty(me, "update", {
+    /**
+     * Broadcasts this thread's me.data to every other running CharData thread.
+     * @returns {void}
+     */
     value: function () {
       let obj = JSON.stringify(copyObj(me.data));
       let myThread = getScript(true).name;
@@ -278,6 +328,12 @@ if (!me.hasOwnProperty("equipped")) {
         : -1;
 
       return new Proxy(this, {
+        /**
+         * Proxy get trap: own properties first, then the wrapped item, then a documented default.
+         * @param {EquippedItem} target
+         * @param {string | symbol} prop
+         * @returns {*}
+         */
         get: function (target, prop) {
           if (prop in target) {
             return target[prop];
@@ -331,6 +387,10 @@ if (!me.hasOwnProperty("equipped")) {
       },
     });
 
+    /**
+     * @param {boolean} [strict=false]
+     * @returns {boolean}
+     */
     EquippedItem.prototype.twoHandedCheck = function (strict = false) {
       return this._item
         ? strict
@@ -339,10 +399,20 @@ if (!me.hasOwnProperty("equipped")) {
         : false;
     };
 
+    /**
+     * @param {number} stat
+     * @param {number} [subid]
+     * @returns {number}
+     */
     EquippedItem.prototype.getStat = function (stat, subid) {
       return this._item ? this._item.getStat(stat, subid) : -1;
     };
 
+    /**
+     * @param {number} stat
+     * @param {number} [subid]
+     * @returns {number}
+     */
     EquippedItem.prototype.getStatEx = function (stat, subid) {
       return this._item ? this._item.getStatEx(stat, subid) : -1;
     };
@@ -402,9 +472,7 @@ if (!me.hasOwnProperty("equipped")) {
           _bodyMap.set(bodylocation, new EquippedItem(item));
         }
       },
-      /**
-       * @description Initializes the equipped item map with the items currently equipped
-       */
+      /** @description Initializes the equipped item map with the items currently equipped */
       init: function () {
         me.getItemsEx()
           .filter(function (item) {
@@ -420,6 +488,7 @@ if (!me.hasOwnProperty("equipped")) {
 
 if (!me.hasOwnProperty("telekinesis")) {
   Object.defineProperty(me, "telekinesis", {
+    /** @returns {boolean} */
     get: function () {
       return Skill.haveTK;
     }
@@ -441,6 +510,7 @@ me.canTpToTown = function () {
   return !!me.getTpTool();
 };
 
+/** @returns {MercUnit | null} */
 me.getMercEx = function () {
   if (!Config.UseMerc || me.classic || !me.mercrevivecost) return null;
   let merc = Misc.poll(function () {
@@ -450,6 +520,7 @@ me.getMercEx = function () {
   return !!merc && !merc.dead ? merc : null;
 };
 
+/** @returns {ItemUnit[]} */
 me.getEquippedItems = function () {
   return me.getItemsEx()
     .filter(function (item) {
@@ -457,6 +528,10 @@ me.getEquippedItems = function () {
     });
 };
 
+/**
+ * @param {number} bodyLoc
+ * @returns {ItemUnit | null}
+ */
 me.getEquippedItem = function (bodyLoc) {
   if (!bodyLoc) return null;
   let equippedItem = me.getItemsEx()
@@ -467,9 +542,7 @@ me.getEquippedItem = function (bodyLoc) {
   return equippedItem.first();
 };
 
-/**
- * @param {number} bodyLoc 
- */
+/** @param {number} bodyLoc */
 me.getWeaponQuantityPercent = function (bodyLoc) {
   if (!bodyLoc) return 0;
   let weapon = me.getEquippedItem(bodyLoc);
@@ -477,6 +550,10 @@ me.getWeaponQuantityPercent = function (bodyLoc) {
   return weapon.quantityPercent;
 };
 
+/**
+ * @param {number} [classid=me.classid]
+ * @returns {number[]}
+ */
 me.getSkillTabs = function (classid = me.classid) {
   return [
     [sdk.skills.tabs.BowandCrossbow, sdk.skills.tabs.PassiveandMagic, sdk.skills.tabs.JavelinandSpear],
@@ -491,6 +568,11 @@ me.getSkillTabs = function (classid = me.classid) {
 
 // @todo better determination of what actually constitutes being in danger
 // need check for ranged mobs so we can stick and move to avoid missiles
+/**
+ * @param {{ x: number; y: number } | MeType} [checkLoc]
+ * @param {number} [range=10]
+ * @returns {boolean}
+ */
 me.inDanger = function (checkLoc, range) {
   let count = 0;
   const _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x")
@@ -587,11 +669,13 @@ me.checkSkill = function (skillId = 0, subId = 0) {
   return !!me.getSkill(skillId, subId);
 };
 
+/** @returns {boolean} */
 me.switchToPrimary = function () {
   if (me.classic) return true;
   return me.switchWeapons(sdk.player.slot.Main);
 };
 
+/** @returns {boolean} */
 me.switchToSecondary = function () {
   if (me.classic) return true;
   return me.switchWeapons(sdk.player.slot.Secondary);
@@ -624,6 +708,10 @@ me.needHealing = function () {
   }));
 };
 
+/**
+ * @param {number} [beltSize] - Defaults to Storage.BeltSize() when omitted.
+ * @returns {boolean}
+ */
 me.cleanUpInvoPotions = function (beltSize) {
   beltSize === undefined && (beltSize = Storage.BeltSize());
   const beltMax = (beltSize * 4);
@@ -686,6 +774,11 @@ me.cleanUpInvoPotions = function (beltSize) {
   return true;
 };
 
+/**
+ * @param {ItemUnit} tome
+ * @param {number} scrollId
+ * @returns {number} Count of scrolls successfully placed into the tome.
+ */
 me.cleanUpScrolls = function (tome, scrollId) {
   if (!tome || !scrollId) return 0;
 
@@ -734,6 +827,7 @@ me.cleanUpScrolls = function (tome, scrollId) {
   return cleanedUp;
 };
 
+/** @returns {boolean} */
 me.needBeltPots = function () {
   // we aren't using MinColumn if none of the values are set
   if (!Config.MinColumn.some(el => el > 0)) return false;
@@ -794,6 +888,7 @@ me.needBeltPots = function () {
   return false;
 };
 
+/** @returns {boolean} */
 me.needBufferPots = function () {
   // not using buffers
   if (Config.HPBuffer < 0 && Config.MPBuffer < 0) return false;
@@ -825,10 +920,15 @@ me.needBufferPots = function () {
   return false;
 };
 
+/** @returns {boolean} */
 me.needPotions = function () {
   return me.needBeltPots() || me.needBufferPots();
 };
 
+/**
+ * Always returns true; the return value does not reflect whether any potions were moved.
+ * @returns {boolean}
+ */
 me.clearBelt = function () {
   let item = me.getItem(-1, sdk.items.mode.inBelt);
   let clearList = [];
@@ -871,6 +971,7 @@ me.clearBelt = function () {
   return true;
 };
 
+/** @returns {ItemUnit | null} */
 me.getIdTool = function () {
   let items = me.getItemsEx()
     .filter(function (i) {
@@ -890,6 +991,7 @@ me.getIdTool = function () {
   return null;
 };
 
+/** @returns {ItemUnit | null} */
 me.getTpTool = function () {
   let items = me.getItemsEx(-1, sdk.items.mode.inStorage)
     .filter(function (i) {
@@ -907,6 +1009,7 @@ me.getTpTool = function () {
   return null;
 };
 
+/** @returns {ItemUnit[]} */
 me.getUnids = function () {
   let list = [];
   let item = me.getItem(-1, sdk.items.mode.inStorage);
@@ -922,6 +1025,7 @@ me.getUnids = function () {
   return list;
 };
 
+/** @returns {boolean} */
 me.fieldID = function () {
   let list = me.getUnids();
   if (!list) return false;
@@ -951,6 +1055,10 @@ me.fieldID = function () {
   return true;
 };
 
+/**
+ * @param {number} [weaponLoc=sdk.body.RightArm]
+ * @returns {number}
+ */
 me.getWeaponQuantity = function (weaponLoc = sdk.body.RightArm) {
   let currItem = me.getItemsEx(-1, sdk.items.mode.Equipped)
     .filter(function (i) {
@@ -960,6 +1068,11 @@ me.getWeaponQuantity = function (weaponLoc = sdk.body.RightArm) {
   return !!currItem ? currItem.getStat(sdk.stats.Quantity) : 0;
 };
 
+/**
+ * @param {number} repairPercent
+ * @param {boolean} [chargedItems]
+ * @returns {ItemUnit[]}
+ */
 me.getItemsForRepair = function (repairPercent, chargedItems) {
   const lowLevelCheck = me.charlvl < 5;
   // lower the required percent as we are a low level
@@ -1023,6 +1136,7 @@ me.getItemsForRepair = function (repairPercent, chargedItems) {
   return itemList;
 };
 
+/** @returns {string[]} */
 me.needRepair = function () {
   let repairAction = [];
   let bowCheck = Attack.usingBow();
@@ -1093,6 +1207,7 @@ me.needRepair = function () {
   return repairAction;
 };
 
+/** @returns {boolean} */
 me.needMerc = function () {
   if (me.classic || !Config.UseMerc || me.gold < me.mercrevivecost || me.mercrevivecost === 0) return false;
 
@@ -1111,6 +1226,7 @@ me.needMerc = function () {
   return true;
 };
 
+/** @returns {boolean} */
 me.sortInventory = function () {
   return Storage.Inventory.SortItems(
     Config.SortSettings.ItemsSortedFromLeft,

@@ -30,6 +30,11 @@ me.haveWaypoint = function (area) {
   return getWaypoint(AreaData.wps.get(area));
 };
 
+/**
+ * @param {number} currArea
+ * @param {boolean} [includeArcane=false]
+ * @returns {boolean}
+ */
 Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
   const areas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
   includeArcane && areas.push(sdk.areas.ArcaneSanctuary);
@@ -198,10 +203,14 @@ Pather.haveTeleCharges = false;
 Pather.forceWalk = false;
 Pather.forceRun = false;
 
+/**
+ * Refreshes `haveTeleCharges` from the current Teleport charge count on gear.
+ */
 Pather.checkForTeleCharges = function () {
   this.haveTeleCharges = Attack.getItemCharges(sdk.skills.Teleport);
 };
 
+/** @returns {boolean} True if teleport charges can be used to move (not classic/town/shapeshifted, gold allowing) */
 Pather.canUseTeleCharges = function () {
   if (me.classic || me.inTown || me.shapeshifted) return false;
   // Charges are costly so make sure we have enough gold to handle repairs
@@ -237,6 +246,12 @@ Pather.teleportTo = function (x, y, maxRange = 5) {
   return false;
 };
 
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} [maxRange=5]
+ * @returns {boolean}
+ */
 Pather.teleUsingCharges = function (x, y, maxRange = 5) {
   let orgSlot = me.weaponswitch;
 
@@ -271,6 +286,11 @@ Pather.teleUsingCharges = function (x, y, maxRange = 5) {
   }
 };
 
+/**
+ * @param {number} [area=0]
+ * @param {boolean} [keepMenuOpen=false]
+ * @returns {boolean} True if the waypoint for area has been discovered
+ */
 Pather.checkWP = function (area = 0, keepMenuOpen = false) {
   while (!me.gameReady) {
     delay(40);
@@ -321,6 +341,10 @@ Pather.checkWP = function (area = 0, keepMenuOpen = false) {
   return me.haveWaypoint(area);
 };
 
+/**
+ * @param {number} [act=me.act + 1]
+ * @returns {boolean} True once the character has arrived in the target act
+ */
 Pather.changeAct = function (act = me.act + 1) {
   const npcTravel = new Map([
     [1, ["Warriv", sdk.areas.RogueEncampment]],
@@ -370,6 +394,9 @@ Pather.changeAct = function (act = me.act + 1) {
   return me.act === act;
 };
 
+/**
+ * Cancels any open UI menu (waypoint, shop, etc.) still blocking, per the flags in `Pather.cancelFlags`.
+ */
 Pather.clearUIFlags = function () {
   while (!me.gameReady) delay(3);
 
@@ -841,6 +868,14 @@ Pather.move = function (target, givenSettings = {}) {
   return cbCheck || getDistance(me, node.x, node.y) < 5;
 };
 
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} [retry]
+ * @param {boolean} [clearPath=true]
+ * @param {boolean} [pop=false]
+ * @returns {boolean}
+ */
 Pather.moveTo = function (x, y, retry, clearPath = true, pop = false) {
   return Pather.move(
     { x: x, y: y },
@@ -939,6 +974,12 @@ Pather.moveToExit = function (targetArea, use, givenSettings = {}) {
 };
 
 // Add check in case "random" to return false if bot doesn't have cold plains wp yet
+/**
+ * Walks toward a waypoint and interacts with it, retrying through town/UI hiccups along the way.
+ * @param {number | null | "random"} targetArea - Area to travel to, null to just open the WP menu, or "random"
+ * @param {boolean} [check=false] - Poll the WP menu instead of interacting with it immediately
+ * @returns {boolean} True once in targetArea; throws an Error instead of returning false on failure
+ */
 Pather.useWaypoint = function useWaypoint (targetArea, check = false) {
   switch (targetArea) {
   case undefined:

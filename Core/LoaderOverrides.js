@@ -8,6 +8,9 @@
 
 includeIfNotIncluded("core/Loader.js");
 
+/**
+ * Populates fileList with the basenames (no extension) of every .js file in libs/SoloPlay/Scripts.
+ */
 Loader.getScripts = function () {
   let fileList = dopen("libs/SoloPlay/Scripts").getFiles();
 
@@ -18,6 +21,11 @@ Loader.getScripts = function () {
   }
 };
 
+/**
+ * Get script name by index.
+ * @param {number} [offset]
+ * @returns {string} the script name, or "SoloPlay" when the index is out of range
+ */
 Loader.scriptName = function (offset = 0) {
   let index = this.scriptIndex + offset;
 
@@ -28,13 +36,16 @@ Loader.scriptName = function (offset = 0) {
   return "SoloPlay";
 };
 
-/**
- * @deprecated Loader.run is used instead
- */
+/** @deprecated Loader.run is used instead */
 Loader.loadScripts = function () {
   return Loader.run();
 };
 
+/**
+ * Runs each SoloPlay script in SoloIndex.scripts order once its shouldRun() check passes, going to
+ * town first unless the script is exempt via skipTown, and tracking performance stats per script.
+ * @returns {boolean} always true
+ */
 Loader.run = function () {
   const _toolsThread = "libs/SoloPlay/Threads/ToolsThread.js";
   
@@ -189,6 +200,11 @@ Loader.run = function () {
   return true;
 };
 
+/**
+ * @param {string} script
+ * @param {Partial<Config> | function(): any} configOverride
+ * @returns {boolean}
+ */
 Loader.runScript = function (script, configOverride) {
   let tick;
   let currentExp;
@@ -196,6 +212,7 @@ Loader.runScript = function (script, configOverride) {
   let reconfiguration, unmodifiedConfig = {};
   let mainScript = this.scriptName();
     
+  /** @returns {string} log line prefix listing the main script and any nested tempList scripts */
   function buildScriptMsg () {
     let str = "ÿc9" + mainScript + " ÿc0:: ";
 

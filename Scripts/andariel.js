@@ -6,6 +6,7 @@
 */
 
 // todo: clean this up
+/** @returns {boolean} */
 function andariel () {
   Town.doChores(false, { fullChores: true });
   myPrint("starting andy");

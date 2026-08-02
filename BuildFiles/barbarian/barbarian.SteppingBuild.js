@@ -54,6 +54,7 @@
         [sdk.skills.Taunt, 20, false],            // charlvl 76
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo
           && me.checkSkill(sdk.skills.NaturalResistance, sdk.skills.subindex.HardPoints)

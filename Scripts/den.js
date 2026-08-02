@@ -124,6 +124,7 @@ function den () {
 
     try {
       if (!me.normal) {
+        /** @returns {boolean} */
         Worker.runInBackground.corpseTracker = function () {
           if (killTracker) return false;
           if (me.inArea(sdk.areas.DenofEvil)) {
@@ -146,6 +147,7 @@ function den () {
         };
       }
 
+      /** @returns {boolean} */
       Worker.runInBackground.denLightsTracker = function () {
         if (killTracker) return false;
         if (me.inArea(sdk.areas.DenofEvil)) {

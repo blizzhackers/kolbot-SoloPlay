@@ -48,4 +48,15 @@ export default {
   "SoloEvents": "writable",
   "Merc": "writable",
   "MercData": "writable",
+  // Published on the thread global via `global.X = ...` (invisible to any top-level scan).
+  // Core/DynamicTiers.js autoequip scorers:
+  "tierscore": "writable",
+  "mercscore": "writable",
+  "secondaryscore": "writable",
+  "charmscore": "writable",
+  "chargeditemscore": "writable",
+  // Core/Polyfills.js timer polyfills (the engine timer is not thread-safe):
+  "setTimeout": "writable",
+  "clearTimeout": "writable",
+  "_setTimeout": "writable",
 };

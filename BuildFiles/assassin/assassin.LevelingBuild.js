@@ -57,6 +57,10 @@
         [sdk.skills.ChargedBoltSentry, 20],
       ],
 
+      /**
+       * @returns {boolean} true once past both respecs, Lightning Sentry is maxed, and the final build
+       * hasn't taken over yet
+       */
       active: function () {
         return (me.charlvl > CharInfo.respecOne && me.charlvl > CharInfo.respecTwo
           && me.getSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints) === 20
@@ -65,6 +69,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Switches to Shock Web/Fire Blast trap attacks for this leveling stage.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,

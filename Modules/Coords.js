@@ -54,6 +54,14 @@
     // Collisions that cause a missile to burst
     Collision[Collision["BLOCK_MISSILE"] = 2062] = "BLOCK_MISSILE";
   })(Collision = exports.Collision || (exports.Collision = {}));
+  /**
+   * Get coordinates between two points using line algorithm
+   * @param {number} x1 - Starting X coordinate
+   * @param {number} y1 - Starting Y coordinate
+   * @param {number} x2 - Ending X coordinate
+   * @param {number} y2 - Ending Y coordinate
+   * @returns {CoordinatePoint[]} Array of coordinate points
+   */
   function getCoordsBetween(x1, y1, x2, y2) {
     const abs = Math.abs, min = Math.min, max = Math.max, floor = Math.floor;
     const A = { x: x1, y: y1 };
@@ -65,10 +73,20 @@
         return ({ x: y, y: x });
       });
     }
+    /**
+     * @param {CoordinatePoint} a
+     * @param {CoordinatePoint} b
+     * @returns {number | null} Slope between the two points, or null for a vertical line
+     */
     function slope(a, b) {
       if (a.x === b.x) return null;
       return (b.y - a.y) / (b.x - a.x);
     }
+    /**
+     * @param {CoordinatePoint} point
+     * @param {number | null} slope
+     * @returns {number} Y-intercept, or the point's X coordinate when the line is vertical
+     */
     function intercept(point, slope) {
       // vertical line
       if (slope === null) return point.x;
@@ -102,6 +120,7 @@
     return coords;
   };
   exports.convertToCoordArray = convertToCoordArray;
+  /** @returns {number} Collision bitmask between the two points, or -1 if too far apart or the area isn't loaded */
   function getCollisionBetweenCoords() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -126,6 +145,7 @@
     }
   }
   exports.getCollisionBetweenCoords = getCollisionBetweenCoords;
+  /** @returns {boolean} True if the path between the two points is blocked (LOS, ranged, casting, door, or object) */
   function isBlockedBetween() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -141,6 +161,12 @@
             | BlockBits.Objects));
   }
   exports.isBlockedBetween = isBlockedBetween;
+  /**
+   * @param {Unit} unit1 - First unit
+   * @param {Unit} unit2 - Second unit
+   * @param {number} coll - Collision flags to check
+   * @returns {boolean} True if collision exists
+   */
   function checkCollisionBetween(unit1, unit2, coll) {
     let args = [];
     args.push(unit1, unit2);
@@ -148,6 +174,7 @@
     return !!(collision & (0 | coll));
   }
   exports.checkCollisionBetween = checkCollisionBetween;
+  /** @returns {boolean} True if coordinates are in room */
   Room.prototype.isInRoom = function () {
     let args = [];
     for (let _i = 0; _i < arguments.length; _i++) {
@@ -156,6 +183,15 @@
     let _a = exports.convertToCoordArray(args, "isInRoom", 1)[0], x = _a[0], y = _a[1];
     return this && x >= this.x * 5 && x < this.x * 5 + this.xsize && y >= this.y * 5 && y < this.y * 5 + this.ysize;
   };
+  /**
+   * Find casting spot for a specific skill
+   * @param {number} skill - Skill ID
+   * @param {Unit} unit - Target unit
+   * @param {number} [minRange=5] - Minimum casting range
+   * @param {number} [thickness=5] - Collision thickness
+   * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
+   * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
+   */
   function findCastingSpotSkill(skill, unit, minRange, thickness, collision) {
     if (minRange === void 0) { minRange = 5; }
     if (thickness === void 0) { thickness = 5; }
@@ -165,6 +201,15 @@
     return findCastingSpotRange(range, unit, minRange, thickness, collision);
   }
   exports.findCastingSpotSkill = findCastingSpotSkill;
+  /**
+   * Find casting spot within specified range
+   * @param {number} range - Maximum casting range
+   * @param {Unit} unit - Target unit
+   * @param {number} [minRange=5] - Minimum casting range
+   * @param {number} [thickness=5] - Collision thickness
+   * @param {number} [collision=Collision.BLOCK_MISSILE] - Collision type to check
+   * @returns {CoordinatePoint | undefined} Casting spot coordinates or undefined if none found
+   */
   function findCastingSpotRange(range, unit, minRange, thickness, collision) {
     if (minRange === void 0) { minRange = 5; }
     if (thickness === void 0) { thickness = 5; }
@@ -181,6 +226,13 @@
   }
   exports.findCastingSpotRange = findCastingSpotRange;
   var lines = [];
+  /**
+   * Get valid spots around a unit for casting/positioning
+   * @param {number} collision - Collision flags to avoid
+   * @param {number} thickness - Collision thickness to check
+   * @param {Unit} unit - Reference unit
+   * @returns {CoordinatePoint[]} Array of valid coordinate spots
+   */
   function getSpotsFor(collision, thickness, unit) {
     var spots = [];
     var fieldSize = 75;

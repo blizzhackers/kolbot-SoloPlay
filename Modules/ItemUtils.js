@@ -192,6 +192,11 @@
 
     if (!socketables || (!allowTemp && openSockets === 0)) return false;
 
+    /**
+     * @param {ItemUnit} gem
+     * @param {ItemUnit[]} [checkList]
+     * @returns {boolean}
+     */
     function highestGemAvailable (gem, checkList = []) {
       if (!gem) return false;
 

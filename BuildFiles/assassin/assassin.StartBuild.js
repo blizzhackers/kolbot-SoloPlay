@@ -34,6 +34,7 @@
         [sdk.skills.FireBlast, 10],           // level 42
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return me.charlvl < CharInfo.respecOne
           && !me.checkSkill(sdk.skills.LightningSentry, sdk.skills.subindex.HardPoints);

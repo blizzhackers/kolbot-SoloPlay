@@ -61,6 +61,11 @@ const MercData = new function MercData () {
   this.actMap.set(sdk.mercs.A5Barb, 5);
   this.actMap.set(5, [this[sdk.skills.Bash]]);
 
+  /**
+   * @param {string} name
+   * @param {number} act
+   * @returns {Merc | undefined}
+   */
   this.findByName = function (name, act) {
     let merc = this.actMap.get(act)
       .find(m => m.skillName === name);
@@ -172,9 +177,7 @@ const Mercenary = {
     return MercData.actMap.get(merc.classid) || 0;
   },
 
-  /**
-   * @param {MercUnit} merc 
-   */
+  /** @param {MercUnit} merc */
   getMercInfo: function (merc) {
     !merc && (merc = Misc.poll(function () {
       return me.getMerc();
@@ -207,6 +210,7 @@ const Mercenary = {
   },
 
   // only supports act 2 mercs for now
+  /** @returns {boolean} */
   hireMerc: function () {
     if (me.classic) return true;
     if (Mercenary.timeout && getTickCount() < Mercenary.timeout) return true;

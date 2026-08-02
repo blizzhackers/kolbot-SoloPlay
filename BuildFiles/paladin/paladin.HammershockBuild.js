@@ -87,6 +87,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Called by AutoBuild.applyConfigUpdates() when charlvl reaches this template's level key.
+           */
           Update: function () {
             Config.Vigor = false;
             Config.AttackSkill = [
@@ -103,6 +106,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -113,6 +117,7 @@
         );
       },
 
+      /** @returns {boolean} */
       active: function () {
         return (
           this.respec()

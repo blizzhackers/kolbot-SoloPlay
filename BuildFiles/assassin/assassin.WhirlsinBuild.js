@@ -91,6 +91,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Switches to Whirlwind melee backed by Death Sentry traps once final gear is equipped.
+           */
           Update: function () {
             Config.Dodge = false;
             Config.UseVenom = true;
@@ -103,10 +106,12 @@
         },
       },
 
+      /** @returns {boolean} true once the Chaos runeword weapon and Fury claw are owned */
       respec: function () {
         return me.haveAll([{ name: sdk.locale.items.Chaos }, { name: sdk.locale.items.Fury }]);
       },
 
+      /** @returns {boolean} true once respec gear is owned and Claw Mastery is maxed */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.ClawMastery, sdk.skills.subindex.HardPoints) === 20;
       },

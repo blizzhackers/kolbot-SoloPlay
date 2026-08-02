@@ -7,6 +7,10 @@
 */
 
 if (!Array.prototype.at) {
+  /**
+   * @param {number} pos Index; negative values count from the end of the array.
+   * @returns {*} The element at pos, or undefined if out of range.
+   */
   Array.prototype.at = function (pos) {
     if (pos < 0) {
       pos += this.length;
@@ -71,6 +75,13 @@ if (!Array.prototype.at) {
   }
   Timer.instances = [];
   Timer.counter = 0;
+  /**
+   * D2BS-safe setTimeout polyfill (d2bs's native timer isn't thread-safe); extra arguments after
+   * `time` are forwarded to `cb` when it fires.
+   * @param {function|string} cb Callback, or legacy code string (deprecated; wrapped via Function constructor).
+   * @param {number} [time] Delay in milliseconds before cb fires.
+   * @returns {Timer}
+   */
   global.setTimeout = function (cb, time) {
     if (time === void 0) { time = 0; }
     let args = [];
@@ -86,10 +97,7 @@ if (!Array.prototype.at) {
     }
     return new Timer(cb, time, args);
   };
-  /**
-  *
-  * @param {Timer} timer
-  */
+  /** @param {Timer} timer */
   global.clearTimeout = function (timer) {
     let index = Timer.instances.indexOf(timer);
     if (index > -1) {
@@ -102,6 +110,11 @@ if (!Array.prototype.at) {
 if (!Object.setPrototypeOf) {
   // Only works in Chrome and FireFox, does not work in IE:
   Object.defineProperty(Object.prototype, "setPrototypeOf", {
+    /**
+     * @param {Object} obj
+     * @param {Object} proto
+     * @returns {Object}
+     */
     value: function (obj, proto) {
       // @ts-ignore
       if (obj.__proto__) {
@@ -126,12 +139,20 @@ if (!Object.setPrototypeOf) {
 }
 
 if (!Object.values) {
+  /**
+   * @param {Object} source
+   * @returns {Array<*>}
+   */
   Object.values = function (source) {
     return Object.keys(source).map(function (k) { return source[k]; });
   };
 }
 
 if (!Object.entries) {
+  /**
+   * @param {Object} source
+   * @returns {Array<[string, *]>}
+   */
   Object.entries = function (source) {
     return Object.keys(source).map(function (k) { return [k, source[k]]; });
   };
@@ -141,6 +162,11 @@ if (!Object.entries) {
 // @ts-ignore
 if (!Object.is) {
   Object.defineProperty(Object, "is", {
+    /**
+     * @param {*} x
+     * @param {*} y
+     * @returns {boolean}
+     */
     value: function (x, y) {
       // SameValue algorithm
       if (x === y) {
@@ -165,6 +191,11 @@ if (!Array.prototype.equals) {
   // Warn if overriding existing method
   !!Array.prototype.equals && console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
   // attach the .equals method to Array's prototype to call it on any array
+  /**
+   * Order-insensitive equality check; mutates both `this` and `array` by sorting them in place.
+   * @param {Array<*>} array
+   * @returns {boolean}
+   */
   Array.prototype.equals = function (array) {
     // if the other array is a falsy value, return
     if (!array) return false;

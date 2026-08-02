@@ -24,6 +24,7 @@ const Overlay = {
   script: "",
   realm: (me.realm ? me.realm : "SinglePlayer"),
   difficulty: sdk.difficulty.nameOf(me.diff),
+  /** @returns {number} */
   level: function () {
     return me.data.level;
   },
@@ -54,6 +55,7 @@ const Overlay = {
       hooks: [],
       enabled: true,
 
+      /** @returns {string} Formatted total/in-game/OOG playtime string, or "" if performance logging is disabled. */
       clock: function () {
         if (!Settings.logPerformance) return "";
         _gameTracker === undefined && (Object.assign(_gameTracker, Tracker.readObj(Tracker.GTPath)));
@@ -65,6 +67,9 @@ const Overlay = {
         return ("Total: ÿc0" + totalTime + "ÿc4 InGame: ÿc0" + totalInGame + "ÿc4 OOG: ÿc0" + _format(_gameTracker.OOG));
       },
 
+      /**
+       * Creates or refreshes the dashboard, credits, timer, and level overlay hooks each poll.
+       */
       check: function () {
         if (!this.enabled) {
           this.flush();
@@ -104,6 +109,7 @@ const Overlay = {
         }
       },
 
+      /** @param {string} name */
       add: function (name) {
         switch (name) {
         case "dashboard":
@@ -163,6 +169,10 @@ const Overlay = {
         }
       },
 
+      /**
+       * @param {string} name
+       * @returns {{ name: string, hook: Hook } | false}
+       */
       getHook: function (name) {
         for (let i = 0; i < this.hooks.length; i++) {
           if (this.hooks[i].name === name) {
@@ -173,6 +183,10 @@ const Overlay = {
         return false;
       },
 
+      /**
+       * Removes and clears all tracked overlay hooks.
+       * @returns {boolean} Always true.
+       */
       flush: function () {
         while (this.hooks.length) {
           this.hooks.shift().hook.remove();
@@ -216,6 +230,12 @@ const Overlay = {
       };
     };
 
+    /**
+     * @constructor
+     * @param {string} name
+     * @param {function(): string} status
+     * @param {function(): Hook} hook
+     */
     function StatsHook (name, status, hook) {
       this.name = name;
       this.status = status;
@@ -374,6 +394,9 @@ const Overlay = {
         }
       },
 
+      /**
+       * Updates the resistances/stats/gold and per-act quest status hooks, or flushes them when disabled.
+       */
       check: function () {
         if (!this.enabled || !me.gameReady || !me.ingame || !me.area || me.dead) {
           this.flush();
@@ -391,9 +414,7 @@ const Overlay = {
         !this.getHook("questbox") && this.add("questbox");
       },
 
-      /**
-       * @param {string} name 
-       */
+      /** @param {string} name */
       add: function (name) {
         switch (name) {
         case "questbox":
@@ -443,6 +464,10 @@ const Overlay = {
         return false;
       },
 
+      /**
+       * Removes and clears all tracked quest and stat overlay hooks.
+       * @returns {boolean} Always true.
+       */
       flush: function () {
         while (_hooks.length) {
           _hooks.shift().hook.remove();
@@ -456,7 +481,15 @@ const Overlay = {
     };
   })(),
   
+  /**
+   * @param {boolean} [msg]
+   * @returns {boolean|undefined} True if msg is set; otherwise the poll result, or false when not in-game.
+   */
   update: function (msg = false) {
+    /**
+     * Hides overlay hooks while blocking UI (inventory/stash/etc.) is open, then refreshes
+     * the dashboard and quest hooks once it closes.
+     */
     function status () {
       let hide = [
         sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.QuickSkill, sdk.uiflags.SkillWindow,
@@ -506,6 +539,10 @@ const Overlay = {
     return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
   },
 
+  /**
+   * @param {boolean} [all] When true, also disables the quest hooks for 15 seconds.
+   * @returns {boolean} Always true.
+   */
   disable: function (all = false) {
     me.overhead("Disable");
 
@@ -525,6 +562,7 @@ const Overlay = {
     return true;
   },
 
+  /** @returns {boolean} */
   flush: function () {
     return Overlay.quests.flush();
   },

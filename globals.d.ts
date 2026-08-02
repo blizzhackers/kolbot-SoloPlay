@@ -2,12 +2,49 @@
 
 // @ts-nocheck
 declare global {
+  // PathNode is the natural name for this shape, and main-repo code gets it for free: the JS
+  // constructor in libs/core/Pather.js gives that name a type meaning there. Pather.js is not
+  // in THIS program - main .js reaches it only through require() chains TS can follow, and
+  // Pather.js is loaded solely by runtime include(), which TS cannot see - hence the alias.
+  // It must stay an ALIAS declared only in this file: an ambient "interface PathNode" merges
+  // with that JS this-assignment constructor and crashes TS 5.9 in
+  // getConstructorDefinedThisAssignmentTypes (Debug Failure) - re-verified 2026-08-02.
+  type PathNode = IPathNode;
+
   /** Core/Globals.js myPrint - ambient declaration guarantees resolution program-wide. */
   function myPrint(str?: string, toConsole?: boolean, color?: number): void;
 
+  // --- Published on the thread global via `global.X = ...` ---------------------------------
+  // These are NOT top-level declarations, so nothing infers them: the publication statement is
+  // an assignment to a member of `global`. Each needs an ambient declaration to be typed.
+
+  // Autoequip scoring, published by Core/DynamicTiers.js:722-726.
+  /** Higher is better; -1 for quest items and items with no body location. */
+  function tierscore(item: ItemUnit, tier?: number, bodyloc?: number): number;
+  function mercscore(item: ItemUnit): number;
+  function secondaryscore(item: ItemUnit): number;
+  function charmscore(item: ItemUnit): number;
+  /** buildInfo defaults to Check.currentBuild() when omitted. */
+  function chargeditemscore(item: ItemUnit, skillId?: number, buildInfo?: Build): number;
+
+  /** Opaque handle from setTimeout - the Timer constructor is closure-private in Polyfills.js. */
+  interface TimerHandle {
+    readonly __timerBrand?: never;
+  }
+  // Timer polyfills published by Core/Polyfills.js (the engine's own timer is not thread-safe).
+  function setTimeout(cb: (...args: unknown[]) => void, time?: number, ...args: unknown[]): TimerHandle;
+  function clearTimeout(timer: TimerHandle): void;
+  /**
+   * The engine's pre-polyfill setTimeout, captured at Polyfills.js:111 and re-published under
+   * this name. Its exact engine contract is not documented in d2bs/api.html and it currently
+   * has no call sites, so the parameters here mirror the polyfill's rather than being verified.
+   */
+  function _setTimeout(cb: (...args: unknown[]) => void, time?: number): unknown;
+
   // --- Ambient value declarations for MAIN-repo singletons ---------------------------------
-  // This PROGRAM includes main's d.ts (types-only interfaces) but not main's .js, so these
-  // names have no value symbol here without the consts below. They live in THIS file, not
+  // These singletons' implementing .js files are loaded by runtime include(), which TS cannot
+  // follow, so they never join this program (only require()d main files do) - without the
+  // consts below the names have no value symbol here. They live in THIS file, not
   // main's d.ts, deliberately: main's program has the implementing js consts and an ambient
   // const there can TS2451 (observed for CollMap) - main's tsconfig excludes SoloPlay, so
   // this placement is collision-free in both programs.
@@ -20,6 +57,7 @@ declare global {
   const Precast: Precast;
   const Town: Town;
   const Pather: Pather;
+  const NodeAction: NodeAction;
   const Pickit: Pickit;
   const CollMap: CollMapInstance;
   const NPC: NPCList;
@@ -55,37 +93,50 @@ declare global {
     weaponTypes: Set<number>;
   }
 
-  /** Instance shape of the NTIPList constructor in Core/NTIPOverrides.js. Named -Instance, not
-   * NTIPList: a same-named ambient type merging with a this-assignment constructor function is
-   * the TS 5.9 getConstructorDefinedThisAssignmentTypes crash shape (see IPathNode). */
-  interface NTIPListInstance {
-    list: ((item: ItemUnit) => boolean)[][];
-    strArray: { line: string; file: string; string: string }[];
-    add(parsedLine: ((item: ItemUnit) => boolean)[], info: { line: string; file: string; string: string }): void;
-    remove(index: number): void;
-    clear(): void;
-  }
-
+  // NTIPList below is the instance type of the `function NTIPList` constructor in
+  // Core/NTIPOverrides.js - that file is in THIS program, so TS derives the type from the
+  // constructor itself. Do not add an ambient `interface NTIPList`: it would merge with that
+  // this-assignment constructor, the TS 5.9 crash shape documented on PathNode above.
   interface NTIP {
-    CheckList: NTIPListInstance;
-    FinalGear: NTIPListInstance;
+    CheckList: NTIPList;
+    FinalGear: NTIPList;
     GetCharmTier(item: ItemUnit): number;
     GetSecondaryTier(item: ItemUnit): number;
     MAX_TIER: number;
-    NoTier: NTIPListInstance;
-    Runtime: NTIPListInstance;
-    SoloList: NTIPListInstance;
+    NoTier: NTIPList;
+    Runtime: NTIPList;
+    SoloList: NTIPList;
     _evaluateRuleMatch(item: ItemUnit, type: (item: ItemUnit) => boolean, stat: (item: ItemUnit) => boolean): -1 | 0 | 1;
     addToRuntime(itemString: string): boolean;
     buildFinalGear(arr: string[]): boolean;
     buildList(...arraystoloop: string[][]): boolean;
-    getInvoQuantity(item: ItemUnit, entryList?: NTIPListInstance): number;
-    getMaxQuantity(item: ItemUnit, entryList?: NTIPListInstance): number;
+    getInvoQuantity(item: ItemUnit, entryList?: NTIPList): number;
+    getMaxQuantity(item: ItemUnit, entryList?: NTIPList): number;
     hasStats(item: ItemUnit, entryList?: NTIPList, verbose?: boolean): boolean;
   }
 
   interface Loader {
     run(): boolean;
+  }
+
+  // Core/MuleloggerOverrides.js additions. Merges into main's global MuleLoggerType; logItem
+  // becomes an overload carrying the owner-label argument the override reads (base takes two).
+  interface MuleLoggerType {
+    /** Writes equipped items, merc items and stashed runes to a mule-log text file. */
+    logEquippedItems(): void;
+    logItem(
+      unit: ItemUnit,
+      logIlvl: boolean | undefined,
+      type: string,
+    ): {
+      itemColor: number;
+      invTrans: number;
+      image: string;
+      title: string;
+      description: string;
+      header: string;
+      sockets: ItemUnit[];
+    };
   }
 
   interface Math {
@@ -397,8 +448,6 @@ declare global {
   };
 
   interface Pather {
-    initialized: boolean;
-    canTeleport(): boolean;
     teleUsingCharges(x: number, y: number, maxRange: number): boolean;
     changeAct(act: number): boolean;
     checkWP(area: number, keepMenuOpen?: boolean): boolean;
@@ -406,12 +455,10 @@ declare global {
     canUseTeleCharges(): boolean;
     checkForTeleCharges(): void;
     clearUIFlags(): void;
-    currentWalkingPath: IPathNode[];
     forceRun: boolean;
     forceWalk: boolean;
     haveTeleCharges: boolean;
     inAnnoyingArea(currArea: number, includeArcane?: boolean): boolean;
-    move(target: IPathNode | Unit | PresetUnit, givenSettings?: PathSettings): boolean;
   }
 
   interface Pickit {

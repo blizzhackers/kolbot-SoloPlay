@@ -27,6 +27,9 @@ function nith () {
 
   // Stop script in hardcore mode if vipers are found
   // faster detection of TombVipers
+  /**
+   * Aborts movement via ScriptError when playing hardcore and a Tomb Viper is detected at the platform.
+   */
   Pather.moveToPresetObject(me.area, sdk.objects.NihlathaksPlatform, { callback: function () {
     if (me.hardcore && Game.getMonster(sdk.monsters.TombViper2)) {
       console.log("Tomb Vipers found.");

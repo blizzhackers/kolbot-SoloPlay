@@ -86,6 +86,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.Vigor = false;
             Config.AttackSkill = [
@@ -111,6 +112,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return false;
@@ -121,6 +123,7 @@
         ]);
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Conviction, sdk.skills.subindex.HardPoints) === 20;
       },

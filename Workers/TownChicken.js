@@ -317,6 +317,11 @@
       }
     });
 
+    /**
+     * Stubbed out: this worker handles town-return decisions itself, so base
+     * Misc.townCheck always reports false while TownChicken is running.
+     * @returns {boolean}
+     */
     Misc.townCheck = function () {
       return false;
     };
@@ -331,6 +336,11 @@
     let _recursion = false;
 
     // Start
+    /**
+     * Low-priority Worker background process: checks HP/MP/keys each tick and teleports to town
+     * when thresholds are hit. Returning false stops and deregisters the process.
+     * @returns {boolean}
+     */
     Worker.runInBackground.TownChicken = function () {
       if (getTickCount() - waitTick < 100 || SoloEvents.townChicken.disabled) return true;
       if (_recursion) return true;

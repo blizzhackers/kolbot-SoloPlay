@@ -38,6 +38,10 @@ function main () {
   D2Bot.ingame();
 
   (function (global, original) {
+    /**
+     * Wraps the native `load` to add a settle delay after starting a new thread/script.
+     * @param {...string} args - Script filename forwarded to the native `load`
+     */
     global.load = function (...args) {
       original.apply(this, args);
       delay(500);
@@ -48,6 +52,10 @@ function main () {
    * Fixes d2bs bug where this returns the "function"
    */
   (function (original) {
+    /**
+     * @param {...number} args - x, y coordinates forwarded to the native `move`
+     * @returns {true} Always true; d2bs's native `move` can return the function reference instead of a boolean
+     */
     me.move = function (...args) {
       original.apply(this, args);
       return true;

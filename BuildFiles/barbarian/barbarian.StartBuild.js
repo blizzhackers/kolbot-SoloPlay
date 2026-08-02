@@ -41,6 +41,7 @@
         [sdk.skills.Taunt, 20],
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.WarCry, sdk.skills.subindex.HardPoints);
       },

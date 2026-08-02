@@ -282,9 +282,7 @@
     // No valid skills can be found
     if (skill < 0) return Attack.Result.CANTATTACK;
 
-    /**
-     * @todo handling targetting for fissure/molten moulder/volcano
-     */
+    /** @todo handling targetting for fissure/molten moulder/volcano */
 
     if (range > 8 && me.inDanger()) {
       Attack.getIntoPosition(unit, range + 1, Coords.Collision.BLOCK_MISSILE, true);

@@ -10,9 +10,7 @@ includeIfNotIncluded("core/Prototypes.js");
 includeIfNotIncluded("SoloPlay/Core/Me.js");
 includeIfNotIncluded("SoloPlay/Core/Polyfills.js");
 
-/**
- * @description Unit prototypes for soloplay with checks to ensure forwards compatibility
- */
+/** @description Unit prototypes for soloplay with checks to ensure forwards compatibility */
 if (!Unit.prototype.hasOwnProperty("isCharm")) {
   Object.defineProperty(Unit.prototype, "isCharm", {
     /** @this {ItemUnit} */
@@ -121,6 +119,10 @@ if (!Unit.prototype.hasOwnProperty("isBaseType")) {
 
 if (!Unit.prototype.hasOwnProperty("rawStrength")) {
   Object.defineProperty(Unit.prototype, "rawStrength", {
+    /**
+     * @this {Unit}
+     * @returns {number} Strength attribute minus bonuses granted by equipped items and charms.
+     */
     get: function () {
       const lvl = this.getStat(sdk.stats.Level);
       const rawBonus = function (i) {
@@ -140,6 +142,10 @@ if (!Unit.prototype.hasOwnProperty("rawStrength")) {
 
 if (!Unit.prototype.hasOwnProperty("rawDexterity")) {
   Object.defineProperty(Unit.prototype, "rawDexterity", {
+    /**
+     * @this {Unit}
+     * @returns {number} Dexterity attribute minus bonuses granted by equipped items and charms.
+     */
     get: function () {
       const lvl = this.getStat(sdk.stats.Level);
       const rawBonus = function (i) {
@@ -159,6 +165,11 @@ if (!Unit.prototype.hasOwnProperty("rawDexterity")) {
 
 if (!Unit.prototype.hasOwnProperty("upgradedStrReq")) {
   Object.defineProperty(Unit.prototype, "upgradedStrReq", {
+    /**
+     * @this {ItemUnit}
+     * @returns {number} Strength requirement recomputed for this item's exceptional/elite base,
+     * applying its +req% modifier and the -10 ethereal discount.
+     */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
@@ -188,6 +199,11 @@ if (!Unit.prototype.hasOwnProperty("upgradedStrReq")) {
 
 if (!Unit.prototype.hasOwnProperty("upgradedDexReq")) {
   Object.defineProperty(Unit.prototype, "upgradedDexReq", {
+    /**
+     * @this {ItemUnit}
+     * @returns {number} Dexterity requirement recomputed for this item's exceptional/elite base,
+     * applying its +req% modifier and the -10 ethereal discount.
+     */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       let code, id, baseReq, finalReq, ethereal = this.getFlag(sdk.items.flags.Ethereal);
@@ -217,6 +233,10 @@ if (!Unit.prototype.hasOwnProperty("upgradedDexReq")) {
 
 if (!Unit.prototype.hasOwnProperty("upgradedLvlReq")) {
   Object.defineProperty(Unit.prototype, "upgradedLvlReq", {
+    /**
+     * @this {ItemUnit}
+     * @returns {number} Level requirement for this item's exceptional/elite upgraded base type.
+     */
     get: function () {
       if (this.type !== sdk.unittype.Item) return false;
       let code, id;
@@ -242,6 +262,10 @@ if (!Unit.prototype.hasOwnProperty("upgradedLvlReq")) {
 
 if (!Unit.prototype.hasOwnProperty("allRes")) {
   Object.defineProperty(Unit.prototype, "allRes", {
+    /**
+     * @this {ItemUnit}
+     * @returns {number} The common resist value if fire/cold/lightning/poison resist all match; else 0.
+     */
     get: function () {
       if (this.type !== sdk.unittype.Item) return 0;
       let fr = this.getStat(sdk.stats.FireResist);
@@ -255,6 +279,10 @@ if (!Unit.prototype.hasOwnProperty("allRes")) {
 
 if (!Unit.prototype.hasOwnProperty("prettyPrint")) {
   Object.defineProperty(Unit.prototype, "prettyPrint", {
+    /**
+     * @this {ItemUnit}
+     * @returns {string} Item name with its stat lines reversed and joined into one readable line.
+     */
     get: function () {
       if (this.type !== sdk.unittype.Item) return this.name;
       return this.fname.split("\n").reverse().join(" ");
@@ -264,6 +292,10 @@ if (!Unit.prototype.hasOwnProperty("prettyPrint")) {
 
 if (!Unit.prototype.hasOwnProperty("quantityPercent")) {
   Object.defineProperty(Unit.prototype, "quantityPercent", {
+    /**
+     * @this {ItemUnit}
+     * @returns {number} Current stack quantity as a percentage of this item's max stack size.
+     */
     get: function () {
       if (this.type !== sdk.unittype.Item) return 0;
       let quantity = this.getStat(sdk.stats.Quantity);
@@ -274,9 +306,7 @@ if (!Unit.prototype.hasOwnProperty("quantityPercent")) {
   });
 }
 
-/**
- * @param {number} difficulty 
- */
+/** @param {number} difficulty */
 Unit.prototype.getResPenalty = function (difficulty) {
   difficulty > 2 && (difficulty = sdk.difficulty.Hell);
   return me.gametype === sdk.game.gametype.Classic
@@ -284,6 +314,7 @@ Unit.prototype.getResPenalty = function (difficulty) {
     : [0, 40, 100][difficulty];
 };
 
+/** @returns {string} Broad category ("Weapon"|"Armor"|"Shield"|"Helmet") used for socket-fill logic; "" otherwise. */
 Unit.prototype.getItemType = function () {
   switch (this.itemType) {
   case sdk.items.type.Shield:
@@ -342,6 +373,11 @@ Unit.prototype.getItemType = function () {
   return "";
 };
 
+/**
+ * Casts a charged skill (from an equipped item, or "me"'s best charge for skillId) at coordinates or a unit.
+ * @param {...(number|Unit)} args - Overloaded: (), (skillId), (unit), (skillId, unit), (x, y), (skillId, x, y).
+ * @returns {boolean} True if a cast was issued (packet casts assume success); false if unavailable.
+ */
 Unit.prototype.castChargedSkillEx = function (...args) {
   let skillId, x, y, unit;
 
@@ -497,6 +533,12 @@ Unit.prototype.castChargedSkillEx = function (...args) {
   return false;
 };
 
+/**
+ * Like {@link Unit#castChargedSkillEx}, but switches to the weapon slot holding the charged item first.
+ * Only callable on `me`; requires resolvable x/y coordinates.
+ * @param {...(number|Unit)} args - Overloaded: (unit), (skillId, unit), (x, y), (skillId, x, y).
+ * @returns {boolean} True if a cast was issued; false if unavailable or coordinates couldn't be resolved.
+ */
 Unit.prototype.castSwitchChargedSkill = function (...args) {
   let skillId, x, y, unit;
 
@@ -573,6 +615,12 @@ Unit.prototype.castSwitchChargedSkill = function (...args) {
   return false;
 };
 
+/**
+ * Reads a stat with corrections `getStat` doesn't apply (block %, negative-wrap fixes, runeword desc parsing, etc).
+ * @param {number} id - Stat ID (see sdk.stats).
+ * @param {number} [subid] - Stat sub-index; selects special-cased behavior for some stat IDs.
+ * @returns {number} The corrected stat value, falling back to `this.getStat(id, subid)` when uncased.
+ */
 Unit.prototype.getStatEx = function (id, subid) {
   let i, temp, rval, regex;
 
@@ -871,6 +919,13 @@ Unit.prototype.getStatEx = function (id, subid) {
   return this.getStat(id, subid);
 };
 
+/**
+ * @param {object} settings
+ * @param {number} settings.range - Maximum distance from this unit to include.
+ * @param {number} [settings.coll] - Collision-check type to test between this unit and each candidate.
+ * @param {number} [settings.type] - Bitmask tested against each monster's spectype.
+ * @returns {Monster[]} Attackable monsters within range, passing the collision and spectype filters.
+ */
 Unit.prototype.getMobs = function ({ range, coll, type }) {
   if (this === undefined) return [];
   const _this = this;

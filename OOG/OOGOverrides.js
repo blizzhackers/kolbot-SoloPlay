@@ -13,6 +13,11 @@
 includeIfNotIncluded("OOG.js");
 
 (function (global, original) {
+  /**
+   * Debug wrapper around the native login() that logs a stack trace before delegating.
+   * @param {...*} args
+   * @returns {*} The result of the original login().
+   */
   global.login = function (...args) {
     console.trace();
     return original.apply(this, args);
@@ -21,6 +26,7 @@ includeIfNotIncluded("OOG.js");
 
 /** @type {LocationAction} */
 const LocationAction = {
+  /** @returns {void} */
   run: function () {
     // placeholder
   }
@@ -136,9 +142,7 @@ const LocationAction = {
         Starter.profileInfo.mode = Profile().type;
         Starter.profileInfo.tag = infoTag;
 
-        /**
-         * @example SCL-ZON123
-         */
+        /** @example SCL-ZON123 */
         Starter.profileInfo.hardcore = modePrefix.includes("HC"); // SC softcore = false
         Starter.profileInfo.expansion = modePrefix.indexOf("CC") === -1; // not CC so not classic - true
         Starter.profileInfo.ladder = modePrefix.indexOf("NL") === -1; // not NL so its ladder - true
@@ -667,6 +671,11 @@ const LocationAction = {
 
   Starter.BNET = ([sdk.game.profiletype.Battlenet, sdk.game.profiletype.OpenBattlenet].includes(Profile().type));
 
+  /**
+   * Drives the full battle.net/single-player login flow, creating accounts and characters
+   * as needed and retrying on connection or account errors.
+   * @returns {void}
+   */
   Starter.LocationEvents.login = function () {
     Starter.inGame && (Starter.inGame = false);
     const pType = Profile().type;
@@ -816,6 +825,10 @@ const LocationAction = {
 
   Starter.accountExists = false;
 
+  /**
+   * Parses the login error popup text and reacts (stop, restart, key switch, or retry) per message.
+   * @returns {void}
+   */
   Starter.LocationEvents.loginError = function () {
     let cdkeyError = false;
     let defaultPrint = true;
@@ -943,6 +956,10 @@ const LocationAction = {
     }
   };
 
+  /**
+   * @param {number} loc Current location id (sdk.game.locations).
+   * @returns {void}
+   */
   Starter.LocationEvents.charSelect = function (loc) {
     let string = "";
     let text = Controls.CharSelectError.getText();
@@ -1010,6 +1027,11 @@ const LocationAction = {
     }
   };
 
+  /**
+   * Handles the post-game lobby flow: min-game-time wait, run counting, channel join/greeting,
+   * game announce, then opens the create-game window.
+   * @returns {void}
+   */
   Starter.LocationEvents.lobbyChat = function () {
     D2Bot.updateStatus("Lobby Chat");
     Starter.lastGameStatus === "pending" && (Starter.gameCount += 1);

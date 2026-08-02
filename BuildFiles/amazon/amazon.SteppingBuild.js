@@ -31,6 +31,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             let mainSkill = Skill.canUse(sdk.skills.LightningStrike)
               ? sdk.skills.LightningStrike : sdk.skills.ChargedStrike;
@@ -43,6 +44,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         return me.charlvl > CharInfo.respecOne && me.charlvl < CharInfo.respecTwo
           && me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints)

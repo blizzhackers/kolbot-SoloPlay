@@ -118,6 +118,9 @@
 
       AutoBuildTemplate: {
         1: {
+          /**
+           * Sets Blizzard/Nova/Ice Blast as the primary attack, mana buffer, and immunities to skip.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -136,6 +139,10 @@
         },
       },
 
+      /**
+       * @returns {boolean} In classic, true at level 75+ with Diablo killed; otherwise true once the merc has
+       * Infinity equipped (or is confirmed dead while still listed as carrying it)
+       */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -147,6 +154,7 @@
         }
       },
 
+      /** @returns {boolean} True once respec'd, charlvl >= 64, Nova is maxed, and Blizzard is learned */
       active: function () {
         if (me.charlvl < 64) {
           return false;

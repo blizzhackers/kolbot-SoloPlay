@@ -36,9 +36,7 @@
     return false;
   };
 
-  /**
-   * @param {Monster} unit 
-   */
+  /** @param {Monster} unit */
   const battleCryCheck = function (unit, force = false) {
     // specials and dolls for now, should make dolls much less dangerous with the reduction of their damage
     if (Precast.haveCTA > -1 && !unit.dead && (force || unit.isSpecial || unit.isDoll)
@@ -53,6 +51,12 @@
     count: 0,
     gid: -1,
 
+    /**
+     * Tracks repeated casts of the same skill on the same unit (increments count on skill+gid match).
+     * @param {number} skill
+     * @param {number} gid
+     * @returns {void}
+     */
     setSkill: function (skill, gid) {
       if (skill === this.skill && gid === this.gid) {
         this.count++;
@@ -86,9 +90,7 @@
     [sdk.skills.FrozenOrb, Skill.get(sdk.skills.FrozenOrb)],
   ]);
 
-  /**
-   * @param {SkillDataInfo} skill 
-   */
+  /** @param {SkillDataInfo} skill */
   const handleFailToGetIntoPosition = function (skill) {
     if (me.getMobCount(8) && me.mp > skill.manaCost()) {
       // cast on ourselves for now, maybe we could try to find closest monster but this will hopefully help clear the area
@@ -194,9 +196,11 @@
     this.timed = false;
     this.reqLvl = 0;
 
+    /** @returns {number} Always 0. */
     this.manaCost = function () {
       return 0;
     };
+    /** @returns {undefined} Missing return statement; this._range is referenced but never returned. */
     this.range = function () {
       this._range;
     };

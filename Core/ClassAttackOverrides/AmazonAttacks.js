@@ -365,6 +365,7 @@ ClassAttack[sdk.player.class.Amazon].doAttack = function (unit, preattack, once)
   return result;
 };
 
+/** @returns {void} */
 ClassAttack[sdk.player.class.Amazon].afterAttack = function () {
   Precast.doPrecast(false);
 

@@ -78,6 +78,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level bracket's attack-skill, belt, and buffer config.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -92,6 +95,7 @@
         },
       },
 
+      /** @returns {boolean} True once level 75+ and Diablo is dead (Classic), or Grief is owned (Expansion). */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -100,6 +104,7 @@
         }
       },
 
+      /** @returns {boolean} True once `respec` gear is owned and Smite is fully hard-pointed (20). */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Smite, sdk.skills.subindex.HardPoints) === 20;
       },

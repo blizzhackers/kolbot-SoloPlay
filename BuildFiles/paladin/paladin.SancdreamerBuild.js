@@ -91,6 +91,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Sets Zeal/Sanctuary as the primary attack, Smite+Sanctuary vs prime evils, and belt layout.
+           */
           Update: function () {
             Config.Vigor = false;
             Config.AttackSkill = [
@@ -102,6 +105,10 @@
             Config.LowManaSkill = [-1, -1];
 
             Config.AdvancedCustomAttack.push({
+              /**
+               * @param {Monster} mon
+               * @returns {boolean}
+               */
               check: function (mon) {
                 return mon.isPrimeEvil;
               },
@@ -115,6 +122,7 @@
         },
       },
 
+      /** @returns {boolean} True once classic is off and the Dream shield, Dream helm, and Last Wish are equipped */
       respec: function () {
         if (me.classic) {
           return false;
@@ -126,6 +134,7 @@
         ]);
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Sanctuary, sdk.skills.subindex.HardPoints) === 20;
       },

@@ -92,6 +92,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [-1, sdk.skills.Attack, -1, sdk.skills.Attack, -1, sdk.skills.Attack, -1];
             Config.LowManaSkill = [0, 0];
@@ -105,6 +106,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         return (
           me.haveAll([
@@ -114,6 +116,7 @@
         );
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.RaiseSkeleton, sdk.skills.subindex.HardPoints) === 20;
       },

@@ -43,7 +43,6 @@
     "./**/*.js",
   ],
   "exclude": [
-    "**/ClassAttackOverrides/",
     "node_modules",
     "**/node_modules/*",
     "**/.soloplay/",

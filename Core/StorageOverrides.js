@@ -17,13 +17,9 @@
    */
   function Container (name, width, height, location) {
     this.name = name;
-    /**
-     * @type {number} - Amount of columns
-     */
+    /** @type {number} - Amount of columns */
     this.width = width;
-    /**
-     * @type {number} - Amount of rows
-     */
+    /** @type {number} - Amount of rows */
     this.height = height;
     this.location = location;
     /** @type {number[][]} */
@@ -41,9 +37,7 @@
     }
   }
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   Container.prototype.Mark = function (item) {
     // Make sure it is in this container.
     if (item.location !== this.location
@@ -108,6 +102,10 @@
     return false;
   };
 
+  /**
+   * Resets the container's buffer and item list.
+   * @returns {boolean}
+   */
   Container.prototype.Reset = function () {
     for (let h = 0; h < this.height; h += 1) {
       for (let w = 0; w < this.width; w += 1) {
@@ -121,9 +119,7 @@
     return true;
   };
 
-  /**
-   * @param {string} name 
-   */
+  /** @param {string} name */
   Container.prototype.cubeSpot = function (name) {
     if (name !== "Stash") return true;
 
@@ -152,9 +148,7 @@
     return true;
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   Container.prototype.IsPossibleToFit = function (item) {
     if (!item) return false;
     Storage.Reload();
@@ -175,9 +169,7 @@
     return freeSpots >= item.sizex * item.sizey;
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   Container.prototype.CanFit = function (item) {
     return (!!this.FindSpot(item));
   };
@@ -288,9 +280,7 @@
     // Make sure it's a valid item
     if (!item) return false;
 
-    /**
-     * @todo review this to see why it sometimes fails when there is actually enough room
-     */
+    /** @todo review this to see why it sometimes fails when there is actually enough room */
 
     let x, y, nx, ny, makeSpot;
     let xDir = 1, yDir = 1;
@@ -575,9 +565,7 @@
     return false;
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   Container.prototype.MoveTo = function (item) {
     try {
       if (item.location === this.location) return true;
@@ -593,6 +581,9 @@
     }
   };
 
+  /**
+   * Logs container usage to console; also dumps the full buffer grid when usage exceeds 60%.
+   */
   Container.prototype.Dump = function () {
     if (this.UsedSpacePercent() > 60) {
       for (let x = 0; x < this.height; x += 1) {
@@ -609,6 +600,7 @@
     console.log("ÿc9SoloPlayÿc0: " + this.name + " has used " + this.UsedSpacePercent().toFixed(2) + "% of its total space");
   };
 
+  /** @returns {number} */
   Container.prototype.UsedSpacePercent = function () {
     let usedSpace = 0;
     let totalSpace = this.height * this.width;
@@ -626,9 +618,7 @@
     return usedSpace * 100 / totalSpace;
   };
 
-  /**
-   * @param {number[][]} baseRef 
-   */
+  /** @param {number[][]} baseRef */
   Container.prototype.Compare = function (baseRef) {
     Storage.Reload();
 
@@ -671,14 +661,19 @@
     }
   };
 
+  /**
+   * @returns {string}
+   * @deprecated
+   */
   Container.prototype.toSource = function () {
     return this.buffer.toSource();
   };
 
-  /**
-   * @type {storage} Storage
-   */
+  /** @type {storage} Storage */
   const Storage = new function () {
+    /**
+     * Creates the Inventory/Stash/Belt/Cube/TradeScreen containers and populates them via Reload().
+     */
     this.Init = () => {
       this.StashY = me.classic ? 4 : Settings.plugyMode ? 10 : 8;
       this.Inventory = new Container("Inventory", 10, 4, 3);
@@ -712,6 +707,7 @@
       this.Reload();
     };
 
+    /** @returns {1 | 2 | 3 | 4} */
     this.BeltSize = function () {
       let item = me.getItem(-1, sdk.items.mode.Equipped); // get equipped item
       if (!item) return 1; // nothing equipped
@@ -734,6 +730,10 @@
       return 1; // no belt
     };
 
+    /**
+     * Resets all containers, then re-marks every item currently held by the character.
+     * @returns {boolean} false only when the character holds no items at all
+     */
     this.Reload = function () {
       this.Inventory.Reset();
       this.Stash.Reset();

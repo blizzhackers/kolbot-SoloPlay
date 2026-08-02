@@ -8,9 +8,7 @@
 
 (function (module, require) {
   module.exports = (function () {
-    /**
-     * @todo Test summoner/elemental build
-     */
+    /** @todo Test summoner/elemental build */
     const build = {
       AutoBuildTemplate: {},
       caster: true,
@@ -37,6 +35,7 @@
         [sdk.skills.Firestorm, 18, false],
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.Tornado, sdk.skills.subindex.HardPoints);
       },

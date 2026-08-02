@@ -40,6 +40,7 @@
         [sdk.skills.ResistFire, 16] // respec at 19
       ],
 
+      /** @returns {boolean} true before the first respec level and before any Blessed Aim points are placed */
       active: function () {
         return me.charlvl < CharInfo.respecOne && !me.checkSkill(sdk.skills.BlessedAim, sdk.skills.subindex.HardPoints);
       },

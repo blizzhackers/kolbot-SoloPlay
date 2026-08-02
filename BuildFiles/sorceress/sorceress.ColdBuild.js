@@ -106,6 +106,7 @@
 
       AutoBuildTemplate: {
         1: {
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -124,6 +125,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -157,6 +159,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         if (me.charlvl < 71) {
           return false;

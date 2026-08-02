@@ -35,6 +35,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 
   let skipShrine = [];
   exports.currentWalkingPath = [];
+  /**
+   * Walks a path to `target`, teleporting and clearing monsters along the way, and detouring
+   * to nearby shrines discovered en route.
+   * @param {PresetUnit|{x: number, y: number, hook?: Function}} target - Destination node,
+   *   or an array of these to walk through in order; a PresetUnit converts to room-relative
+   *   x/y, and each node may carry a `hook` callback fired once the walk reaches it.
+   * @param {{allowTeleport?: boolean, startIndex?: number, rangeOverride?: number,
+   *   callback?: Function, allowClearing?: boolean,
+   *   clearFilter?: (m: Unit, n: PathNode) => boolean}} [givenSettings] - Overrides merged
+   *   onto the module defaults.
+   * @returns {void}
+   */
   function moveTo(target, givenSettings) {
     let _a;
     let settings = Object.assign({}, {
@@ -43,6 +55,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
       rangeOverride: null,
       callback: undefined,
       allowClearing: true,
+      /**
+       * @param {Unit} m - Candidate monster.
+       * @param {PathNode} n - Upcoming path node.
+       * @returns {boolean} True if `m` is close enough to `n` to warrant clearing.
+       */
       clearFilter: function (m, n) { return getDistance(m, n) <= 14; },
     }, givenSettings);
     let stateForShrine = function (id) {
@@ -243,6 +260,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
               // First run original hook on this spot, if it had any
               originalHook && originalHook();
               // once we are near
+              /**
+               * Callback fired once the walk reaches this node: re-locates and clicks the shrine.
+               */
               nearestShrine_1.hook = function () {
                 console.log("Should take shrine");
                 let shrine = getUnits(2, "shrine").filter(function (el) { return el.gid === shrineId; }).first();
@@ -251,6 +271,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                   moveTo([{
                     x: shrine.x,
                     y: shrine.y,
+                    /**
+                     * Callback fired once the walk reaches the shrine's spot.
+                     */
                     hook: function () {
                       Misc.getShrine(shrine);
                     }

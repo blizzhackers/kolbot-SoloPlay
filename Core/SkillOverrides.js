@@ -31,6 +31,14 @@ Skill.casterSkills = [
 ];
 
 // Cast a skill on self, Unit or coords. Always use packet casting for caster skills becasue it's more stable.
+/**
+ * @param {number} skillId
+ * @param {number} [hand] - Casting hand (sdk.skills.hand.*); defaults to this skill's configured hand.
+ * @param {number|Unit} [x] - X coordinate, or a Unit to cast on; defaults to `me.x`.
+ * @param {number} [y] - Y coordinate; ignored when `x` is a Unit. Defaults to `me.y`.
+ * @param {ItemUnit} [item] - Charged-skill source item; when set, skips the caster's mana/skill-known checks.
+ * @returns {boolean} True if the skill was cast; false if a precondition failed (see switch at the top).
+ */
 Skill.cast = function (skillId, hand, x, y, item) {
   switch (true) {
   case me.inTown && !this.townSkill(skillId): // cant cast this in town
@@ -119,6 +127,13 @@ Skill.cast = function (skillId, hand, x, y, item) {
   return true;
 };
 
+/**
+ * @param {number} skillId
+ * @param {{hand?: number, x?: number, y?: number, switchBack?: boolean, oSkill?: boolean}} [givenSettings] -
+ * Casting hand/coords; `switchBack` (default true) restores the main weapon after casting. `oSkill` is
+ * currently unused (its associated skill-known check is commented out).
+ * @returns {boolean} True if the skill was cast; false if a precondition failed or the switch-weapon set failed.
+ */
 Skill.switchCast = function (skillId, givenSettings = {}) {
   const settings = Object.assign({}, {
     hand: undefined,

@@ -24,6 +24,10 @@ const CharInfo = {
     return me.softcore ? softcoreMode[currentDiff] : hardcoreMode[currentDiff];
   })(),
 
+  /**
+   * @returns {StandardBuild | FinalBuild} "Start" before the first respec, "Leveling" before the final build's
+   *   requirements are met, otherwise the active final build's name.
+   */
   getActiveBuild: function () {
     const nSkills = me.getStat(sdk.stats.NewSkills);
     const currLevel = me.charlvl;

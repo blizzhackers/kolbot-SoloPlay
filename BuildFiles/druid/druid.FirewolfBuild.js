@@ -74,6 +74,7 @@
 
       AutoBuildTemplate: {
         1:	{
+          /** @returns {void} */
           Update: function () {
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             Config.AttackSkill = [
@@ -90,10 +91,12 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         return me.haveAll([{ name: sdk.locale.items.Ice }, { name: sdk.locale.items.ChainsofHonor }]);
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.FireClaws, sdk.skills.subindex.HardPoints) === 20;
       },

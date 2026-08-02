@@ -51,6 +51,9 @@ if (DataFile.init()) {
 !FileTools.exists(CharData.login.filePath) && CharData.login.create();
 Settings.logPerformance && Tracker.initialize();
 
+/**
+ * OOG entry loop: waits on the game handle/profile, then dispatches to LocationAction each cycle.
+ */
 function main () {
   debugLog(me.profile);
   addEventListener("copydata", Starter.receiveCopyData);

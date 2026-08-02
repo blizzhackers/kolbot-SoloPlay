@@ -68,6 +68,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level tier's Config overrides (attack skills, belt columns, buffers).
+           */
           Update: function () {
             Config.BeltColumn = ["hp", "hp", "mp", "rv"];
             Config.AttackSkill = [
@@ -84,6 +87,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         return me.haveAll([
           { name: sdk.locale.items.Destruction },
@@ -91,6 +95,7 @@
         ]);
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Maul, sdk.skills.subindex.HardPoints) === 20;
       },

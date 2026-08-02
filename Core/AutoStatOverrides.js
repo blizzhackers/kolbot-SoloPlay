@@ -8,6 +8,13 @@
 
 includeIfNotIncluded("core/Auto/AutoStat.js");
 
+/**
+ * @param {AutoStatBuildEntry[]} statBuildOrder
+ * @param {number} [save] stat points to leave unspent
+ * @param {number} [block] desired block chance for "block" dexterity entries (ignored in classic)
+ * @param {boolean} [bulkStat] spend multiple points per packet (true) or one at a time (false)
+ * @returns {boolean} false if statBuildOrder is empty, true once allocation loop finishes/stalls
+ */
 AutoStat.init = function (statBuildOrder, save = 0, block = 0, bulkStat = true) {
   AutoStat.statBuildOrder = statBuildOrder;
   AutoStat.save = save;

@@ -111,6 +111,9 @@
 
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Applies this level tier's Config overrides (attack skills, belt columns, buffers).
+           */
           Update: function () {
             Config.AttackSkill = [sdk.skills.WarCry, sdk.skills.Frenzy, -1, sdk.skills.Frenzy, -1];
             Config.LowManaSkill = me.getSkill(sdk.skills.DoubleSwing, sdk.skills.subindex.SoftPoints) >= 9
@@ -123,6 +126,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -131,6 +135,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Frenzy, sdk.skills.subindex.HardPoints) === 20;
       },

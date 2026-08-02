@@ -65,6 +65,10 @@ const Tracker = {
     "LastSave": getTickCount()
   },
 
+  /**
+   * Creates the SoloPlay data folder and Tracker files for this profile if they don't exist yet.
+   * @returns {boolean}
+   */
   initialize: function () {
     const GameTracker = Object.assign({}, this._default);
 
@@ -236,6 +240,11 @@ const Tracker = {
     return clone(obj);
   },
 
+  /**
+   * @param {object} obj - Object to serialize as JSON.
+   * @param {string} path - File path to write to.
+   * @returns {boolean} False if `obj` failed to serialize/round-trip, true once written.
+   */
   writeObj: function (obj, path) {
     let string;
     try {
@@ -253,10 +262,16 @@ const Tracker = {
     return true;
   },
 
+  /**
+   * Overwrites the game time tracker file with the default (zeroed) state.
+   */
   resetGameTime: function () {
     Tracker.writeObj(Object.assign({}, this._default), this.GTPath);
   },
 
+  /**
+   * Resets game time and re-appends the CSV headers to mark a restart point.
+   */
   reset: function () {
     this.resetGameTime();
     // for now just re-init the header so it's easier to look at the file and see where we restarted
@@ -265,6 +280,9 @@ const Tracker = {
     FileTools.exists(this.SPPath) && FileAction.append(this.SPPath, this.SPHeader);
   },
 
+  /**
+   * Clamps any negative game-time counters to 0 and persists the fix if one was found.
+   */
   checkValidity: function () {
     const GameTracker = Tracker.readObj(this.GTPath);
     let found = false;
@@ -278,11 +296,23 @@ const Tracker = {
     found && Tracker.writeObj(GameTracker, this.GTPath);
   },
 
+  /**
+   * @param {number} milliseconds - Duration to convert.
+   * @returns {string} Whole days elapsed, as a string.
+   */
   totalDays: function (milliseconds) {
     let days = Math.floor(milliseconds / 86.4e6).toFixed(0);
     return days.toString().padStart(1, "0");
   },
 
+  /**
+   * Log a completed (non-leveling) script run to the Script Performance CSV and update game time.
+   * @param {number} starttime - Tick count when the script started.
+   * @param {string} subscript - Script name to record.
+   * @param {number} startexp - Experience value at script start.
+   * @param {boolean} result - True for Success, false for Failure.
+   * @returns {boolean}
+   */
   script: function (starttime, subscript, startexp, result) {
     const GameTracker = Tracker.readObj(Tracker.GTPath);
 
@@ -333,6 +363,10 @@ const Tracker = {
     return true;
   },
 
+  /**
+   * Log a level-up split to the Leveling Performance CSV and update game time.
+   * @returns {boolean}
+   */
   leveling: function () {
     const GameTracker = Tracker.readObj(this.GTPath);
 
@@ -368,6 +402,11 @@ const Tracker = {
     return true;
   },
 
+  /**
+   * Periodic heartbeat tick: accumulates in-game/out-of-game time and persists the game tracker.
+   * @param {number} [oogTick] - Milliseconds spent out of game since the last update.
+   * @returns {boolean} False if not in game or the heartbeat script isn't running.
+   */
   update: function (oogTick = 0) {
     let heartBeat = getScript("threads/heartbeat.js");
     if (!heartBeat) {

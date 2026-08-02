@@ -14,6 +14,9 @@ function bishibosh () {
   const BISHIBOSH = getLocaleString(sdk.locale.monsters.Bishibosh);
   let bishDead = false;
 
+  /**
+   * Callback for moveToPresetMonster; returns true once Bishibosh is close enough or already dead.
+   */
   Pather.moveToPresetMonster(sdk.areas.ColdPlains, sdk.monsters.preset.Bishibosh, { callback: function () {
     let bishi = Game.getMonster(BISHIBOSH);
     if (bishi && (bishi.distance < 10 || bishi.dead)) {

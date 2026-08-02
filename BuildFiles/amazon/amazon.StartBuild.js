@@ -40,6 +40,7 @@
         [sdk.skills.ChargedStrike, 20, false], // respec at 30
       ],
 
+      /** @returns {boolean} */
       active: function () {
         return me.charlvl < CharInfo.respecOne
           && !me.checkSkill(sdk.skills.LightningStrike, sdk.skills.subindex.HardPoints);

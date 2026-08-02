@@ -270,6 +270,9 @@ function baal () {
 
   // Enter throne room
   const dollQuit = me.hardcore;
+  /**
+   * callback: Throws to abort the move-in if hardcore and Soul Killer dolls are present nearby.
+   */
   Pather.moveToEx(15095, 5029, { callback: function () {
     if (dollQuit && Game.getMonster(sdk.monsters.SoulKiller)) {
       throw new ScriptError("Unsafe for hardcore, dolls found");

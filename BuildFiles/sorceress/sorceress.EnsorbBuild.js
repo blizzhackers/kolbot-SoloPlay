@@ -108,6 +108,9 @@
       
       AutoBuildTemplate: {
         1:	{
+          /**
+           * Switches to Frozen Orb/Static Field once final gear is equipped.
+           */
           Update: function () {
             Config.AttackSkill = [
               -1,
@@ -123,6 +126,11 @@
         },
       },
 
+      /**
+       * In classic, gates on character level and having killed Diablo instead of gear, since the
+       * Tal Rasha's set pieces used here don't exist there.
+       * @returns {boolean} true once the respec condition for the current game mode is met
+       */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -137,6 +145,7 @@
         }
       },
 
+      /** @returns {boolean} true once level 71+, the respec condition is met, and Telekinesis is maxed */
       active: function () {
         if (me.charlvl < 71) {
           return false;

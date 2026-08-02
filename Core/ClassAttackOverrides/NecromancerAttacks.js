@@ -22,10 +22,12 @@
       this.useIf = useIf;
     }
 
+    /** @returns {boolean} True if this curse's skill can currently be cast (points invested, weapon allows it, etc). */
     Curse.prototype.have = function () {
       return Skill.canUse(this.skillId);
     };
 
+    /** @returns {number} Mana cost of this curse's skill at the character's current skill level. */
     Curse.prototype.manaCost = function () {
       return Skill.getManaCost(this.skillId);
     };
@@ -141,6 +143,13 @@
    */
 
   // TODO: clean this up
+  /**
+   * @param {Monster} unit - Target to attack.
+   * @param {boolean} [preattack] - Unused in this override; kept for signature parity with ClassAttack.doAttack.
+   * @param {boolean} [once] - When true, skip shaman/close-mob redirects in the bow-switch fallback and fail
+   * fast instead of looping.
+   * @returns {AttackResult}
+   */
   ClassAttack[sdk.player.class.Necromancer].doAttack = function (unit, preattack, once) {
     if (!unit) return Attack.Result.SUCCESS;
     let gid = unit.gid;

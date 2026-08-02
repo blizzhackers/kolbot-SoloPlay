@@ -74,6 +74,11 @@
     let waitTick = getTickCount();
 
     // Start
+    /**
+     * Background process invoked periodically; while townChicken isn't running, drains queued
+     * SoloEvents actions and, once the response delay elapses, joins the lowest-level waiting profile.
+     * @returns {boolean} always true, to keep the background worker looping
+     */
     Worker.runInBackground.EventWorker = function () {
       if (getTickCount() - waitTick < 100 || SoloEvents.townChicken.running) return true;
       waitTick = getTickCount();

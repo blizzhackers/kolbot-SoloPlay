@@ -15,6 +15,7 @@ Pickit.enabled = true;
 Pickit.Result.SOLOWANTS = 8;
 Pickit.Result.SOLOSYSTEM = 9;
 
+/** @returns {number} Minimum gold value per inventory square worth picking up, scaled to current gold and level */
 Pickit.minItemKeepGoldValue = function () {
   const myGold = me.gold;
   const cLvl = me.charlvl;
@@ -36,9 +37,7 @@ Pickit.minItemKeepGoldValue = function () {
  */
 Pickit.classicMode = me.classic;
 
-/**
- * @param {ItemUnit} unit 
- */
+/** @param {ItemUnit} unit */
 Pickit.checkItem = function (unit) {
   const rval = NTIP.CheckItem(unit, false, true);
   const resultObj = function (result, line = null) {
@@ -158,6 +157,7 @@ Pickit.checkItem = function (unit) {
 };
 
 // @jaenster
+/** @returns {Record<number, Record<number, number>>} Potions still needed per type, keyed by storage location */
 Pickit.amountOfPotsNeeded = function () {
   /**
    * @constructor
@@ -427,6 +427,10 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
   }
 
   Object.defineProperty(ItemStats.prototype, "useTk", {
+    /**
+     * @this {ItemStats}
+     * @returns {boolean} True if this item should be picked with telekinesis (in range, unblocked, enough mana)
+     */
     get: function () {
       if (!this._useTk) return false;
       if (_toCursorPick.has(this.gid)) return false;
@@ -647,6 +651,12 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
   return true;
 };
 
+/**
+ * @param {PathNode | { x: number; y: number }} spot
+ * @param {boolean} [checkVsMyDist=false]
+ * @param {number} [range=Config.PickRange]
+ * @returns {boolean} True if an item was found closer to spot than to me, or more than 3 items are near spot
+ */
 Pickit.checkSpotForItems = function (spot, checkVsMyDist = false, range = Config.PickRange) {
   if (spot.x === undefined) return false;
   let itemList = [];
@@ -688,6 +698,12 @@ Pickit.pickList = [];
 Pickit.essentialList = [];
 
 // Might need to do a global list so this function and pickItems see the same items to prevent an item from being in both
+/**
+ * @param {boolean} [clearBeforePick=false]
+ * @param {ItemUnit[]} [builtList=[]]
+ * @param {boolean} [once=false]
+ * @returns {boolean} False if dead/disabled or the character died mid-pick; true otherwise
+ */
 Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], once = false) {
   if (me.dead || me.inTown || (!Pickit.enabled && !clearBeforePick)) return false;
 
@@ -757,6 +773,11 @@ Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], onc
   return true;
 };
 
+/**
+ * @param {number} [range=Config.PickRange]
+ * @param {boolean} [once=false]
+ * @returns {boolean} False if dead, given a negative range, or muling instead of continuing; true otherwise
+ */
 Pickit.pickItems = function (range = Config.PickRange, once = false) {
   if (me.dead || range < 0 || !Pickit.enabled) return false;
   
@@ -939,9 +960,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   return true;
 };
 
-/**
- * @param {number} retry 
- */
+/** @param {number} retry */
 Pickit.fastPick = function (retry = 3) {
   let item;
   const _removeList = [];

@@ -96,6 +96,7 @@
 
       AutoBuildTemplate: {
         1: {
+          /** @returns {void} */
           Update: function () {
             Config.AttackSkill = [sdk.skills.BattleCry, sdk.skills.Whirlwind, -1, sdk.skills.Whirlwind, -1];
             Config.LowManaSkill = [0, -1];
@@ -106,6 +107,7 @@
         },
       },
 
+      /** @returns {boolean} */
       respec: function () {
         if (me.classic) {
           return me.charlvl >= 75 && me.diablo;
@@ -115,6 +117,7 @@
         }
       },
 
+      /** @returns {boolean} */
       active: function () {
         return this.respec() && me.getSkill(sdk.skills.Whirlwind, sdk.skills.subindex.HardPoints) === 20;
       },

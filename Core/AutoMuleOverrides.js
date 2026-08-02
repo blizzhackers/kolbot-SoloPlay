@@ -42,6 +42,10 @@ AutoMule.matchItem = function (item, list) {
   return (classIDs.includes(item.classid) || NTIP.CheckItem(item, parsedPickit));
 };
 
+/**
+ * @returns {ItemUnit[]|false} Items eligible to mule; empty in single-player games; false if mule info
+ * hasn't loaded yet.
+ */
 AutoMule.getMuleItems = function () {
   // can't mule on single player
   if (!me.gameserverip) return [];
@@ -53,9 +57,7 @@ AutoMule.getMuleItems = function () {
   
   const muleOrphans = !!(info.muleInfo.hasOwnProperty("muleOrphans") && info.muleInfo.muleOrphans);
   
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   const questItem = function (item) {
     return [
       sdk.items.quest.KeytotheCairnStones, sdk.items.quest.ScrollofInifuss,
@@ -71,9 +73,7 @@ AutoMule.getMuleItems = function () {
     ].includes(item.classid);
   };
 
-  /**
-   * @param {ItemUnit} item 
-   */
+  /** @param {ItemUnit} item */
   const isAKey = function (item) {
     return [
       sdk.items.quest.KeyofTerror,
