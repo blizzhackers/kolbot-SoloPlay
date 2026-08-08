@@ -6,7 +6,9 @@
 */
 
 const SoloWants = {
+  /** @type {SoloWantsNeedEntry[]} */
   needList: [],
+  /** @type {number[]} */
   validGids: [],
 
   /**

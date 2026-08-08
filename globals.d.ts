@@ -1,6 +1,5 @@
 /// <reference path="./Types/script-types.d.ts" />
 
-// @ts-nocheck
 declare global {
   // PathNode is the natural name for this shape, and main-repo code gets it for free: the JS
   // constructor in libs/core/Pather.js gives that name a type meaning there. Pather.js is not
@@ -174,9 +173,43 @@ declare global {
 
   interface Unit {
     getResPenalty(difficulty: number): number;
-    castChargedSkillEx(...args: any[]): boolean;
-    castSwitchChargedSkill(...args: any[]): boolean;
+    /**
+     * Overloads follow the runtime arg dispatch: on `me` skillId is mandatory, on an item unit the
+     * item supplies the skill and the coordinates default to me.x/me.y.
+     */
+    castChargedSkillEx(): boolean;
+    castChargedSkillEx(skillId: number): boolean;
+    castChargedSkillEx(unit: Unit): boolean;
+    castChargedSkillEx(skillId: number, unit: Unit): boolean;
+    castChargedSkillEx(x: number, y: number): boolean;
+    castChargedSkillEx(skillId: number, x: number, y: number): boolean;
+    /**
+     * Callable on `me` only and skillId is mandatory; the other documented arg forms throw or
+     * return false before reaching a cast.
+     */
+    castSwitchChargedSkill(skillId: number, unit: Unit): boolean;
+    castSwitchChargedSkill(skillId: number, x: number, y: number): boolean;
     haveRunes(itemInfo: number[]): boolean;
+  }
+
+  interface IConfig {
+    /**
+     * SoloPlay only. `name` is an item classid, not a string; the class config pre-filters the
+     * array by `condition()`, which SetUp.imbueItems() then re-checks when building NIP lines.
+     */
+    imbueables: Array<{ name: number; condition: () => boolean }>;
+    /**
+     * SoloPlay only. Entry shape is Modules/General.js addSocketableObj(); `socketWith` is the
+     * wanted runes and is spliced in place by SoloWants as they are found, `temp` holds stand-in
+     * gems used meanwhile, and `condition` returns undefined when built with the default no-op.
+     */
+    socketables: Array<{
+      classid: number;
+      socketWith: number[];
+      temp: number[];
+      useSocketQuest: boolean;
+      condition: (item?: ItemUnit) => boolean | void;
+    }>;
   }
 
   type MercObj = {
@@ -211,6 +244,16 @@ declare global {
     AutoBuildTemplate: Record<number, { Update: () => void }>;
     respec: () => boolean;
     active: () => boolean;
+  }
+
+  /** Shape of the per-profile LoginData json written by CharData.login (Tools/CharData.js). */
+  interface LoginData {
+    account: string;
+    pass: string;
+    currentChar: string;
+    tag: string;
+    charCount: number;
+    existing: boolean;
   }
 
   interface MyData {
@@ -309,6 +352,8 @@ declare global {
     getMercEx(): MercUnit | null;
     getEquippedItem(bodyLoc: number): ItemUnit | null;
     getEquippedItems(): ItemUnit[];
+    /** Returns 0 when bodyLoc is falsy or nothing is equipped there. Currently has no callers. */
+    getWeaponQuantityPercent(bodyLoc: number): number;
     getSkillTabs(classid: number): number[];
     inDanger(checkLoc?: { x: number; y: number } | MeType, range?: number): boolean;
     checkSkill(skillId: number, subId: number): boolean;
@@ -410,7 +455,8 @@ declare global {
   interface Misc {
     townEnabled: boolean;
     openChestsEnabled: boolean;
-    shrineStates: number[];
+    // shrineStates deliberately not redeclared here: main's sdk/types/Misc.d.ts already
+    // declares it as `number[] | null`, and a narrower duplicate in a merged interface is TS2717.
 
     openChestsInArea(area: number, chestIds: number[], sort?: (a: Unit, b: Unit) => number): boolean;
     getExpShrine(shrineLocs: number[]): boolean;
@@ -477,6 +523,23 @@ declare global {
     minItemKeepGoldValue(): number;
   }
 
+  interface StarterInterface {
+    /** True when the profile type is battle.net or open battle.net; set by OOG/OOGOverrides.js. */
+    BNET?: boolean;
+  }
+
+  interface IControlAction {
+    /** Deletes the character, resets its data files and remakes it; false when the delete fails. */
+    deleteAndRemakeChar(info: CharacterInfo): boolean;
+    /** Writes logs/Kolbot-SoloPlay/<realm>/<charClass>-<charName>.json once; no-op if it exists. */
+    saveInfo(info: ProfileInfo & Pick<CharacterInfo, "charClass">): void;
+  }
+
+  interface IRuneword {
+    /** Synthesized by Core/RunewordsOverrides.js via addRuneword at include time. */
+    PDiamondShield: RunewordDefinition;
+  }
+
   interface Attack {
     clearPos(x: number, y: number, range?: number, pickit?: boolean, cb?: () => boolean): boolean;
     killTarget(name: Monster | string | number): boolean;
@@ -537,10 +600,17 @@ declare global {
     threads: string[];
 
     login: {
-      create(): any;
-      getObj(): any;
-      getStats(): any;
-      updateData(arg: string, property: object | string, value: any): boolean;
+      filePath: string;
+      _default: LoginData;
+      create(): LoginData;
+      getObj(): LoginData;
+      getStats(): LoginData;
+      /**
+       * Two-arg form merges `property` into the file; three-arg form assigns one field, looked up
+       * on the root object first and then on `obj[arg]`.
+       */
+      updateData(arg: string, property: Partial<LoginData>): boolean;
+      updateData(arg: string, property: string, value: LoginData[keyof LoginData]): boolean;
     };
 
     // ignoring the sub objs for now
@@ -548,7 +618,12 @@ declare global {
     create(): MyData;
     getObj(): MyData;
     getStats(): MyData;
-    updateData(arg: string, property: object | string, value: any): boolean;
+    /**
+     * Two-arg form merges `property` into the file; three-arg form assigns one field, looked up
+     * on the root object first and then on `obj[arg]` (e.g. arg "normal", property "socketUsed").
+     */
+    updateData(arg: string, property: Partial<MyData>): boolean;
+    updateData(arg: string, property: string, value: MyData[keyof MyData]): boolean;
     /** @alias CharData.delete */
     _delete(deleteMain: boolean): boolean;
     _default: MyData;
@@ -578,14 +653,20 @@ declare global {
     };
     delete(deleteMain?: boolean): boolean;
   }
-  const CharData: CharData;
+  // No ambient const: CharData.js is a clean global script, so this interface already merges
+  // with its const symbol - an ambient `const CharData` is TS2451 (see sdk/types/Item.d.ts).
 
 
   interface GameTracker {
+    /** Total time tracked across all sessions */
     Total: number;
+    /** Total time spent in game */
     InGame: number;
+    /** Total time spent out of game */
     OOG: number;
+    /** Time last level was reached */
     LastLevel: number;
+    /** Time last save occurred */
     LastSave: number;
   }
 
@@ -614,7 +695,7 @@ declare global {
     scriptChicken(): boolean;
     recoverFromCrash(): boolean;
   }
-  const Tracker: Tracker;
+  // No ambient const: Tracker.js is a clean global script (interface merges with its const; TS2451).
 
   interface SetUp {
     mercEnabled: boolean;
@@ -689,7 +770,7 @@ declare global {
     function repair(force?: boolean): boolean;
     function reviveMerc(): boolean;
   }
-  const SoloWants: SoloWants;
+  // No ambient const: SoloWants.js is a clean global script (interface merges with its const; TS2451).
 
   // Value shape of the global `AutoEquip` const in ItemOverrides.js (bound there via JSDoc @type).
   // Declaring the const here as well would collide: both files are global scripts.
@@ -705,7 +786,7 @@ declare global {
     stamina?: boolean;
     fullChores?: boolean;
   }
-  const AutoEquip: AutoEquip;
+  // No ambient const: AutoEquip lives in ItemOverrides.js, a clean global script (TS2451 otherwise).
 
   interface LocationAction {
     run(): void;
@@ -834,28 +915,22 @@ declare global {
      */
     getCoordsBetween(x1: number, y1: number, x2: number, y2: number): CoordinatePoint[];
 
-    /**
-     * Convert arguments to coordinate array
-     * @param {any[]} args - Arguments to convert
-     * @param {string} caller - Name of calling function
-     * @param {number} [length=2] - Expected length of coordinate array
-     * @returns {CoordinatePoint[]} Array of coordinate points
-     */
-    convertToCoordArray(args: any[], caller: string, length?: number): CoordinatePoint[];
+    /** Consecutive numbers in `args` are paired into points; anything with x/y passes through as-is. */
+    convertToCoordArray(args: Array<number | CoordinatePoint>, caller: string, length?: number): CoordinatePoint[];
 
     /**
-     * Get collision flags between coordinates
-     * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
-     * @returns {number} Collision flags as bitmask
+     * Collision bitmask between the two points; -1 when they are over 50 apart or the area is not
+     * loaded (callers that mask the result treat -1 as "everything blocked").
      */
-    getCollisionBetweenCoords(...args: any[]): number;
+    getCollisionBetweenCoords(x1: number, y1: number, x2: number, y2: number): number;
+    getCollisionBetweenCoords(one: CoordinatePoint, two: CoordinatePoint): number;
 
     /**
-     * Check if path between coordinates is blocked
-     * @param {...any} args - Coordinate arguments (x1, y1, x2, y2 or two coordinate objects)
-     * @returns {boolean} True if path is blocked
+     * True when the line between the points carries any of the LineOfSight, Ranged, Casting,
+     * ClosedDoor, DarkArea or Objects block bits.
      */
-    isBlockedBetween(...args: any[]): boolean;
+    isBlockedBetween(x1: number, y1: number, x2: number, y2: number): boolean;
+    isBlockedBetween(one: CoordinatePoint, two: CoordinatePoint): boolean;
 
     /**
      * Check collision between two units with specific collision flags
@@ -910,17 +985,8 @@ declare global {
     getSpotsFor(collision: number, thickness: number, unit: Unit): CoordinatePoint[];
   }
 
-  /**
-   * Room extension for coordinate checking
-   */
-  interface Room {
-    /**
-     * Check if coordinates are within this room
-     * @param {...any} args - Coordinate arguments (x, y or coordinate object)
-     * @returns {boolean} True if coordinates are in room
-     */
-    isInRoom(...args: any[]): boolean;
-  }
+  // No `interface Room` augmentation for isInRoom: sdk/globals.d.ts already declares both
+  // overloads on `class Room`, and an `any`-rest member here would only widen that precise pair.
 
   /**
    * Coordinate utilities module
@@ -929,7 +995,9 @@ declare global {
 
   const GameData: typeof import("./Modules/GameData/GameData");
 
-  const Settings: SettingsInterface;
+  // No ambient const for Settings: +setup/Settings.js is a clean global script whose const
+  // collides with one here (TS2451); SettingsInterface is a typedef derived from that const,
+  // so the js declaration is already the typed source of truth.
 
   interface SoloEvents {
     filePath: string;
@@ -950,8 +1018,13 @@ declare global {
     inGameCheck(): boolean;
     getProfiles(): string[];
     getCharacterNames(): string[];
-    sendToProfile(profile: string, message: any, mode?: number): void;
-    sendToList(message: any, mode?: number): void;
+    /**
+     * message is JSON.stringify'd before send and the copydata mode picks the payload contract:
+     * 55 torch and 60 anni take { profile, ladder, torchType? }, 65 takes { profile, level, event },
+     * 70 is a join request whose payload the receiver discards.
+     */
+    sendToProfile(profile: string, message: unknown, mode?: number): void;
+    sendToList(message: unknown, mode?: number): void;
     dropCharm(charm: ItemUnit): boolean;
     killdclone(): void;
     moveSettings: {
@@ -967,9 +1040,9 @@ declare global {
     dodge(): void;
     finishDen(): void;
     bugAndy(): void;
-    diaEvent(bytes?: any[]): void;
+    diaEvent(bytes?: number[]): void;
     skippedWaves: number[];
-    baalEvent(bytes?: any[]): void;
+    baalEvent(bytes?: number[]): void;
   }
 
   const SoloEvents: SoloEvents;

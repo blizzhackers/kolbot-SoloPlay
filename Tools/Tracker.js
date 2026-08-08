@@ -49,14 +49,6 @@ const Tracker = {
     "Result"
   ].join(",") + "\n",
   tick: 0,
-  /**
-   * @typedef {Object} GameTracker
-   * @property {number} Total - Total time spent in game
-   * @property {number} InGame - Total time spent in game
-   * @property {number} OOG - Total time spent out of game
-   * @property {number} LastLevel - Time Last level reached
-   * @property {number} LastSave - Time Last save occurred
-   */
   _default: {
     "Total": 0,
     "InGame": 0,

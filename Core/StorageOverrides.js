@@ -333,7 +333,8 @@
             if (item.classid !== bufferItemClass // higher priority item
               || (item.classid === bufferItemClass && item.quality > bufferItemQuality) // same class, higher quality item
               || (item.classid === bufferItemClass && item.quality === bufferItemQuality && item.gfx > bufferItemGfx) // same quality, higher graphic item
-              || (Config.AutoEquip && item.classid === bufferItemClass && item.quality === bufferItemQuality && item.gfx === bufferItemGfx // same graphic, higher tier item
+              || (Config.AutoEquip && item.classid === bufferItemClass && item.quality === bufferItemQuality
+                && item.gfx === bufferItemGfx // same graphic, higher tier item
                 && NTIP.GetTier(item) > NTIP.GetTier(this.itemList[this.buffer[x][y] - 1]))) {
               makeSpot = this.MakeSpot(item, { x: x, y: y }); // NOTE: passing these in buffer order [h/x][w/y]
 

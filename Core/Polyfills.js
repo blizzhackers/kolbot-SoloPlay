@@ -28,6 +28,7 @@ if (!Array.prototype.at) {
 (function (global, _original) {
   let __createBinding = (this && this.__createBinding) || (Object.create ? (function (o, m, k, k2) {
     if (k2 === undefined) k2 = k;
+    /** @returns {*} m[k], forwarded live via a property getter (TypeScript __createBinding helper). */
     Object.defineProperty(o, k2, { enumerable: true, get: function () { return m[k]; } });
   }) : (function (o, m, k, k2) {
     if (k2 === undefined) k2 = k;

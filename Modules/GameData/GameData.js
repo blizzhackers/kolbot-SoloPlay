@@ -14,7 +14,6 @@
   const MissileData = require("./MissileData");
   const Coords = require("../Coords");
   const Vector = require("../Vector");
-  const sdk = require("../../../modules/sdk");
   const HPLookup = [
     ["1", "1", "1"], ["7", "107", "830"],
     ["9", "113", "852"], ["12", "120", "875"],
@@ -94,13 +93,15 @@
     return item.onGroundOrDropping;
   }
 
-  /**
-   * @exports
-   * @typedef {typeof GameData} GameDataInterface
-   */
+  // Internal reads go through this local, never `myReference`: a property access on
+  // the const inside its own literal is a circular inference and TS silently collapses the
+  // whole object - and every consumer - to `any` (same reason there is no
+  // `@typedef {typeof GameData}` attached to the declaration). Same object, same reads:
+  // nothing reassigns myReference and no file outside this one touches it.
+  const myReference = me;
 
   const GameData = {
-    myReference: me,
+    myReference: myReference,
     /**
      * @param {number} monsterID 
      * @param {number} areaID 
@@ -237,7 +238,7 @@
     },
     multiplayerModifier: function (count) {
       if (!count) {
-        let party = getParty(GameData.myReference);
+        let party = getParty(myReference);
         if (!party) return 1;
 
         count = 1;
@@ -250,7 +251,7 @@
       return (count + 1) / 2;
     },
     partyModifier: function (playerID) {
-      let party = getParty(GameData.myReference);
+      let party = getParty(myReference);
       let level = 0, total = 0;
       if (!party) return 1;
 
@@ -270,7 +271,7 @@
     },
     killExp: function (playerID, monsterID, areaID) {
       let exp = this.monsterExp(monsterID, areaID);
-      let party = getParty(GameData.myReference);
+      let party = getParty(myReference);
       if (!party) return 0;
 
       let level = 0, total = 0;
@@ -296,12 +297,12 @@
     },
     baseLevel: function (...skillIDs) {
       return skillIDs.reduce(function (total, skillID) {
-        return total + GameData.myReference.getSkill(skillID, 0);
+        return total + myReference.getSkill(skillID, 0);
       }, 0);
     },
     skillLevel: function (...skillIDs) {
       return skillIDs.reduce(function (total, skillID) {
-        return total + GameData.myReference.getSkill(skillID, 1);
+        return total + myReference.getSkill(skillID, 1);
       }, 0);
     },
     skillCooldown: function (skillID) {
@@ -615,8 +616,8 @@
       272: true, // inferno
     },
     shiftState: function () {
-      if (GameData.myReference.getState(139)) return "wolf";
-      if (GameData.myReference.getState(140)) return "bear";
+      if (myReference.getState(139)) return "wolf";
+      if (myReference.getState(140)) return "bear";
       return "human";
     },
     bestForm: function (skillID) {
@@ -646,21 +647,21 @@
       let dmg = (function () {
         switch (skillID) {
         case sdk.skills.Bash:
-          return 45 + (5 + GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Stun, 0));
+          return 45 + (5 + myReference.getSkill(skillID, 1)) + (5 * myReference.getSkill(sdk.skills.Stun, 0));
         case sdk.skills.Stun:
-          return (8 * GameData.myReference.getSkill(sdk.skills.Bash, 0));
+          return (8 * myReference.getSkill(sdk.skills.Bash, 0));
         case sdk.skills.Concentrate:
-          return (65 + (5 * GameData.myReference.getSkill(skillID, 1)) + (5 * GameData.myReference.getSkill(sdk.skills.Bash, 0)) + (10 * GameData.myReference.getSkill(sdk.skills.BattleOrders, 0)));
+          return (65 + (5 * myReference.getSkill(skillID, 1)) + (5 * myReference.getSkill(sdk.skills.Bash, 0)) + (10 * myReference.getSkill(sdk.skills.BattleOrders, 0)));
         case sdk.skills.LeapAttack:
-          return (70 + (30 * GameData.myReference.getSkill(skillID, 1)) + (10 * GameData.myReference.getSkill(sdk.skills.Leap, 0)));
+          return (70 + (30 * myReference.getSkill(skillID, 1)) + (10 * myReference.getSkill(sdk.skills.Leap, 0)));
         case sdk.skills.Whirlwind:
-          return (8 * GameData.myReference.getSkill(skillID, 1)) - 58;
+          return (8 * myReference.getSkill(skillID, 1)) - 58;
         default:
           return 0;
         }
       })();
 
-      // return (((GameData.myReference.getStat(sdk.stats.MaxDamage) + GameData.myReference.getStat(sdk.stats.MinDamage)) / 2) + (GameData.myReference.getStat(sdk.stats.Strength) * dmg)) / 100;
+      // return (((myReference.getStat(sdk.stats.MaxDamage) + myReference.getStat(sdk.stats.MinDamage)) / 2) + (myReference.getStat(sdk.stats.Strength) * dmg)) / 100;
       return dmg;
     },
     dmgModifier: function (skillID, target) {
@@ -731,7 +732,7 @@
             }
 
             if (target.gid !== unit.gid
-              && getDistance(unit, this.novaLike[skillID] ? GameData.myReference : target) <= radius
+              && getDistance(unit, this.novaLike[skillID] ? myReference : target) <= radius
               && isEnemy(unit)) {
               aps++;
 
@@ -769,39 +770,39 @@
         let weapon = me.equipped.get(sdk.body.RightArm);
         let [dexBonus, strBonus] = [0, 0];
         const isEth = weapon.ethereal;
-        const minDmg = (GameData.myReference.getStat(sdk.stats.MinDamage) || 1);
-        const maxDmg = (GameData.myReference.getStat(sdk.stats.MaxDamage) || 2);
+        const minDmg = (myReference.getStat(sdk.stats.MinDamage) || 1);
+        const maxDmg = (myReference.getStat(sdk.stats.MaxDamage) || 2);
         const wepED = (weapon.getStat(sdk.stats.EnhancedDamage) || 0);
-        const isDeadlyStrike = Math.random() < GameData.myReference.getStat(sdk.stats.DeadlyStrike) / 100;
+        const isDeadlyStrike = Math.random() < myReference.getStat(sdk.stats.DeadlyStrike) / 100;
         console.log(isEth, minDmg, maxDmg, wepED, isDeadlyStrike);
 
         switch (weapon.itemType) {
         case sdk.items.type.AmazonBow:
         case sdk.items.type.Crossbow:
         case sdk.items.type.Bow:
-          dexBonus = (GameData.myReference.getStat(sdk.stats.Dexterity) / 100);
+          dexBonus = (myReference.getStat(sdk.stats.Dexterity) / 100);
 
           break;
         case sdk.items.type.AmazonJavelin:
         case sdk.items.type.AmazonSpear:
-          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 80);
-          dexBonus = (GameData.myReference.getStat(sdk.stats.Dexterity) / 50);
+          strBonus = (myReference.getStat(sdk.stats.Strength) / 80);
+          dexBonus = (myReference.getStat(sdk.stats.Dexterity) / 50);
 
           break;
         case sdk.items.type.HandtoHand:
         case sdk.items.type.Knife:
         case sdk.items.type.ThrowingAxe:
         case sdk.items.type.ThrowingKnife:
-          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 75);
-          dexBonus = (GameData.myReference.getStat(sdk.stats.Dexterity) / 75);
+          strBonus = (myReference.getStat(sdk.stats.Strength) / 75);
+          dexBonus = (myReference.getStat(sdk.stats.Dexterity) / 75);
 
           break;
         case sdk.items.type.Hammer:
-          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 110);
+          strBonus = (myReference.getStat(sdk.stats.Strength) / 110);
 
           break;
         default:
-          strBonus = (GameData.myReference.getStat(sdk.stats.Strength) / 100);
+          strBonus = (myReference.getStat(sdk.stats.Strength) / 100);
 
           break;
         }
@@ -870,7 +871,7 @@
       case "Cold": // cold mastery
       case "Poison": // poison mastery
       case "Magic": // magic mastery
-        mastery = 1 + GameData.myReference.getStat(this.masteryMap[dmg.type]) / 100;
+        mastery = 1 + myReference.getStat(this.masteryMap[dmg.type]) / 100;
         dmg.min *= mastery;
         dmg.max *= mastery;
 
@@ -1012,7 +1013,7 @@
 
         // We do need to calculate the extra damage, or less damage due to resistance
         let resist = this.monsterResist(unit, "Lightning");
-        let pierce = GameData.myReference.getStat(this.pierceMap.Lightning);
+        let pierce = myReference.getStat(this.pierceMap.Lightning);
 
         let conviction = this.getConviction();
         // if (conviction && !unit.getState(sdk.states.Conviction)) conviction = 0; //ToDo; enable when fixed telestomp
@@ -1083,7 +1084,7 @@
         }
         if (avgDmg > 0 && (!isUndead || !skillData.undeadOnly)) {
           let resist = GameData.monsterResist(unit, skillData.type);
-          let pierce = GameData.myReference.getStat(GameData.pierceMap[skillData.type]);
+          let pierce = myReference.getStat(GameData.pierceMap[skillData.type]);
           if (GameData.convictionEligible[skillData.type]) {
             resist -= (resist >= 100 ? conviction / 5 : conviction);
           }
@@ -1365,7 +1366,7 @@
     allSkillDamage: function (unit) {
       let skills = {};
       let self = this;
-      GameData.myReference.getSkill(4).forEach(function (skill) {
+      myReference.getSkill(4).forEach(function (skill) {
         if (self.nonDamage.hasOwnProperty(skill[0])) {
           return false; // Doesnt do damage
         }
@@ -1520,7 +1521,7 @@
       return stat ? (unit.getStat ? unit.getStat(stat) : MonsterData.get(unit)[type]) : 0;
     },
     getConviction: function () {
-      let merc = GameData.myReference.getMerc();
+      let merc = myReference.getMerc();
       let sl = this.skillLevel(123); // conviction
       /** @param {ItemUnit} item */
       function isInfinity (item) {
@@ -1528,7 +1529,7 @@
       }
       if (( // Either me, or merc is wearing a conviction
         merc && merc.getItemsEx().filter(isInfinity).first()
-        || GameData.myReference.getItemsEx(-1, 1).filter(isInfinity).first())) {
+        || myReference.getItemsEx(-1, 1).filter(isInfinity).first())) {
         sl = 12;
       }
       return sl > 0 ? Math.min(150, 30 + (sl - 1) * 5) : 0;
@@ -1581,7 +1582,7 @@
 
         if (avgDmg > 0 && (!isUndead || !buffDamageInfo[sk].undeadOnly) && sk !== sdk.skills.StaticField) {
           let resist = this.monsterResist(unit, buffDamageInfo[sk].type);
-          let pierce = GameData.myReference.getStat(this.pierceMap[buffDamageInfo[sk].type]);
+          let pierce = myReference.getStat(this.pierceMap[buffDamageInfo[sk].type]);
 
           if (this.convictionEligible[buffDamageInfo[sk].type]) {
             resist -= (resist >= 100 ? conviction / 5 : conviction);
@@ -1623,7 +1624,7 @@
 
           if (avgDmg > 0 && (!isUndead || !skillDamageInfo[sk].undeadOnly)) {
             let resist = this.monsterResist(unit, skillDamageInfo[sk].type);
-            let pierce = GameData.myReference.getStat(this.pierceMap[skillDamageInfo[sk].type]);
+            let pierce = myReference.getStat(this.pierceMap[skillDamageInfo[sk].type]);
 
             if (this.convictionEligible[skillDamageInfo[sk].type]) {
               resist -= (resist >= 100 ? conviction / 5 : conviction);
@@ -1646,7 +1647,7 @@
           tmpEffort /= this.dmgModifier(sk | 0, parent || unit);
 
           // care for mana
-          if (GameData.myReference.mp < Skill.getManaCost(sk)) {
+          if (myReference.mp < Skill.getManaCost(sk)) {
             tmpEffort *= 5; // More effort in a skill we dont have mana for
           }
 
@@ -1723,7 +1724,7 @@
 
         if (avgDmg > 0 && (!isUndead || !buffDamageInfo[sk].undeadOnly) && sk !== sdk.skills.StaticField) {
           let resist = this.monsterResist(unit, buffDamageInfo[sk].type);
-          let pierce = GameData.myReference.getStat(this.pierceMap[buffDamageInfo[sk].type]);
+          let pierce = myReference.getStat(this.pierceMap[buffDamageInfo[sk].type]);
 
           if (this.convictionEligible[buffDamageInfo[sk].type]) {
             resist -= (resist >= 100 ? conviction / 5 : conviction);
@@ -1764,7 +1765,7 @@
 
           if (avgDmg > 0 && (!isUndead || !skillDamageInfo[sk].undeadOnly)) {
             let resist = this.monsterResist(unit, skillDamageInfo[sk].type);
-            let pierce = GameData.myReference.getStat(this.pierceMap[skillDamageInfo[sk].type]);
+            let pierce = myReference.getStat(this.pierceMap[skillDamageInfo[sk].type]);
 
             if (this.convictionEligible[skillDamageInfo[sk].type]) {
               resist -= (resist >= 100 ? conviction / 5 : conviction);
@@ -1785,7 +1786,7 @@
           tmpEffort /= this.dmgModifier(sk | 0, unit);
 
           // care for mana
-          if (GameData.myReference.mp < Skill.getManaCost(sk)) {
+          if (myReference.mp < Skill.getManaCost(sk)) {
             tmpEffort *= 5; // More effort in a skill we dont have mana for
           }
 
@@ -1832,7 +1833,7 @@
       skills = skills || this.allSkillDamage();
       AreaData.get(areaID).forEachMonsterAndMinion(function (mon, rarity, parent) {
         let monExp = GameData.monsterExp(mon.Index, areaID);
-        let lvlMod = GameData.levelModifier(GameData.myReference.charlvl, GameData.monsterLevel(mon.Index, areaID));
+        let lvlMod = GameData.levelModifier(myReference.charlvl, GameData.monsterLevel(mon.Index, areaID));
         let monEffort = GameData.monsterEffort(mon.Index, areaID, skills, parent && parent.Index).effort;
         effortpool += rarity * monExp * lvlMod / monEffort;
         raritypool += rarity;
@@ -1849,45 +1850,46 @@
       return (raritypool ? effortpool / raritypool : 0) - (avgDmg);
     },
     mostUsedSkills: function (force = false) {
-      if (!force && GameData.myReference.hasOwnProperty("__cachedMostUsedSkills")
-        && GameData.myReference.__cachedMostUsedSkills) {
-        return GameData.myReference.__cachedMostUsedSkills;
-      }
+      // if (!force && myReference.hasOwnProperty("__cachedMostUsedSkills")
+      //   && myReference.__cachedMostUsedSkills) {
+      //   return myReference.__cachedMostUsedSkills;
+      // }
 
-      const effort = [], uniqueSkills = [];
-      for (let i = 50; i < 120; i++) {
-        try {
-          effort.push(GameData.monsterEffort(i, sdk.areas.ThroneofDestruction));
-        } catch (e) {
-          /*dontcare*/
-        }
-      }
+      // const effort = [], uniqueSkills = [];
+      // for (let i = 50; i < 120; i++) {
+      //   try {
+      //     effort.push(GameData.monsterEffort(i, sdk.areas.ThroneofDestruction));
+      //   } catch (e) {
+      //     /*dontcare*/
+      //   }
+      // }
 
-      effort
-        .filter(e => e !== null && typeof e === "object" && e.hasOwnProperty("skill"))
-        .filter(x => GameData.myReference.getSkill(x.skill, 0)) // Only skills where we have hard points in
-        .filter(x => Skills.class[x.skill] < 7) // Needs to be a skill of a class, not my class but a class
-        .map(x =>
-          // Search for this unique skill
-          (
-            uniqueSkills.find(u => u.skillId === x.skill)
-            // Or add it and return the value
-            || (
-              (
-                uniqueSkills.push({ skillId: x.skill, used: 0 })
-                && false
-              )
-              || uniqueSkills[uniqueSkills.length - 1]
-            )
-          ).used++ && false
-          // In the end always return x
-          || x
-        );
+      // effort
+      //   .filter(e => e !== null && typeof e === "object" && e.hasOwnProperty("skill"))
+      //   .filter(x => myReference.getSkill(x.skill, 0)) // Only skills where we have hard points in
+      //   .filter(x => Skills.class[x.skill] < 7) // Needs to be a skill of a class, not my class but a class
+      //   .map(x =>
+      //     // Search for this unique skill
+      //     (
+      //       uniqueSkills.find(u => u.skillId === x.skill)
+      //       // Or add it and return the value
+      //       || (
+      //         (
+      //           uniqueSkills.push({ skillId: x.skill, used: 0 })
+      //           && false
+      //         )
+      //         || uniqueSkills[uniqueSkills.length - 1]
+      //       )
+      //     ).used++ && false
+      //     // In the end always return x
+      //     || x
+      //   );
 
-      return (GameData.myReference.__cachedMostUsedSkills = uniqueSkills.sort((a, b) => b.used - a.used));
+      // return (myReference.__cachedMostUsedSkills = uniqueSkills.sort((a, b) => b.used - a.used));
+      return force;
     },
 
-    attackStartingFrame: function (weaponClass, charClass = GameData.myReference.classid) {
+    attackStartingFrame: function (weaponClass, charClass = myReference.classid) {
       // amazon and sorceress only
       /*
         Weapon:        hth 1hs 2hs 1ht 2ht stf bow xbw
@@ -1900,7 +1902,7 @@
       return 0;
     },
 
-    /*weaponSpeedModifier: function (weapon1Code, charClass = GameData.myReference.classid, weapon2Code = null) {
+    /*weaponSpeedModifier: function (weapon1Code, charClass = myReference.classid, weapon2Code = null) {
       let weapons = new CSV("sdk/txt/weapons.txt");
       let weapon1Data = weapons.findObject("code", weapon1Code);
       if (!weapon2Code) {
@@ -1913,7 +1915,7 @@
       return (weapon1Data.speed + weapon2Data.speed) / 2;
     },*/
 
-    attackModeForSkill: function (skillId, charClass = GameData.myReference.classid) {
+    attackModeForSkill: function (skillId, charClass = myReference.classid) {
       //TODO:
       if (skillId === sdk.skills.Smite) return "S1";
       /*
@@ -1953,7 +1955,7 @@
       return "A1";
     },
 
-    weaponAttackAnimationSpeed: function (baseRate, skill, weaponClass, charClass = GameData.myReference.classid, shiftState = null) {
+    weaponAttackAnimationSpeed: function (baseRate, skill, weaponClass, charClass = myReference.classid, shiftState = null) {
       /*if (shiftState == "bear") {
         let framesPerDirection = this.weaponFramesPerDirection(skill, weaponClass, charClass);
         let baseSpeed = this.weaponAttackAnimationSpeed(baseRate, skill, weaponClass, charClass);
@@ -1977,7 +1979,7 @@
       return 256;
     },
 
-    weaponFramesPerDirection: function (skill, weaponClass, charClass = GameData.myReference.classid) {
+    weaponFramesPerDirection: function (skill, weaponClass, charClass = myReference.classid) {
       let attackMode = this.attackModeForSkill(skill, charClass);
       /*
       2HT = “2 Hand Thrust” Spear
@@ -2201,7 +2203,7 @@
       return -1;
     },
 
-    // attackFrames: function (skillId, weaponCode, ias = GameData.myReference.getStat(sdk.stats.Fasterattackrate), charClass = GameData.myReference.classid, weapon2Code = null) {
+    // attackFrames: function (skillId, weaponCode, ias = myReference.getStat(sdk.stats.Fasterattackrate), charClass = myReference.classid, weapon2Code = null) {
     // 	// https://diablo3.ingame.de/forum/threads/1218516-FAQ-Bewegungs-und-Animationsgeschwindigkeiten-Teil-2?s=&postid=17610874
     // 	/*
     // 	TODO
@@ -2232,7 +2234,7 @@
     // 	let skillsIAS = 0; //TODO: fanaticism or other sills bonus + slowdown skills malus
     // 	let weaponSpeedModifier = (typeof weaponData.speed == "string") ? isNaN(parseInt(weaponData.speed)) ? 0 : parseInt(weaponData.speed) : weaponData.speed;// this.weaponSpeedModifier(weaponCode, charClass, weapon2Code);
     // 	// me.getState(sdk.states.Frozen) or me.getState(sdk.states.Cold) ?
-    // 	let coldEffect = GameData.myReference.getState(sdk.states.Frozen) ? -50 : 0; // If we are affected by cold, as a player we receive a penalty of 50.
+    // 	let coldEffect = myReference.getState(sdk.states.Frozen) ? -50 : 0; // If we are affected by cold, as a player we receive a penalty of 50.
     // 	let acceleration = baseRate + effectiveIAS + skillsIAS - weaponSpeedModifier + coldEffect;
     // 	acceleration = Math.min(175, Math.max(15, acceleration));
     // 	let startingFrame = this.attackStartingFrame(weaponClass, charClass);
@@ -2257,7 +2259,7 @@
     // 	return frames;
     // },
 
-    // attackDuration: function (skillId, weaponCode, ias = GameData.myReference.getStat(sdk.stats.Fasterattackrate), charClass = GameData.myReference.classid, weapon2Code = null) {
+    // attackDuration: function (skillId, weaponCode, ias = myReference.getStat(sdk.stats.Fasterattackrate), charClass = myReference.classid, weapon2Code = null) {
     // 	// https://diablo3.ingame.de/forum/threads/1218516-FAQ-Bewegungs-und-Animationsgeschwindigkeiten-Teil-2?s=&postid=17610874
     // 	return this.attackFrames(skillId, weaponCode, ias, charClass) / 25;
     // },

@@ -49,6 +49,7 @@ const Settings = {
     enabled: false,
     // email: "",
     // domain: "",
+    /** @type {string[]} */
     profiles: [],
     realms: ["asia"],
   },

@@ -71,6 +71,7 @@ const CharData = (function () {
       "libs/SoloPlay/Threads/ToolsThread.js",
       "libs/SoloPlay/Threads/EventThread.js"
     ],
+    /** @type {MyData} */
     _default: (function () {
       let diffObj = { respecUsed: false, imbueUsed: false, socketUsed: false };
       return {
@@ -135,8 +136,8 @@ const CharData = (function () {
 
         /**
          * @param {string} arg
-         * @param {object | string} property
-         * @param {any} value
+         * @param {Partial<LoginData> | string} property object form merges into the file; string form names one field
+         * @param {LoginData[keyof LoginData]} [value]
          * @returns {boolean}
          */
         updateData: function (arg, property, value) {
@@ -381,8 +382,8 @@ const CharData = (function () {
     /**
      * Blocks until the game is ready before persisting the update (also logs a stack trace for debugging).
      * @param {string} arg
-     * @param {object | string} property
-     * @param {any} value
+     * @param {Partial<MyData> | string} property object form merges into the file; string form names one field
+     * @param {MyData[keyof MyData]} [value]
      * @returns {boolean}
      */
     updateData: function (arg, property, value) {
