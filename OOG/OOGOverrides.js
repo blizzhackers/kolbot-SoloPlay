@@ -5,11 +5,6 @@
 *
 */
 
-/**
- * @typedef {import("../../modules/Control")} Controls
- * @typedef {import("../../systems/torch/TorchSystem")} TorchSystem
- * @typedef {import("../../systems/gambling/Gambling")} GamblingSystem
- */
 includeIfNotIncluded("OOG.js");
 
 (function (global, original) {

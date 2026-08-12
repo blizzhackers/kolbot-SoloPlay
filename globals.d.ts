@@ -66,6 +66,7 @@ declare global {
   const ClassAttack: IClassAttack;
   const TorchSystem: ITorchSystem;
   const CraftingSystem: ICraftingSystem;
+  const Gambling: IGambling;
   const Scripts: Scripts;
 
   // SoloPlay-added members on main singletons that have no namespace history - declared here
