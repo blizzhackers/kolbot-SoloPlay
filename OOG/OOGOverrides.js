@@ -1198,6 +1198,11 @@ const LocationAction = {
       }
     }
 
+    if (me.diedHardcore) {
+      D2Bot.printToConsole("Hardcore character died", sdk.colors.D2Bot.Red);
+      Starter.deadCheck = true;
+    }
+
     if (Starter.deadCheck) {
       Controls.LobbyQuit.click();
     } else {
