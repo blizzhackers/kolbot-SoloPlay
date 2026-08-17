@@ -143,6 +143,23 @@ add your pickit files here or uncomment the kolton nip already present.
 
 # Install Guide
 
+> ## ⚠️ READ THIS FIRST — you probably already have SoloPlay
+> SoloPlay ships **inside** Kolbot as a git submodule, so downloading Kolbot downloads SoloPlay too.
+>
+> No Kolbot yet? Get it from [github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot) — **clone it with Git or GitHub Desktop**, then run `setup.bat`. That is the whole SoloPlay install.
+>
+> **Already have Kolbot? Open `\d2bs\kolbot\libs\SoloPlay`. Does it have files in it? Then SoloPlay is already installed — skip straight to step 4 below.**
+>
+> | How you got Kolbot | What to do |
+> |:--|:--|
+> | **Cloned it with Git, GitHub Desktop, or GitDesktop** *(recommended)* | Run `setup.bat` once. It pulls SoloPlay in for you. **Skip steps 1 - 3.a, start at step 4.** |
+> | **Downloaded the .zip from GitHub** | GitHub .zip files do **NOT** include submodules, so `libs\SoloPlay` will be **empty**. Either re-download Kolbot with Git, or do steps 1 - 3.a by hand. |
+>
+> To update later, run `update.bat` — it updates Kolbot **and** SoloPlay. Do not copy files over a Git install by hand.
+
+## Steps 1 - 3.a: Manual SoloPlay install — only if `libs\SoloPlay` is empty
+*(zip downloads only — if you cloned with Git or GitHub Desktop, skip this whole section)*
+
 | Step | Instructions | |
 |:------:|:-------|-------:|
 | 1.| Download Kolbot here: [github.com/blizzhackers/kolbot](https://github.com/blizzhackers/kolbot). |![blizzhackers github](https://github.com/user-attachments/assets/0667e3f0-06ba-4ca7-b3c4-187e0c9c289c) |
@@ -150,6 +167,11 @@ add your pickit files here or uncomment the kolton nip already present.
 | 2.a| Open the newly downloaded soloplay folder so you see. |![soloplay-contents](https://github.com/user-attachments/assets/0cb61f9c-ea9e-4884-9a8d-97a4639e40a4)|
 | 3.| Copy and paste: Copy the entire contents of SoloPlay into `\d2bs\kolbot\libs\SoloPlay`.| ![image](https://github.com/user-attachments/assets/54eb14ae-5716-425e-9fa0-523edea2b76c)|
 |3.a|A successful installation will have `\d2bs\kolbot\libs\SoloPlay` look similar to the following image|![image](https://github.com/user-attachments/assets/f1f729d0-c3aa-4399-8068-c3cabfc14cf8)|
+
+## Steps 4 - 9: Profile setup (everyone does this)
+
+| Step | Instructions | |
+|:------:|:-------|-------:|
 | 4.| Select Add for new a Kolbot Profile. | ![Add-profile.jpg](https://imgur.com/tHs9ZoH.jpg)|
 | 4.a| Select and Input a profile name. See the **[Possible Profile Name Choices](#possible-profile-names)** below for a list of available options. | ![extract into](https://i.imgur.com/2YcGKVH.png) |
 | 4.b| ***Optional*** Input your account name. If no name than a random account is created. | |
