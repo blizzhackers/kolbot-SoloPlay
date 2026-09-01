@@ -440,9 +440,9 @@
                 .filter(function (mon) {
                   return mon.distance < 20 && mon.isShaman && mon.attackable;
                 })
-                .sort(function (a, b) {
-                  return a.distance - b.distance;
-                })
+                .sort(Sort.makeComparator(function (a) {
+                  return a.distance;
+                }))
                 .first();
               if (shaman) return ClassAttack[me.classid].doAttack(shaman, null, true);
             }

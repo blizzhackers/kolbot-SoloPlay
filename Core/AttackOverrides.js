@@ -1509,9 +1509,9 @@ Attack.pwnDury = function () {
       }
       //ToDo; figure out static
       if (duriel.getState(sdk.states.Frozen) && duriel.distance < 7 || duriel.distance < 12) {
-        let safeSpot = saveSpots.sort(function (a, b) {
-          return getDistance(duriel, b) - getDistance(duriel, a);
-        }).first();
+        let safeSpot = saveSpots.sort(Sort.makeComparator(function (a) {
+          return -getDistance(duriel, a);
+        })).first();
         Pather.teleportTo(safeSpot.x, safeSpot.y);
       }
       ClassAttack[me.classid].doAttack(duriel, true);
@@ -1657,9 +1657,9 @@ Attack.pwnDia = function () {
             // noinspection JSBitwiseOperatorUsage
             return !(collision & (Coords.BlockBits.BlockWall));
           })
-          .sort(function (a, b) {
-            return getDistance(me, a) - getDistance(me, b);
-          })
+          .sort(Sort.makeComparator(function (a) {
+            return getDistance(me, a);
+          }))
           .first();
         tick = getTickCount();
         if (spot !== undefined) {

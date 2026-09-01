@@ -557,9 +557,9 @@
       .filter(function (mon) {
         return mon.dead && mon.distance < 30 && getDistance(mon, unit) <= range && this.checkCorpse(mon);
       })
-      .sort(function (a, b) {
-        return getDistance(a, unit) - getDistance(b, unit);
-      });
+      .sort(Sort.makeComparator(function (a) {
+        return getDistance(a, unit);
+      }));
 
     for (let corpse of corpseList) {
       // corpseList uses copyUnit, so we need to get the actual corpse

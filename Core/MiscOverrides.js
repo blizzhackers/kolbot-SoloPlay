@@ -20,7 +20,6 @@ Misc.screenshotErrors = true;
  */
 Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
   !area && (area = me.area);
-  typeof sort !== "function" && (sort = Sort.units);
   area !== me.area && Pather.journeyTo(area);
   !chestIds.length && (chestIds = sdk.objects.chestIds.slice(0));
     
@@ -36,7 +35,7 @@ Misc.openChestsInArea = function (area, chestIds = [], sort = undefined) {
     });
 
   while (coords.length) {
-    coords.sort(sort);
+    coords.sort(typeof sort === "function" ? sort : Sort.units);
     Pather.moveToUnit(coords[0], 1, 2);
     this.openChests(20);
 

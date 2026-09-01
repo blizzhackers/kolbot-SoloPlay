@@ -12,9 +12,9 @@ function cave () {
     [
       Pather.getExitCoords(me.area, sdk.areas.StonyField),
       Pather.getExitCoords(me.area, sdk.areas.BurialGrounds)
-    ].sort(function (a, b) {
-      return [a.x, a.y].distance - [b.x, b.y].distance;
-    }).forEach(function (el) {
+    ].sort(Sort.makeComparator(function (a) {
+      return [a.x, a.y].distance;
+    })).forEach(function (el) {
       Pather.moveTo(el.x, el.y);
     });
     Pather.moveToExit(sdk.areas.ColdPlains, true);

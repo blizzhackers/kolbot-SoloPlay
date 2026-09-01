@@ -253,7 +253,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if ((shrine_1 = searchShrine())) {
           skipShrine.push(shrine_1.gid);
           let nearestShrine_1 = path_1.slice()
-            .sort(function (a, b) { return getDistance(shrine_1, a) - getDistance(shrine_1, b); })
+            .sort(Sort.makeComparator(function (a) { return getDistance(shrine_1, a); }))
             .first();
           if (nearestShrine_1) {
             (function (originalHook, shrineId) {
@@ -297,7 +297,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             // lets find the nearest node on the path and go from there
             // but not of the next node path
             let nearestNode_1 = pathCopy.filter(function (el) { return el.index === node.index; })
-              .sort(function (a, b) { return a.distance - b.distance; })
+              .sort(Sort.makeComparator(function (a) { return a.distance; }))
               .first();
             // let nearestNode = path.slice(Math.min(path.index-10,0), path.index + 30).sort((a, b) => a.distance - b.distance).first();
             // if the nearest node is still in 95% of our current node, we dont need to reset

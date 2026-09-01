@@ -161,7 +161,7 @@ ClassAttack[sdk.player.class.Paladin].doAttack = function (unit = undefined, pre
             // before we waste time let's see if there is a shaman we should kill
             const shaman = getUnits(sdk.unittype.Monster)
               .filter(mon => mon.distance < 20 && mon.isShaman && mon.attackable)
-              .sort((a, b) => a.distance - b.distance).first();
+              .sort(Sort.makeComparator(a => a.distance)).first();
             if (shaman) return ClassAttack[me.classid].doAttack(shaman, null, true);
           }
           if (!Attack.useBowOnSwitch(unit, sdk.skills.Attack, i === 5)) return Attack.Result.FAILED;

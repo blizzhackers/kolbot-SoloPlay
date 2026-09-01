@@ -143,7 +143,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
       }
       // too much monsters, quick sort
       if (monsters.length > 7) {
-        return monsters.sort(function (a, b) { return a.distance - b.distance; });
+        return monsters.sort(Sort.makeComparator(function (a) { return a.distance; }));
       }
       return monsters.sort(function (a, b) {
         // shamans are a mess early game

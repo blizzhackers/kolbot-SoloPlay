@@ -1135,9 +1135,9 @@
           .filter(function (mon) {
             if (!mon.attackable) return false;
             const distInPath = orbPath
-              .toSorted(function (a, b) {
-                return getDistance(mon, a) - getDistance(mon, b);
-              }).first();
+              .toSorted(Sort.makeComparator(function (a) {
+                return getDistance(mon, a);
+              })).first();
             if (!distInPath) return false;
             const distanceFromPath = getDistance(mon, distInPath);
             if (distanceFromPath > 20) {
@@ -1151,14 +1151,9 @@
             }
             return distanceFromPath < 25;
           })
-          .sort(function (a, b) {
-            const distAFromTarget = getDistance(target, a);
-            const distAFromMe = getDistance(me, a);
-            const distBFromTarget = getDistance(target, b);
-            const distBFromMe = getDistance(me, b);
-
-            return (distAFromTarget + distAFromMe) - (distBFromTarget + distBFromMe);
-          });
+          .sort(Sort.makeComparator(function (a) {
+            return getDistance(target, a) + getDistance(me, a);
+          }));
         for (let i = 0; i < units.length; i++) {
           if (units[i] !== undefined) {
             let _a = GameData.skillDamage(sdk.skills.FrozenOrb, units[i]);
@@ -1186,9 +1181,9 @@
           .filter(function (mon) {
             return mon.attackable && getDistance(mon, target) < range;
           })
-          .sort(function (a, b) {
-            return getDistance(target, a) - getDistance(target, b);
-          });
+          .sort(Sort.makeComparator(function (a) {
+            return getDistance(target, a);
+          }));
         if (units.length === 1) {
           rawDmg = GameData.skillDamage(skill, target);
           return getTotalDmg(rawDmg, target);
@@ -1253,9 +1248,9 @@
         const targetVec = new Vector(target.x, target.y);
         const misVec = targetVec.subtract(meVec).normalize().multiply(range);
         const missilePath = Vector.path(meVec, misVec);
-        missilePath.sort(function (a, b) {
-          return getDistance(me, a) - getDistance(me, b);
-        });
+        missilePath.sort(Sort.makeComparator(function (a) {
+          return getDistance(me, a);
+        }));
         // check if we run into any cast-blockers
         let cBlockIdx = missilePath.findIndex(function (point) {
           let coll = getCollision(me.area, point.x, point.y);
@@ -1268,16 +1263,16 @@
           .filter(function (mon) {
             if (!mon.attackable) return false;
             const distInPath = missilePath
-              .toSorted(function (a, b) {
-                return getDistance(mon, a) - getDistance(mon, b);
-              }).first();
+              .toSorted(Sort.makeComparator(function (a) {
+                return getDistance(mon, a);
+              })).first();
             if (!distInPath) return false;
             const distanceFromPath = getDistance(mon, distInPath);
             return distanceFromPath <= 3;
           })
-          .sort(function (a, b) {
-            return getDistance(me, a) - getDistance(me, b);
-          });
+          .sort(Sort.makeComparator(function (a) {
+            return getDistance(me, a);
+          }));
         for (let i = 0; i < units.length; i++) {
           if (units[i] !== undefined) {
             let _a = GameData.skillDamage(skill, units[i]);
