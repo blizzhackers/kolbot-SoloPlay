@@ -9,6 +9,14 @@
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
+// UI screens that hide the overlay while open
+const _soloOverlayHideFlags = [
+  sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.QuickSkill, sdk.uiflags.SkillWindow,
+  sdk.uiflags.ChatBox, sdk.uiflags.EscMenu, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.Shop,
+  sdk.uiflags.SubmitItem, sdk.uiflags.Quest, sdk.uiflags.Party, sdk.uiflags.Msgs, sdk.uiflags.Stash,
+  sdk.uiflags.Cube, sdk.uiflags.Help, sdk.uiflags.MercScreen
+];
+
 /**
  * @todo Clean this up, probably needs to be entirely rewritten
  * - show current script
@@ -491,13 +499,6 @@ const Overlay = {
      * the dashboard and quest hooks once it closes.
      */
     function status () {
-      let hide = [
-        sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.QuickSkill, sdk.uiflags.SkillWindow,
-        sdk.uiflags.ChatBox, sdk.uiflags.EscMenu, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.Shop,
-        sdk.uiflags.SubmitItem, sdk.uiflags.Quest, sdk.uiflags.Party, sdk.uiflags.Msgs, sdk.uiflags.Stash,
-        sdk.uiflags.Cube, sdk.uiflags.Help, sdk.uiflags.MercScreen
-      ];
-
       if (!me.gameReady || !me.ingame || !me.area || me.dead) {
         Overlay.disable(true);
       } else {
@@ -505,12 +506,12 @@ const Overlay = {
           delay(100);
         }
       
-        for (let flag = 0; flag < hide.length; flag++) {
-          if (getUIFlag(hide[flag])) {
+        for (let flag = 0; flag < _soloOverlayHideFlags.length; flag++) {
+          if (getUIFlag(_soloOverlayHideFlags[flag])) {
             Overlay.text.flush();
             Overlay.quests.flush();
 
-            while (getUIFlag(hide[flag])) {
+            while (getUIFlag(_soloOverlayHideFlags[flag])) {
               delay(100);
             }
 

@@ -6,6 +6,8 @@
 */
 
 (function () {
+  const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
+
   /**
    * Can we slow this monster
    * @param {Monster} unit 
@@ -556,7 +558,6 @@
    * @returns {AttackResult}
    */
   ClassAttack[sdk.player.class.Sorceress].doCast = function (unit, choosenSkill) {
-    const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
     let noMana;
     const { skillId: skill, timed } = choosenSkill;
     const mana = choosenSkill.manaCost();

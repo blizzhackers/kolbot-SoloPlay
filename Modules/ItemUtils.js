@@ -6,6 +6,13 @@
 */
 
 (function (module) {
+  // weights applied to wanted/useful build skills in baseSkillsScore
+  const baseSkillWeights = [30, 20];
+  const necroShieldTypes = [sdk.items.type.Shield, sdk.items.type.VoodooHeads];
+  const paladinShieldTypes = [sdk.items.type.Shield, sdk.items.type.AuricShields];
+  const druidHelmTypes = [sdk.items.type.Helm, sdk.items.type.Circlet, sdk.items.type.Pelt];
+  const barbHelmTypes = [sdk.items.type.Helm, sdk.items.type.Circlet, sdk.items.type.PrimalHelm];
+
   /**
    * @param {ItemUnit} item 
    * @returns {boolean}
@@ -388,15 +395,14 @@
   const baseSkillsScore = function (item, buildInfo) {
     buildInfo === undefined && (buildInfo = Check.currentBuild());
     let generalScore = 0;
-    let selectedWeights = [30, 20];
     let selectedSkills = [buildInfo.wantedSkills, buildInfo.usefulSkills];
     generalScore += item.getStatEx(sdk.stats.AddClassSkills, me.classid) * 200; // + class skills
     generalScore += item.getStatEx(sdk.stats.AddSkillTab, buildInfo.tabSkills) * 100; // + TAB skills - todo handle array of tab skills
 
-    for (let i = 0; i < selectedWeights.length; i++) {
+    for (let i = 0; i < baseSkillWeights.length; i++) {
       for (let j = 0; j < selectedSkills.length; j++) {
         for (let k = 0; k < selectedSkills[j].length; k++) {
-          generalScore += item.getStatEx(107, selectedSkills[j][k]) * selectedWeights[i];
+          generalScore += item.getStatEx(107, selectedSkills[j][k]) * baseSkillWeights[i];
         }
       }
     }
@@ -881,8 +887,7 @@
     case sdk.items.type.AuricShields:
     case sdk.items.type.VoodooHeads:
       if (me.paladin || me.necromancer) {
-        let iType = [sdk.items.type.Shield];
-        me.necromancer ? iType.push(sdk.items.type.VoodooHeads) : iType.push(sdk.items.type.AuricShields);
+        const iType = me.necromancer ? necroShieldTypes : paladinShieldTypes;
       
         checkItem = getItemToCompare(iType, false, generalScoreSort);
         if (checkItem === undefined || checkItem.gid === base.gid) return true;
@@ -906,8 +911,7 @@
     case sdk.items.type.Circlet:
     case sdk.items.type.Pelt:
       if (me.barbarian || me.druid) {
-        let iType = [sdk.items.type.Helm, sdk.items.type.Circlet];
-        me.druid ? iType.push(sdk.items.type.Pelt) : iType.push(sdk.items.type.PrimalHelm);
+        const iType = me.druid ? druidHelmTypes : barbHelmTypes;
       
         checkItem = getItemToCompare(iType, false, generalScoreSort);
         if (checkItem === undefined || checkItem.gid === base.gid) return true;

@@ -30,15 +30,16 @@ me.haveWaypoint = function (area) {
   return getWaypoint(AreaData.wps.get(area));
 };
 
+const _soloPatherAnnoyingAreas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
+
 /**
  * @param {number} currArea
  * @param {boolean} [includeArcane=false]
  * @returns {boolean}
  */
 Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
-  const areas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
-  includeArcane && areas.push(sdk.areas.ArcaneSanctuary);
-  return areas.includes(currArea);
+  if (includeArcane && currArea === sdk.areas.ArcaneSanctuary) return true;
+  return _soloPatherAnnoyingAreas.includes(currArea);
 };
 
 /**
@@ -49,6 +50,30 @@ Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
  * @property {number} specType
  * @property {boolean} [allowClearing]
  */
+
+// I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
+const _soloPatherPallyAnnoyingAreas = [
+  sdk.areas.DenofEvil, sdk.areas.CaveLvl1,
+  sdk.areas.UndergroundPassageLvl1, sdk.areas.HoleLvl1,
+  sdk.areas.PitLvl1, sdk.areas.CaveLvl2,
+  sdk.areas.UndergroundPassageLvl2, sdk.areas.PitLvl2,
+  sdk.areas.HoleLvl2, sdk.areas.DisusedFane,
+  sdk.areas.RuinedTemple, sdk.areas.ForgottenReliquary,
+  sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary
+];
+const _soloPatherSummonerAreas = [
+  sdk.areas.DenofEvil, sdk.areas.ColdPlains,
+  sdk.areas.StonyField, sdk.areas.Tristram,
+  sdk.areas.DarkWood, sdk.areas.BlackMarsh,
+  sdk.areas.OuterCloister, sdk.areas.Barracks,
+  sdk.areas.Cathedral, sdk.areas.CatacombsLvl4,
+  sdk.areas.HallsoftheDeadLvl1, sdk.areas.HallsoftheDeadLvl2,
+  sdk.areas.HallsoftheDeadLvl3, sdk.areas.ValleyofSnakes,
+  sdk.areas.ClawViperTempleLvl1, sdk.areas.TalRashasTomb1,
+  sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
+  sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5,
+  sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
+];
 
 /**
  * @param {clearSettings} arg
@@ -64,31 +89,8 @@ NodeAction.killMonsters = function (arg = {}) {
   Misc.shriner([], Skill.haveTK ? 15 : 5);
 
   const myArea = me.area;
-  // I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
-  const pallyAnnoyingAreas = [
-    sdk.areas.DenofEvil, sdk.areas.CaveLvl1,
-    sdk.areas.UndergroundPassageLvl1, sdk.areas.HoleLvl1,
-    sdk.areas.PitLvl1, sdk.areas.CaveLvl2,
-    sdk.areas.UndergroundPassageLvl2, sdk.areas.PitLvl2,
-    sdk.areas.HoleLvl2, sdk.areas.DisusedFane,
-    sdk.areas.RuinedTemple, sdk.areas.ForgottenReliquary,
-    sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary
-  ];
-  const summonerAreas = [
-    sdk.areas.DenofEvil, sdk.areas.ColdPlains,
-    sdk.areas.StonyField, sdk.areas.Tristram,
-    sdk.areas.DarkWood, sdk.areas.BlackMarsh,
-    sdk.areas.OuterCloister, sdk.areas.Barracks,
-    sdk.areas.Cathedral, sdk.areas.CatacombsLvl4,
-    sdk.areas.HallsoftheDeadLvl1, sdk.areas.HallsoftheDeadLvl2,
-    sdk.areas.HallsoftheDeadLvl3, sdk.areas.ValleyofSnakes,
-    sdk.areas.ClawViperTempleLvl1, sdk.areas.TalRashasTomb1,
-    sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
-    sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5,
-    sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
-  ];
   // sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
-  if (Pather.inAnnoyingArea(myArea, true) || (me.paladin && pallyAnnoyingAreas.includes(myArea))) {
+  if (Pather.inAnnoyingArea(myArea, true) || (me.paladin && _soloPatherPallyAnnoyingAreas.includes(myArea))) {
     arg.range = 7;
   }
 
@@ -116,7 +118,7 @@ NodeAction.killMonsters = function (arg = {}) {
         .forEach(addToMonList);
     }
 
-    if (summonerAreas.includes(myArea)) {
+    if (_soloPatherSummonerAreas.includes(myArea)) {
       getUnits(sdk.unittype.Monster)
         .filter(function (mon) {
           return mon.attackable && mon.distance < 30

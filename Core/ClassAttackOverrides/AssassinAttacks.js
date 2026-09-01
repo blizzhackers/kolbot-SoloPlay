@@ -42,14 +42,15 @@ ClassAttack[sdk.player.class.Assassin].mindBlast = function (unit) {
   }
 };
 
+const _soloAssassinChargedCurses = [sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken];
+
 /**
  * @param {Unit} unit - The unit to switch curse on
  * @param {boolean} force - Force switch curse even if unit is in melee range (used for bosses and other dangerous mobs)
  * @returns {void}
  */
 ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
-  const chargedSkills = [sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken];
-  if (CharData.skillData.haveChargedSkill(chargedSkills) && unit.curseable) {
+  if (CharData.skillData.haveChargedSkill(_soloAssassinChargedCurses) && unit.curseable) {
     const gold = me.gold;
     const isBoss = unit.isBoss;
     const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
@@ -88,6 +89,9 @@ ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
   }
 };
 
+// why not andy?
+const _soloAssassinTrapBosses = [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
+
 /**
  * @param {Unit} unit - The unit to place traps around
  * @param {number} amount - The amount of traps to place
@@ -95,8 +99,6 @@ ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
  */
 ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
   let traps = 0;
-  // why not andy?
-  const bosses = [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
 
   this.lastTrapPos = { x: unit.x, y: unit.y };
 
@@ -109,7 +111,7 @@ ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
 
         // Duriel, Mephisto, Diablo, Baal, other players
         if (
-          (unit.hasOwnProperty("classid") && bosses.includes(unit.classid))
+          (unit.hasOwnProperty("classid") && _soloAssassinTrapBosses.includes(unit.classid))
           || (unit.hasOwnProperty("type") && unit.isPlayer)
         ) {
           if (traps >= Config.BossTraps.length) {

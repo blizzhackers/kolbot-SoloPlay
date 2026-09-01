@@ -156,6 +156,8 @@ Pickit.checkItem = function (unit) {
   return rval;
 };
 
+const _soloPickitPotTypes = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
+
 // @jaenster
 /** @returns {Record<number, Record<number, number>>} Potions still needed per type, keyed by storage location */
 Pickit.amountOfPotsNeeded = function () {
@@ -167,7 +169,6 @@ Pickit.amountOfPotsNeeded = function () {
     this[sdk.storage.Belt] = 0;
     this[sdk.storage.Inventory] = max;
   }
-  let potTypes = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
   let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
   let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
   let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
@@ -178,7 +179,7 @@ Pickit.amountOfPotsNeeded = function () {
   if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
     me.getItemsEx()
       .filter(function (pot) {
-        return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory);
+        return _soloPickitPotTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory);
       })
       .forEach(function (pot) {
         needed[pot.itemType][pot.location] -= 1;
@@ -392,6 +393,12 @@ Pickit.canPick = function (unit) {
 /** @type {Set<number>} */
 const _toCursorPick = new Set();
 
+const _soloPickitCancelFlags = [
+  sdk.uiflags.Inventory, sdk.uiflags.NPCMenu,
+  sdk.uiflags.Waypoint, sdk.uiflags.Shop,
+  sdk.uiflags.Stash, sdk.uiflags.Cube
+];
+
 /**
  * @override
  * @param {ItemUnit} unit 
@@ -452,11 +459,6 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
   });
 
   const itemCount = me.itemcount;
-  const cancelFlags = [
-    sdk.uiflags.Inventory, sdk.uiflags.NPCMenu,
-    sdk.uiflags.Waypoint, sdk.uiflags.Shop,
-    sdk.uiflags.Stash, sdk.uiflags.Cube
-  ];
   const gid = unit.gid;
   
   let item = Game.getItem(-1, -1, gid);
@@ -466,7 +468,7 @@ Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
     return getUIFlag(flag);
   };
 
-  if (cancelFlags.some(checkFlag)) {
+  if (_soloPickitCancelFlags.some(checkFlag)) {
     delay(500);
     me.cancel(0);
   }
@@ -783,7 +785,6 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   
   let needMule = false;
   const canUseMule = AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo");
-  const _pots = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
   const origin = new PathNode(me.x, me.y);
 
   const buildPickList = function () {
@@ -815,7 +816,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   buildPickList();
 
   if (Pickit.pickList.some(function (el) {
-    return _pots.includes(el.itemType);
+    return _soloPickitPotTypes.includes(el.itemType);
   })) {
     me.clearBelt();
     Pickit.beltSize = Storage.BeltSize();

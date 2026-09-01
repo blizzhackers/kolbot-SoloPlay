@@ -495,17 +495,18 @@ if (!me.hasOwnProperty("telekinesis")) {
   });
 }
 
+// can't tp from town or Uber Trist, and shouldn't tp from arreat summit
+const _soloMeBadTpAreas = [
+  sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown,
+  sdk.areas.PandemoniumFortress, sdk.areas.Harrogath, sdk.areas.ArreatSummit, sdk.areas.UberTristram
+];
+
 /** @returns {boolean} */
 me.canTpToTown = function () {
   // can't tp if dead - or not currently enabled to
   if (me.dead || SoloEvents.townChicken.disabled) return false;
   const myArea = me.area;
-  let badAreas = [
-    sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown,
-    sdk.areas.PandemoniumFortress, sdk.areas.Harrogath, sdk.areas.ArreatSummit, sdk.areas.UberTristram
-  ];
-  // can't tp from town or Uber Trist, and shouldn't tp from arreat summit
-  if (badAreas.includes(myArea)) return false;
+  if (_soloMeBadTpAreas.includes(myArea)) return false;
   // If we made it this far, we can only tp if we even have a tp
   return !!me.getTpTool();
 };
@@ -566,6 +567,11 @@ me.getSkillTabs = function (classid = me.classid) {
   ][classid];
 };
 
+const _soloMeDangerAuras = [sdk.states.Fanaticism, sdk.states.Conviction];
+const _soloMeDangerEnchants = [
+  sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
+];
+
 // @todo better determination of what actually constitutes being in danger
 // need check for ranged mobs so we can stick and move to avoid missiles
 /**
@@ -584,10 +590,9 @@ me.inDanger = function (checkLoc, range) {
       return mon && mon.attackable && getDistance(_this, mon) < range;
     });
   
-  const dangerAuras = [sdk.states.Fanaticism, sdk.states.Conviction];
   for (let mon of nearUnits) {
     if (mon.isSpecial) {
-      if (dangerAuras.some(function (state) { return mon.getState(state); })) {
+      if (_soloMeDangerAuras.some(function (state) { return mon.getState(state); })) {
         count += 3;
       } else {
         count += 2;
@@ -603,12 +608,9 @@ me.inDanger = function (checkLoc, range) {
     return true;
   }
   
-  const dangerEnchants = [
-    sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
-  ];
   const dangerClose = nearUnits
     .find(function (mon) {
-      return dangerEnchants.some(function (chant) {
+      return _soloMeDangerEnchants.some(function (chant) {
         return mon.getEnchant(chant);
       });
     });

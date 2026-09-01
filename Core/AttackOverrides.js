@@ -223,10 +223,28 @@ Attack.canAttack = function (unit) {
   return false;
 };
 
+// lowercase object names Attack.openChests treats as openable containers
+const _soloAttackChestContainers = [
+  "chest", "loose rock", "hidden stash", "loose boulder",
+  "corpseonstick", "casket", "armorstand", "weaponrack",
+  "holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
+  "skeleton", "guardcorpse", "sarcophagus", "object2",
+  "cocoon", "hollow log", "hungskeleton",
+  "bonechest", "woodchestl", "woodchestr",
+  "burialchestr", "burialchestl", "chestl",
+  "chestr", "groundtomb", "tomb3l", "tomb1l",
+  "deadperson", "deadperson2", "groundtombl", "casket", "barrel", "ratnest",
+  "goo pile", "largeurn", "urn", "jug", "basket", "stash",
+  "pillar", "skullpile", "skull pile",
+  "jar3", "jar2", "jar1", "barrel wilderness",
+  "explodingchest", "icecavejar1", "icecavejar2", "icecavejar3",
+  "icecavejar4", "evilurn"
+];
+
 /**
- * @param {number} range 
- * @param {number} x 
- * @param {number} y 
+ * @param {number} range
+ * @param {number} x
+ * @param {number} y
  * @returns {boolean}
  */
 Attack.openChests = function (range, x, y) {
@@ -258,22 +276,6 @@ Attack.openChests = function (range, x, y) {
       return !chest || chest.mode !== sdk.objects.mode.Inactive;
     }, 300, 10);
   };
-  const containers = [
-    "chest", "loose rock", "hidden stash", "loose boulder",
-    "corpseonstick", "casket", "armorstand", "weaponrack",
-    "holeanim", "roguecorpse", "corpse", "tomb2", "tomb3", "chest3",
-    "skeleton", "guardcorpse", "sarcophagus", "object2",
-    "cocoon", "hollow log", "hungskeleton",
-    "bonechest", "woodchestl", "woodchestr",
-    "burialchestr", "burialchestl", "chestl",
-    "chestr", "groundtomb", "tomb3l", "tomb1l",
-    "deadperson", "deadperson2", "groundtombl", "casket", "barrel", "ratnest",
-    "goo pile", "largeurn", "urn", "jug", "basket", "stash",
-    "pillar", "skullpile", "skull pile",
-    "jar3", "jar2", "jar1", "barrel wilderness",
-    "explodingchest", "icecavejar1", "icecavejar2", "icecavejar3",
-    "icecavejar4", "evilurn"
-  ];
   const list = [];
   let unit = Game.getObject();
 
@@ -281,7 +283,7 @@ Attack.openChests = function (range, x, y) {
     do {
       if (unit.name
         && unit.mode === sdk.objects.mode.Inactive
-        && containers.includes(unit.name.toLowerCase())
+        && _soloAttackChestContainers.includes(unit.name.toLowerCase())
         && getDistance(unit, x, y) <= range
         && !checkCollision(me, unit, sdk.collision.BlockWalk)
         /* && unit.getMobCount(10) === 0 */) {
@@ -1401,9 +1403,26 @@ new Overrides.Override(Attack,
   }
 ).apply();
 
+// summoners, nests and other priority targets that Attack.walkingSortMonsters puts first
+const _soloAttackWalkingSortIds = [
+  sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3,
+  sdk.monsters.FallenShaman, sdk.monsters.CarverShaman, sdk.monsters.CarverShaman2,
+  sdk.monsters.DevilkinShaman, sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1,
+  sdk.monsters.DarkShaman2, sdk.monsters.WarpedShaman, sdk.monsters.HollowOne, sdk.monsters.Guardian1,
+  sdk.monsters.Guardian2, sdk.monsters.Unraveler1, sdk.monsters.Unraveler2,
+  sdk.monsters.Ancient1, sdk.monsters.BaalSubjectMummy, sdk.monsters.BloodRaven, sdk.monsters.RatManShaman,
+  sdk.monsters.FetishShaman, sdk.monsters.FlayerShaman1, sdk.monsters.FlayerShaman2,
+  sdk.monsters.SoulKillerShaman1, sdk.monsters.SoulKillerShaman2, sdk.monsters.StygianDollShaman1,
+  sdk.monsters.StygianDollShaman2, sdk.monsters.FleshSpawner1, sdk.monsters.FleshSpawner2,
+  sdk.monsters.StygianHag, sdk.monsters.Grotesque1, sdk.monsters.Ancient2, sdk.monsters.Ancient3,
+  sdk.monsters.Grotesque2, sdk.monsters.FoulCrowNest, sdk.monsters.BlackVultureNest,
+  sdk.monsters.BloodHawkNest, sdk.monsters.BloodHookNest, sdk.monsters.BloodWingNest,
+  sdk.monsters.CloudStalkerNest, sdk.monsters.FeederNest, sdk.monsters.SuckerNest
+];
+
 /**
- * @param {Monster} unitA 
- * @param {Monster} unitB 
+ * @param {Monster} unitA
+ * @param {Monster} unitB
  */
 Attack.walkingSortMonsters = function (unitA, unitB) {
   // sort main bosses first
@@ -1429,25 +1448,9 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
   if (unitA.getState(sdk.states.Attract)) return 1;
   if (unitB.getState(sdk.states.Attract)) return -1;
 
-  const ids = [
-    sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3,
-    sdk.monsters.FallenShaman, sdk.monsters.CarverShaman, sdk.monsters.CarverShaman2,
-    sdk.monsters.DevilkinShaman, sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1,
-    sdk.monsters.DarkShaman2, sdk.monsters.WarpedShaman, sdk.monsters.HollowOne, sdk.monsters.Guardian1,
-    sdk.monsters.Guardian2, sdk.monsters.Unraveler1, sdk.monsters.Unraveler2,
-    sdk.monsters.Ancient1, sdk.monsters.BaalSubjectMummy, sdk.monsters.BloodRaven, sdk.monsters.RatManShaman,
-    sdk.monsters.FetishShaman, sdk.monsters.FlayerShaman1, sdk.monsters.FlayerShaman2,
-    sdk.monsters.SoulKillerShaman1, sdk.monsters.SoulKillerShaman2, sdk.monsters.StygianDollShaman1,
-    sdk.monsters.StygianDollShaman2, sdk.monsters.FleshSpawner1, sdk.monsters.FleshSpawner2,
-    sdk.monsters.StygianHag, sdk.monsters.Grotesque1, sdk.monsters.Ancient2, sdk.monsters.Ancient3,
-    sdk.monsters.Grotesque2, sdk.monsters.FoulCrowNest, sdk.monsters.BlackVultureNest,
-    sdk.monsters.BloodHawkNest, sdk.monsters.BloodHookNest, sdk.monsters.BloodWingNest,
-    sdk.monsters.CloudStalkerNest, sdk.monsters.FeederNest, sdk.monsters.SuckerNest
-  ];
-
   if (!me.inArea(sdk.areas.ClawViperTempleLvl2)
-    && ids.includes(unitA.classid)
-    && ids.includes(unitB.classid)) {
+    && _soloAttackWalkingSortIds.includes(unitA.classid)
+    && _soloAttackWalkingSortIds.includes(unitB.classid)) {
     // Kill "scary" uniques first (like Bishibosh)
     if ((unitA.isUnique) && (unitB.isUnique)) {
       return getDistance(me, unitA) - getDistance(me, unitB);
@@ -1458,8 +1461,8 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
     return getDistance(me, unitA) - getDistance(me, unitB);
   }
 
-  if (ids.includes(unitA.classid)) return -1;
-  if (ids.includes(unitB.classid)) return 1;
+  if (_soloAttackWalkingSortIds.includes(unitA.classid)) return -1;
+  if (_soloAttackWalkingSortIds.includes(unitB.classid)) return 1;
 
   if ((unitA.isSuperUnique) && (unitB.isSuperUnique)) {
     return getDistance(me, unitA) - getDistance(me, unitB);
@@ -1813,6 +1816,9 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
     : false;
 };
 
+// angle offsets (degrees) Attack.getIntoPosition tries around the unit
+const _soloAttackPositionAngles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
+
 /**
  * Attempt to find non blocked position to attack from
  * @param {Monster} unit 
@@ -1831,7 +1837,6 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
   const useTele = Pather.useTeleport();
   const name = unit.hasOwnProperty("name") ? unit.name : "";
   const angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
-  const angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
   const caster = (force || (distance > 4 && !me.inTown && Skill.getRange(Config.AttackSkill[1]) > 8));
   const minMonCount = caster && distance < 8 ? 1 : 0;
   const _coll = (sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor);
@@ -1881,7 +1886,7 @@ Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = 
     const temp = [];
     (n > 0) && (distance -= Math.floor(fullDistance / 3 - 1));
 
-    for (let currAngle of angles) {
+    for (let currAngle of _soloAttackPositionAngles) {
       const _angle = ((angle + currAngle) * Math.PI / 180);
       let cx = Math.round((Math.cos(_angle)) * distance + unit.x);
       let cy = Math.round((Math.sin(_angle)) * distance + unit.y);
