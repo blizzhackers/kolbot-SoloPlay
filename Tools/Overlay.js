@@ -9,14 +9,6 @@
 includeIfNotIncluded("SoloPlay/Tools/Tracker.js");
 includeIfNotIncluded("SoloPlay/Core/PrototypeOverrides.js");
 
-// UI screens that hide the overlay while open
-const _soloOverlayHideFlags = [
-  sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.QuickSkill, sdk.uiflags.SkillWindow,
-  sdk.uiflags.ChatBox, sdk.uiflags.EscMenu, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.Shop,
-  sdk.uiflags.SubmitItem, sdk.uiflags.Quest, sdk.uiflags.Party, sdk.uiflags.Msgs, sdk.uiflags.Stash,
-  sdk.uiflags.Cube, sdk.uiflags.Help, sdk.uiflags.MercScreen
-];
-
 /**
  * @todo Clean this up, probably needs to be entirely rewritten
  * - show current script
@@ -489,56 +481,66 @@ const Overlay = {
     };
   })(),
   
-  /**
-   * @param {boolean} [msg]
-   * @returns {boolean|undefined} True if msg is set; otherwise the poll result, or false when not in-game.
-   */
-  update: function (msg = false) {
+  update: (function () {
+    // UI screens that hide the overlay while open
+    const hideFlags = [
+      sdk.uiflags.Inventory, sdk.uiflags.StatsWindow, sdk.uiflags.QuickSkill, sdk.uiflags.SkillWindow,
+      sdk.uiflags.ChatBox, sdk.uiflags.EscMenu, sdk.uiflags.KeytotheCairnStonesScreen, sdk.uiflags.Shop,
+      sdk.uiflags.SubmitItem, sdk.uiflags.Quest, sdk.uiflags.Party, sdk.uiflags.Msgs, sdk.uiflags.Stash,
+      sdk.uiflags.Cube, sdk.uiflags.Help, sdk.uiflags.MercScreen
+    ];
+
     /**
-     * Hides overlay hooks while blocking UI (inventory/stash/etc.) is open, then refreshes
-     * the dashboard and quest hooks once it closes.
+     * @param {boolean} [msg]
+     * @returns {boolean|undefined} True if msg is set; otherwise the poll result, or false when not in-game.
      */
-    function status () {
-      if (!me.gameReady || !me.ingame || !me.area || me.dead) {
-        Overlay.disable(true);
-      } else {
-        while (!me.gameReady) {
-          delay(100);
-        }
+    return function (msg = false) {
+      /**
+       * Hides overlay hooks while blocking UI (inventory/stash/etc.) is open, then refreshes
+       * the dashboard and quest hooks once it closes.
+       */
+      function status () {
+        if (!me.gameReady || !me.ingame || !me.area || me.dead) {
+          Overlay.disable(true);
+        } else {
+          while (!me.gameReady) {
+            delay(100);
+          }
       
-        for (let flag = 0; flag < _soloOverlayHideFlags.length; flag++) {
-          if (getUIFlag(_soloOverlayHideFlags[flag])) {
-            Overlay.text.flush();
-            Overlay.quests.flush();
+          for (let flag = 0; flag < hideFlags.length; flag++) {
+            if (getUIFlag(hideFlags[flag])) {
+              Overlay.text.flush();
+              Overlay.quests.flush();
 
-            while (getUIFlag(_soloOverlayHideFlags[flag])) {
-              delay(100);
+              while (getUIFlag(hideFlags[flag])) {
+                delay(100);
+              }
+
+              Misc.poll(function () {
+                return me.gameReady;
+              });
+              flag = 0;
+            } else {
+              Overlay.text.enabled = true;
             }
-
-            Misc.poll(function () {
-              return me.gameReady;
-            });
-            flag = 0;
-          } else {
-            Overlay.text.enabled = true;
           }
         }
-      }
 
-      Overlay.text.check();
-      if (Overlay.quests.enabled) {
-        Overlay.quests.check();
-      } else {
-        if (Overlay.timeOut > 0 && getTickCount() > Overlay.timeOut) {
-          Overlay.quests.enabled = true;
-          Overlay.timeOut = 0;
+        Overlay.text.check();
+        if (Overlay.quests.enabled) {
+          Overlay.quests.check();
+        } else {
+          if (Overlay.timeOut > 0 && getTickCount() > Overlay.timeOut) {
+            Overlay.quests.enabled = true;
+            Overlay.timeOut = 0;
+          }
+          Overlay.quests.flush();
         }
-        Overlay.quests.flush();
       }
-    }
 
-    return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
-  },
+      return msg ? true : (me.gameReady && me.ingame && !me.dead) ? status() : false;
+    };
+  })(),
 
   /**
    * @param {boolean} [all] When true, also disables the quest hooks for 15 seconds.

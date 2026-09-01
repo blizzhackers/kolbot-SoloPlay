@@ -156,47 +156,49 @@ Pickit.checkItem = function (unit) {
   return rval;
 };
 
-const _soloPickitPotTypes = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
+Pickit.amountOfPotsNeeded = (function () {
+  const potTypes = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
 
-// @jaenster
-/** @returns {Record<number, Record<number, number>>} Potions still needed per type, keyed by storage location */
-Pickit.amountOfPotsNeeded = function () {
-  /**
-   * @constructor
-   * @param {number} max 
-   */
-  function NeededPots (max) {
-    this[sdk.storage.Belt] = 0;
-    this[sdk.storage.Inventory] = max;
-  }
-  let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
-  let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
-  let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
-  const needed = {};
-  needed[sdk.items.type.HealingPotion] = new NeededPots(hpMax);
-  needed[sdk.items.type.ManaPotion] = new NeededPots(mpMax);
-  needed[sdk.items.type.RejuvPotion] = new NeededPots(rvMax);
-  if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
-    me.getItemsEx()
-      .filter(function (pot) {
-        return _soloPickitPotTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory);
-      })
-      .forEach(function (pot) {
-        needed[pot.itemType][pot.location] -= 1;
-      });
-  }
-  let missing = Storage.Belt.checkColumns(Pickit.beltSize);
-  Config.BeltColumn.forEach(function (column, index) {
-    if (column === "hp") {
-      needed[sdk.items.type.HealingPotion][sdk.storage.Belt] = missing[index];
-    } else if (column === "mp") {
-      needed[sdk.items.type.ManaPotion][sdk.storage.Belt] = missing[index];
-    } else if (column === "rv") {
-      needed[sdk.items.type.RejuvPotion][sdk.storage.Belt] = missing[index];
+  // @jaenster
+  /** @returns {Record<number, Record<number, number>>} Potions still needed per type, keyed by storage location */
+  return function () {
+    /**
+     * @constructor
+     * @param {number} max 
+     */
+    function NeededPots (max) {
+      this[sdk.storage.Belt] = 0;
+      this[sdk.storage.Inventory] = max;
     }
-  });
-  return needed;
-};
+    let hpMax = (Array.isArray(Config.HPBuffer) ? Config.HPBuffer[1] : Config.HPBuffer);
+    let mpMax = (Array.isArray(Config.MPBuffer) ? Config.MPBuffer[1] : Config.MPBuffer);
+    let rvMax = (Array.isArray(Config.RejuvBuffer) ? Config.RejuvBuffer[1] : Config.RejuvBuffer);
+    const needed = {};
+    needed[sdk.items.type.HealingPotion] = new NeededPots(hpMax);
+    needed[sdk.items.type.ManaPotion] = new NeededPots(mpMax);
+    needed[sdk.items.type.RejuvPotion] = new NeededPots(rvMax);
+    if (hpMax > 0 || mpMax > 0 || rvMax > 0) {
+      me.getItemsEx()
+        .filter(function (pot) {
+          return potTypes.includes(pot.itemType) && (pot.isInBelt || pot.isInInventory);
+        })
+        .forEach(function (pot) {
+          needed[pot.itemType][pot.location] -= 1;
+        });
+    }
+    let missing = Storage.Belt.checkColumns(Pickit.beltSize);
+    Config.BeltColumn.forEach(function (column, index) {
+      if (column === "hp") {
+        needed[sdk.items.type.HealingPotion][sdk.storage.Belt] = missing[index];
+      } else if (column === "mp") {
+        needed[sdk.items.type.ManaPotion][sdk.storage.Belt] = missing[index];
+      } else if (column === "rv") {
+        needed[sdk.items.type.RejuvPotion][sdk.storage.Belt] = missing[index];
+      }
+    });
+    return needed;
+  };
+})();
 
 /**
  * @param {ItemUnit} item 
@@ -393,265 +395,267 @@ Pickit.canPick = function (unit) {
 /** @type {Set<number>} */
 const _toCursorPick = new Set();
 
-const _soloPickitCancelFlags = [
-  sdk.uiflags.Inventory, sdk.uiflags.NPCMenu,
-  sdk.uiflags.Waypoint, sdk.uiflags.Shop,
-  sdk.uiflags.Stash, sdk.uiflags.Cube
-];
+Pickit.pickItem = (function () {
+  const cancelFlags = [
+    sdk.uiflags.Inventory, sdk.uiflags.NPCMenu,
+    sdk.uiflags.Waypoint, sdk.uiflags.Shop,
+    sdk.uiflags.Stash, sdk.uiflags.Cube
+  ];
 
-/**
- * @override
- * @param {ItemUnit} unit 
- * @param {PickitResult} status 
- * @param {string} keptLine 
- * @param {{ allowClear: boolean, allowMove: boolean, retry: number }} givenSettings 
- */
-Pickit.pickItem = function (unit, status, keptLine, givenSettings) {
-  if (!unit || unit === undefined) return false;
-  const _pickSettings = Object.assign({
-    allowClear: true,
-    allowMove: true,
-    retry: 3
-  }, givenSettings);
   /**
-   * @constructor
+   * @override
    * @param {ItemUnit} unit 
+   * @param {PickitResult} status 
+   * @param {string} keptLine 
+   * @param {{ allowClear: boolean, allowMove: boolean, retry: number }} givenSettings 
    */
-  function ItemStats (unit) {
-    this.x = unit.x;
-    this.y = unit.y;
-    this.gid = unit.gid;
-    this.area = unit.area;
-    this.ilvl = unit.ilvl;
-    this.sockets = unit.sockets;
-    this.type = unit.itemType;
-    this.classid = unit.classid;
-    this.name = unit.name;
-    this.color = Item.color(unit);
-    this.gold = unit.getStat(sdk.stats.Gold);
-    this._useTk = (Skill.haveTK && Pickit.tkable.includes(this.type));
-    this.picked = false;
-  }
-
-  Object.defineProperty(ItemStats.prototype, "useTk", {
+  return function (unit, status, keptLine, givenSettings) {
+    if (!unit || unit === undefined) return false;
+    const _pickSettings = Object.assign({
+      allowClear: true,
+      allowMove: true,
+      retry: 3
+    }, givenSettings);
     /**
-     * @this {ItemStats}
-     * @returns {boolean} True if this item should be picked with telekinesis (in range, unblocked, enough mana)
+     * @constructor
+     * @param {ItemUnit} unit 
      */
-    get: function () {
-      if (!this._useTk) return false;
-      if (_toCursorPick.has(this.gid)) return false;
-      let dist = this.distance;
-      let coll = CollMap.checkColl(me, this, sdk.collision.WallOrRanged);
-      return (
-        dist > 5 && dist < 20
-        && !coll
-        && me.mpPercent > 50
-      );
-    },
-    /**
-     * @this {ItemStats}
-     * @param {boolean} value 
-     */
-    set: function (value) {
-      this._useTk = value;
+    function ItemStats (unit) {
+      this.x = unit.x;
+      this.y = unit.y;
+      this.gid = unit.gid;
+      this.area = unit.area;
+      this.ilvl = unit.ilvl;
+      this.sockets = unit.sockets;
+      this.type = unit.itemType;
+      this.classid = unit.classid;
+      this.name = unit.name;
+      this.color = Item.color(unit);
+      this.gold = unit.getStat(sdk.stats.Gold);
+      this._useTk = (Skill.haveTK && Pickit.tkable.includes(this.type));
+      this.picked = false;
     }
-  });
 
-  const itemCount = me.itemcount;
-  const gid = unit.gid;
+    Object.defineProperty(ItemStats.prototype, "useTk", {
+      /**
+       * @this {ItemStats}
+       * @returns {boolean} True if this item should be picked with telekinesis (in range, unblocked, enough mana)
+       */
+      get: function () {
+        if (!this._useTk) return false;
+        if (_toCursorPick.has(this.gid)) return false;
+        let dist = this.distance;
+        let coll = CollMap.checkColl(me, this, sdk.collision.WallOrRanged);
+        return (
+          dist > 5 && dist < 20
+          && !coll
+          && me.mpPercent > 50
+        );
+      },
+      /**
+       * @this {ItemStats}
+       * @param {boolean} value 
+       */
+      set: function (value) {
+        this._useTk = value;
+      }
+    });
+
+    const itemCount = me.itemcount;
+    const gid = unit.gid;
   
-  let item = Game.getItem(-1, -1, gid);
-  if (!item) return false;
+    let item = Game.getItem(-1, -1, gid);
+    if (!item) return false;
 
-  let checkFlag = function (flag) {
-    return getUIFlag(flag);
-  };
+    let checkFlag = function (flag) {
+      return getUIFlag(flag);
+    };
 
-  if (_soloPickitCancelFlags.some(checkFlag)) {
-    delay(500);
-    me.cancel(0);
-  }
-
-  let retry = false;
-  const stats = new ItemStats(item);
-  const tkMana = stats.useTk
-    ? Skill.getManaCost(sdk.skills.Telekinesis) * 2
-    : Infinity;
-
-  MainLoop:
-  for (let i = 0; i < _pickSettings.retry; i += 1) {
-    if (me.dead) return false;
-    if (!Game.getItem(-1, -1, gid)) {
-      break;
+    if (cancelFlags.some(checkFlag)) {
+      delay(500);
+      me.cancel(0);
     }
 
-    while (!me.idle) {
-      delay(40);
-    }
+    let retry = false;
+    const stats = new ItemStats(item);
+    const tkMana = stats.useTk
+      ? Skill.getManaCost(sdk.skills.Telekinesis) * 2
+      : Infinity;
 
-    if (!item.onGroundOrDropping) {
-      break;
-    }
-
-    let itemDist = item.distance;
-    // @todo - allow picking near potions/scrolls while attacking distance < 5
-    if (stats.useTk && me.mp > tkMana) {
-      Packet.telekinesis(item);
-    } else {
-      let checkItem = false;
-      const maxDist = (Config.FastPick || i < 1) ? 8 : 5;
-      if (_pickSettings.allowMove
-        && item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)
-      ) {
-        let coll = (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor);
-
-        if (!_pickSettings.allowClear && me.checkForMobs({ range: 5, coll: coll })) {
-          continue;
-        }
-
-        if (_pickSettings.allowClear && item.checkForMobs({ range: 8, coll: coll })) {
-          try {
-            console.log("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
-            Pickit.enabled = false;		// Don't pick while trying to clear
-            Attack.clearPos(item.x, item.y, 10, false, function () {
-              if (!copyUnit(item).x) return true;
-              if (!item.onGroundOrDropping || me.getItem(-1, -1, gid)) return true;
-              return !item.checkForMobs({ range: 8, coll: coll });
-            });
-          } finally {
-            Pickit.enabled = true;		// Reset value
-          }
-        }
-        checkItem = true;
+    MainLoop:
+    for (let i = 0; i < _pickSettings.retry; i += 1) {
+      if (me.dead) return false;
+      if (!Game.getItem(-1, -1, gid)) {
+        break;
       }
 
-      if (checkItem || i > 0) {
-        if (copyUnit(item).x === undefined || !item.onGroundOrDropping) {
-          break;
-        }
-        if (!Pather.moveNearUnit({ x: stats.x, y: stats.y }, 5)) continue;
-      }
-
-      let cursorUnit;
-      itemDist = item.distance;
-      // use packet first, if we fail and not using fast pick use click
-      _toCursorPick.has(item.gid)
-        ? Packet.click(item, true)
-          && (cursorUnit = Misc.poll(function () {
-            return Game.getCursorUnit();
-          }, (itemDist > 10 ? 1000 : 250), 50))
-          && Storage.Inventory.MoveTo(cursorUnit)
-        : (Config.FastPick || i < 1)
-          ? Packet.click(item)
-          : Misc.click(0, 0, item);
-    }
-
-    let tick = getTickCount();
-
-    while (getTickCount() - tick < (itemDist > 10 ? 2000 : 1000)) {
-      item = copyUnit(item);
-      _toCursorPick.has(item.gid) && _toCursorPick.delete(item.gid);
-
-      if (stats.classid === sdk.items.Gold) {
-        if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
-          console.log(
-            "ÿc7Picked up " + stats.color
-            + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold)
-            + " " + stats.name
-          );
-          return true;
-        }
+      while (!me.idle) {
+        delay(40);
       }
 
       if (!item.onGroundOrDropping) {
-        switch (stats.classid) {
-        case sdk.items.Key:
-          console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + me.checkKeys() + "/12)");
+        break;
+      }
 
-          return true;
-        case sdk.items.ScrollofTownPortal:
-        case sdk.items.ScrollofIdentify:
-          console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + me.checkScrolls(stats.classid === sdk.items.ScrollofTownPortal ? "tbk" : "ibk") + "/20)");
+      let itemDist = item.distance;
+      // @todo - allow picking near potions/scrolls while attacking distance < 5
+      if (stats.useTk && me.mp > tkMana) {
+        Packet.telekinesis(item);
+      } else {
+        let checkItem = false;
+        const maxDist = (Config.FastPick || i < 1) ? 8 : 5;
+        if (_pickSettings.allowMove
+          && item.distance > maxDist || checkCollision(me, item, sdk.collision.BlockWall)
+        ) {
+          let coll = (sdk.collision.BlockWall | sdk.collision.Objects | sdk.collision.ClosedDoor);
 
-          return true;
-        case sdk.items.Arrows:
-        case sdk.items.Bolts:
-          me.needRepair();
-          
-          break;
+          if (!_pickSettings.allowClear && me.checkForMobs({ range: 5, coll: coll })) {
+            continue;
+          }
+
+          if (_pickSettings.allowClear && item.checkForMobs({ range: 8, coll: coll })) {
+            try {
+              console.log("ÿc8PickItemÿc0 :: Clearing area around item I want to pick");
+              Pickit.enabled = false;		// Don't pick while trying to clear
+              Attack.clearPos(item.x, item.y, 10, false, function () {
+                if (!copyUnit(item).x) return true;
+                if (!item.onGroundOrDropping || me.getItem(-1, -1, gid)) return true;
+                return !item.checkForMobs({ range: 8, coll: coll });
+              });
+            } finally {
+              Pickit.enabled = true;		// Reset value
+            }
+          }
+          checkItem = true;
         }
 
-        me.itemoncursor && Storage.Inventory.MoveTo(Game.getCursorUnit());
+        if (checkItem || i > 0) {
+          if (copyUnit(item).x === undefined || !item.onGroundOrDropping) {
+            break;
+          }
+          if (!Pather.moveNearUnit({ x: stats.x, y: stats.y }, 5)) continue;
+        }
 
-        break MainLoop;
+        let cursorUnit;
+        itemDist = item.distance;
+        // use packet first, if we fail and not using fast pick use click
+        _toCursorPick.has(item.gid)
+          ? Packet.click(item, true)
+            && (cursorUnit = Misc.poll(function () {
+              return Game.getCursorUnit();
+            }, (itemDist > 10 ? 1000 : 250), 50))
+            && Storage.Inventory.MoveTo(cursorUnit)
+          : (Config.FastPick || i < 1)
+            ? Packet.click(item)
+            : Misc.click(0, 0, item);
       }
 
-      delay(20);
+      let tick = getTickCount();
+
+      while (getTickCount() - tick < (itemDist > 10 ? 2000 : 1000)) {
+        item = copyUnit(item);
+        _toCursorPick.has(item.gid) && _toCursorPick.delete(item.gid);
+
+        if (stats.classid === sdk.items.Gold) {
+          if (!item.getStat(sdk.stats.Gold) || item.getStat(sdk.stats.Gold) < stats.gold) {
+            console.log(
+              "ÿc7Picked up " + stats.color
+              + (item.getStat(sdk.stats.Gold) ? (item.getStat(sdk.stats.Gold) - stats.gold) : stats.gold)
+              + " " + stats.name
+            );
+            return true;
+          }
+        }
+
+        if (!item.onGroundOrDropping) {
+          switch (stats.classid) {
+          case sdk.items.Key:
+            console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + me.checkKeys() + "/12)");
+
+            return true;
+          case sdk.items.ScrollofTownPortal:
+          case sdk.items.ScrollofIdentify:
+            console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc7(" + me.checkScrolls(stats.classid === sdk.items.ScrollofTownPortal ? "tbk" : "ibk") + "/20)");
+
+            return true;
+          case sdk.items.Arrows:
+          case sdk.items.Bolts:
+            me.needRepair();
+          
+            break;
+          }
+
+          me.itemoncursor && Storage.Inventory.MoveTo(Game.getCursorUnit());
+
+          break MainLoop;
+        }
+
+        delay(20);
+      }
+
+      // TK failed, disable it
+      stats.useTk = false;
+
+      //console.log("pick retry");
     }
 
-    // TK failed, disable it
-    stats.useTk = false;
+    if (retry) return this.pickItem(unit, status, keptLine);
 
-    //console.log("pick retry");
-  }
+    stats.picked = me.itemcount > itemCount || !!me.getItem(-1, -1, gid);
 
-  if (retry) return this.pickItem(unit, status, keptLine);
+    if (stats.picked) {
+      DataFile.updateStats("lastArea");
 
-  stats.picked = me.itemcount > itemCount || !!me.getItem(-1, -1, gid);
+      switch (status) {
+      case Pickit.Result.WANTED:
+      case Pickit.Result.SOLOWANTS:
+        console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
 
-  if (stats.picked) {
-    DataFile.updateStats("lastArea");
+        if (this.ignoreLog.indexOf(stats.type) === -1) {
+          Item.logger("Kept", item);
+          Item.logItem("Kept", item, keptLine);
+        }
 
-    switch (status) {
-    case Pickit.Result.WANTED:
-    case Pickit.Result.SOLOWANTS:
-      console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (stats.sockets > 0 ? ") (sockets " + stats.sockets : "") + (keptLine ? ") (" + keptLine + ")" : ")"));
+        if (item.identified && item.isInInventory && AutoEquip.wanted(item)) {
+          (
+            (Item.autoEquipCheck(item) && Item.autoEquip("Field"))
+            || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field"))
+          );
+        }
 
-      if (this.ignoreLog.indexOf(stats.type) === -1) {
-        Item.logger("Kept", item);
-        Item.logItem("Kept", item, keptLine);
+        break;
+      case Pickit.Result.CUBING:
+        console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Cubing)");
+        Item.logger("Kept", item, "Cubing " + me.findItems(item.classid).length);
+        Cubing.update();
+
+        break;
+      case Pickit.Result.RUNEWORD:
+        console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Runewords)");
+        Item.logger("Kept", item, "Runewords");
+        Runewords.update(stats.classid, gid);
+
+        break;
+      case Pickit.Result.CRAFTING:
+        console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Crafting System)");
+        CraftingSystem.update(item);
+
+        break;
+      case Pickit.Result.SOLOSYSTEM:
+        console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
+        SoloWants.update(item);
+
+        break;
+      default:
+        console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (keptLine ? ") (" + keptLine + ")" : ")"));
+
+        break;
       }
-
-      if (item.identified && item.isInInventory && AutoEquip.wanted(item)) {
-        (
-          (Item.autoEquipCheck(item) && Item.autoEquip("Field"))
-          || (Item.autoEquipCheckSecondary(item) && Item.autoEquipSecondary("Field"))
-        );
-      }
-
-      break;
-    case Pickit.Result.CUBING:
-      console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Cubing)");
-      Item.logger("Kept", item, "Cubing " + me.findItems(item.classid).length);
-      Cubing.update();
-
-      break;
-    case Pickit.Result.RUNEWORD:
-      console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Runewords)");
-      Item.logger("Kept", item, "Runewords");
-      Runewords.update(stats.classid, gid);
-
-      break;
-    case Pickit.Result.CRAFTING:
-      console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (Crafting System)");
-      CraftingSystem.update(item);
-
-      break;
-    case Pickit.Result.SOLOSYSTEM:
-      console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + ")" + " (SoloWants System)");
-      SoloWants.update(item);
-
-      break;
-    default:
-      console.log("ÿc7Picked up " + stats.color + stats.name + " ÿc0(ilvl " + stats.ilvl + (keptLine ? ") (" + keptLine + ")" : ")"));
-
-      break;
     }
-  }
 
-  return true;
-};
+    return true;
+  };
+})();
 
 /**
  * @param {PathNode | { x: number; y: number }} spot
@@ -785,6 +789,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   
   let needMule = false;
   const canUseMule = AutoMule.getInfo() && AutoMule.getInfo().hasOwnProperty("muleInfo");
+  const _pots = [sdk.items.type.HealingPotion, sdk.items.type.ManaPotion, sdk.items.type.RejuvPotion];
   const origin = new PathNode(me.x, me.y);
 
   const buildPickList = function () {
@@ -816,7 +821,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
   buildPickList();
 
   if (Pickit.pickList.some(function (el) {
-    return _soloPickitPotTypes.includes(el.itemType);
+    return _pots.includes(el.itemType);
   })) {
     me.clearBelt();
     Pickit.beltSize = Storage.BeltSize();

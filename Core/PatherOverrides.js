@@ -30,17 +30,19 @@ me.haveWaypoint = function (area) {
   return getWaypoint(AreaData.wps.get(area));
 };
 
-const _soloPatherAnnoyingAreas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
+Pather.inAnnoyingArea = (function () {
+  const annoyingAreas = [sdk.areas.MaggotLairLvl1, sdk.areas.MaggotLairLvl2, sdk.areas.MaggotLairLvl3];
 
-/**
- * @param {number} currArea
- * @param {boolean} [includeArcane=false]
- * @returns {boolean}
- */
-Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
-  if (includeArcane && currArea === sdk.areas.ArcaneSanctuary) return true;
-  return _soloPatherAnnoyingAreas.includes(currArea);
-};
+  /**
+   * @param {number} currArea
+   * @param {boolean} [includeArcane=false]
+   * @returns {boolean}
+   */
+  return function (currArea, includeArcane = false) {
+    if (includeArcane && currArea === sdk.areas.ArcaneSanctuary) return true;
+    return annoyingAreas.includes(currArea);
+  };
+})();
 
 /**
  * @typedef {Object} clearSettings
@@ -51,98 +53,100 @@ Pather.inAnnoyingArea = function (currArea, includeArcane = false) {
  * @property {boolean} [allowClearing]
  */
 
-// I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
-const _soloPatherPallyAnnoyingAreas = [
-  sdk.areas.DenofEvil, sdk.areas.CaveLvl1,
-  sdk.areas.UndergroundPassageLvl1, sdk.areas.HoleLvl1,
-  sdk.areas.PitLvl1, sdk.areas.CaveLvl2,
-  sdk.areas.UndergroundPassageLvl2, sdk.areas.PitLvl2,
-  sdk.areas.HoleLvl2, sdk.areas.DisusedFane,
-  sdk.areas.RuinedTemple, sdk.areas.ForgottenReliquary,
-  sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary
-];
-const _soloPatherSummonerAreas = [
-  sdk.areas.DenofEvil, sdk.areas.ColdPlains,
-  sdk.areas.StonyField, sdk.areas.Tristram,
-  sdk.areas.DarkWood, sdk.areas.BlackMarsh,
-  sdk.areas.OuterCloister, sdk.areas.Barracks,
-  sdk.areas.Cathedral, sdk.areas.CatacombsLvl4,
-  sdk.areas.HallsoftheDeadLvl1, sdk.areas.HallsoftheDeadLvl2,
-  sdk.areas.HallsoftheDeadLvl3, sdk.areas.ValleyofSnakes,
-  sdk.areas.ClawViperTempleLvl1, sdk.areas.TalRashasTomb1,
-  sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
-  sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5,
-  sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
-];
-
-/**
- * @param {clearSettings} arg
- * @returns {void}
- * @todo
- * - clean this up
- * - use effort level calculations to control clearing
- */
-NodeAction.killMonsters = function (arg = {}) {
-  if (Attack.stopClear || (arg.hasOwnProperty("allowClearing") && !arg.allowClearing)) return;
-
-  // before we get into fighting lets do a quick shrine scan
-  Misc.shriner([], Skill.haveTK ? 15 : 5);
-
-  const myArea = me.area;
-  // sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
-  if (Pather.inAnnoyingArea(myArea, true) || (me.paladin && _soloPatherPallyAnnoyingAreas.includes(myArea))) {
-    arg.range = 7;
-  }
+NodeAction.killMonsters = (function () {
+  // I don't think this is even needed anymore, pretty sure I fixed wall hugging. todo - check it
+  const pallyAnnoyingAreas = [
+    sdk.areas.DenofEvil, sdk.areas.CaveLvl1,
+    sdk.areas.UndergroundPassageLvl1, sdk.areas.HoleLvl1,
+    sdk.areas.PitLvl1, sdk.areas.CaveLvl2,
+    sdk.areas.UndergroundPassageLvl2, sdk.areas.PitLvl2,
+    sdk.areas.HoleLvl2, sdk.areas.DisusedFane,
+    sdk.areas.RuinedTemple, sdk.areas.ForgottenReliquary,
+    sdk.areas.ForgottenTemple, sdk.areas.RuinedFane, sdk.areas.DisusedReliquary
+  ];
+  const summonerAreas = [
+    sdk.areas.DenofEvil, sdk.areas.ColdPlains,
+    sdk.areas.StonyField, sdk.areas.Tristram,
+    sdk.areas.DarkWood, sdk.areas.BlackMarsh,
+    sdk.areas.OuterCloister, sdk.areas.Barracks,
+    sdk.areas.Cathedral, sdk.areas.CatacombsLvl4,
+    sdk.areas.HallsoftheDeadLvl1, sdk.areas.HallsoftheDeadLvl2,
+    sdk.areas.HallsoftheDeadLvl3, sdk.areas.ValleyofSnakes,
+    sdk.areas.ClawViperTempleLvl1, sdk.areas.TalRashasTomb1,
+    sdk.areas.TalRashasTomb2, sdk.areas.TalRashasTomb3,
+    sdk.areas.TalRashasTomb4, sdk.areas.TalRashasTomb5,
+    sdk.areas.TalRashasTomb6, sdk.areas.TalRashasTomb7
+  ];
 
   /**
-   * @todo:
-   * - we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
-   * - better monster sorting. If we are low level priortize killing easy targets like zombies/quill rats while ignoring fallens unless they are in our path
-   * - ignore dolls when walking unless absolutely necessary because we are blocked
+   * @param {clearSettings} arg
+   * @returns {void}
+   * @todo
+   * - clean this up
+   * - use effort level calculations to control clearing
    */
-  if (!arg.canTele && arg.clearPath !== false) {
-    /** @type {Array<Monster>} */
-    const monList = [];
-    /** @param {Monster} mon */
-    const addToMonList = function (mon) {
-      monList.push(mon);
-    };
-    let _coll = (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged);
+  return function (arg = {}) {
+    if (Attack.stopClear || (arg.hasOwnProperty("allowClearing") && !arg.allowClearing)) return;
 
-    if (me.inArea(sdk.areas.BloodMoor)) {
-      getUnits(sdk.unittype.Monster)
-        .filter(function (mon) {
-          return mon.attackable && mon.distance < 30
-            && !mon.isFallen && !checkCollision(me, mon, _coll);
-        })
-        .forEach(addToMonList);
+    // before we get into fighting lets do a quick shrine scan
+    Misc.shriner([], Skill.haveTK ? 15 : 5);
+
+    const myArea = me.area;
+    // sanityCheck from isid0re - added paladin specific areas - theBGuy - a mess.. sigh
+    if (Pather.inAnnoyingArea(myArea, true) || (me.paladin && pallyAnnoyingAreas.includes(myArea))) {
+      arg.range = 7;
     }
 
-    if (_soloPatherSummonerAreas.includes(myArea)) {
-      getUnits(sdk.unittype.Monster)
-        .filter(function (mon) {
-          return mon.attackable && mon.distance < 30
-            && (mon.isUnraveler || mon.isShaman) && !checkCollision(me, mon, _coll);
-        })
-        .forEach(addToMonList);
+    /**
+     * @todo:
+     * - we don't need this if we have a lightning chain based skill, e.g light sorc, light zon
+     * - better monster sorting. If we are low level priortize killing easy targets like zombies/quill rats while ignoring fallens unless they are in our path
+     * - ignore dolls when walking unless absolutely necessary because we are blocked
+     */
+    if (!arg.canTele && arg.clearPath !== false) {
+      /** @type {Array<Monster>} */
+      const monList = [];
+      /** @param {Monster} mon */
+      const addToMonList = function (mon) {
+        monList.push(mon);
+      };
+      let _coll = (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged);
+
+      if (me.inArea(sdk.areas.BloodMoor)) {
+        getUnits(sdk.unittype.Monster)
+          .filter(function (mon) {
+            return mon.attackable && mon.distance < 30
+              && !mon.isFallen && !checkCollision(me, mon, _coll);
+          })
+          .forEach(addToMonList);
+      }
+
+      if (summonerAreas.includes(myArea)) {
+        getUnits(sdk.unittype.Monster)
+          .filter(function (mon) {
+            return mon.attackable && mon.distance < 30
+              && (mon.isUnraveler || mon.isShaman) && !checkCollision(me, mon, _coll);
+          })
+          .forEach(addToMonList);
+      }
+
+      if ([sdk.areas.StonyField, sdk.areas.BlackMarsh, sdk.areas.FarOasis].includes(me.area)) {
+        // monster nest's are good exp
+        getUnits(sdk.unittype.Monster)
+          .filter(function (mon) {
+            return mon.attackable && mon.distance < 35 && mon.isMonsterNest;
+          })
+          .forEach(addToMonList);
+      }
+      // need to write a way to consider current path
+      monList.length > 0 && Attack.clearList(monList);
     }
 
-    if ([sdk.areas.StonyField, sdk.areas.BlackMarsh, sdk.areas.FarOasis].includes(me.area)) {
-      // monster nest's are good exp
-      getUnits(sdk.unittype.Monster)
-        .filter(function (mon) {
-          return mon.attackable && mon.distance < 35 && mon.isMonsterNest;
-        })
-        .forEach(addToMonList);
+    if (arg.clearPath !== false) {
+      Attack.clear(arg.range, arg.specType);
     }
-    // need to write a way to consider current path
-    monList.length > 0 && Attack.clearList(monList);
-  }
-
-  if (arg.clearPath !== false) {
-    Attack.clear(arg.range, arg.specType);
-  }
-};
+  };
+})();
 
 /** @param {clearSettings} arg */
 NodeAction.popChests = function (arg = {}) {
