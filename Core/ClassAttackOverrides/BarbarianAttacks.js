@@ -92,6 +92,7 @@
     sdk.monsters.Dominus1, sdk.monsters.VileWitch1,
     sdk.monsters.StygianFury, sdk.monsters.Witch2, sdk.monsters.Witch3
   ]);
+  const duelWieldSkills = [sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy];
   /** @param {Monster} unit */
   const checkHasNoHelpfulCurse = function (unit) {
     return helpfulCurses.every(function (state) {
@@ -283,7 +284,6 @@
       attackSkill = Config.LowManaSkill[0];
     }
 
-    let duelWieldSkills = [sdk.skills.DoubleSwing, sdk.skills.DoubleThrow, sdk.skills.Frenzy];
     if (duelWieldSkills.includes(attackSkill)
       && !me.dualWielding || (!Skill.canUse(attackSkill) && attackSkill !== sdk.skills.WarCry)
     ) {

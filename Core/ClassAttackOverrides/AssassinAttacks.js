@@ -42,131 +42,137 @@ ClassAttack[sdk.player.class.Assassin].mindBlast = function (unit) {
   }
 };
 
-/**
- * @param {Unit} unit - The unit to switch curse on
- * @param {boolean} force - Force switch curse even if unit is in melee range (used for bosses and other dangerous mobs)
- * @returns {void}
- */
-ClassAttack[sdk.player.class.Assassin].switchCurse = function (unit, force) {
-  const chargedSkills = [sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken];
-  if (CharData.skillData.haveChargedSkill(chargedSkills) && unit.curseable) {
-    const gold = me.gold;
-    const isBoss = unit.isBoss;
-    const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
-    if (force && checkCollision(me, unit, sdk.collision.Ranged)) {
-      if (!Attack.getIntoPosition(unit, 35, sdk.collision.Ranged)) return;
-    }
-    // If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
-    // Might be worth it to use on souls too TODO: test this idea
-    if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
-      && unit.getEnchant(sdk.enchant.LightningEnchanted)
-      && !unit.getState(sdk.states.SlowMissiles)
-      && !checkCollision(me, unit, sdk.collision.Ranged)
-    ) {
-      // Cast slow missiles
-      Attack.castCharges(sdk.skills.SlowMissiles, unit);
-    }
-    // Handle Switch casting
-    if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
-      && (gold > 500000 || isBoss || dangerZone)
-      && !unit.getState(sdk.states.LowerResist)
-      && !checkCollision(me, unit, sdk.collision.Ranged)
-    ) {
-      // Switch cast lower resist
-      Attack.switchCastCharges(sdk.skills.LowerResist, unit);
-    }
+ClassAttack[sdk.player.class.Assassin].switchCurse = (function () {
+  const chargedCurses = [sdk.skills.SlowMissiles, sdk.skills.LowerResist, sdk.skills.Weaken];
 
-    if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
-      && (gold > 500000 || isBoss || dangerZone)
-      && !unit.getState(sdk.states.Weaken)
-      && !unit.getState(sdk.states.LowerResist)
-      && !checkCollision(me, unit, sdk.collision.Ranged)
-    ) {
-      // Switch cast weaken
-      Attack.switchCastCharges(sdk.skills.Weaken, unit);
-    }
-  }
-};
+  /**
+   * @param {Unit} unit - The unit to switch curse on
+   * @param {boolean} force - Force switch curse even if unit is in melee range (used for bosses and other dangerous mobs)
+   * @returns {void}
+   */
+  return function (unit, force) {
+    if (CharData.skillData.haveChargedSkill(chargedCurses) && unit.curseable) {
+      const gold = me.gold;
+      const isBoss = unit.isBoss;
+      const dangerZone = [sdk.areas.ChaosSanctuary, sdk.areas.ThroneofDestruction].includes(me.area);
+      if (force && checkCollision(me, unit, sdk.collision.Ranged)) {
+        if (!Attack.getIntoPosition(unit, 35, sdk.collision.Ranged)) return;
+      }
+      // If we have slow missles we might as well use it, currently only on Lighting Enchanted mobs as they are dangerous
+      // Might be worth it to use on souls too TODO: test this idea
+      if (CharData.skillData.haveChargedSkill(sdk.skills.SlowMissiles) && gold > 500000 && !isBoss
+        && unit.getEnchant(sdk.enchant.LightningEnchanted)
+        && !unit.getState(sdk.states.SlowMissiles)
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
+        // Cast slow missiles
+        Attack.castCharges(sdk.skills.SlowMissiles, unit);
+      }
+      // Handle Switch casting
+      if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.LowerResist)
+        && (gold > 500000 || isBoss || dangerZone)
+        && !unit.getState(sdk.states.LowerResist)
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
+        // Switch cast lower resist
+        Attack.switchCastCharges(sdk.skills.LowerResist, unit);
+      }
 
-/**
- * @param {Unit} unit - The unit to place traps around
- * @param {number} amount - The amount of traps to place
- * @returns {boolean} - Whether we successfully placed the traps or not (can fail if unit dies during trap placement or we run out of traps to place)
- */
-ClassAttack[sdk.player.class.Assassin].placeTraps = function (unit, amount) {
-  let traps = 0;
-  // why not andy?
-  const bosses = [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
-
-  this.lastTrapPos = { x: unit.x, y: unit.y };
-
-  for (let i = -1; i <= 1; i += 1) {
-    for (let j = -1; j <= 1; j += 1) {
-      // Used for X formation
-      if (Math.abs(i) === Math.abs(j)) {
-        // Unit can be an object with x, y props too, that's why having "mode" prop is checked
-        if (traps >= amount || (unit.hasOwnProperty("mode") && unit.dead)) return true;
-
-        // Duriel, Mephisto, Diablo, Baal, other players
-        if (
-          (unit.hasOwnProperty("classid") && bosses.includes(unit.classid))
-          || (unit.hasOwnProperty("type") && unit.isPlayer)
-        ) {
-          if (traps >= Config.BossTraps.length) {
-            return true;
-          }
-
-          Skill.cast(Config.BossTraps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
-        } else {
-          if (traps >= Config.Traps.length) return true;
-
-          switch (Config.Traps[traps]) {
-          case sdk.skills.ChargedBoltSentry:
-          case sdk.skills.LightningSentry:
-            // Immune to lightning but not immune to fire, use fire trap if available
-            if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
-              if (Skill.canUse(sdk.skills.WakeofFire)) {
-                Skill.cast(sdk.skills.WakeofFire, sdk.skills.hand.Right, unit.x + i, unit.y + j);
-              } else if (Skill.canUse(sdk.skills.WakeofInferno)) {
-                Skill.cast(sdk.skills.WakeofInferno, sdk.skills.hand.Right, unit.x + i, unit.y + j);
-              }
-
-              break;
-            } else {
-              Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
-            }
-
-            break;
-          case sdk.skills.WakeofFire:
-          case sdk.skills.WakeofInferno:
-            // Immune to fire but not immune to lightning, use light trap if available
-            if (!Attack.checkResist(unit, "fire") && Attack.checkResist(unit, "lightning")) {
-              if (Skill.canUse(sdk.skills.LightningSentry)) {
-                Skill.cast(sdk.skills.LightningSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
-              } else if (Skill.canUse(sdk.skills.ChargedBoltSentry)) {
-                Skill.cast(sdk.skills.ChargedBoltSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
-              }
-
-              break;
-            } else {
-              Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
-            }
-
-            break;
-          default:
-            Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
-
-            break;
-          }
-        }
-
-        traps += 1;
+      if (CharData.skillData.haveChargedSkillOnSwitch(sdk.skills.Weaken)
+        && (gold > 500000 || isBoss || dangerZone)
+        && !unit.getState(sdk.states.Weaken)
+        && !unit.getState(sdk.states.LowerResist)
+        && !checkCollision(me, unit, sdk.collision.Ranged)
+      ) {
+        // Switch cast weaken
+        Attack.switchCastCharges(sdk.skills.Weaken, unit);
       }
     }
-  }
+  };
+})();
 
-  return true;
-};
+ClassAttack[sdk.player.class.Assassin].placeTraps = (function () {
+  // why not andy?
+  const trapBosses = [sdk.monsters.Duriel, sdk.monsters.Mephisto, sdk.monsters.Diablo, sdk.monsters.Baal];
+
+  /**
+   * @param {Unit} unit - The unit to place traps around
+   * @param {number} amount - The amount of traps to place
+   * @returns {boolean} - Whether we successfully placed the traps or not (can fail if unit dies during trap placement or we run out of traps to place)
+   */
+  return function (unit, amount) {
+    let traps = 0;
+
+    this.lastTrapPos = { x: unit.x, y: unit.y };
+
+    for (let i = -1; i <= 1; i += 1) {
+      for (let j = -1; j <= 1; j += 1) {
+        // Used for X formation
+        if (Math.abs(i) === Math.abs(j)) {
+          // Unit can be an object with x, y props too, that's why having "mode" prop is checked
+          if (traps >= amount || (unit.hasOwnProperty("mode") && unit.dead)) return true;
+
+          // Duriel, Mephisto, Diablo, Baal, other players
+          if (
+            (unit.hasOwnProperty("classid") && trapBosses.includes(unit.classid))
+            || (unit.hasOwnProperty("type") && unit.isPlayer)
+          ) {
+            if (traps >= Config.BossTraps.length) {
+              return true;
+            }
+
+            Skill.cast(Config.BossTraps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
+          } else {
+            if (traps >= Config.Traps.length) return true;
+
+            switch (Config.Traps[traps]) {
+            case sdk.skills.ChargedBoltSentry:
+            case sdk.skills.LightningSentry:
+              // Immune to lightning but not immune to fire, use fire trap if available
+              if (!Attack.checkResist(unit, "lightning") && Attack.checkResist(unit, "fire")) {
+                if (Skill.canUse(sdk.skills.WakeofFire)) {
+                  Skill.cast(sdk.skills.WakeofFire, sdk.skills.hand.Right, unit.x + i, unit.y + j);
+                } else if (Skill.canUse(sdk.skills.WakeofInferno)) {
+                  Skill.cast(sdk.skills.WakeofInferno, sdk.skills.hand.Right, unit.x + i, unit.y + j);
+                }
+
+                break;
+              } else {
+                Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
+              }
+
+              break;
+            case sdk.skills.WakeofFire:
+            case sdk.skills.WakeofInferno:
+              // Immune to fire but not immune to lightning, use light trap if available
+              if (!Attack.checkResist(unit, "fire") && Attack.checkResist(unit, "lightning")) {
+                if (Skill.canUse(sdk.skills.LightningSentry)) {
+                  Skill.cast(sdk.skills.LightningSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
+                } else if (Skill.canUse(sdk.skills.ChargedBoltSentry)) {
+                  Skill.cast(sdk.skills.ChargedBoltSentry, sdk.skills.hand.Right, unit.x + i, unit.y + j);
+                }
+
+                break;
+              } else {
+                Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
+              }
+
+              break;
+            default:
+              Skill.cast(Config.Traps[traps], sdk.skills.hand.Right, unit.x + i, unit.y + j);
+
+              break;
+            }
+          }
+
+          traps += 1;
+        }
+      }
+    }
+
+    return true;
+  };
+})();
 
 /**
  * @param {Unit} unit - The unit to attack

@@ -223,41 +223,8 @@ Attack.canAttack = function (unit) {
   return false;
 };
 
-/**
- * @param {number} range 
- * @param {number} x 
- * @param {number} y 
- * @returns {boolean}
- */
-Attack.openChests = function (range, x, y) {
-  if (!Config.OpenChests.Enabled || !Misc.openChestsEnabled) return false;
-  range === undefined && (range = 5);
-  x === undefined && (x = me.x);
-  y === undefined && (y = me.y);
-
-  /** @param {ObjectUnit} chest */
-  const openChest = function (chest) {
-    // Skip invalid/open and Countess chests
-    if (!chest || chest.x === 12526 || chest.x === 12565 || chest.mode) return false;
-    // locked chest, no keys
-    if (!me.assassin && unit.islocked
-      && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) {
-      return false;
-    }
-    if (Pather.getWalkDistance((chest.x + 1), (chest.y + 2)) > 10) {
-      // chest is too far away
-      console.debug("Chest too far away");
-      return false;
-    }
-    if ([(chest.x + 1), (chest.y + 2)].distance > 5) {
-      Pather.walkTo(chest.x + 1, chest.y + 2, 3);
-    }
-    Packet.entityInteract(chest);
-
-    return Misc.poll(function () {
-      return !chest || chest.mode !== sdk.objects.mode.Inactive;
-    }, 300, 10);
-  };
+Attack.openChests = (function () {
+  // lowercase object names Attack.openChests treats as openable containers
   const containers = [
     "chest", "loose rock", "hidden stash", "loose boulder",
     "corpseonstick", "casket", "armorstand", "weaponrack",
@@ -274,29 +241,66 @@ Attack.openChests = function (range, x, y) {
     "explodingchest", "icecavejar1", "icecavejar2", "icecavejar3",
     "icecavejar4", "evilurn"
   ];
-  const list = [];
-  let unit = Game.getObject();
 
-  if (unit) {
-    do {
-      if (unit.name
-        && unit.mode === sdk.objects.mode.Inactive
-        && containers.includes(unit.name.toLowerCase())
-        && getDistance(unit, x, y) <= range
-        && !checkCollision(me, unit, sdk.collision.BlockWalk)
-        /* && unit.getMobCount(10) === 0 */) {
-        list.push(copyUnit(unit));
+  /**
+   * @param {number} range
+   * @param {number} x
+   * @param {number} y
+   * @returns {boolean}
+   */
+  return function (range, x, y) {
+    if (!Config.OpenChests.Enabled || !Misc.openChestsEnabled) return false;
+    range === undefined && (range = 5);
+    x === undefined && (x = me.x);
+    y === undefined && (y = me.y);
+
+    /** @param {ObjectUnit} chest */
+    const openChest = function (chest) {
+      // Skip invalid/open and Countess chests
+      if (!chest || chest.x === 12526 || chest.x === 12565 || chest.mode) return false;
+      // locked chest, no keys
+      if (!me.assassin && unit.islocked
+        && !me.findItem(sdk.items.Key, sdk.items.mode.inStorage, sdk.storage.Inventory)) {
+        return false;
       }
-    } while (unit.getNext());
-  }
+      if (Pather.getWalkDistance((chest.x + 1), (chest.y + 2)) > 10) {
+        // chest is too far away
+        console.debug("Chest too far away");
+        return false;
+      }
+      if ([(chest.x + 1), (chest.y + 2)].distance > 5) {
+        Pather.walkTo(chest.x + 1, chest.y + 2, 3);
+      }
+      Packet.entityInteract(chest);
 
-  while (list.length) {
-    list.sort(Sort.units);
-    openChest(list.shift()) && Pickit.pickItems(5);
-  }
+      return Misc.poll(function () {
+        return !chest || chest.mode !== sdk.objects.mode.Inactive;
+      }, 300, 10);
+    };
+    const list = [];
+    let unit = Game.getObject();
 
-  return true;
-};
+    if (unit) {
+      do {
+        if (unit.name
+          && unit.mode === sdk.objects.mode.Inactive
+          && containers.includes(unit.name.toLowerCase())
+          && getDistance(unit, x, y) <= range
+          && !checkCollision(me, unit, sdk.collision.BlockWalk)
+          /* && unit.getMobCount(10) === 0 */) {
+          list.push(copyUnit(unit));
+        }
+      } while (unit.getNext());
+    }
+
+    while (list.length) {
+      list.sort(Sort.units);
+      openChest(list.shift()) && Pickit.pickItems(5);
+    }
+
+    return true;
+  };
+})();
 
 /**
  * @param {Monster | string | number} name 
@@ -1401,35 +1405,9 @@ new Overrides.Override(Attack,
   }
 ).apply();
 
-/**
- * @param {Monster} unitA 
- * @param {Monster} unitB 
- */
-Attack.walkingSortMonsters = function (unitA, unitB) {
-  // sort main bosses first
-  if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) {
-    return getDistance(me, unitA) - getDistance(me, unitB);
-  }
-  if (unitA.isPrimeEvil) return -1;
-  if (unitB.isPrimeEvil) return 1;
-
-  // Barb optimization
-  if (me.barbarian) {
-    let skillElm = Attack.getSkillElement(Config.AttackSkill[(unitA.isSpecial) ? 1 : 3]);
-    if (!Attack.checkResist(unitA, skillElm)) {
-      return 1;
-    }
-
-    if (!Attack.checkResist(unitB, skillElm)) {
-      return -1;
-    }
-  }
-
-  // Put monsters under Attract curse at the end of the list - They are helping us
-  if (unitA.getState(sdk.states.Attract)) return 1;
-  if (unitB.getState(sdk.states.Attract)) return -1;
-
-  const ids = [
+Attack.walkingSortMonsters = (function () {
+  // summoners, nests and other priority targets that Attack.walkingSortMonsters puts first
+  const priorityIds = [
     sdk.monsters.OblivionKnight1, sdk.monsters.OblivionKnight2, sdk.monsters.OblivionKnight3,
     sdk.monsters.FallenShaman, sdk.monsters.CarverShaman, sdk.monsters.CarverShaman2,
     sdk.monsters.DevilkinShaman, sdk.monsters.DevilkinShaman2, sdk.monsters.DarkShaman1,
@@ -1445,38 +1423,67 @@ Attack.walkingSortMonsters = function (unitA, unitB) {
     sdk.monsters.CloudStalkerNest, sdk.monsters.FeederNest, sdk.monsters.SuckerNest
   ];
 
-  if (!me.inArea(sdk.areas.ClawViperTempleLvl2)
-    && ids.includes(unitA.classid)
-    && ids.includes(unitB.classid)) {
-    // Kill "scary" uniques first (like Bishibosh)
-    if ((unitA.isUnique) && (unitB.isUnique)) {
+  /**
+   * @param {Monster} unitA
+   * @param {Monster} unitB
+   */
+  return function (unitA, unitB) {
+    // sort main bosses first
+    if ((unitA.isPrimeEvil) && (unitB.isPrimeEvil)) {
       return getDistance(me, unitA) - getDistance(me, unitB);
     }
-    if (unitA.isUnique) return -1;
-    if (unitB.isUnique) return 1;
+    if (unitA.isPrimeEvil) return -1;
+    if (unitB.isPrimeEvil) return 1;
+
+    // Barb optimization
+    if (me.barbarian) {
+      let skillElm = Attack.getSkillElement(Config.AttackSkill[(unitA.isSpecial) ? 1 : 3]);
+      if (!Attack.checkResist(unitA, skillElm)) {
+        return 1;
+      }
+
+      if (!Attack.checkResist(unitB, skillElm)) {
+        return -1;
+      }
+    }
+
+    // Put monsters under Attract curse at the end of the list - They are helping us
+    if (unitA.getState(sdk.states.Attract)) return 1;
+    if (unitB.getState(sdk.states.Attract)) return -1;
+
+    if (!me.inArea(sdk.areas.ClawViperTempleLvl2)
+      && priorityIds.includes(unitA.classid)
+      && priorityIds.includes(unitB.classid)) {
+      // Kill "scary" uniques first (like Bishibosh)
+      if ((unitA.isUnique) && (unitB.isUnique)) {
+        return getDistance(me, unitA) - getDistance(me, unitB);
+      }
+      if (unitA.isUnique) return -1;
+      if (unitB.isUnique) return 1;
+
+      return getDistance(me, unitA) - getDistance(me, unitB);
+    }
+
+    if (priorityIds.includes(unitA.classid)) return -1;
+    if (priorityIds.includes(unitB.classid)) return 1;
+
+    if ((unitA.isSuperUnique) && (unitB.isSuperUnique)) {
+      return getDistance(me, unitA) - getDistance(me, unitB);
+    }
+    if (unitA.isSuperUnique) return -1;
+    if (unitB.isSuperUnique) return 1;
+
+    // fallens are annoying, put them later if we have line of sight of another monster
+    if (unitA.isFallen && unitB.isFallen) {
+      return getDistance(me, unitA) - getDistance(me, unitB);
+    }
+    const _coll = (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged);
+    if (!unitA.isFallen && !checkCollision(me, unitA, _coll)) return -1;
+    if (!unitB.isFallen && !checkCollision(me, unitA, _coll)) return 1;
 
     return getDistance(me, unitA) - getDistance(me, unitB);
-  }
-
-  if (ids.includes(unitA.classid)) return -1;
-  if (ids.includes(unitB.classid)) return 1;
-
-  if ((unitA.isSuperUnique) && (unitB.isSuperUnique)) {
-    return getDistance(me, unitA) - getDistance(me, unitB);
-  }
-  if (unitA.isSuperUnique) return -1;
-  if (unitB.isSuperUnique) return 1;
-
-  // fallens are annoying, put them later if we have line of sight of another monster
-  if (unitA.isFallen && unitB.isFallen) {
-    return getDistance(me, unitA) - getDistance(me, unitB);
-  }
-  const _coll = (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged);
-  if (!unitA.isFallen && !checkCollision(me, unitA, _coll)) return -1;
-  if (!unitB.isFallen && !checkCollision(me, unitA, _coll)) return 1;
-
-  return getDistance(me, unitA) - getDistance(me, unitB);
-};
+  };
+})();
 
 /**
  * Fights Duriel in place, teleporting to a safe spot when he's frozen and close, until he dies or
@@ -1813,204 +1820,208 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
     : false;
 };
 
-/**
- * Attempt to find non blocked position to attack from
- * @param {Monster} unit 
- * @param {number} distance 
- * @param {number} coll 
- * @param {boolean} walk 
- * @param {boolean} force 
- * @returns {boolean}
- * @todo maybe recursion check?
- */
-Attack.getIntoPosition = function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
-  if (!unit || !unit.x || !unit.y) return false;
-  if (Settings.debugging.pathing) {
-    console.time("getIntoPosition");
-  }
-  const useTele = Pather.useTeleport();
-  const name = unit.hasOwnProperty("name") ? unit.name : "";
-  const angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
+Attack.getIntoPosition = (function () {
+  // angle offsets (degrees) Attack.getIntoPosition tries around the unit
   const angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
-  const caster = (force || (distance > 4 && !me.inTown && Skill.getRange(Config.AttackSkill[1]) > 8));
-  const minMonCount = caster && distance < 8 ? 1 : 0;
-  const _coll = (sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor);
-  /** @type {pathSettings} */
-  const _pathSettings = {
-    allowPicking: false,
-    clearSettings: {
-      allowClearing: !useTele,
-      range: useTele ? 10 : 5,
-      retry: 5
+
+  /**
+   * Attempt to find non blocked position to attack from
+   * @param {Monster} unit 
+   * @param {number} distance 
+   * @param {number} coll 
+   * @param {boolean} walk 
+   * @param {boolean} force 
+   * @returns {boolean}
+   * @todo maybe recursion check?
+   */
+  return function (unit = false, distance = 0, coll = 0, walk = false, force = false) {
+    if (!unit || !unit.x || !unit.y) return false;
+    if (Settings.debugging.pathing) {
+      console.time("getIntoPosition");
     }
-  };
+    const useTele = Pather.useTeleport();
+    const name = unit.hasOwnProperty("name") ? unit.name : "";
+    const angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
+    const caster = (force || (distance > 4 && !me.inTown && Skill.getRange(Config.AttackSkill[1]) > 8));
+    const minMonCount = caster && distance < 8 ? 1 : 0;
+    const _coll = (sdk.collision.WallOrRanged | sdk.collision.Objects | sdk.collision.IsOnFloor);
+    /** @type {pathSettings} */
+    const _pathSettings = {
+      allowPicking: false,
+      clearSettings: {
+        allowClearing: !useTele,
+        range: useTele ? 10 : 5,
+        retry: 5
+      }
+    };
 
-  walk === true && (walk = 1);
+    walk === true && (walk = 1);
 
-  if (distance < 4 && (!unit.hasOwnProperty("mode") || !unit.dead)) {
-    /**
-     * if we are surrounded by monsters it can be near impossible to get into position
-     * what would be good is if we are surrounded either pick an AoE skill and cast or
-     * just attack whatever monster is the nearest to us, this would also be a good place
-     * for necro's use of terror and barbs use of howl/leap/leapAttack/whirlwind
-     */
-    // we are actually able to walk to where we want to go, hopefully prevent wall hugging
-    if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, _coll))) {
-      Pather.walkTo(unit.x, unit.y, 3);
-    } else if (walk && (unit.distance < 4 && CollMap.checkColl(me, unit, sdk.collision.MonsterIsOnFloorDarkArea))) {
-      console.debug("Are we in a doorway?");
-      return true;
-    } else {
-      // don't clear while trying to reposition
-      Pather.move(unit, _pathSettings);
+    if (distance < 4 && (!unit.hasOwnProperty("mode") || !unit.dead)) {
+      /**
+       * if we are surrounded by monsters it can be near impossible to get into position
+       * what would be good is if we are surrounded either pick an AoE skill and cast or
+       * just attack whatever monster is the nearest to us, this would also be a good place
+       * for necro's use of terror and barbs use of howl/leap/leapAttack/whirlwind
+       */
+      // we are actually able to walk to where we want to go, hopefully prevent wall hugging
+      if (walk && (unit.distance < 8 || !CollMap.checkColl(me, unit, _coll))) {
+        Pather.walkTo(unit.x, unit.y, 3);
+      } else if (walk && (unit.distance < 4 && CollMap.checkColl(me, unit, sdk.collision.MonsterIsOnFloorDarkArea))) {
+        console.debug("Are we in a doorway?");
+        return true;
+      } else {
+        // don't clear while trying to reposition
+        Pather.move(unit, _pathSettings);
+      }
+
+      return !CollMap.checkColl(me, unit, coll);
     }
 
-    return !CollMap.checkColl(me, unit, coll);
-  }
+    let count = 999;
+    let potentialSpot = { x: null, y: null };
+    let fullDistance = distance;
 
-  let count = 999;
-  let potentialSpot = { x: null, y: null };
-  let fullDistance = distance;
+    const coords = [];
+    const nearMobs = getUnits(sdk.unittype.Monster)
+      .filter(function (m) {
+        return m.getStat(sdk.stats.Alignment) !== 2;
+      });
+    for (let n = 0; n < 3; n += 1) {
+      const temp = [];
+      (n > 0) && (distance -= Math.floor(fullDistance / 3 - 1));
 
-  const coords = [];
-  const nearMobs = getUnits(sdk.unittype.Monster)
-    .filter(function (m) {
-      return m.getStat(sdk.stats.Alignment) !== 2;
-    });
-  for (let n = 0; n < 3; n += 1) {
-    const temp = [];
-    (n > 0) && (distance -= Math.floor(fullDistance / 3 - 1));
+      for (let currAngle of angles) {
+        const _angle = ((angle + currAngle) * Math.PI / 180);
+        let cx = Math.round((Math.cos(_angle)) * distance + unit.x);
+        let cy = Math.round((Math.sin(_angle)) * distance + unit.y);
 
-    for (let currAngle of angles) {
-      const _angle = ((angle + currAngle) * Math.PI / 180);
-      let cx = Math.round((Math.cos(_angle)) * distance + unit.x);
-      let cy = Math.round((Math.sin(_angle)) * distance + unit.y);
-
-      // ignore this spot as it's too close to our current position when we are forcing a new location
-      if (force && getDistance(me.x, me.y, cx, cy) < distance) continue;
-      if (Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) {
-        coords.push({ x: cx, y: cy });
-        temp.push({ x: cx, y: cy });
+        // ignore this spot as it's too close to our current position when we are forcing a new location
+        if (force && getDistance(me.x, me.y, cx, cy) < distance) continue;
+        if (Pather.checkSpot(cx, cy, sdk.collision.BlockWall, false)) {
+          coords.push({ x: cx, y: cy });
+          temp.push({ x: cx, y: cy });
+        }
+      }
+      if (!temp.length) continue;
+    
+      // If one of the valid positions is a position I am at already - and we aren't trying to force a new spot
+      if (!force) {
+        let meMobCount = me.getMobCount(6);
+        for (let coord of temp) {
+          let coordDist = getDistance(me, coord.x, coord.y);
+          if ((coordDist < 1
+            && !CollMap.checkColl(unit, { x: coord.x, y: coord.y }, _coll, 1))
+            || (coordDist <= 5 && meMobCount > 2)) {
+            return true;
+          }
+        }
       }
     }
-    if (!temp.length) continue;
-    
-    // If one of the valid positions is a position I am at already - and we aren't trying to force a new spot
-    if (!force) {
-      let meMobCount = me.getMobCount(6);
-      for (let coord of temp) {
-        let coordDist = getDistance(me, coord.x, coord.y);
-        if ((coordDist < 1
-          && !CollMap.checkColl(unit, { x: coord.x, y: coord.y }, _coll, 1))
-          || (coordDist <= 5 && meMobCount > 2)) {
+
+    coords.sort(Sort.units);
+
+    for (let coord of coords) {
+      // Valid position found - no collision between the spot and the unit
+      if (!CollMap.checkColl({ x: coord.x, y: coord.y }, unit, coll, 1)) {
+        const currCount = caster ? nearMobs
+          .filter(function (m) {
+            return getDistance(coord.x, coord.y, m.x, m.y) < 8;
+          }).length : 0;
+
+        // this might be a valid spot but also check the mob count at that node
+        if (caster) {
+          potentialSpot.x === null && (potentialSpot = { x: coord.x, y: coord.y });
+
+          if (currCount < count) {
+            count = currCount;
+            potentialSpot = { x: coord.x, y: coord.y };
+          }
+
+          if (currCount > minMonCount) {
+            continue;
+          }
+        }
+
+        // I am already in my optimal position
+        if (coord.distance < 3) {
+          if (Settings.debugging.pathing) {
+            console.timeEnd("getIntoPosition");
+          }
           return true;
         }
-      }
-    }
-  }
 
-  coords.sort(Sort.units);
-
-  for (let coord of coords) {
-    // Valid position found - no collision between the spot and the unit
-    if (!CollMap.checkColl({ x: coord.x, y: coord.y }, unit, coll, 1)) {
-      const currCount = caster ? nearMobs
-        .filter(function (m) {
-          return getDistance(coord.x, coord.y, m.x, m.y) < 8;
-        }).length : 0;
-
-      // this might be a valid spot but also check the mob count at that node
-      if (caster) {
-        potentialSpot.x === null && (potentialSpot = { x: coord.x, y: coord.y });
-
-        if (currCount < count) {
-          count = currCount;
-          potentialSpot = { x: coord.x, y: coord.y };
-        }
-
-        if (currCount > minMonCount) {
+        if (!useTele && Pather.getWalkDistance(coord.x, coord.y) > unit.distance) {
           continue;
         }
-      }
 
-      // I am already in my optimal position
-      if (coord.distance < 3) {
+        // we are actually able to walk to where we want to go, hopefully prevent wall hugging
+        if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
+          Pather.walkTo(coord.x, coord.y, 2);
+        } else {
+          let teleported = (
+            coord.distance < Pather.teleDistance
+            && Pather.useTeleport()
+            && Pather.teleportTo(coord.x, coord.y)
+            && Misc.poll(function () {
+              return coord.distance < 3;
+            }, 250, 5, true)
+          );
+          if (!teleported) {
+            Pather.move(coord, _pathSettings);
+          }
+        }
         if (Settings.debugging.pathing) {
+          console.log(
+            sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
+            + "Moving to: x: " + coord.x + " y: " + coord.y
+            + " mob amount: " + sdk.colors.NeonGreen + currCount
+          );
           console.timeEnd("getIntoPosition");
         }
         return true;
       }
-
-      if (!useTele && Pather.getWalkDistance(coord.x, coord.y) > unit.distance) {
-        continue;
-      }
-
-      // we are actually able to walk to where we want to go, hopefully prevent wall hugging
-      if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
-        Pather.walkTo(coord.x, coord.y, 2);
-      } else {
-        let teleported = (
-          coord.distance < Pather.teleDistance
-          && Pather.useTeleport()
-          && Pather.teleportTo(coord.x, coord.y)
-          && Misc.poll(function () {
-            return coord.distance < 3;
-          }, 250, 5, true)
-        );
-        if (!teleported) {
-          Pather.move(coord, _pathSettings);
-        }
-      }
-      if (Settings.debugging.pathing) {
-        console.log(
-          sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
-          + "Moving to: x: " + coord.x + " y: " + coord.y
-          + " mob amount: " + sdk.colors.NeonGreen + currCount
-        );
-        console.timeEnd("getIntoPosition");
-      }
-      return true;
     }
-  }
 
-  if (caster && potentialSpot.x !== null) {
-    if (potentialSpot.distance < 3) return true;
-    if ((function () {
-      if (Pather.useTeleport() && Pather.teleportTo(potentialSpot.x, potentialSpot.y)) {
+    if (caster && potentialSpot.x !== null) {
+      if (potentialSpot.distance < 3) return true;
+      if ((function () {
+        if (Pather.useTeleport() && Pather.teleportTo(potentialSpot.x, potentialSpot.y)) {
+          return true;
+        }
+        switch (walk) {
+        case 1:
+          return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
+        case 2:
+        default:
+          if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, sdk.collision.WallOrRanged)) {
+            return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
+          }
+          // return Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
+          return Pather.move(potentialSpot, _pathSettings);
+        }
+      })()) {
+        if (Settings.debugging.pathing) {
+          console.log(
+            sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow
+            + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y
+            + " mob amount: " + sdk.colors.NeonGreen + count
+          );
+          console.timeEnd("getIntoPosition");
+        }
         return true;
       }
-      switch (walk) {
-      case 1:
-        return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
-      case 2:
-      default:
-        if (potentialSpot.distance < 6 && !CollMap.checkColl(me, potentialSpot, sdk.collision.WallOrRanged)) {
-          return Pather.walkTo(potentialSpot.x, potentialSpot.y, 2);
-        }
-        // return Pather.moveTo(potentialSpot.x, potentialSpot.y, 1);
-        return Pather.move(potentialSpot, _pathSettings);
-      }
-    })()) {
-      if (Settings.debugging.pathing) {
-        console.log(
-          sdk.colors.Orange + "DefaultCheck :: " + sdk.colors.Yellow
-          + "Moving to: x: " + potentialSpot.x + " y: " + potentialSpot.y
-          + " mob amount: " + sdk.colors.NeonGreen + count
-        );
-        console.timeEnd("getIntoPosition");
-      }
-      return true;
     }
-  }
 
-  console.warn("ÿc4Attackÿc0: Failed to get into valid position" + (name ? " for: " + name : ""));
+    console.warn("ÿc4Attackÿc0: Failed to get into valid position" + (name ? " for: " + name : ""));
 
-  if (Settings.debugging.pathing) {
-    console.timeEnd("getIntoPosition");
-  }
+    if (Settings.debugging.pathing) {
+      console.timeEnd("getIntoPosition");
+    }
 
-  return false;
-};
+    return false;
+  };
+})();
 
 /**
  * @param {number} [x]

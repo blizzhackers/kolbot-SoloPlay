@@ -495,20 +495,23 @@ if (!me.hasOwnProperty("telekinesis")) {
   });
 }
 
-/** @returns {boolean} */
-me.canTpToTown = function () {
-  // can't tp if dead - or not currently enabled to
-  if (me.dead || SoloEvents.townChicken.disabled) return false;
-  const myArea = me.area;
-  let badAreas = [
+me.canTpToTown = (function () {
+  // can't tp from town or Uber Trist, and shouldn't tp from arreat summit
+  const badTpAreas = [
     sdk.areas.RogueEncampment, sdk.areas.LutGholein, sdk.areas.KurastDocktown,
     sdk.areas.PandemoniumFortress, sdk.areas.Harrogath, sdk.areas.ArreatSummit, sdk.areas.UberTristram
   ];
-  // can't tp from town or Uber Trist, and shouldn't tp from arreat summit
-  if (badAreas.includes(myArea)) return false;
-  // If we made it this far, we can only tp if we even have a tp
-  return !!me.getTpTool();
-};
+
+  /** @returns {boolean} */
+  return function () {
+    // can't tp if dead - or not currently enabled to
+    if (me.dead || SoloEvents.townChicken.disabled) return false;
+    const myArea = me.area;
+    if (badTpAreas.includes(myArea)) return false;
+    // If we made it this far, we can only tp if we even have a tp
+    return !!me.getTpTool();
+  };
+})();
 
 /** @returns {MercUnit | null} */
 me.getMercEx = function () {
@@ -566,98 +569,101 @@ me.getSkillTabs = function (classid = me.classid) {
   ][classid];
 };
 
-// @todo better determination of what actually constitutes being in danger
-// need check for ranged mobs so we can stick and move to avoid missiles
-/**
- * @param {{ x: number; y: number } | MeType} [checkLoc]
- * @param {number} [range=10]
- * @returns {boolean}
- */
-me.inDanger = function (checkLoc, range) {
-  let count = 0;
-  const _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x")
-    ? checkLoc
-    : me;
-  range === undefined && (range = 10);
-  const nearUnits = getUnits(sdk.unittype.Monster)
-    .filter(function (mon) {
-      return mon && mon.attackable && getDistance(_this, mon) < range;
-    });
-  
+me.inDanger = (function () {
   const dangerAuras = [sdk.states.Fanaticism, sdk.states.Conviction];
-  for (let mon of nearUnits) {
-    if (mon.isSpecial) {
-      if (dangerAuras.some(function (state) { return mon.getState(state); })) {
-        count += 3;
-      } else {
-        count += 2;
-      }
-    } else {
-      // TODO: speedy monsters are more dangerous, also difficulty should be taken into account as well
-      // and type of character, as if we are a caster like a sorceress we are squishier and could be 1 or 2 shotted by a normal monster
-      // vs a barbarian or paladin who can take a few hits
-      count += mon.speed > 3 ? 1.5 : 1;
-    }
-  }
-  if (count > me.maxNearMonsters) {
-    return true;
-  }
-  
   const dangerEnchants = [
     sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
   ];
-  const dangerClose = nearUnits
-    .find(function (mon) {
-      return dangerEnchants.some(function (chant) {
-        return mon.getEnchant(chant);
+
+  // @todo better determination of what actually constitutes being in danger
+  // need check for ranged mobs so we can stick and move to avoid missiles
+  /**
+   * @param {{ x: number; y: number } | MeType} [checkLoc]
+   * @param {number} [range=10]
+   * @returns {boolean}
+   */
+  return function (checkLoc, range) {
+    let count = 0;
+    const _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x")
+      ? checkLoc
+      : me;
+    range === undefined && (range = 10);
+    const nearUnits = getUnits(sdk.unittype.Monster)
+      .filter(function (mon) {
+        return mon && mon.attackable && getDistance(_this, mon) < range;
       });
-    });
+  
+    for (let mon of nearUnits) {
+      if (mon.isSpecial) {
+        if (dangerAuras.some(function (state) { return mon.getState(state); })) {
+          count += 3;
+        } else {
+          count += 2;
+        }
+      } else {
+        // TODO: speedy monsters are more dangerous, also difficulty should be taken into account as well
+        // and type of character, as if we are a caster like a sorceress we are squishier and could be 1 or 2 shotted by a normal monster
+        // vs a barbarian or paladin who can take a few hits
+        count += mon.speed > 3 ? 1.5 : 1;
+      }
+    }
+    if (count > me.maxNearMonsters) {
+      return true;
+    }
+  
+    const dangerClose = nearUnits
+      .find(function (mon) {
+        return dangerEnchants.some(function (chant) {
+          return mon.getEnchant(chant);
+        });
+      });
 
-  if (dangerClose) {
-    return true;
-  }
+    if (dangerClose) {
+      return true;
+    }
 
-  // lets determine if we are in danger of missiles based on thier trajectory - getParent isn't working for missles /:
-  // TODO: determine why because it should work from https://github.com/noah-/d2bs/pull/40
-  // const Vector = require("../Modules/Vector");
-  // /** @type {Line[]} */
-  // let missileHooks = [];
-  // const missiles = getUnits(sdk.unittype.Missile).filter(function (missile) {
-  //   if (!missile) return false;
-  //   /** @type {Monster | Player | null} */
-  //   let parent = missile.getParent();
-  //   if (parent && (parent.gid === me.gid || parent.isNPC)) {
-  //     return false;
-  //   }
+    // lets determine if we are in danger of missiles based on thier trajectory - getParent isn't working for missles /:
+    // TODO: determine why because it should work from https://github.com/noah-/d2bs/pull/40
+    // const Vector = require("../Modules/Vector");
+    // /** @type {Line[]} */
+    // let missileHooks = [];
+    // const missiles = getUnits(sdk.unittype.Missile).filter(function (missile) {
+    //   if (!missile) return false;
+    //   /** @type {Monster | Player | null} */
+    //   let parent = missile.getParent();
+    //   if (parent && (parent.gid === me.gid || parent.isNPC)) {
+    //     return false;
+    //   }
 
-  //   if (parent) {
-  //     console.debug("Missile parent: " + parent.gid + " " + parent.classid + " " + parent.name + " for missle: " + missile.classid);
-  //   }
+    //   if (parent) {
+    //     console.debug("Missile parent: " + parent.gid + " " + parent.classid + " " + parent.name + " for missle: " + missile.classid);
+    //   }
 
-  //   // alright now to check if the missile is heading towards us
-  //   const missileTargetX = missile.targetx || missile.x;
-  //   const missileTargetY = missile.targety || missile.y;
-  //   missileHooks.push(new Line(missile.x, missile.y, missileTargetX, missileTargetY, CollMap.colors.red, true));
-  //   const toTarget = new Vector(missileTargetX - missile.x, missileTargetY - missile.y).normalize();
-  //   const toMe = new Vector(me.x - missile.x, me.y - missile.y).normalize();
+    //   // alright now to check if the missile is heading towards us
+    //   const missileTargetX = missile.targetx || missile.x;
+    //   const missileTargetY = missile.targety || missile.y;
+    //   missileHooks.push(new Line(missile.x, missile.y, missileTargetX, missileTargetY, CollMap.colors.red, true));
+    //   const toTarget = new Vector(missileTargetX - missile.x, missileTargetY - missile.y).normalize();
+    //   const toMe = new Vector(me.x - missile.x, me.y - missile.y).normalize();
 
-  //   // Compute dot product (cosine of angle between vectors)
-  //   let dot = toTarget.x * toMe.x + toTarget.y * toMe.y;
+    //   // Compute dot product (cosine of angle between vectors)
+    //   let dot = toTarget.x * toMe.x + toTarget.y * toMe.y;
 
-  //   // If dot product is close to 1, missile is heading toward us (angle < ~30deg)
-  //   return (dot > 0.85);
-  // });
-  // if (missiles.length > 0) {
-  //   console.debug("We are in danger of missiles, count: " + missiles.length);
-  //   // return true;
-  // }
+    //   // If dot product is close to 1, missile is heading toward us (angle < ~30deg)
+    //   return (dot > 0.85);
+    // });
+    // if (missiles.length > 0) {
+    //   console.debug("We are in danger of missiles, count: " + missiles.length);
+    //   // return true;
+    // }
 
-  // for (let missile of missileHooks) {
-  //   missile.remove();
-  // }
+    // for (let missile of missileHooks) {
+    //   missile.remove();
+    // }
 
-  return false;
-};
+    return false;
+  };
+})();
 
 /**
  * @param {number} skillId 

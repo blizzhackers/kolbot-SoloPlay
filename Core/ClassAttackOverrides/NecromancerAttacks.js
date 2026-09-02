@@ -106,6 +106,20 @@
     ];
   })();
 
+  // areas where doAttack may open with Bone Prison
+  const bpAllowedAreas = [
+    sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm,
+    sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis,
+    sdk.areas.LostCity, sdk.areas.ValleyofSnakes, sdk.areas.DurielsLair,
+    sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle,
+    sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast,
+    sdk.areas.KurastCauseway, sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes,
+    sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary,
+    sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands, sdk.areas.ArreatSummit,
+    sdk.areas.NihlathaksTemple, sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2,
+    sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction
+  ];
+
   /** @param {Monster} unit */
   const doCurse = function (unit) {
     if (unit === undefined || unit.dead || !unit.curseable) return false;
@@ -170,18 +184,6 @@
     const index = (unit.isSpecial || unit.isPlayer) ? 1 : 3;
     const useTerror = Skill.canUse(sdk.skills.Terror);
     const useBP = Skill.canUse(sdk.skills.BonePrison);
-    const bpAllowedAreas = [
-      sdk.areas.CatacombsLvl4, sdk.areas.Tristram, sdk.areas.MooMooFarm,
-      sdk.areas.RockyWaste, sdk.areas.DryHills, sdk.areas.FarOasis,
-      sdk.areas.LostCity, sdk.areas.ValleyofSnakes, sdk.areas.DurielsLair,
-      sdk.areas.SpiderForest, sdk.areas.GreatMarsh, sdk.areas.FlayerJungle,
-      sdk.areas.LowerKurast, sdk.areas.KurastBazaar, sdk.areas.UpperKurast,
-      sdk.areas.KurastCauseway, sdk.areas.DuranceofHateLvl3, sdk.areas.OuterSteppes,
-      sdk.areas.PlainsofDespair, sdk.areas.CityoftheDamned, sdk.areas.ChaosSanctuary,
-      sdk.areas.BloodyFoothills, sdk.areas.FrigidHighlands, sdk.areas.ArreatSummit,
-      sdk.areas.NihlathaksTemple, sdk.areas.WorldstoneLvl1, sdk.areas.WorldstoneLvl2,
-      sdk.areas.WorldstoneLvl3, sdk.areas.ThroneofDestruction
-    ];
 
     // Bone prison
     if (useBP && unit.distance > ([sdk.areas.DurielsLair, sdk.areas.ArreatSummit].includes(me.area) ? 6 : 10)

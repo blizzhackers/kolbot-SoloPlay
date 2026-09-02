@@ -14,6 +14,31 @@
   const MissileData = require("./MissileData");
   const Coords = require("../Coords");
   const Vector = require("../Vector");
+  // [0] physical, [1] elemental: min/max damage stat names per skill level bracket
+  const skillDmgFields = [
+    [
+      "MinDam", "MinLevDam1",
+      "MinLevDam2", "MinLevDam3",
+      "MinLevDam4", "MinLevDam5",
+      "MaxDam", "MaxLevDam1",
+      "MaxLevDam2", "MaxLevDam3",
+      "MaxLevDam4", "MaxLevDam5"
+    ],
+    [
+      "EMin", "EMinLev1",
+      "EMinLev2", "EMinLev3",
+      "EMinLev4", "EMinLev5",
+      "EMax", "EMaxLev1",
+      "EMaxLev2", "EMaxLev3",
+      "EMaxLev4", "EMaxLev5"
+    ]
+  ];
+  const frostNovaFallens = [
+    sdk.monsters.Fallen, sdk.monsters.Carver2,
+    sdk.monsters.Devilkin2, sdk.monsters.DarkOne1,
+    sdk.monsters.WarpedFallen, sdk.monsters.Carver1,
+    sdk.monsters.Devilkin, sdk.monsters.DarkOne2
+  ];
   const HPLookup = [
     ["1", "1", "1"], ["7", "107", "830"],
     ["9", "113", "852"], ["12", "120", "875"],
@@ -439,47 +464,28 @@
     baseSkillDamage: function (skillID) { // TODO: rework skill damage to use both damage fields
       let l = this.skillLevel(skillID);
       let m = this.skillMult[skillID] || 1;
-      let dmgFields = [
-        [
-          "MinDam", "MinLevDam1",
-          "MinLevDam2", "MinLevDam3",
-          "MinLevDam4", "MinLevDam5",
-          "MaxDam", "MaxLevDam1",
-          "MaxLevDam2", "MaxLevDam3",
-          "MaxLevDam4", "MaxLevDam5"
-        ],
-        [
-          "EMin", "EMinLev1",
-          "EMinLev2", "EMinLev3",
-          "EMinLev4", "EMinLev5",
-          "EMax", "EMaxLev1",
-          "EMaxLev2", "EMaxLev3",
-          "EMaxLev4", "EMaxLev5"
-        ]
-      ];
-
       if (skillID === 70) {
         return {
           type: "Physical",
           pmin: this.stagedDamage(
             l,
-            getBaseStat("skills", skillID, dmgFields[1][0]),
-            getBaseStat("skills", skillID, dmgFields[1][1]),
-            getBaseStat("skills", skillID, dmgFields[1][2]),
-            getBaseStat("skills", skillID, dmgFields[1][3]),
-            getBaseStat("skills", skillID, dmgFields[1][4]),
-            getBaseStat("skills", skillID, dmgFields[1][5]),
+            getBaseStat("skills", skillID, skillDmgFields[1][0]),
+            getBaseStat("skills", skillID, skillDmgFields[1][1]),
+            getBaseStat("skills", skillID, skillDmgFields[1][2]),
+            getBaseStat("skills", skillID, skillDmgFields[1][3]),
+            getBaseStat("skills", skillID, skillDmgFields[1][4]),
+            getBaseStat("skills", skillID, skillDmgFields[1][5]),
             getBaseStat("skills", skillID, "HitShift"),
             m
           ),
           pmax: this.stagedDamage(
             l,
-            getBaseStat("skills", skillID, dmgFields[1][0]),
-            getBaseStat("skills", skillID, dmgFields[1][1]),
-            getBaseStat("skills", skillID, dmgFields[1][2]),
-            getBaseStat("skills", skillID, dmgFields[1][3]),
-            getBaseStat("skills", skillID, dmgFields[1][4]),
-            getBaseStat("skills", skillID, dmgFields[1][5]),
+            getBaseStat("skills", skillID, skillDmgFields[1][0]),
+            getBaseStat("skills", skillID, skillDmgFields[1][1]),
+            getBaseStat("skills", skillID, skillDmgFields[1][2]),
+            getBaseStat("skills", skillID, skillDmgFields[1][3]),
+            getBaseStat("skills", skillID, skillDmgFields[1][4]),
+            getBaseStat("skills", skillID, skillDmgFields[1][5]),
             getBaseStat("skills", skillID, "HitShift"),
             m
           ),
@@ -493,35 +499,35 @@
           type: this.damageTypes[type],
           pmin: this.stagedDamage(
             l,
-            getBaseStat("skills", skillID, dmgFields[0][0]),
-            getBaseStat("skills", skillID, dmgFields[0][1]),
-            getBaseStat("skills", skillID, dmgFields[0][2]),
-            getBaseStat("skills", skillID, dmgFields[0][3]),
-            getBaseStat("skills", skillID, dmgFields[0][4]),
-            getBaseStat("skills", skillID, dmgFields[0][5]),
+            getBaseStat("skills", skillID, skillDmgFields[0][0]),
+            getBaseStat("skills", skillID, skillDmgFields[0][1]),
+            getBaseStat("skills", skillID, skillDmgFields[0][2]),
+            getBaseStat("skills", skillID, skillDmgFields[0][3]),
+            getBaseStat("skills", skillID, skillDmgFields[0][4]),
+            getBaseStat("skills", skillID, skillDmgFields[0][5]),
             getBaseStat("skills", skillID, "HitShift"),
             m
           ),
           pmax: this.stagedDamage(
             l,
-            getBaseStat("skills", skillID, dmgFields[0][6]),
-            getBaseStat("skills", skillID, dmgFields[0][7]),
-            getBaseStat("skills", skillID, dmgFields[0][8]),
-            getBaseStat("skills", skillID, dmgFields[0][9]),
-            getBaseStat("skills", skillID, dmgFields[0][10]),
-            getBaseStat("skills", skillID, dmgFields[0][11]),
+            getBaseStat("skills", skillID, skillDmgFields[0][6]),
+            getBaseStat("skills", skillID, skillDmgFields[0][7]),
+            getBaseStat("skills", skillID, skillDmgFields[0][8]),
+            getBaseStat("skills", skillID, skillDmgFields[0][9]),
+            getBaseStat("skills", skillID, skillDmgFields[0][10]),
+            getBaseStat("skills", skillID, skillDmgFields[0][11]),
             getBaseStat("skills", skillID, "HitShift"),
             m
           ),
           min: type
             ? this.stagedDamage(
               l,
-              getBaseStat("skills", skillID, dmgFields[1][0]),
-              getBaseStat("skills", skillID, dmgFields[1][1]),
-              getBaseStat("skills", skillID, dmgFields[1][2]),
-              getBaseStat("skills", skillID, dmgFields[1][3]),
-              getBaseStat("skills", skillID, dmgFields[1][4]),
-              getBaseStat("skills", skillID, dmgFields[1][5]),
+              getBaseStat("skills", skillID, skillDmgFields[1][0]),
+              getBaseStat("skills", skillID, skillDmgFields[1][1]),
+              getBaseStat("skills", skillID, skillDmgFields[1][2]),
+              getBaseStat("skills", skillID, skillDmgFields[1][3]),
+              getBaseStat("skills", skillID, skillDmgFields[1][4]),
+              getBaseStat("skills", skillID, skillDmgFields[1][5]),
               getBaseStat("skills", skillID, "HitShift"),
               m
             )
@@ -529,12 +535,12 @@
           max: type
             ? this.stagedDamage(
               l,
-              getBaseStat("skills", skillID, dmgFields[1][6]),
-              getBaseStat("skills", skillID, dmgFields[1][7]),
-              getBaseStat("skills", skillID, dmgFields[1][8]),
-              getBaseStat("skills", skillID, dmgFields[1][9]),
-              getBaseStat("skills", skillID, dmgFields[1][10]),
-              getBaseStat("skills", skillID, dmgFields[1][11]),
+              getBaseStat("skills", skillID, skillDmgFields[1][6]),
+              getBaseStat("skills", skillID, skillDmgFields[1][7]),
+              getBaseStat("skills", skillID, skillDmgFields[1][8]),
+              getBaseStat("skills", skillID, skillDmgFields[1][9]),
+              getBaseStat("skills", skillID, skillDmgFields[1][10]),
+              getBaseStat("skills", skillID, skillDmgFields[1][11]),
               getBaseStat("skills", skillID, "HitShift"),
               m
             )
@@ -2286,16 +2292,10 @@
 
   function calculateKillableFallensByFrostNova () {
     if (!Skill.canUse(sdk.skills.FrostNova)) return 0;
-    const fallens = [
-      sdk.monsters.Fallen, sdk.monsters.Carver2,
-      sdk.monsters.Devilkin2, sdk.monsters.DarkOne1,
-      sdk.monsters.WarpedFallen, sdk.monsters.Carver1,
-      sdk.monsters.Devilkin, sdk.monsters.DarkOne2
-    ];
     let area = me.area;
     return getUnits(sdk.unittype.Monster)
       .filter(function (unit) {
-        return !!unit && fallens.includes(unit.classid) && unit.distance < 7;
+        return !!unit && frostNovaFallens.includes(unit.classid) && unit.distance < 7;
       })
       .filter(function (unit) {
         return unit.attackable

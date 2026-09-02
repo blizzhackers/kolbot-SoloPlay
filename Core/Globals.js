@@ -721,6 +721,9 @@ const goToDifficulty = function (diff = undefined, reason = "") {
 // General Game functions
 /** @type {Check} */
 const Check = (function () {
+  const shorthandStr = [sdk.stats.Strength, "s", "str", "strength"];
+  const shorthandDex = [sdk.stats.Dexterity, "d", "dex", "dexterity"];
+
   const resistance = function () {
     let resPenalty = me.getResPenalty(me.diff + 1);
     let [frRes, lrRes, crRes, prRes] = [
@@ -747,8 +750,6 @@ const Check = (function () {
   const getMaxValue = function (buildInfo, stat) {
     if (!buildInfo || !buildInfo.stats || stat === undefined) return 0;
     let highest = 0;
-    const shorthandStr = [sdk.stats.Strength, "s", "str", "strength"];
-    const shorthandDex = [sdk.stats.Dexterity, "d", "dex", "dexterity"];
     const statToCheck = shorthandStr.includes(stat) ? "str" : shorthandDex.includes(stat) ? "dex" : "";
     
     buildInfo.stats.forEach(function (s) {
