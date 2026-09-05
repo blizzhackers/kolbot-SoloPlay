@@ -1126,6 +1126,28 @@
       };
 
       /**
+       * Distance from a unit to the nearest point of a path, or Infinity if the path is empty
+       * @param {Monster} unit
+       * @param {Vector[]} path
+       * @returns {number}
+       */
+      const distanceToPath = function (unit, path) {
+        const ux = unit.x;
+        const uy = unit.y;
+        let best = Infinity;
+
+        for (let i = 0; i < path.length; i++) {
+          const dx = ux - path[i].x;
+          const dy = uy - path[i].y;
+          const d = dx * dx + dy * dy;
+
+          if (d < best) best = d;
+        }
+
+        return Math.sqrt(best);
+      };
+
+      /**
        * Orb travels a 9 1/3 yard straight path and sends out bolts covering a 20yard radius. We need to create 
        * a box and check all monsters who are within that box. We can then calculate the damage of the orb 
        * Each bolt can hit a monster only once. Maximum of 46 bolts can be fired.
@@ -1134,18 +1156,15 @@
       const calculateOrbPathDamage = function (target) {
         let totalDmg = 0;
         const meVec = new Vector(me.x, me.y);
-        const targetVec = new Vector(target.x, target.y);
-        const orbVec = targetVec.subtract(meVec).normalize().multiply(9.33);
-        const orbPath = Vector.path(meVec, orbVec);
+        // Vector methods mutate in place, so offset the scaled direction back to the player: without the
+        // add() the path runs from the player to a point near the map origin instead of 9.33 yards out
+        const orbEnd = new Vector(target.x, target.y).subtract(meVec).normalize().multiply(9.33).add(meVec);
+        const orbPath = Vector.path(meVec, orbEnd);
         let units = getUnits(sdk.unittype.Monster)
           .filter(function (mon) {
             if (!mon.attackable) return false;
-            const distInPath = orbPath
-              .toSorted(function (a, b) {
-                return getDistance(mon, a) - getDistance(mon, b);
-              }).first();
-            if (!distInPath) return false;
-            const distanceFromPath = getDistance(mon, distInPath);
+            const distanceFromPath = distanceToPath(mon, orbPath);
+            if (distanceFromPath === Infinity) return false;
             if (distanceFromPath > 20) {
               mon._modifier = 5;
             } else if (distanceFromPath > 15) {
@@ -1256,9 +1275,9 @@
         const range = Skill.getRange(skill);
         let totalDmg = 0;
         const meVec = new Vector(me.x, me.y);
-        const targetVec = new Vector(target.x, target.y);
-        const misVec = targetVec.subtract(meVec).normalize().multiply(range);
-        const missilePath = Vector.path(meVec, misVec);
+        // see calculateOrbPathDamage: offset the scaled direction back to the player to get the end point
+        const misEnd = new Vector(target.x, target.y).subtract(meVec).normalize().multiply(range).add(meVec);
+        const missilePath = Vector.path(meVec, misEnd);
         missilePath.sort(function (a, b) {
           return getDistance(me, a) - getDistance(me, b);
         });
@@ -1273,13 +1292,7 @@
         let units = getUnits(sdk.unittype.Monster)
           .filter(function (mon) {
             if (!mon.attackable) return false;
-            const distInPath = missilePath
-              .toSorted(function (a, b) {
-                return getDistance(mon, a) - getDistance(mon, b);
-              }).first();
-            if (!distInPath) return false;
-            const distanceFromPath = getDistance(mon, distInPath);
-            return distanceFromPath <= 3;
+            return distanceToPath(mon, missilePath) <= 3;
           })
           .sort(function (a, b) {
             return getDistance(me, a) - getDistance(me, b);
