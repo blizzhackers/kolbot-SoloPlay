@@ -621,8 +621,9 @@
             [equippedSkillsTier, baseSkillsTier] = [baseSkillsScore(equippedItem), baseSkillsScore(base)];
           }
 
-          if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
-
+          if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) {
+            return true;
+          }
           break;
         case sdk.locale.items.Rhyme:
           if (me.necromancer) {
@@ -876,59 +877,70 @@
       let [gScoreBase, gScoreCheck] = [generalScore(base), generalScore(itemToCheck)];
       verbose && console.log("ÿc9betterThanStashedÿc0 :: BaseScore: " + generalScore(base) + " itemToCheckScore: " + generalScore(itemToCheck));
       if (gScoreBase > gScoreCheck) return true;
-      if (base.getItemType() === "Shield" && gScoreBase === gScoreCheck) return defenseScoreCheck(base, itemToCheck);
+      if (base.getItemType() === "Shield" && gScoreBase === gScoreCheck) {
+        return defenseScoreCheck(base, itemToCheck);
+      }
       return false;
     };
 
     let checkItem;
+    /** @type {number[]} */
+    let iType;
 
     switch (base.itemType) {
     case sdk.items.type.Shield:
     case sdk.items.type.AuricShields:
     case sdk.items.type.VoodooHeads:
       if (me.paladin || me.necromancer) {
-        const iType = me.necromancer ? necroShieldTypes : paladinShieldTypes;
+        iType = me.necromancer ? necroShieldTypes : paladinShieldTypes;
       
         checkItem = getItemToCompare(iType, false, generalScoreSort);
-        if (checkItem === undefined || checkItem.gid === base.gid) return true;
-
+        if (checkItem === undefined || checkItem.gid === base.gid) {
+          return true;
+        }
         return (base.isInStorage ? generalScoreCheck(base, checkItem) : false);
       }
 
       if (base.ethereal || base.sockets === 0) return false;
       checkItem = getItemToCompare([sdk.items.type.Shield], false, defenseSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
-    
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       return (base.isInStorage ? defenseScoreCheck(base, checkItem) : false);
     case sdk.items.type.Armor:
       if (base.ethereal || base.sockets === 0) return false;
       checkItem = getItemToCompare([sdk.items.type.Armor], false, defenseSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
-    
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       return (base.isInStorage ? defenseScoreCheck(base, checkItem) : false);
     case sdk.items.type.Helm:
     case sdk.items.type.PrimalHelm:
     case sdk.items.type.Circlet:
     case sdk.items.type.Pelt:
       if (me.barbarian || me.druid) {
-        const iType = me.druid ? druidHelmTypes : barbHelmTypes;
+        iType = me.druid ? druidHelmTypes : barbHelmTypes;
       
         checkItem = getItemToCompare(iType, false, generalScoreSort);
-        if (checkItem === undefined || checkItem.gid === base.gid) return true;
-
+        if (checkItem === undefined || checkItem.gid === base.gid) {
+          return true;
+        }
         return (base.isInStorage ? generalScoreCheck(base, checkItem) : false);
       }
 
       if (base.ethereal || base.sockets === 0) return false;
       checkItem = getItemToCompare([sdk.items.type.Helm, sdk.items.type.Circlet], false, defenseSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
-    
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       return (base.isInStorage ? defenseScoreCheck(base, checkItem) : false);
     case sdk.items.type.Wand:
       if (!me.necromancer) return false;
 
       checkItem = getItemToCompare([sdk.items.type.Wand], null, generalScoreSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       return (base.isInStorage ? generalScoreCheck(base, checkItem) : false);
     case sdk.items.type.Scepter:
     case sdk.items.type.Staff:
@@ -954,21 +966,24 @@
       // need better solution for comparison based on what runeword can be made in a base type
       // should allow comparing multiple item types given they are all for the same runeword
       checkItem = getItemToCompare([base.itemType], false, generalScoreSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
-
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       return (base.isInStorage ? damageScoreCheck(base, checkItem) : false);
     case sdk.items.type.HandtoHand:
     case sdk.items.type.AssassinClaw:
       if (!me.assassin) return false;
 
       checkItem = getItemToCompare([sdk.items.type.HandtoHand, sdk.items.type.AssassinClaw], false, generalScoreSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
-
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       return (base.isInStorage ? damageScoreCheck(base, checkItem) : false);
     case sdk.items.type.Polearm:
       checkItem = getItemToCompare([sdk.items.type.Polearm], null, twoHandDmgSort);
-      if (checkItem === undefined || checkItem.gid === base.gid) return true;
-
+      if (checkItem === undefined || checkItem.gid === base.gid) {
+        return true;
+      }
       if (base.isInStorage && base.sockets > 0) {
         let [baseDmg, checkItemDmg] = [dmgScore(base), dmgScore(checkItem)];
         switch (true) {
