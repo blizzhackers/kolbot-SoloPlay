@@ -775,7 +775,7 @@ Item.getBodyLocMerc = function (item) {
       : []);
   case sdk.items.type.Sword:
     return ([sdk.mercs.IronWolf, sdk.mercs.A5Barb].includes(_mercId)
-      ? sdk.body.RightArm
+      ? [sdk.body.RightArm]
       : []);
   }
   return [];

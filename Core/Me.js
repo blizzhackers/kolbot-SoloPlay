@@ -515,7 +515,8 @@ me.canTpToTown = (function () {
 
 /** @returns {MercUnit | null} */
 me.getMercEx = function () {
-  if (!Config.UseMerc || me.classic || !me.mercrevivecost) return null;
+  // mercrevivecost is non-zero only while the merc is dead; it reads 0 both when alive and when never hired
+  if (!Config.UseMerc || me.classic || me.mercrevivecost) return null;
   let merc = Misc.poll(function () {
     return me.getMerc();
   }, 250, 50);
