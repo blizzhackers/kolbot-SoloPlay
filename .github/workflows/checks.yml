@@ -1,0 +1,51 @@
+name: Checks
+
+on:
+  pull_request:
+
+# SoloPlay cannot be linted or typechecked on its own: it has no package.json (the toolchain
+# lives in the parent), its tsconfig include list points at ../../sdk and ../../libs, and its
+# TypeScript program resolves main-repo modules through require(). So CI assembles the parent
+# checkout and drops this repo where the submodule normally sits.
+#
+# The parent is taken at its default branch rather than the commit currently pinned there: a PR
+# here should be validated against the kolbot it will actually run under, not the older one the
+# last pin captured.
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kolbot (parent)
+        uses: actions/checkout@v7
+        with:
+          repository: blizzhackers/kolbot
+          path: kolbot
+
+      - name: Checkout SoloPlay into the submodule path
+        uses: actions/checkout@v7
+        with:
+          path: kolbot/d2bs/kolbot/libs/SoloPlay
+
+      # Node 24: eslint-plugin-es-x@10 requires ^22.23.0 || ^24.18.0 || >=26.4.0, and
+      # eslint@10 requires ^20.19.0 || ^22.13.0 || >=24.
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: kolbot/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: kolbot
+
+      # Scoped to this submodule: the parent's flat config has a SoloPlay block that layers this
+      # repo's own eslint.globals.mjs on top of the shared inventory.
+      - name: ESLint (SoloPlay)
+        run: npm run lint:soloplay
+        working-directory: kolbot
+
+      - name: Typecheck (SoloPlay)
+        run: npm run typecheck:soloplay
+        working-directory: kolbot
