@@ -142,7 +142,7 @@ NTIP.GetCharmTier = NTIP.generateTierFunc("Charmtier");
 NTIP.GetSecondaryTier = NTIP.generateTierFunc("Secondarytier");
 
 /**
- * @param {string} itemString - Raw nip line to parse and register on `NTIP.SoloList` or `NTIP.NoTier`.
+ * @param {NipString} itemString - Raw nip line to parse and register on `NTIP.SoloList` or `NTIP.NoTier`.
  * @param {string} [filename] - Source label used in error messages; defaults to "Kolbot-SoloPlay".
  * @returns {boolean} Always true; parse failures are logged but do not throw.
  */
