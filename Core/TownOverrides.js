@@ -1083,6 +1083,8 @@ Town.doChores = function (repair = false, givenTasks = {}) {
 
     me.switchToPrimary();
     extraTasks.fullChores && Quest.unfinishedQuests();
+    // revive before any pickit evaluation - a dead merc makes merc-tier gear read as unwanted and get sold
+    NPCAction.reviveMerc();
 
     // Use cainId if we are low on gold or we are closer to him than the shopNPC
     if (me.getUnids().length) {

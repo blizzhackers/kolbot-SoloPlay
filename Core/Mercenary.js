@@ -262,7 +262,7 @@ const Mercenary = {
       me.data.merc.classid = checkMyMerc.classid;
       me.data.merc.difficulty = Mercenary.getMercDifficulty(checkMyMerc);
       me.data.merc.skillName = wantedMerc.skillName;
-      me.data.merc.skill = MercData.findByName(me.data.merc.skillName, me.act).skill;
+      me.data.merc.skill = wantedMerc.skill;
       CharData.updateData("merc", me.data) && me.update();
 
       return true;

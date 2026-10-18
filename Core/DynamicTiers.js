@@ -92,7 +92,6 @@
     mercRating += item.getStatEx(sdk.stats.MagicResist) * mercWeights.MR * 2; // add magic damage resist %
 
     switch (me.data.merc.classid) {
-    case sdk.mercs.Rogue:
     case sdk.mercs.IronWolf:
       mercRating += item.getStatEx(sdk.stats.MinDamage) * mercWeights.MINDMG; // add MIN damage
       mercRating += item.getStatEx(sdk.stats.MaxDamage) * mercWeights.MAXDMG; // add MAX damage
@@ -106,6 +105,7 @@
         break;
       }
       // eslint-disable-next-line no-fallthrough
+    case sdk.mercs.Rogue: // bows keep their damage in the two-hand stats; one-hand min/max read 0
     case sdk.mercs.Guard:
     default:
       mercRating += item.getStatEx(sdk.stats.SecondaryMinDamage) * mercWeights.SECMINDMG;
