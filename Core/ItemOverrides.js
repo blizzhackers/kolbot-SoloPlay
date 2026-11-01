@@ -675,16 +675,28 @@ Item.equipMerc = function (item, bodyLoc) {
   if (item.mode === sdk.items.mode.Equipped && item.bodylocation === bodyLoc) return true;
   if (item.isInStash && !Town.openStash()) return false;
 
+  // the server re-issues the item under a new unit id once the merc wears it,
+  // so the handle we were given stops resolving after the click
+  const classid = item.classid;
+  const getEquipped = function () {
+    return mercenary.getItemsEx()
+      .find(function (el) {
+        return el.isEquipped && el.bodylocation === bodyLoc && el.classid === classid;
+      });
+  };
+
   for (let i = 0; i < 3; i += 1) {
+    // stale handle, the click went through but the item is not where we expect it
+    if (item.type !== sdk.unittype.Item) break;
     if (item.toCursor()) {
       if (clickItem(sdk.clicktypes.click.item.Mercenary, bodyLoc)) {
         delay(500 + me.ping * 2);
-        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", mercenary.getItem(item.classid));
       }
 
-      let check = mercenary.getItem(item.classid);
+      let check = getEquipped();
 
-      if (check && check.bodylocation === bodyLoc) {
+      if (check) {
+        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", check);
         if (check.runeword) {
           // just track runewords for now
           me.data.merc.gear.push(check.prefixnum);
