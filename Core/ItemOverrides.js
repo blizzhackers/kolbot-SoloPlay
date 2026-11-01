@@ -394,11 +394,19 @@ Item.equip = function (item, bodyLoc) {
     );
   }
   let rolledBack = false;
+  const classid = item.classid;
   // todo: sometimes rings get bugged with the higher tier ring ending up on the wrong finger, if this happens swap them
 
   for (let i = 0; i < 3; i += 1) {
     if (item.toCursor()) {
       clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
+
+      // a stackable (arrows, bolts, throwing weapons) dropped on an equipped one of the same kind stacks into it,
+      // the held item stops existing and the slot keeps the old one
+      if (item.type !== sdk.unittype.Item) {
+        let stacked = me.getEquippedItem(bodyLoc);
+        return !!stacked && stacked.classid === classid;
+      }
 
       if (item.bodylocation === bodyLoc) {
         if (getCursorType() === 3) {
@@ -526,11 +534,21 @@ Item.secondaryEquip = function (item, bodyLoc) {
   let equipped = false;
 
   me.switchWeapons(1); // Switch weapons
+  const classid = item.classid;
 
   try {
     for (let i = 0; i < 3; i += 1) {
       if (item.toCursor()) {
         clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc - 7);
+
+        // a stackable (arrows, bolts, throwing weapons) dropped on an equipped one of the same kind stacks into it,
+        // the held item stops existing and the slot keeps the old one
+        if (item.type !== sdk.unittype.Item) {
+          let stacked = me.getEquippedItem(bodyLoc - 7);
+          if (!stacked || stacked.classid !== classid) return false;
+          [sdk.items.Arrows, sdk.items.Bolts].includes(classid) && CharData.skillData.bow.setArrowInfo(stacked);
+          return true;
+        }
 
         if (item.bodylocation === bodyLoc - 7) {
           equipped = true;
