@@ -408,6 +408,15 @@ Item.equip = function (item, bodyLoc) {
         return !!stacked && stacked.classid === classid;
       }
 
+      // when it doesn't all fit, the slot is topped up and the rest stays on the cursor
+      if (item.mode === sdk.items.mode.onCursor && getBaseStat("items", classid, "stackable")) {
+        let stacked = me.getEquippedItem(bodyLoc);
+        if (stacked && stacked.classid === classid) {
+          Cubing.cursorCheck();
+          return true;
+        }
+      }
+
       if (item.bodylocation === bodyLoc) {
         if (getCursorType() === 3) {
           let cursorItem = Game.getCursorUnit();
@@ -548,6 +557,16 @@ Item.secondaryEquip = function (item, bodyLoc) {
           if (!stacked || stacked.classid !== classid) return false;
           [sdk.items.Arrows, sdk.items.Bolts].includes(classid) && CharData.skillData.bow.setArrowInfo(stacked);
           return true;
+        }
+
+        // when it doesn't all fit, the slot is topped up and the rest stays on the cursor
+        if (item.mode === sdk.items.mode.onCursor && getBaseStat("items", classid, "stackable")) {
+          let stacked = me.getEquippedItem(bodyLoc - 7);
+          if (stacked && stacked.classid === classid) {
+            [sdk.items.Arrows, sdk.items.Bolts].includes(classid) && CharData.skillData.bow.setArrowInfo(stacked);
+            Cubing.cursorCheck();
+            return true;
+          }
         }
 
         if (item.bodylocation === bodyLoc - 7) {
