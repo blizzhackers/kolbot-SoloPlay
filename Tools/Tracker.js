@@ -1,0 +1,430 @@
+/**
+*  @filename    Tracker.js
+*  @author      theBGuy, isid0re
+*  @desc        Track bot game performance and send to CSV file
+*
+*/
+
+includeIfNotIncluded("core/experience.js");
+
+const Tracker = {
+  GTPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-GameTime.json",
+  LPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-LevelingPerformance.csv",
+  SPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-ScriptPerformance.csv",
+  IPPath: "libs/SoloPlay/.soloplay/" + me.profile + "/" + me.profile + "-InProgress.json",
+  // Leveling Performance
+  LPHeader: [
+    "Total Time",
+    "InGame",
+    "Split Time",
+    "Area",
+    "Charlevel",
+    "Gained EXP",
+    "EXP/Minute",
+    "Difficulty",
+    "Gold",
+    "Fire Resist",
+    "Cold Resist",
+    "Light Resist",
+    "Poison Resist",
+    "Current Build"
+  ].join(",") + "\n",
+  // Script Performance
+  SPHeader: [
+    "Total Time",
+    "InGame",
+    "Sequence",
+    "Script",
+    "Charlevel",
+    "Gained EXP",
+    "EXP/Minute",
+    "EXP Gain %",
+    "Difficulty",
+    "Gold",
+    "Fire Resist",
+    "Cold Resist",
+    "Light Resist",
+    "Poison Resist",
+    "Current Build",
+    "Result"
+  ].join(",") + "\n",
+  tick: 0,
+  _default: {
+    "Total": 0,
+    "InGame": 0,
+    "OOG": 0,
+    "LastLevel": 0,
+    "LastSave": getTickCount()
+  },
+
+  /**
+   * Creates the SoloPlay data folder and Tracker files for this profile if they don't exist yet.
+   * @returns {boolean}
+   */
+  initialize: function () {
+    const GameTracker = Object.assign({}, this._default);
+
+    // Create Files
+    if (!FileTools.exists("libs/SoloPlay/.soloplay/" + me.profile)) {
+      let folder = dopen("libs/SoloPlay/.soloplay");
+      folder.create(me.profile);
+    }
+
+    !FileTools.exists(this.GTPath) && Tracker.writeObj(GameTracker, this.GTPath);
+    !FileTools.exists(this.LPPath) && FileAction.write(this.LPPath, this.LPHeader);
+    !FileTools.exists(this.SPPath) && FileAction.write(this.SPPath, this.SPHeader);
+
+    return true;
+  },
+
+  /**
+   * Save the current script's starting state to disk so it can be logged if the bot
+   * chickens or crashes before the script completes.
+   * @param {string} script
+   * @param {number} tick
+   * @param {number} expStart
+   */
+  scriptStart: function (script, tick, expStart) {
+    const data = {
+      script: script,
+      tick: tick,
+      expStart: expStart,
+      charlvl: me.charlvl,
+      diff: me.diff,
+      build: SetUp.currentBuild
+    };
+    Tracker.writeObj(data, this.IPPath);
+  },
+
+  /**
+   * Remove the in-progress tracking file once a script has been fully logged.
+   */
+  clearInProgress: function () {
+    FileTools.exists(this.IPPath) && FileTools.remove(this.IPPath);
+  },
+
+  /**
+   * Log the in-progress script as a Chicken result.
+   * Called from ToolsThread when a life/mana chicken fires.
+   * All me.* stats are still accessible at this point.
+   * @returns {boolean}
+   */
+  scriptChicken: function () {
+    if (!FileTools.exists(this.IPPath)) return false;
+    const data = Tracker.readObj(this.IPPath);
+    if (!data) return false;
+
+    const GameTracker = Tracker.readObj(this.GTPath);
+    GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
+    const newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
+    GameTracker.InGame += Time.elapsed(newTick);
+    GameTracker.Total += Time.elapsed(newTick);
+    GameTracker.LastSave = getTickCount();
+    Tracker.writeObj(GameTracker, Tracker.GTPath);
+
+    const scriptTime = Time.elapsed(data.tick);
+    const currLevel = me.charlvl;
+    const diffString = sdk.difficulty.nameOf(data.diff);
+    const gainAMT = me.getStat(sdk.stats.Experience) - data.expStart;
+    const gainTime = (gainAMT / (scriptTime / 60000)).toFixed(2);
+    const gainPercent = currLevel === 99
+      ? 0
+      : (gainAMT * 100 / Experience.nextExp[currLevel]).toFixed(2);
+    const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
+    const string = (
+      Time.format(GameTracker.Total) + ","
+      + Time.format(GameTracker.InGame) + ","
+      + Time.format(scriptTime) + ","
+      + data.script + ","
+      + currLevel + ","
+      + gainAMT.toFixed(2) + ","
+      + gainTime + ","
+      + gainPercent + ","
+      + diffString + ","
+      + GOLD + ","
+      + FR + ","
+      + CR + ","
+      + LR + ","
+      + PR + ","
+      + data.build + ","
+      + "Chicken"
+      + "\n"
+    );
+
+    FileAction.append(Tracker.SPPath, string);
+    FileTools.remove(this.IPPath);
+    Tracker.tick = GameTracker.LastSave;
+    return true;
+  },
+
+  /**
+   * On game startup, check for a leftover in-progress file from a prior crash.
+   * Logs the interrupted script as Crashed with zero duration/exp since tick
+   * count reset and those values are unrecoverable.
+   * @returns {boolean}
+   */
+  recoverFromCrash: function () {
+    if (!FileTools.exists(this.IPPath)) return false;
+    const data = Tracker.readObj(this.IPPath);
+    if (!data) return false;
+
+    const GameTracker = Tracker.readObj(this.GTPath);
+    const diffString = sdk.difficulty.nameOf(data.diff);
+    const string = (
+      Time.format(GameTracker.Total) + ","
+      + Time.format(GameTracker.InGame) + ","
+      + Time.format(0) + ","
+      + data.script + ","
+      + data.charlvl + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + diffString + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + "0" + ","
+      + data.build + ","
+      + "Crashed"
+      + "\n"
+    );
+
+    FileAction.append(Tracker.SPPath, string);
+    FileTools.remove(this.IPPath);
+    console.log("ÿc8Kolbot-SoloPlayÿc0: Recovered crashed script: ÿc9" + data.script);
+    return true;
+  },
+
+  /**
+   * @param {string} path 
+   * @returns {GameTracker}
+   */
+  getObj: function (path) {
+    let obj, OBJstring = FileAction.read(path);
+
+    try {
+      obj = JSON.parse(OBJstring);
+    } catch (e) {
+      // If we failed, file might be corrupted, so create a new one
+      Misc.errorReport(e, "Tracker");
+      FileTools.remove(path);
+      Tracker.initialize();
+      OBJstring = FileAction.read(path);
+      obj = JSON.parse(OBJstring);
+    }
+
+    if (obj) {
+      return obj;
+    }
+
+    console.error("ÿc8Kolbot-SoloPlayÿc0: Failed to read Obj. (Tracker.getObj)");
+
+    return false;
+  },
+
+  /**
+   * @param {string} jsonPath 
+   * @returns {GameTracker}
+   */
+  readObj: function (jsonPath) {
+    let obj = this.getObj(jsonPath);
+    return clone(obj);
+  },
+
+  /**
+   * @param {object} obj - Object to serialize as JSON.
+   * @param {string} path - File path to write to.
+   * @returns {boolean} False if `obj` failed to serialize/round-trip, true once written.
+   */
+  writeObj: function (obj, path) {
+    let string;
+    try {
+      string = JSON.stringify(obj, null, 2);
+      // try to parse the string to ensure it converted correctly
+      JSON.parse(string);
+      // JSON.parse throws an error if it fails so if we are here now we are good
+      FileAction.write(path, string);
+    } catch (e) {
+      console.warn("Malformed JSON object");
+      console.error(e);
+      return false;
+    }
+
+    return true;
+  },
+
+  /**
+   * Overwrites the game time tracker file with the default (zeroed) state.
+   */
+  resetGameTime: function () {
+    Tracker.writeObj(Object.assign({}, this._default), this.GTPath);
+  },
+
+  /**
+   * Resets game time and re-appends the CSV headers to mark a restart point.
+   */
+  reset: function () {
+    this.resetGameTime();
+    // for now just re-init the header so it's easier to look at the file and see where we restarted
+    // might later save the files to a sub folder and re-init a new one
+    FileTools.exists(this.LPPath) && FileAction.append(this.LPPath, this.LPHeader);
+    FileTools.exists(this.SPPath) && FileAction.append(this.SPPath, this.SPHeader);
+  },
+
+  /**
+   * Clamps any negative game-time counters to 0 and persists the fix if one was found.
+   */
+  checkValidity: function () {
+    const GameTracker = Tracker.readObj(this.GTPath);
+    let found = false;
+    GameTracker && Object.keys(GameTracker).forEach(function (key) {
+      if (GameTracker[key] < 0) {
+        console.debug("Negative value found");
+        GameTracker[key] = 0;
+        found = true;
+      }
+    });
+    found && Tracker.writeObj(GameTracker, this.GTPath);
+  },
+
+  /**
+   * @param {number} milliseconds - Duration to convert.
+   * @returns {string} Whole days elapsed, as a string.
+   */
+  totalDays: function (milliseconds) {
+    let days = Math.floor(milliseconds / 86.4e6).toFixed(0);
+    return days.toString().padStart(1, "0");
+  },
+
+  /**
+   * Log a completed (non-leveling) script run to the Script Performance CSV and update game time.
+   * @param {number} starttime - Tick count when the script started.
+   * @param {string} subscript - Script name to record.
+   * @param {number} startexp - Experience value at script start.
+   * @param {boolean} result - True for Success, false for Failure.
+   * @returns {boolean}
+   */
+  script: function (starttime, subscript, startexp, result) {
+    const GameTracker = Tracker.readObj(Tracker.GTPath);
+
+    // GameTracker
+    // this seems to happen when my pc restarts so set last save equal to current tick count and then continue
+    GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
+
+    const newTick = me.gamestarttime >= GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
+    GameTracker.InGame += Time.elapsed(newTick);
+    GameTracker.Total += Time.elapsed(newTick);
+    GameTracker.LastSave = getTickCount();
+    Tracker.writeObj(GameTracker, Tracker.GTPath);
+
+    // csv file
+    const scriptTime = Time.elapsed(starttime);
+    const currLevel = me.charlvl;
+    const diffString = sdk.difficulty.nameOf(me.diff);
+    const gainAMT = me.getStat(sdk.stats.Experience) - startexp;
+    const gainTime = (gainAMT / (scriptTime / 60000)).toFixed(2);
+    const gainPercent = currLevel === 99
+      ? 0
+      : (gainAMT * 100 / Experience.nextExp[currLevel]).toFixed(2);
+    const currentBuild = SetUp.currentBuild;
+    const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
+    const string = (
+      Time.format(GameTracker.Total) + ","
+      + Time.format(GameTracker.InGame) + ","
+      + Time.format(scriptTime) + ","
+      + subscript + ","
+      + currLevel + ","
+      + (gainAMT).toFixed(2) + ","
+      + gainTime + ","
+      + gainPercent + ","
+      + diffString + ","
+      + GOLD + ","
+      + FR + ","
+      + CR + ","
+      + LR + ","
+      + PR + ","
+      + currentBuild + ","
+      + (result ? "Success" : "Failure")
+      + "\n"
+    );
+
+    FileAction.append(Tracker.SPPath, string);
+    Tracker.tick = GameTracker.LastSave;
+
+    return true;
+  },
+
+  /**
+   * Log a level-up split to the Leveling Performance CSV and update game time.
+   * @returns {boolean}
+   */
+  leveling: function () {
+    const GameTracker = Tracker.readObj(this.GTPath);
+
+    // GameTracker
+    // this seems to happen when my pc restarts so set last save equal to current tick count and then continue
+    GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
+
+    const newSave = getTickCount();
+    const newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
+    const splitTime = Time.elapsed(GameTracker.LastLevel);
+    GameTracker.InGame += Time.elapsed(newTick);
+    GameTracker.Total += Time.elapsed(newTick);
+    GameTracker.LastLevel = newSave;
+    GameTracker.LastSave = newSave;
+    Tracker.writeObj(GameTracker, Tracker.GTPath);
+
+    // csv file
+    const diffString = sdk.difficulty.nameOf(me.diff);
+    const areaName = getAreaName(me.area);
+    const currentBuild = SetUp.currentBuild;
+    const gainAMT = me.getStat(sdk.stats.Experience) - Experience.totalExp[me.charlvl - 1];
+    const gainTime = gainAMT / (splitTime / 60000);
+    const [GOLD, FR, CR, LR, PR] = [me.gold, me.realFR, me.realCR, me.realLR, me.realPR];
+    const string = (
+      Time.format(GameTracker.Total) + "," + Time.format(GameTracker.InGame) + "," + Time.format(splitTime) + ","
+      + areaName + "," + me.charlvl + "," + gainAMT + "," + gainTime + "," + diffString + ","
+      + GOLD + "," + FR + "," + CR + "," + LR + "," + PR + "," + currentBuild + "\n"
+    );
+
+    FileAction.append(Tracker.LPPath, string);
+    Tracker.tick = GameTracker.LastSave;
+
+    return true;
+  },
+
+  /**
+   * Periodic heartbeat tick: accumulates in-game/out-of-game time and persists the game tracker.
+   * @param {number} [oogTick] - Milliseconds spent out of game since the last update.
+   * @returns {boolean} False if not in game or the heartbeat script isn't running.
+   */
+  update: function (oogTick = 0) {
+    let heartBeat = getScript("threads/heartbeat.js");
+    if (!heartBeat) {
+      console.debug("Couldn't find heartbeat");
+      return false;
+    }
+    if (!me.ingame) {
+      console.debug("Not in game");
+      return false;
+    }
+
+    const GameTracker = Tracker.readObj(this.GTPath);
+
+    // this seems to happen when my pc restarts so set last save equal to current tick count and then continue
+    GameTracker.LastSave > getTickCount() && (GameTracker.LastSave = getTickCount());
+
+    // make sure we aren't attempting to use a corrupted file (only way we get negative values)
+    const newTick = me.gamestarttime > GameTracker.LastSave ? me.gamestarttime : GameTracker.LastSave;
+
+    GameTracker.OOG += oogTick;
+    GameTracker.InGame += Time.elapsed(newTick);
+    GameTracker.Total += (Time.elapsed(newTick) + oogTick);
+    GameTracker.LastSave = getTickCount();
+    Tracker.writeObj(GameTracker, Tracker.GTPath);
+    Tracker.tick = GameTracker.LastSave;
+
+    return true;
+  }
+};
