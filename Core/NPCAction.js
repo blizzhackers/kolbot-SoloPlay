@@ -310,9 +310,11 @@
         myTome = me.getTome(classid);
 
         if (myTome) {
+          // the server refuses every buy while an item is on the cursor
+          Cubing.cursorCheck();
           while (myTome.getStat(sdk.stats.Quantity) < 5 && me.gold > 500) {
             scroll = npc.getItem(scrollId);
-            scroll && Packet.buyScroll(scroll, myTome, false);
+            if (!scroll || !Packet.buyScroll(scroll, myTome, false)) break;
             delay(50);
           }
         }
