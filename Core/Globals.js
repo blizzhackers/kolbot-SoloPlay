@@ -700,6 +700,7 @@ const goToDifficulty = function (diff = undefined, reason = "") {
     }
 
     CharData.updateData("me", "setDifficulty", diffString);
+    !me.realm && Messaging.sendToScript("D2BotSoloPlay.dbj", "diffChange");
     myPrint("Going to " + diffString + " " + reason, true);
     delay(1000);
     if (CharData.getStats().setDifficulty !== diffString) {
