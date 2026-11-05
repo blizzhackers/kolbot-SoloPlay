@@ -626,7 +626,9 @@ Town.stash = function (stashGold = true) {
               return;
             }
           }
-          Storage.Stash.MoveTo(item) && Item.logger("Stashed", item);
+          if (Town.openStash() && Storage.Stash.MoveTo(item)) {
+            Item.logger("Stashed", item);
+          }
 
           break;
         }
@@ -645,6 +647,8 @@ Town.stash = function (stashGold = true) {
       me.cancel();
     }
   }
+
+  me.cancelUIFlags();
 
   return true;
 };
