@@ -212,18 +212,29 @@ Unit.prototype.equipMerc = function (bodyLoc = -1) {
   if (this.isInStash && !Town.openStash()) return false;
   // failed to open cube
   if (this.isInCube && !Cubing.openCube()) return false;
-  
+
+  // the server re-issues the item under a new unit id once the merc wears it,
+  // so this handle stops resolving after the click
+  const classid = this.classid;
+
   for (let i = 0; i < 3; i += 1) {
+    if (this.type !== sdk.unittype.Item) break;
     if (this.toCursor()) {
       clickItemAndWait(sdk.clicktypes.click.item.Mercenary, bodyLoc);
 
-      if (this.bodylocation === bodyLoc) {
+      let merc = me.getMercEx();
+      let check = merc && merc.getItemsEx()
+        .find(function (el) {
+          return el.isEquipped && el.bodylocation === bodyLoc && el.classid === classid;
+        });
+
+      if (check) {
         if (getCursorType() === 3) {
           let cursorItem = Game.getCursorUnit();
-          !!cursorItem && !this.shouldKeep() && this.drop();
+          !!cursorItem && !cursorItem.shouldKeep() && cursorItem.drop();
         }
 
-        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", me.getMerc().getItem(this.classid));
+        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", check);
         Settings.logEquipped && MuleLogger.logEquippedItems();
 
         return true;

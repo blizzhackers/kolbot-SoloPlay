@@ -394,11 +394,28 @@ Item.equip = function (item, bodyLoc) {
     );
   }
   let rolledBack = false;
+  const classid = item.classid;
   // todo: sometimes rings get bugged with the higher tier ring ending up on the wrong finger, if this happens swap them
 
   for (let i = 0; i < 3; i += 1) {
     if (item.toCursor()) {
       clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc);
+
+      // a stackable (arrows, bolts, throwing weapons) dropped on an equipped one of the same kind stacks into it,
+      // the held item stops existing and the slot keeps the old one
+      if (item.type !== sdk.unittype.Item) {
+        let stacked = me.getEquippedItem(bodyLoc);
+        return !!stacked && stacked.classid === classid;
+      }
+
+      // when it doesn't all fit, the slot is topped up and the rest stays on the cursor
+      if (item.mode === sdk.items.mode.onCursor && getBaseStat("items", classid, "stackable")) {
+        let stacked = me.getEquippedItem(bodyLoc);
+        if (stacked && stacked.classid === classid) {
+          Cubing.cursorCheck();
+          return true;
+        }
+      }
 
       if (item.bodylocation === bodyLoc) {
         if (getCursorType() === 3) {
@@ -526,11 +543,31 @@ Item.secondaryEquip = function (item, bodyLoc) {
   let equipped = false;
 
   me.switchWeapons(1); // Switch weapons
+  const classid = item.classid;
 
   try {
     for (let i = 0; i < 3; i += 1) {
       if (item.toCursor()) {
         clickItemAndWait(sdk.clicktypes.click.item.Left, bodyLoc - 7);
+
+        // a stackable (arrows, bolts, throwing weapons) dropped on an equipped one of the same kind stacks into it,
+        // the held item stops existing and the slot keeps the old one
+        if (item.type !== sdk.unittype.Item) {
+          let stacked = me.getEquippedItem(bodyLoc - 7);
+          if (!stacked || stacked.classid !== classid) return false;
+          [sdk.items.Arrows, sdk.items.Bolts].includes(classid) && CharData.skillData.bow.setArrowInfo(stacked);
+          return true;
+        }
+
+        // when it doesn't all fit, the slot is topped up and the rest stays on the cursor
+        if (item.mode === sdk.items.mode.onCursor && getBaseStat("items", classid, "stackable")) {
+          let stacked = me.getEquippedItem(bodyLoc - 7);
+          if (stacked && stacked.classid === classid) {
+            [sdk.items.Arrows, sdk.items.Bolts].includes(classid) && CharData.skillData.bow.setArrowInfo(stacked);
+            Cubing.cursorCheck();
+            return true;
+          }
+        }
 
         if (item.bodylocation === bodyLoc - 7) {
           equipped = true;
@@ -675,16 +712,28 @@ Item.equipMerc = function (item, bodyLoc) {
   if (item.mode === sdk.items.mode.Equipped && item.bodylocation === bodyLoc) return true;
   if (item.isInStash && !Town.openStash()) return false;
 
+  // the server re-issues the item under a new unit id once the merc wears it,
+  // so the handle we were given stops resolving after the click
+  const classid = item.classid;
+  const getEquipped = function () {
+    return mercenary.getItemsEx()
+      .find(function (el) {
+        return el.isEquipped && el.bodylocation === bodyLoc && el.classid === classid;
+      });
+  };
+
   for (let i = 0; i < 3; i += 1) {
+    // stale handle, the click went through but the item is not where we expect it
+    if (item.type !== sdk.unittype.Item) break;
     if (item.toCursor()) {
       if (clickItem(sdk.clicktypes.click.item.Mercenary, bodyLoc)) {
         delay(500 + me.ping * 2);
-        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", mercenary.getItem(item.classid));
       }
 
-      let check = mercenary.getItem(item.classid);
+      let check = getEquipped();
 
-      if (check && check.bodylocation === bodyLoc) {
+      if (check) {
+        Settings.debugging.autoEquip && Item.logItem("Merc Equipped", check);
         if (check.runeword) {
           // just track runewords for now
           me.data.merc.gear.push(check.prefixnum);
