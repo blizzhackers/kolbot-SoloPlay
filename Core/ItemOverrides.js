@@ -715,10 +715,17 @@ Item.equipMerc = function (item, bodyLoc) {
   // the server re-issues the item under a new unit id once the merc wears it,
   // so the handle we were given stops resolving after the click
   const classid = item.classid;
+  // a failed click leaves the slot's item (and its gid) as it was, a successful one puts the re-issued item there;
+  // comparing gids tells them apart even when both have the same classid (polearm replacing a polearm)
+  const slotItem = mercenary.getItemsEx()
+    .find(function (el) {
+      return el.isEquipped && el.bodylocation === bodyLoc;
+    });
+  const previousGid = slotItem ? slotItem.gid : -1;
   const getEquipped = function () {
     return mercenary.getItemsEx()
       .find(function (el) {
-        return el.isEquipped && el.bodylocation === bodyLoc && el.classid === classid;
+        return el.isEquipped && el.bodylocation === bodyLoc && el.classid === classid && el.gid !== previousGid;
       });
   };
 
