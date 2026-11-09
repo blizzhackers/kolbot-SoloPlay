@@ -12,6 +12,9 @@ includeIfNotIncluded("SoloPlay/Core/NTIPOverrides.js");
 includeIfNotIncluded("SoloPlay/Core/MiscOverrides.js");
 
 Pickit.enabled = true;
+/** Failed moves per item gid this game (scripts reload every game). */
+Pickit.failedMoves = new Map();
+Pickit.maxFailedMoves = 3;
 Pickit.Result.SOLOWANTS = 8;
 Pickit.Result.SOLOSYSTEM = 9;
 
@@ -533,7 +536,19 @@ Pickit.pickItem = (function () {
           if (copyUnit(item).x === undefined || !item.onGroundOrDropping) {
             break;
           }
-          if (!Pather.moveNearUnit({ x: stats.x, y: stats.y }, 5)) continue;
+          if (!Pather.moveNearUnit({ x: stats.x, y: stats.y }, 5)) {
+            // a pick whose moves keep failing (no path to or from where we stand) is given up for this game,
+            // else every node action re-tries it and the script spins without yielding.
+            const failed = (Pickit.failedMoves.get(gid) || 0) + 1;
+            Pickit.failedMoves.set(gid, failed);
+            if (failed >= Pickit.maxFailedMoves) {
+              console.warn("Giving up on " + stats.name + " after " + failed + " failed moves");
+              Pickit.ignoreList.add(gid);
+              Pickit.failedMoves.delete(gid);
+              return false;
+            }
+            continue;
+          }
         }
 
         let cursorUnit;
