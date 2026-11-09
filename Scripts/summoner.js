@@ -117,14 +117,41 @@ function summoner () {
   let journal = Game.getObject(sdk.objects.Journal);
 
   if (journal) {
-    while (!Pather.getPortal(sdk.areas.CanyonofMagic)) {
-      Misc.openChest(journal);
-      delay(1000 + me.ping);
-      me.cancel();
+    const canyonPortal = function () {
+      return Pather.getPortal(sdk.areas.CanyonofMagic);
+    };
+    // The portal only opens if we are still in the journal's room when the scroll is closed,
+    // so a town trip while the scroll is up loses it. Keep TownChicken out until the portal is there.
+    const townChickenDisabled = SoloEvents.townChicken.disabled;
+    SoloEvents.townChicken.disabled = true;
+
+    try {
+      for (let i = 0; i < 5 && !canyonPortal(); i++) {
+        // Misc.openChest skips the journal once it has been read (mode != 0), but it can still be read again
+        if (!Misc.openChest(journal)) {
+          journal.distance > 5 && Pather.moveNearUnit(journal, 3);
+          Packet.entityInteract(journal);
+        }
+        Misc.poll(getIsTalkingNPC, 1000 + me.ping, 50);
+        me.cancel();
+        Misc.poll(canyonPortal, 1000 + me.ping, 100);
+      }
+
+      // a late answer to an earlier read can leave another scroll up
+      for (let i = 0; i < 3 && getIsTalkingNPC(); i++) {
+        me.cancel();
+        delay(250 + me.ping);
+      }
+    } finally {
+      SoloEvents.townChicken.disabled = townChickenDisabled;
     }
   }
 
-  Pather.usePortal(sdk.areas.CanyonofMagic);
+  if (!Pather.usePortal(sdk.areas.CanyonofMagic)) {
+    console.warn("Failed to open the portal to Canyon of the Magi");
+
+    return false;
+  }
 
   if (!Pather.checkWP(sdk.areas.CanyonofMagic)) {
     Pather.getWP(sdk.areas.CanyonofMagic);
