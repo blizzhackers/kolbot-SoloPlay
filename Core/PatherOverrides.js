@@ -167,7 +167,7 @@ NodeAction.pickItems = function (arg = {}) {
   const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
   /** @param {ItemUnit} item */
   const filterJunk = function (item) {
-    return !!item && item.onGroundOrDropping;
+    return !!item && item.onGroundOrDropping && !Pickit.ignoreList.has(item.gid);
   };
 
   do {
