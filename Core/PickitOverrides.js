@@ -15,6 +15,13 @@ Pickit.enabled = true;
 /** Failed moves per item gid this game (scripts reload every game). */
 Pickit.failedMoves = new Map();
 Pickit.maxFailedMoves = 3;
+/**
+ * Failed picks per item gid this game, with where we stood at the last one. An item the server will not hand over is
+ * otherwise re-listed and retried forever; a pick that fails and then succeeds after we have moved is not counted against it.
+ * @type {Map<number, { count: number, x: number, y: number }>}
+ */
+Pickit.failedPicks = new Map();
+Pickit.maxFailedPicks = 5;
 Pickit.Result.SOLOWANTS = 8;
 Pickit.Result.SOLOSYSTEM = 9;
 
@@ -618,6 +625,16 @@ Pickit.pickItem = (function () {
 
     stats.picked = me.itemcount > itemCount || !!me.getItem(-1, -1, gid);
 
+    if (!stats.picked && copyUnit(item).x !== undefined && item.onGroundOrDropping) {
+      const last = Pickit.failedPicks.get(gid);
+      const failedPicks = last && getDistance(me.x, me.y, last.x, last.y) <= 3 ? last.count + 1 : 1;
+      Pickit.failedPicks.set(gid, { count: failedPicks, x: me.x, y: me.y });
+      if (failedPicks >= Pickit.maxFailedPicks) {
+        console.warn("Giving up on " + stats.name + " after " + failedPicks + " failed picks");
+        Pickit.ignoreList.add(gid);
+      }
+    }
+
     if (stats.picked) {
       DataFile.updateStats("lastArea");
 
@@ -739,6 +756,7 @@ Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], onc
   if (item) {
     do {
       if (item.onGroundOrDropping
+        && !Pickit.ignoreList.has(item.gid)
         && item.distance <= maxDist
         && Pickit.essentials.includes(item.itemType)) {
         if (Pickit.essentialList.some(el => el.gid === item.gid)) continue;

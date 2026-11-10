@@ -171,7 +171,7 @@ NodeAction.pickItems = function (arg = {}) {
   };
 
   do {
-    if (item.onGroundOrDropping) {
+    if (item.onGroundOrDropping && !Pickit.ignoreList.has(item.gid)) {
       const itemDist = getDistance(me, item);
       if (itemDist > maxRange) continue;
       if (totalList.some(el => el.gid === item.gid)) continue;
