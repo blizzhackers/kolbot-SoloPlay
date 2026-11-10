@@ -167,11 +167,11 @@ NodeAction.pickItems = function (arg = {}) {
   const totalList = [].concat(Pickit.essentialList, Pickit.pickList);
   /** @param {ItemUnit} item */
   const filterJunk = function (item) {
-    return !!item && item.onGroundOrDropping && !Pickit.ignoreList.has(item.gid);
+    return !!item && item.onGroundOrDropping;
   };
 
   do {
-    if (item.onGroundOrDropping && !Pickit.ignoreList.has(item.gid)) {
+    if (item.onGroundOrDropping) {
       const itemDist = getDistance(me, item);
       if (itemDist > maxRange) continue;
       if (totalList.some(el => el.gid === item.gid)) continue;
