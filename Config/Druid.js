@@ -272,7 +272,7 @@
   }
 
   // Merc Insight
-  if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 3600) {
+  if (LADDER_ENABLED && Item.getMercEquipped(sdk.body.RightArm).tier < 8600) {
     includeIfNotIncluded("SoloPlay/BuildFiles/Runewords/MercInsight.js");
   }
 
