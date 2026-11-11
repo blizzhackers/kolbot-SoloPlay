@@ -888,7 +888,7 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
                 return el.distance <= 5 && (Storage.Inventory.CanFit(el) || Pickit.canFit(el));
               }).forEach(function (el) {
                 let _result = Pickit.checkItem(el);
-                if (_result.result && Pickit.canPick(_item)) {
+                if (_result.result && Pickit.canPick(el)) {
                   Pickit.pickItem(el, _result.result, _result.line + "(quick)", { allowMove: false });
                 }
               });
