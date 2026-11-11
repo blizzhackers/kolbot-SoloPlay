@@ -270,7 +270,8 @@ const SetUp = (function () {
           }
         }
 
-        if (!!me.shenk && me.data[currDiffStr].socketUsed === false) {
+        const larzukUsed = me.getQuest(sdk.quest.id.SiegeOnHarrogath, sdk.quest.states.Completed);
+        if (larzukUsed && me.data[currDiffStr].socketUsed === false) {
           me.data[currDiffStr].socketUsed = true;
         }
       }
