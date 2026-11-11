@@ -855,6 +855,9 @@ Item.autoEquipCheckMerc = function (item, basicCheck = false) {
     if (tier > oldTier) {
       if (Item.canEquipMerc(item) || !item.identified) {
         return true;
+      } else if (item.prefixnum === sdk.locale.items.Insight) {
+        // keep an Insight he can't wear yet, autoEquipMerc gives it to him once he can
+        return true;
       } else if (basicCheck) {
         // keep wanted final gear items
         if (NTIP.CheckItem(item, NTIP.FinalGear) === Pickit.Result.WANTED) {

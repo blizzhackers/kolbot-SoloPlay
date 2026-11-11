@@ -64,7 +64,11 @@
     item.prefixnum === sdk.locale.items.Treachery
       && (mercRating += item.getStatEx(sdk.stats.SkillWhenStruck, 2) * 1000); // fade
     mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Conviction) * 1000; // conviction aura
-    mercRating += item.getStatEx(sdk.stats.SkillOnAura, sdk.skills.Meditation) * 100; // meditation aura
+    // an aura outweighs everything a weapon without one can roll, past that its level and the other stats rank them
+    [sdk.skills.Meditation, sdk.skills.Concentration, sdk.skills.HolyFreeze].forEach(function (aura) {
+      let level = item.getStatEx(sdk.stats.SkillOnAura, aura);
+      level > 0 && (mercRating += 5000 + level * 100);
+    });
     mercRating += item.getStatEx(sdk.stats.AllSkills) * mercWeights.ALL; // add all skills
     mercRating += item.getStatEx(sdk.stats.IAS) * mercWeights.IAS; // add IAS
     mercRating += item.getStatEx(sdk.stats.ToHit) * mercWeights.AR; // add AR

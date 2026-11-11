@@ -454,6 +454,11 @@
       return (itemsMinDmg + itemsMaxDmg);
     };
     /** @param {ItemUnit} item */
+    const get2HandBaseDmg = function (item) {
+      let dmg = getBaseStat("items", item.classid, "2handmindam") + getBaseStat("items", item.classid, "2handmaxdam");
+      return item.ethereal ? Math.floor(dmg * 1.5) : dmg;
+    };
+    /** @param {ItemUnit} item */
     const getDef = function (item) {
       return item.getStatEx(sdk.stats.Defense);
     };
@@ -488,19 +493,17 @@
       let merc = me.getMercEx();
       if (merc) {
         bodyLoc = Item.getBodyLocMerc(base);
-        let eqItem = merc.getItemsEx().filter(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
+        let eqItem = merc.getItemsEx().find(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
         if (!eqItem || !eqItem.runeword || NTIP.GetMercTier(eqItem) >= NTIP.MAX_TIER) return true;
         name = getLocaleString(eqItem.prefixnum);
         // todo logic checking before this to ensure we aren't keeping extra merc stuff
         if (base.sockets === 0) return true;
         switch (eqItem.prefixnum) {
         case sdk.locale.items.Insight:
-          [itemsTotalDmg, baseDmg] = [getRealDmg(eqItem, 260), getDmg(base)];
-          if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
-
-          break;
         case sdk.locale.items.Infinity:
-          [itemsTotalDmg, baseDmg] = [getRealDmg(eqItem, 325), getDmg(base)];
+          // merc polearms carry their damage in the two-handed stats (23/24), which on a runeword already include its
+          // enhanced damage without reporting it, so compare both bases' two-handed damage from items.txt
+          [itemsTotalDmg, baseDmg] = [get2HandBaseDmg(eqItem), get2HandBaseDmg(base)];
           if (baseDmg !== itemsTotalDmg && dmgCheck(itemsTotalDmg, baseDmg)) return true;
 
           break;
