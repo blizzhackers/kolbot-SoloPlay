@@ -9,17 +9,26 @@
   const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
 
   /**
+   * Cold never chills or freezes Talic, Korlic and Lister (monstats ColdEffect 0), so they stay "not chilled"
+   * however often they are hit. The same goes for a monster that cannot be frozen.
+   */
+  const noSlow = [
+    sdk.monsters.Andariel, sdk.monsters.Lord5, sdk.monsters.TalictheDefender, sdk.monsters.KorlictheProtector
+  ];
+
+  /**
    * Can we slow this monster
-   * @param {Monster} unit 
-   * @param {boolean} freezeable 
+   * @param {Monster} unit
+   * @param {boolean} freezeable
    * @returns {boolean}
    */
   const slowable = function (unit, freezeable = false) {
     return (!!unit && unit.attackable // those that we can attack
       && Attack.checkResist(unit, "cold")
-      // those that are not frozen yet and those that can be frozen or not yet chilled
-      && (freezeable ? !unit.isFrozen && !unit.getStat(sdk.stats.CannotbeFrozen) : !unit.isChilled)
-      && ![sdk.monsters.Andariel, sdk.monsters.Lord5].includes(unit.classid));
+      // those that are not frozen yet or not yet chilled
+      && (freezeable ? !unit.isFrozen : !unit.isChilled)
+      && !unit.getStat(sdk.stats.CannotbeFrozen)
+      && !noSlow.includes(unit.classid));
   };
 
   const frostNovaCheck = function () {
@@ -28,9 +37,7 @@
     let mob = Game.getMonster();
     if (mob) {
       do {
-        if (mob.distance < 7 && ![sdk.monsters.Andariel].includes(mob.classid) && mob.attackable
-          && !mob.isChilled && Attack.checkResist(mob, "cold")
-          && !checkCollision(me, mob, Coords.Collision.BLOCK_MISSILE)) {
+        if (mob.distance < 7 && slowable(mob) && !checkCollision(me, mob, Coords.Collision.BLOCK_MISSILE)) {
           return true;
         }
       } while (mob.getNext());
