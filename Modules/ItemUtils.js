@@ -491,6 +491,9 @@
     if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType)
       || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) {
       let merc = me.getMercEx();
+      // merc is dead or not yet revived, keep his stored bases until his gear can be compared again
+      // rather than falling through to our own stat requirements below
+      if (!merc && base.isInStorage && me.data.merc.classid) return true;
       if (merc) {
         bodyLoc = Item.getBodyLocMerc(base);
         let eqItem = merc.getItemsEx().find(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
