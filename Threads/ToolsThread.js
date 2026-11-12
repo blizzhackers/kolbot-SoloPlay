@@ -278,12 +278,10 @@ function main () {
       try {
         pot.interact();
         
-        if (!CharData.pots.get(type).active() || CharData.pots.get(type).timeLeft() <= 0) {
-          CharData.pots.get(type).tick = getTickCount();
-          CharData.pots.get(type).duration = 3e4;
-        } else {
-          CharData.pots.get(type).duration += 3e4 - (getTickCount() - CharData.pots.get(type).tick);
-        }
+        const buff = CharData.pots.get(type);
+        const remaining = buff.active() ? Math.max(0, buff.timeLeft()) : 0;
+        buff.tick = getTickCount();
+        buff.duration = remaining + 3e4;
 
         console.debug(CharData.pots);
       } catch (e) {
