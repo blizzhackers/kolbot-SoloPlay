@@ -914,10 +914,12 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
               return false;
             }
 
-            // Recursive check after going to town, only if the trip freed space - otherwise an item that
-            // canMakeRoom() reports as removable but no town chore removes would send us back to town forever.
+            // Recursive check after going to town, only if the trip freed space or the item now fits (a trip can
+            // swap gear without changing used space) - otherwise an item that canMakeRoom() reports as removable
+            // but no town chore removes would send us back to town forever.
             // We need to remake item list because gids can change.
-            if (Storage.Inventory.UsedSpacePercent() < usedSpace) {
+            if (Storage.Inventory.UsedSpacePercent() < usedSpace
+              || (_item.gid !== undefined && Storage.Inventory.CanFit(_item))) {
               Pickit.ignoreList.clear(); // reset the list of ignored gids
               return this.pickItems(range, once);
             }
