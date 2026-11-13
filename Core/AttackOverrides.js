@@ -1823,6 +1823,28 @@ Attack.deploy = function (unit, distance = 10, spread = 5, range = 9) {
 Attack.getIntoPosition = (function () {
   // angle offsets (degrees) Attack.getIntoPosition tries around the unit
   const angles = [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 135, -135, 180];
+  /**
+   * Recent moves to an attack spot that got us no closer to it. A failed move can take ~15 seconds and clear/clearPos
+   * ask again on every attack of every monster, so a move to the same place from the same spot isn't retried for a bit.
+   * @type {Array<{ area: number, from: PathNode, to: PathNode, at: number }>}
+   */
+  let failedMoves = [];
+  const FAILED_MOVE_MEMORY = Time.seconds(60);
+
+  /**
+   * @param {PathNode} from
+   * @param {PathNode} to
+   * @returns {boolean}
+   */
+  const moveFailedBefore = function (from, to) {
+    const now = getTickCount();
+    failedMoves = failedMoves.filter(function (fail) {
+      return now - fail.at < FAILED_MOVE_MEMORY;
+    });
+    return failedMoves.some(function (fail) {
+      return fail.area === me.area && getDistance(fail.from, from) < 3 && getDistance(fail.to, to) < 6;
+    });
+  };
 
   /**
    * Attempt to find non blocked position to attack from
@@ -1920,6 +1942,7 @@ Attack.getIntoPosition = (function () {
     }
 
     coords.sort(Sort.units);
+    let moveFailed = false;
 
     for (let coord of coords) {
       // Valid position found - no collision between the spot and the unit
@@ -1955,6 +1978,13 @@ Attack.getIntoPosition = (function () {
           continue;
         }
 
+        const from = { x: me.x, y: me.y };
+        const startDistance = coord.distance;
+        if (moveFailedBefore(from, coord)) {
+          moveFailed = true;
+          break;
+        }
+
         // we are actually able to walk to where we want to go, hopefully prevent wall hugging
         if (walk && (coord.distance < 6 || !CollMap.checkColl(me, unit, _coll))) {
           Pather.walkTo(coord.x, coord.y, 2);
@@ -1971,6 +2001,12 @@ Attack.getIntoPosition = (function () {
             Pather.move(coord, _pathSettings);
           }
         }
+        // the move got us no closer, so we are as blocked as before it
+        if (coord.distance > 4 && coord.distance > startDistance - 1) {
+          failedMoves.push({ area: me.area, from: from, to: { x: coord.x, y: coord.y }, at: getTickCount() });
+          moveFailed = true;
+          break;
+        }
         if (Settings.debugging.pathing) {
           console.log(
             sdk.colors.Purple + "SecondCheck :: " + sdk.colors.Yellow
@@ -1983,7 +2019,7 @@ Attack.getIntoPosition = (function () {
       }
     }
 
-    if (caster && potentialSpot.x !== null) {
+    if (!moveFailed && caster && potentialSpot.x !== null) {
       if (potentialSpot.distance < 3) return true;
       if ((function () {
         if (Pather.useTeleport() && Pather.teleportTo(potentialSpot.x, potentialSpot.y)) {
