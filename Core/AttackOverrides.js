@@ -1521,7 +1521,12 @@ Attack.pwnDury = function () {
         }).first();
         Pather.teleportTo(safeSpot.x, safeSpot.y);
       }
+      let attackTick = getTickCount();
       ClassAttack[me.classid].doAttack(duriel, true);
+      // doAttack returns at once when it does nothing (e.g. Duriel reads 0 hp and is not attackable) - wait a frame
+      if (getTickCount() - attackTick < 40) {
+        delay(40);
+      }
     }
   } finally {
     Attack.stopClear = false;
