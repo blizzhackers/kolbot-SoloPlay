@@ -276,14 +276,14 @@ const Mercenary = {
     }
 
     let MercLib_1 = require("../Modules/MercLib");
+    /** @type {(ItemUnit & { _node: PathNode })[]} */
+    const droppedItems = [];
     try {
       Town.goToTown(mercAct);
       myPrint("ÿc9Mercenaryÿc0 :: getting merc");
       Town.move(Town.tasks.get(me.act).Merc);
       me.sortInventory();
       
-      /** @type {(ItemUnit & { _node: PathNode })[]} */
-      const droppedItems = [];
       Item.removeItemsMerc(droppedItems); // strip temp merc gear
       delay(500 + me.ping);
       
@@ -337,20 +337,20 @@ const Mercenary = {
         CharData.updateData("me", me.data) && me.update();
         console.log("ÿc9Mercenaryÿc0 :: " + me.data.merc.skillName + " merc hired.");
       }
+    } catch (e) {
+      console.error(e);
+      Mercenary.timeout = getTickCount() + Time.minutes(3);
+    } finally {
       me.cancelUIFlags();
       while (getInteractedNPC()) {
         delay(me.ping || 5);
         me.cancel();
       }
-
-      if (droppedItems.length) {
-        Pather.move(droppedItems[0]._node);
-      }
-    } catch (e) {
-      console.error(e);
-      Mercenary.timeout = getTickCount() + Time.minutes(3);
-    } finally {
       removeEventListener("gamepacket", MercLib_1.mercPacket);
+    }
+
+    if (droppedItems.length) {
+      Pather.move(droppedItems[0]._node);
     }
 
     Item.autoEquipMerc();
