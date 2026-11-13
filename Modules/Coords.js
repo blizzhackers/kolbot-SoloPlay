@@ -145,20 +145,33 @@
     }
   }
   exports.getCollisionBetweenCoords = getCollisionBetweenCoords;
-  /** @returns {boolean} True if the path between the two points is blocked (LOS, ranged, casting, door, or object) */
+  /**
+   * Between two units this is the game's own line check (checkCollision), the one that decides whether a
+   * cast at the unit goes through. It starts and ends at the units' footprints and walks the room grids, so
+   * the sampled line below can miss a cell it hits. For plain coordinates it falls back to that sampled line.
+   * @returns {boolean} True if the path between the two points is blocked (LOS, ranged, casting, door, or object)
+   */
   function isBlockedBetween() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
       args[_i] = arguments[_i];
     }
-    var collision = getCollisionBetweenCoords.apply(null, args);
-    return !!(collision & (0
+    var mask = (0
             | BlockBits.LineOfSight
             | BlockBits.Ranged
             | BlockBits.Casting
             | BlockBits.ClosedDoor
             | BlockBits.DarkArea
-            | BlockBits.Objects));
+            | BlockBits.Objects);
+    if (args.length === 2 && getDistance(args[0], args[1]) <= 50) {
+      // undefined unless both arguments are units the game can resolve
+      var native = checkCollision(args[0], args[1], mask);
+      if (typeof native === "number") {
+        return !!native;
+      }
+    }
+    var collision = getCollisionBetweenCoords.apply(null, args);
+    return !!(collision & mask);
   }
   exports.isBlockedBetween = isBlockedBetween;
   /**
