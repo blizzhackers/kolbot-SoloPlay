@@ -9,12 +9,16 @@
   const novaLike = [sdk.skills.Nova, sdk.skills.StaticField, sdk.skills.FrostNova];
 
   /**
-   * Cold never chills or freezes Talic, Korlic and Lister (monstats ColdEffect 0), so they stay "not chilled"
-   * however often they are hit. The same goes for a monster that cannot be frozen.
+   * Does cold slow this monster: its monstats ColdEffect for the difficulty is the chill's speed change, read as
+   * an unsigned byte. The game never chills a monster whose value is 0 (Talic, Korlic and Lister always; Andariel,
+   * ghosts and will o' wisps in Hell; ...), and a positive value (Frozen Horrors in Hell) speeds it up.
+   * @param {Monster} unit
+   * @returns {boolean}
    */
-  const noSlow = [
-    sdk.monsters.Andariel, sdk.monsters.Lord5, sdk.monsters.TalictheDefender, sdk.monsters.KorlictheProtector
-  ];
+  const coldSlows = function (unit) {
+    const effect = getBaseStat("monstats", unit.classid, ["ColdEffect", "ColdEffect(N)", "ColdEffect(H)"][me.diff]);
+    return (effect > 127 ? effect - 256 : effect) < 0;
+  };
 
   /**
    * Can we slow this monster
@@ -28,7 +32,7 @@
       // those that are not frozen yet or not yet chilled
       && (freezeable ? !unit.isFrozen : !unit.isChilled)
       && !unit.getStat(sdk.stats.CannotbeFrozen)
-      && !noSlow.includes(unit.classid));
+      && coldSlows(unit));
   };
 
   const frostNovaCheck = function () {
