@@ -222,7 +222,10 @@ const Quest = {
 
     if (chestID !== undefined) {
       let chest = Game.getObject(chestID);
-      if (!chest || !Misc.openChest(chest)) return false;
+      if (!chest || !Misc.openChest(chest)) {
+        const dropped = Game.getItem(classid);
+        if (!dropped || !dropped.onGroundOrDropping) return false;
+      }
     }
 
     let questItem = Misc.poll(function () {
