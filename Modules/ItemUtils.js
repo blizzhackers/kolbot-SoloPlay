@@ -490,11 +490,15 @@
     // @todo - betterThanMercUsing check for now just keep merc items
     if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType)
       || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) {
-      let merc = me.getMercEx();
+      // a dead merc's gear is compared through his mock
+      let merc = Mercenary.getScoringMerc();
+      // dead before we ever stored a mock of him, keep his stored bases until he is back rather than
+      // falling through to our own stat requirements below
+      if (!merc && base.isInStorage && me.mercrevivecost) return true;
       if (merc) {
         bodyLoc = Item.getBodyLocMerc(base);
         let eqItem = merc.getItemsEx().find(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
-        if (!eqItem || !eqItem.runeword || NTIP.GetMercTier(eqItem) >= NTIP.MAX_TIER) return true;
+        if (!eqItem || !eqItem.runeword || require("./MockMerc").tierOf(eqItem) >= NTIP.MAX_TIER) return true;
         name = getLocaleString(eqItem.prefixnum);
         // todo logic checking before this to ensure we aren't keeping extra merc stuff
         if (base.sockets === 0) return true;

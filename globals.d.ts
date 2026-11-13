@@ -296,7 +296,41 @@ declare global {
       skill: number;
       skillName: string;
       gear: number[];
+      /** MockMercData as JSON, "" until MockMerc.update first stores it */
+      snapshot?: string;
     };
+  }
+
+  /** The merc as MockMerc.update stored him: what merc scoring reads from him and his equipped items */
+  interface MockMercData {
+    classid: number;
+    level: number;
+    strength: number;
+    dexterity: number;
+    items: {
+      classid: number;
+      itemType: number;
+      quality: number;
+      bodylocation: number;
+      prefixnum: number;
+      runeword: boolean;
+      ethereal: boolean;
+      sockets: number;
+      name: string;
+      fname: string;
+      tier: number;
+      /** [stat, subid, getStatEx value] */
+      stats: [number, number, number][];
+    }[];
+  }
+
+  /** Built from MockMercData by MockMerc.get, for scoring only */
+  interface MockMercUnit {
+    isMock: true;
+    classid: number;
+    charlvl: number;
+    getStat(stat: number): number;
+    getItemsEx(): ItemUnit[];
   }
 
   interface EquippedItem extends ItemUnit {
@@ -443,6 +477,7 @@ declare global {
   interface Mercenary {
     minCost: number;
 
+    getScoringMerc(): MercUnit | MockMercUnit | null;
     getMercSkill(merc?: MercUnit): string | false;
     getMercDifficulty(merc?: MercUnit): number;
     getMercAct(merc?: MercUnit): number;
