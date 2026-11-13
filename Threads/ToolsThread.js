@@ -261,8 +261,8 @@ function main () {
   const drinkSpecialPotion = function (type) {
     if (type === undefined) return false;
     if (!CharData.pots.has(type)) return false;
-    // give at least a second delay between pots
-    if (CharData.pots.get(type).tick < 1000) return false;
+    // give at least a second delay between pots, tick stays 0 until the first one
+    if (getTickCount() - CharData.pots.get(type).tick < 1000) return false;
 
     // mode 18 - can't drink while leaping/whirling etc.
     if (me.dead || me.mode === sdk.player.mode.SkillActionSequence) {
