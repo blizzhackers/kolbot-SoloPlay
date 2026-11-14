@@ -275,8 +275,9 @@
    * @param {boolean} reverseX 
    * @param {boolean} reverseY 
    * @param {number[]} priorityClassIds 
+   * @param {{top: number, bottom: number, left: number, right: number}} [reserved] Cells to keep clear.
    */
-  Container.prototype.FindSpot = function (item, reverseX, reverseY, priorityClassIds) {
+  Container.prototype.FindSpot = function (item, reverseX, reverseY, priorityClassIds, reserved) {
     // Make sure it's a valid item
     if (!item) return false;
 
@@ -318,7 +319,13 @@
     for (y = startX; y !== endX; y += xDir) {
       Loop:
       for (x = startY; x !== endY; x += yDir) {
-      //Check if there is something in this spot.
+        // A displaced item must fit entirely outside the space we are clearing.
+        if (reserved && x <= reserved.bottom && x + item.sizey > reserved.top
+          && y <= reserved.right && y + item.sizex > reserved.left) {
+          continue;
+        }
+
+        //Check if there is something in this spot.
         if (this.buffer[x][y] > 0) {
           // TODO: add makespot logic here. priorityClassIds should only be used when sorting -- in town, where it's safe!
           // TODO: collapse this down to just a MakeSpot(item, location) call, and have MakeSpot do the priority checks right at the top
@@ -378,7 +385,7 @@
    */
   Container.prototype.MakeSpot = function (item, location, force) {
     let x, y, endx, endy, tmpLocation;
-    let [itemsToMove, itemsMoved] = [[], []];
+    const itemsToMove = [];
     const {
       ItemsSortedFromRight,
       ItemsSortedFromLeftPriority,
@@ -424,21 +431,23 @@
         } else if (item.gid === this.itemList[this.buffer[x][y] - 1].gid) {
           continue; // ignore same gid
         } else {
-          itemsToMove.push(copyUnit(this.itemList[this.buffer[x][y] - 1])); // track items that need to move
+          const blocker = this.itemList[this.buffer[x][y] - 1];
+          if (!itemsToMove.some(other => other.gid === blocker.gid)) itemsToMove.push(copyUnit(blocker));
         }
       }
     }
 
+    const reserved = { top: location.x, left: location.y, bottom: endx, right: endy };
     // Move any item(s) out of the way
     if (itemsToMove.length) {
       for (let i = 0; i < itemsToMove.length; i++) {
         let reverseX = !(ItemsSortedFromRight.includes(item.classid));
-        tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false);
+        tmpLocation = this.FindSpot(itemsToMove[i], reverseX, false, undefined, reserved);
+        if (!tmpLocation) return false;
         // D2Bot.printToConsole(itemsToMove[i].name + " moving from " + itemsToMove[i].x + "," + itemsToMove[i].y + " to "  + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
 
         if (this.MoveToSpot(itemsToMove[i], tmpLocation.y, tmpLocation.x)) {
         // D2Bot.printToConsole(itemsToMove[i].name + " moved to " + tmpLocation.y + "," + tmpLocation.x, sdk.colors.D2Bot.Gold);
-          itemsMoved.push(copyUnit(itemsToMove[i]));
           Storage.Reload(); // success on this item, reload!
           delay(1); // give reload a moment of time to avoid moving the same item twice
         } else {
