@@ -1478,8 +1478,9 @@ Attack.walkingSortMonsters = (function () {
       return getDistance(me, unitA) - getDistance(me, unitB);
     }
     const _coll = (sdk.collision.BlockWall | sdk.collision.LineOfSight | sdk.collision.Ranged);
-    if (!unitA.isFallen && !checkCollision(me, unitA, _coll)) return -1;
-    if (!unitB.isFallen && !checkCollision(me, unitA, _coll)) return 1;
+    const preferA = !unitA.isFallen && !checkCollision(me, unitA, _coll);
+    const preferB = !unitB.isFallen && !checkCollision(me, unitB, _coll);
+    if (preferA !== preferB) return preferA ? -1 : 1;
 
     return getDistance(me, unitA) - getDistance(me, unitB);
   };
