@@ -91,7 +91,18 @@
   Config.ClearPath = { Range: 30, Spectype: (me.hell && Pather.canTeleport() ? 0xF : 0) };
 
   /* Monster skip configuration. */
-  Pather.canTeleport() && me.lightRes < 75 && Config.SkipEnchant.push("lightning enchanted");
+  if (Pather.canTeleport() && me.lightRes < 75) {
+    // A seal routine throws when it can't kill its boss, which skips the remaining seals and leaves Diablo unspawned.
+    const sealBosses = [sdk.locale.monsters.GrandVizierofChaos, sdk.locale.monsters.LordDeSeis,
+      sdk.locale.monsters.InfectorofSouls].map(function (id) {
+      return getLocaleString(id);
+    });
+    function skipLightningEnchanted(unit) {
+      return unit.getEnchant(sdk.enchant.LightningEnchanted)
+        && !(me.area === sdk.areas.ChaosSanctuary && unit.isSpecial && sealBosses.includes(unit.name));
+    }
+    Config.AdvancedSkipCheck.push(skipLightningEnchanted);
+  }
 
   /* Class specific configuration. */
   Config.UseTelekinesis = true; // use telekinesis if have skill
