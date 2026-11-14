@@ -296,7 +296,42 @@ declare global {
       skill: number;
       skillName: string;
       gear: number[];
+      /** MockMercData as JSON, "" until MockMerc.update first stores it */
+      snapshot?: string;
     };
+  }
+
+  /** A real item as MockItem.snapshot stored it, for MockItem.fromSnapshot */
+  interface MockItemSnapshot {
+    /** its native properties (classid, itemType, quality, location, prefixnum, description...) */
+    props: Record<string, any>;
+    /** getFlags() */
+    flags: number;
+    /** [stat, subid, getStat(stat, subid)]: every stat without a subid, every pair the tables or sockets list; no zeros */
+    stats: [number, number, number][];
+    /** getStat(-1) as it returned */
+    all?: [number, number, number][] | false;
+    /** getStat(-2), its sparse arrays as { l: length, e: [index, value][] } */
+    detailed?: any;
+    socketed?: MockItemSnapshot[];
+  }
+
+  /** The merc as MockMerc.update stored him: his stats that scoring reads, and his equipped items */
+  interface MockMercData {
+    classid: number;
+    level: number;
+    strength: number;
+    dexterity: number;
+    items: MockItemSnapshot[];
+  }
+
+  /** Built from MockMercData by MockMerc.get, for scoring only */
+  interface MockMercUnit {
+    isMock: true;
+    classid: number;
+    charlvl: number;
+    getStat(stat: number): number;
+    getItemsEx(): ItemUnit[];
   }
 
   interface EquippedItem extends ItemUnit {
@@ -443,6 +478,7 @@ declare global {
   interface Mercenary {
     minCost: number;
 
+    getScoringMerc(): MercUnit | MockMercUnit | null;
     getMercSkill(merc?: MercUnit): string | false;
     getMercDifficulty(merc?: MercUnit): number;
     getMercAct(merc?: MercUnit): number;

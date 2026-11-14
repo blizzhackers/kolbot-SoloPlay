@@ -102,6 +102,7 @@ const CharData = (function () {
           skill: 0,
           skillName: "",
           gear: [],
+          snapshot: "",
         }
       };
     })(),
