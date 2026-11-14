@@ -498,7 +498,7 @@
       if (merc) {
         bodyLoc = Item.getBodyLocMerc(base);
         let eqItem = merc.getItemsEx().find(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
-        if (!eqItem || !eqItem.runeword || require("./MockMerc").tierOf(eqItem) >= NTIP.MAX_TIER) return true;
+        if (!eqItem || !eqItem.runeword || NTIP.GetMercTier(eqItem) >= NTIP.MAX_TIER) return true;
         name = getLocaleString(eqItem.prefixnum);
         // todo logic checking before this to ensure we aren't keeping extra merc stuff
         if (base.sockets === 0) return true;

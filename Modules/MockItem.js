@@ -236,6 +236,157 @@
     return new MockItem(initializer);
   };
 
+  // the native properties MockItem.snapshot keeps, Unit.prototype derives the rest from these, the stats and the flags
+  const SNAPSHOT_PROPS = [
+    "type", "classid", "mode", "location", "bodylocation", "itemType", "quality", "ilvl", "lvlreq", "code",
+    "name", "fname", "description", "prefix", "suffix", "prefixes", "suffixes",
+    "prefixnum", "suffixnum", "prefixnums", "suffixnums",
+  ];
+
+  /**
+   * getStat(-2) is a sparse array (of sparse arrays or skill objects), JSON would fill its holes with nulls
+   * @param {any} value
+   * @returns {any}
+   */
+  const packSparse = function (value) {
+    if (!Array.isArray(value)) return value;
+    return {
+      l: value.length,
+      e: Object.keys(value).map(function (key) {
+        return [Number(key), packSparse(value[key])];
+      }),
+    };
+  };
+
+  /**
+   * @param {any} value
+   * @returns {any}
+   */
+  const unpackSparse = function (value) {
+    if (!value || typeof value !== "object" || !Array.isArray(value.e)) return value;
+    const arr = [];
+    value.e.forEach(function (entry) {
+      arr[entry[0]] = unpackSparse(entry[1]);
+    });
+    arr.length = value.l;
+    return arr;
+  };
+
+  // the highest stat id, AllRes is a stand-in getStatEx computes rather than a stat
+  const MAX_STAT = Math.max.apply(Math, Object.keys(sdk.stats).map(function (key) {
+    return typeof sdk.stats[key] === "number" && key !== "AllRes" ? sdk.stats[key] : 0;
+  }));
+
+  /** @param {Function} fn */
+  const isNative = function (fn) {
+    return /\[native code\]/.test(Function.prototype.toString.call(fn));
+  };
+
+  /**
+   * Everything about a real item that can be read off it without the game: its native properties, flags, its
+   * getStat(-1) and getStat(-2) tables, and getStat(stat, subid) for every stat without a subid and every stat/subid
+   * pair the tables or its socketed items list. Also its socketed items, the same way.
+   * The values are kept as getStat returned them, so getStat on the mock returns exactly what it returned on the item.
+   * @param {ItemUnit} item
+   * @returns {MockItemSnapshot}
+   */
+  MockItem.snapshot = function (item) {
+    /** @type {MockItemSnapshot} */
+    const record = { props: {}, flags: item.getFlags(), stats: [] };
+    SNAPSHOT_PROPS.forEach(function (key) {
+      record.props[key] = item[key];
+    });
+
+    const all = item.getStat(-1);
+    const detailed = item.getStat(-2);
+    record.all = all;
+    record.detailed = packSparse(detailed);
+
+    /** @type {Map<string, [number, number]>} */
+    const keys = new Map();
+    const addKey = function (stat, subid) {
+      keys.set(stat + ":" + subid, [stat, subid]);
+    };
+    Array.isArray(all) && all.forEach(function (stat) {
+      addKey(stat[0], stat[1]);
+    });
+    Array.isArray(detailed) && Object.keys(detailed).forEach(function (key) {
+      const stat = Number(key);
+      const entry = detailed[stat];
+      // a skill stat (subid > 0x200) is a { skill, level } object or an array of them, keyed by skill << 6 | level
+      if (!Array.isArray(entry)) {
+        entry && typeof entry === "object" && addKey(stat, (entry.skill << 6) | entry.level);
+        return;
+      }
+      Object.keys(entry).forEach(function (subKey) {
+        const value = entry[subKey];
+        value && typeof value === "object"
+          ? addKey(stat, (value.skill << 6) | value.level)
+          : addKey(stat, Number(subKey));
+      });
+    });
+    // neither table lists what the socketed items add (getStat on the item includes it), so take their pairs too
+    const socketed = item.getItemsEx();
+    socketed.length && (record.socketed = socketed.map(MockItem.snapshot));
+    (record.socketed || []).forEach(function (socket) {
+      socket.stats.forEach(function (stat) {
+        addKey(stat[0], stat[1]);
+      });
+    });
+    // and every stat without a subid, which also covers computed ones such as the level requirement
+    for (let stat = 0; stat <= MAX_STAT; stat++) {
+      addKey(stat, 0);
+    }
+
+    keys.forEach(function (key) {
+      const value = item.getStat(key[0], key[1]);
+      value && record.stats.push([key[0], key[1], value]);
+    });
+
+    return record;
+  };
+
+  /**
+   * A mock that answers what the snapshotted item would: getStat and getFlag from the stored values, and every JS
+   * getter and method on Unit.prototype (getStatEx, strreq, sockets, runeword, getColor...) runs over them as it does
+   * on the item.
+   * @param {MockItemSnapshot} record - from MockItem.snapshot
+   * @returns {MockItem}
+   */
+  MockItem.fromSnapshot = function (record) {
+    const socketed = (record.socketed || []).map(MockItem.fromSnapshot);
+    const mock = new MockItem(Object.assign({}, record.props, {
+      socketedWith: socketed,
+      overrides: { stats: record.stats || [], skills: [], flags: record.flags | 0, items: socketed, states: {} },
+    }));
+
+    // the stored values already include the sockets, unlike MockItem's own getStat
+    mock.getStat = function (major, minor) {
+      if (major === -1) {
+        return Array.isArray(record.all)
+          ? record.all.map(function (stat) {
+            return stat.slice();
+          })
+          : record.all;
+      }
+      if (major === -2) return unpackSparse(record.detailed);
+      // the level requirement ignores the subid
+      return mock.internalGetStat(major, major === sdk.stats.LevelReq ? 0 : minor);
+    };
+    mock.getFlags = function () {
+      return record.flags;
+    };
+
+    Object.getOwnPropertyNames(Unit.prototype).forEach(function (key) {
+      if (Object.prototype.hasOwnProperty.call(mock, key)) return;
+      const desc = Object.getOwnPropertyDescriptor(Unit.prototype, key);
+      if (!desc || typeof desc.get !== "function" || isNative(desc.get)) return;
+      Object.defineProperty(mock, key, { get: desc.get, configurable: true });
+    });
+
+    return mock;
+  };
+
   /** @returns {MockItem[]} Mock items for every equipped item and inventory charm on the character. */
   MockItem.fromGear = function () {
     return me.getItemsEx()

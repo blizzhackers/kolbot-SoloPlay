@@ -301,27 +301,28 @@ declare global {
     };
   }
 
-  /** The merc as MockMerc.update stored him: what merc scoring reads from him and his equipped items */
+  /** A real item as MockItem.snapshot stored it, for MockItem.fromSnapshot */
+  interface MockItemSnapshot {
+    /** its native properties (classid, itemType, quality, location, prefixnum, description...) */
+    props: Record<string, any>;
+    /** getFlags() */
+    flags: number;
+    /** [stat, subid, getStat(stat, subid)]: every stat without a subid, every pair the tables or sockets list; no zeros */
+    stats: [number, number, number][];
+    /** getStat(-1) as it returned */
+    all?: [number, number, number][] | false;
+    /** getStat(-2), its sparse arrays as { l: length, e: [index, value][] } */
+    detailed?: any;
+    socketed?: MockItemSnapshot[];
+  }
+
+  /** The merc as MockMerc.update stored him: his stats that scoring reads, and his equipped items */
   interface MockMercData {
     classid: number;
     level: number;
     strength: number;
     dexterity: number;
-    items: {
-      classid: number;
-      itemType: number;
-      quality: number;
-      bodylocation: number;
-      prefixnum: number;
-      runeword: boolean;
-      ethereal: boolean;
-      sockets: number;
-      name: string;
-      fname: string;
-      tier: number;
-      /** [stat, subid, getStatEx value] */
-      stats: [number, number, number][];
-    }[];
+    items: MockItemSnapshot[];
   }
 
   /** Built from MockMercData by MockMerc.get, for scoring only */

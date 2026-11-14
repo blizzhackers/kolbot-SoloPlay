@@ -7,9 +7,6 @@
 (function (module, require) {
   const MockItem = require("./MockItem");
 
-  // what merc scoring reads from his equipped items (Item.getMercEquipped, betterBaseThanWearing)
-  const ITEM_STATS = [sdk.stats.Strength, sdk.stats.Dexterity, sdk.stats.Defense, sdk.stats.ArmorPercent];
-
   /** @type {{ json: string, classid: number, merc: MockMercUnit } | null} */
   let cache = null;
 
@@ -27,28 +24,7 @@
         .filter(function (item) {
           return item.isEquipped;
         })
-        .map(function (item) {
-          return {
-            classid: item.classid,
-            itemType: item.itemType,
-            quality: item.quality,
-            bodylocation: item.bodylocation,
-            prefixnum: item.prefixnum,
-            runeword: item.runeword,
-            ethereal: item.ethereal,
-            sockets: item.sockets,
-            name: item.name,
-            fname: item.fname,
-            tier: NTIP.GetMercTier(item),
-            stats: ITEM_STATS
-              .map(function (stat) {
-                return [stat, 0, item.getStatEx(stat)];
-              })
-              .filter(function (stat) {
-                return stat[2] !== 0;
-              }),
-          };
-        }),
+        .map(MockItem.snapshot),
     };
   };
 
@@ -57,32 +33,7 @@
    * @returns {MockMercUnit}
    */
   const build = function (data) {
-    const items = data.items.map(function (item) {
-      const mock = new MockItem({
-        type: sdk.unittype.Item,
-        mode: sdk.items.mode.Equipped,
-        location: sdk.storage.Equipped,
-        isEquipped: true,
-        identified: true,
-        classid: item.classid,
-        itemType: item.itemType,
-        quality: item.quality,
-        bodylocation: item.bodylocation,
-        prefixnum: item.prefixnum,
-        runeword: item.runeword,
-        ethereal: item.ethereal,
-        sockets: item.sockets,
-        name: item.name,
-        fname: item.fname,
-        mercTier: item.tier,
-        overrides: { stats: item.stats, skills: [], flags: 0, items: [], states: {} },
-      });
-      // the stored values are what getStatEx returned on the real item, read them back as they are
-      mock.getStat = mock.getStatEx = function (major, minor) {
-        return mock.internalGetStat(major, minor);
-      };
-      return mock;
-    });
+    const items = data.items.map(MockItem.fromSnapshot);
 
     return {
       isMock: true,
@@ -109,7 +60,7 @@
 
   const MockMerc = {
     /**
-     * Store what scoring needs from the live merc in the character data, written to disk when it changed.
+     * Store the live merc in the character data, written to disk when it changed.
      * @param {MercUnit} merc - the live merc
      * @returns {boolean}
      */
@@ -126,6 +77,7 @@
 
     /**
      * The merc as he was last seen, for scoring only: nothing that acts on the merc may be handed this.
+     * His items are scored as they are now (tiers come from the current pickit lines), only their stats are stored.
      * @returns {MockMercUnit | null} null without a snapshot of the merc we have now
      */
     get: function () {
@@ -142,15 +94,6 @@
         }
       }
       return cache.classid === me.data.merc.classid ? cache.merc : null;
-    },
-
-    /**
-     * Merc tier of an item the merc wears, live or mocked; a mock keeps the tier its item had when it was stored.
-     * @param {ItemUnit | MockItem} item
-     * @returns {number}
-     */
-    tierOf: function (item) {
-      return item instanceof MockItem ? item.mercTier : NTIP.GetMercTier(item);
     },
   };
 

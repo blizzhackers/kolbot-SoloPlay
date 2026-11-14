@@ -781,7 +781,7 @@ Item.getMercEquipped = function (bodyLoc = -1) {
       return {
         classid: item.classid,
         prefixnum: item.prefixnum,
-        tier: require("../Modules/MockMerc").tierOf(item),
+        tier: NTIP.GetMercTier(item),
         name: item.fname,
         str: item.getStatEx(sdk.stats.Strength),
         dex: item.getStatEx(sdk.stats.Dexterity)
