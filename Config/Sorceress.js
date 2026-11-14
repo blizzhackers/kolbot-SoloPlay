@@ -94,9 +94,14 @@
   if (Pather.canTeleport() && me.lightRes < 75) {
     // A seal routine throws when it can't kill its boss, which skips the remaining seals and leaves Diablo unspawned.
     const sealBosses = [sdk.locale.monsters.GrandVizierofChaos, sdk.locale.monsters.LordDeSeis,
-      sdk.locale.monsters.InfectorofSouls].map(id => getLocaleString(id));
-    Config.AdvancedSkipCheck.push(unit => unit.getEnchant(sdk.enchant.LightningEnchanted)
-      && !(me.area === sdk.areas.ChaosSanctuary && unit.isSpecial && sealBosses.includes(unit.name)));
+      sdk.locale.monsters.InfectorofSouls].map(function (id) {
+      return getLocaleString(id);
+    });
+    function skipLightningEnchanted(unit) {
+      return unit.getEnchant(sdk.enchant.LightningEnchanted)
+        && !(me.area === sdk.areas.ChaosSanctuary && unit.isSpecial && sealBosses.includes(unit.name));
+    }
+    Config.AdvancedSkipCheck.push(skipLightningEnchanted);
   }
 
   /* Class specific configuration. */
