@@ -685,6 +685,14 @@
         } */
       }
 
+      // getIntoPosition can report success while the line to the target is still blocked, and the cast below
+      // is then skipped; returning SUCCESS without casting would count as an attack, so move or report the failure.
+      if (!unit.dead && checkCollision(me, unit, Coords.BlockBits.Ranged)
+        && (!Attack.getIntoPosition(unit, range, Coords.BlockBits.Ranged, false, true)
+        || checkCollision(me, unit, Coords.BlockBits.Ranged))) {
+        return Attack.Result.FAILED;
+      }
+
       if (!unit.dead && !checkCollision(me, unit, Coords.BlockBits.Ranged)) {
         if (skill === sdk.skills.ChargedBolt) {
           let preHealth = unit.hp;
