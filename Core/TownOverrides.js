@@ -307,6 +307,63 @@ Town.systemsKeep = function (item) {
 };
 
 /**
+ * Check if Town.clearInventory sells this inventory item
+ * @param {ItemUnit} item
+ * @returns {boolean}
+ */
+Town.wouldSell = function (item) {
+  if (!item) return false;
+
+  if (item.classid !== sdk.items.TomeofIdentify || Config.FieldID.Enabled) {
+    // Any leftover items from a failed ID (crashed game, disconnect etc.)
+    const ignoreTypes = [
+      sdk.items.type.Book,
+      sdk.items.type.Key,
+      sdk.items.type.HealingPotion,
+      sdk.items.type.ManaPotion,
+      sdk.items.type.RejuvPotion
+    ];
+
+    if (me.assassin) {
+      ignoreTypes.remove(sdk.items.type.Key);
+    }
+
+    if (ignoreTypes.indexOf(item.itemType) !== -1 || !item.sellable || Town.systemsKeep(item)) {
+      return false;
+    }
+  }
+
+  /**
+   * @param {ItemUnit} item
+   * @returns {boolean}
+   */
+  const classItemType = function (item) {
+    return [
+      sdk.items.type.Wand,
+      sdk.items.type.VoodooHeads,
+      sdk.items.type.AuricShields,
+      sdk.items.type.PrimalHelm,
+      sdk.items.type.Pelt
+    ].includes(item.itemType);
+  };
+  const { betterBaseThanWearing, betterThanStashed } = require("../Modules/ItemUtils");
+
+  let result = Pickit.checkItem(item).result;
+
+  if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
+    if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
+      if (!betterThanStashed(item) && !betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
+        if (NTIP.CheckItem(item, NTIP.CheckList) === Pickit.Result.UNWANTED) {
+          result = Pickit.Result.TRASH;
+        }
+      }
+    }
+  }
+
+  return item.identified && [Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(result);
+};
+
+/**
  * @param {ItemUnit} item 
  * @returns {boolean}
  */
@@ -763,63 +820,8 @@ Town.clearInventory = function () {
     }
   }
 
-  // Any leftover items from a failed ID (crashed game, disconnect etc.)
-  const ignoreTypes = [
-    sdk.items.type.Book,
-    sdk.items.type.Key,
-    sdk.items.type.HealingPotion,
-    sdk.items.type.ManaPotion,
-    sdk.items.type.RejuvPotion
-  ];
-
-  if (me.assassin) {
-    ignoreTypes.remove(sdk.items.type.Key);
-  }
-
-  let items = (Storage.Inventory.Compare(Config.Inventory) || [])
-    .filter(function (item) {
-      if (!item) return false;
-      if (item.classid === sdk.items.TomeofIdentify && !Config.FieldID.Enabled) return true;
-      if (ignoreTypes.indexOf(item.itemType) === -1 && item.sellable && !Town.systemsKeep(item)) {
-        return true;
-      }
-      return false;
-    });
-
   /** @type {ItemUnit[]} */
-  let sell = [];
-
-  /**
-   * @param {ItemUnit} item 
-   * @returns {boolean}
-   */
-  const classItemType = function (item) {
-    return [
-      sdk.items.type.Wand,
-      sdk.items.type.VoodooHeads,
-      sdk.items.type.AuricShields,
-      sdk.items.type.PrimalHelm,
-      sdk.items.type.Pelt
-    ].includes(item.itemType);
-  };
-  const { betterBaseThanWearing, betterThanStashed } = require("../Modules/ItemUtils");
-
-  items.length > 0 && items.forEach(function (item) {
-    let result = Pickit.checkItem(item).result;
-
-    if ([Pickit.Result.UNWANTED, Pickit.Result.TRASH].indexOf(result) === -1) {
-      if ((item.isBaseType && item.sockets > 0) || (classItemType(item) && item.normal && item.sockets === 0)) {
-        if (!betterThanStashed(item) && !betterBaseThanWearing(item, Settings.debugging.baseCheck)) {
-          if (NTIP.CheckItem(item, NTIP.CheckList) === Pickit.Result.UNWANTED) {
-            result = Pickit.Result.TRASH;
-          }
-        }
-      }
-    }
-
-    !item.identified && (result = -1);
-    [Pickit.Result.UNWANTED, Pickit.Result.TRASH].includes(result) && sell.push(item);
-  });
+  let sell = (Storage.Inventory.Compare(Config.Inventory) || []).filter(Town.wouldSell);
 
   sell = (sell.length > 0
     ? sell.concat(sellOrDrop)

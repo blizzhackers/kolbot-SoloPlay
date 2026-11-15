@@ -823,15 +823,6 @@ Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], onc
 Pickit.canMakeRoom = function () {
   if (!Config.MakeRoom) return false;
 
-  // the types Town.clearInventory never sells
-  const unsoldTypes = [
-    sdk.items.type.Book,
-    sdk.items.type.HealingPotion,
-    sdk.items.type.ManaPotion,
-    sdk.items.type.RejuvPotion
-  ];
-  !me.assassin && unsoldTypes.push(sdk.items.type.Key);
-
   return (Storage.Inventory.Compare(Config.Inventory) || []).some(function (item) {
     switch (Pickit.checkItem(item).result) {
     case Pickit.Result.UNID:
@@ -839,11 +830,8 @@ Pickit.canMakeRoom = function () {
       return (me.gold > 100);
     case Pickit.Result.UNWANTED:
     case Pickit.Result.TRASH:
-      return item.identified
-        && item.sellable
-        && !unsoldTypes.includes(item.itemType)
-        && !Town.systemsKeep(item)
-        && me.canTpToTown();
+      // SoloPlay's clearInventory keeps some of these, see Town.wouldSell
+      return Town.wouldSell(item) && me.canTpToTown();
     default: // Check if a kept item can be stashed
       return Town.canStash(item);
     }
