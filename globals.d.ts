@@ -26,20 +26,6 @@ declare global {
   /** buildInfo defaults to Check.currentBuild() when omitted. */
   function chargeditemscore(item: ItemUnit, skillId?: number, buildInfo?: Build): number;
 
-  /** Opaque handle from setTimeout - the Timer constructor is closure-private in Polyfills.js. */
-  interface TimerHandle {
-    readonly __timerBrand?: never;
-  }
-  // Timer polyfills published by Core/Polyfills.js (the engine's own timer is not thread-safe).
-  function setTimeout(cb: (...args: unknown[]) => void, time?: number, ...args: unknown[]): TimerHandle;
-  function clearTimeout(timer: TimerHandle): void;
-  /**
-   * The engine's pre-polyfill setTimeout, captured at Polyfills.js:111 and re-published under
-   * this name. Its exact engine contract is not documented in d2bs/api.html and it currently
-   * has no call sites, so the parameters here mirror the polyfill's rather than being verified.
-   */
-  function _setTimeout(cb: (...args: unknown[]) => void, time?: number): unknown;
-
   // --- Ambient value declarations for MAIN-repo singletons ---------------------------------
   // These singletons' implementing .js files are loaded by runtime include(), which TS cannot
   // follow, so they never join this program (only require()d main files do) - without the
