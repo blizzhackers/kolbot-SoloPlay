@@ -9,6 +9,12 @@ function bloodraven () {
   Town.doChores(false, { fullChores: true });
   myPrint("ÿc8Kolbot-SoloPlayÿc0: starting blood raven");
 
+  // Blood Raven is dead but Kashya hasn't given the reward yet: claim it instead of killing her again.
+  if (me.nightmare && me.getQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.ReqComplete)
+    && Town.npcInteract("kashya") && Misc.poll(() => me.bloodraven, 1000 + me.ping, 100)) {
+    return true;
+  }
+
   if (!Pather.checkWP(sdk.areas.StonyField, true)) {
     Pather.getWP(sdk.areas.StonyField);
     if (me.charlvl < 6) {
