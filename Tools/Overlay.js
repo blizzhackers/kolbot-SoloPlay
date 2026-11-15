@@ -512,14 +512,9 @@ const Overlay = {
               Overlay.text.flush();
               Overlay.quests.flush();
 
-              while (getUIFlag(hideFlags[flag])) {
-                delay(100);
-              }
-
-              Misc.poll(function () {
-                return me.gameReady;
-              });
-              flag = 0;
+              // Don't wait for the panel to close: this runs on the caller's (ToolsThread's) tick,
+              // and blocking here would stall its other checks. The next tick checks again.
+              return;
             } else {
               Overlay.text.enabled = true;
             }
