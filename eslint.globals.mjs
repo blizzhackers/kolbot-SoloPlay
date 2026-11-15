@@ -55,8 +55,4 @@ export default {
   "secondaryscore": "writable",
   "charmscore": "writable",
   "chargeditemscore": "writable",
-  // Core/Polyfills.js timer polyfills (the engine timer is not thread-safe):
-  "setTimeout": "writable",
-  "clearTimeout": "writable",
-  "_setTimeout": "writable",
 };
