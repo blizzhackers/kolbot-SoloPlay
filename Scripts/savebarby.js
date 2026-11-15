@@ -32,9 +32,15 @@ function savebarby () {
     me.overhead("let my barby go! " + (k + 1) + "/" + barbies.length);
     Pather.moveToUnit(coords[k], 2, 0);
     const cage = coords[k];
-    const findDoor = () => getUnits(sdk.unittype.Monster, sdk.monsters.PrisonDoor)
-      .filter(unit => unit.hp > 0 && getDistance(unit, cage.x + 10, cage.y) < 15)
-      .sort((a, b) => getDistance(a, cage.x + 10, cage.y) - getDistance(b, cage.x + 10, cage.y))[0];
+    const findDoor = function () {
+      return getUnits(sdk.unittype.Monster, sdk.monsters.PrisonDoor)
+        .filter(function (unit) {
+          return unit.hp > 0 && getDistance(unit, cage.x + 10, cage.y) < 15;
+        })
+        .sort(function (a, b) {
+          return getDistance(a, cage.x + 10, cage.y) - getDistance(b, cage.x + 10, cage.y);
+        })[0];
+    };
     let door = Misc.poll(findDoor, 1500 + me.ping, 40);
     if (!door) {
       // A door east of the cage may first become visible as its room loads.
@@ -55,7 +61,7 @@ function savebarby () {
   }
 
   const talked = Town.npcInteract("qual_kehk");
-  if (checkedDoorAgain && (!talked || !Misc.poll(() => me.savebarby, 1200 + me.ping, 100))) {
+  if (checkedDoorAgain && (!talked || !Misc.poll(function () { return me.savebarby; }, 1200 + me.ping, 100))) {
     throw new Error("Barbarian rescue did not grant quest credit");
   }
 
