@@ -59,6 +59,8 @@
       });
       this.Velocity = getBaseStat("monstats", index, "Velocity");
       this.Run = getBaseStat("monstats", index, "Run");
+      const coldEffect = getBaseStat("monstats", index, ["ColdEffect", "ColdEffect(N)", "ColdEffect(H)"][me.diff]);
+      this.ColdEffect = coldEffect >= 128 ? coldEffect - 256 : coldEffect;
       this.SizeX = getBaseStat("monstats", index, "SizeX");
       this.SizeY = getBaseStat("monstats", index, "SizeY");
       this.Attack1MinDmg = getBaseStat("monstats", index, ["A1MinD", "A1MinD(N)", "A1MinD(H)"][me.diff]);

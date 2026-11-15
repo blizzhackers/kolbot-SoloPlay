@@ -958,9 +958,8 @@ Unit.prototype.getMobs = function ({ range, coll, type }) {
         ? MonsterData.get(this.classid).Run
         : MonsterData.get(this.classid).Velocity;
       if (this.isChilled) {
-        let malus = MonsterData.get(this.classid).ColdEffect;
-        (malus > 0) && (malus = malus - 256);
-        return Math.max(1, ~~(velocity * (1 + malus)));
+        const coldEffect = MonsterData.get(this.classid).ColdEffect;
+        return Math.max(1, velocity * (100 + coldEffect) / 100);
       }
       return velocity;
     }
