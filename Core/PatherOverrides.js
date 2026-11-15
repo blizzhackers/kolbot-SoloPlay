@@ -528,6 +528,24 @@ Pather.move = function (target, givenSettings = {}) {
   );
   if (!path) throw new Error("move: Failed to generate path.");
 
+  /**
+   * getPath returns an empty path when the node spacing is too coarse for the target (e.g. the Maggot Lair staff chest
+   * with a spacing of 30), which ends the move at once. Retry with finer spacing before giving up.
+   * @param {number} spacing
+   * @returns {PathNode[] | false}
+   */
+  const getPathFinerSpacing = function (spacing) {
+    for (let finer = spacing - 5; finer >= 5; finer -= 5) {
+      const retryPath = getPath(me.area, target.x, target.y, me.x, me.y, usingTele ? 1 : 0, finer);
+      if (retryPath && retryPath.length) return retryPath;
+    }
+    return false;
+  };
+
+  if (!path.length && getDistance(me, target.x, target.y) >= 5) {
+    path = getPathFinerSpacing(usingTele ? (annoyingArea ? 30 : Pather.teleDistance) : Pather.walkDistance + 5) || path;
+  }
+
   // need to work on a better force clearing method but for now just have all walkers clear unless
   // we specifically are forcing them not to (like while repositioning)
   if (!useTeleport && settings.allowClearing && !settings.clearSettings.clearPath) {
@@ -841,6 +859,9 @@ Pather.move = function (target, givenSettings = {}) {
           useTeleport ? rand(25, 35) : rand(10, 15)
         );
         if (!path) throw new Error("moveTo: Failed to generate path.");
+        if (!path.length && getDistance(me, target.x, target.y) >= 5) {
+          path = getPathFinerSpacing(useTeleport ? 30 : 15) || path;
+        }
 
         path.reverse();
         PathDebug.drawPath(PATH_DEBUG_ID, path);
