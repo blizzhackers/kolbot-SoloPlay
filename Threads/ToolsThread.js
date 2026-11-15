@@ -46,8 +46,6 @@ function main () {
   Runewords.init();
   Cubing.init();
 
-  Settings.overlay && include("SoloPlay/Tools/Overlay.js");
-
   // Reset core chicken
   me.chickenhp = -1;
   me.chickenmp = -1;
@@ -675,6 +673,7 @@ function main () {
   }
 
   const Worker = require("../../modules/Worker");
+  const Overlay = Settings.overlay ? require("../Tools/Overlay") : null;
   const diffShort = ["Norm", "Night", "Hell"][me.diff];
 
   // Start worker - handles overlay and d2bot# profile display
@@ -740,7 +739,7 @@ function main () {
         }
 
         // handle overlay
-        if (Settings.overlay) {
+        if (Overlay && Settings.overlay) {
           try {
             if (me.ingame && me.gameReady && me.area) {
               Overlay.update(quitFlag);
