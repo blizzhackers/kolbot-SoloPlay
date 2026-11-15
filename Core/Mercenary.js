@@ -79,6 +79,19 @@ const Mercenary = {
   timeout: 0,
 
   /**
+   * The merc to score gear against: the live one, else a mock of him as he was last seen
+   * while he is dead or out of reach. Only for scoring, never for acting on the merc
+   * (equipping, reviving, distance checks, combat), those need me.getMercEx().
+   * @returns {MercUnit | MockMercUnit | null}
+   */
+  getScoringMerc: function () {
+    const merc = me.getMercEx();
+    if (merc) return merc;
+    if (!Config.UseMerc || me.classic) return null;
+    return require("../Modules/MockMerc").get();
+  },
+
+  /**
    * only a2 mercs for now, need to test others to see if ModifierListSkill returns their skill
    * @param {MercUnit} merc 
    * @returns {string}

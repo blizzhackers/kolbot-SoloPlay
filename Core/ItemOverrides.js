@@ -679,13 +679,14 @@ Item.hasMercTier = (item) => Config.AutoEquip && me.expansion && NTIP.GetMercTie
 /**
  * @param {ItemUnit} item 
  * @param {number} bodyLoc 
- * @todo re-work using char data so we can shop/keep items if merc is dead *but* we have enough to revive him and buy the item and enough space
+ * @todo shop for the merc while he is dead *but* we have enough to revive him and buy the item and enough space
  */
 Item.canEquipMerc = function (item, bodyLoc) {
   if (item.type !== sdk.unittype.Item || me.classic) return false;
-  let mercenary = me.getMercEx();
+  // a dead merc is checked against his mock, equipMerc itself requires the live merc
+  let mercenary = Mercenary.getScoringMerc();
 
-  // dont have merc or he is dead or unidentifed item
+  // dont have merc or unidentifed item
   if (!mercenary || !item.identified) return false;
   let curr = Item.getMercEquipped(bodyLoc);
 
@@ -767,7 +768,7 @@ Item.equipMerc = function (item, bodyLoc) {
  * @returns {{ classid: number, prefixnum: number, tier: number, name: string, str: number, dex: number }}
  */
 Item.getMercEquipped = function (bodyLoc = -1) {
-  let mercenary = me.getMercEx();
+  let mercenary = Mercenary.getScoringMerc();
 
   if (mercenary) {
     let item = mercenary.getItemsEx()
@@ -843,7 +844,7 @@ Item.getBodyLocMerc = function (item) {
  */
 Item.autoEquipCheckMerc = function (item, basicCheck = false) {
   if (!Config.AutoEquip) return true;
-  if (Config.AutoEquip && !me.getMercEx()) return false;
+  if (Config.AutoEquip && !Mercenary.getScoringMerc()) return false;
 
   let tier = NTIP.GetMercTier(item);
   if (tier <= 0) return false;
@@ -874,7 +875,10 @@ Item.autoEquipCheckMerc = function (item, basicCheck = false) {
 
 /** @returns {boolean} */
 Item.autoEquipMerc = function () {
-  if (!Config.AutoEquip || !me.getMercEx()) return true;
+  if (!Config.AutoEquip) return true;
+  const merc = me.getMercEx();
+  if (!merc) return true;
+  const MockMerc = require("../Modules/MockMerc");
 
   let items = me.getItemsEx()
     .filter(function (item) {
@@ -882,7 +886,10 @@ Item.autoEquipMerc = function () {
       let tier = NTIP.GetMercTier(item);
       return (item.identified ? tier > 0 : tier !== 0);
     });
-  if (!items.length) return false;
+  if (!items.length) {
+    MockMerc.update(merc);
+    return false;
+  }
 
   /**
    * @param {ItemUnit} a
@@ -925,6 +932,8 @@ Item.autoEquipMerc = function () {
       }
     }
   }
+
+  MockMerc.update(merc);
 
   return true;
 };

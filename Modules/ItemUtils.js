@@ -490,7 +490,11 @@
     // @todo - betterThanMercUsing check for now just keep merc items
     if ([sdk.items.type.Polearm, sdk.items.type.Spear].includes(base.itemType)
       || ([sdk.items.type.Armor].includes(base.itemType) && base.ethereal)) {
-      let merc = me.getMercEx();
+      // a dead merc's gear is compared through his mock
+      let merc = Mercenary.getScoringMerc();
+      // dead before we ever stored a mock of him, keep his stored bases until he is back rather than
+      // falling through to our own stat requirements below
+      if (!merc && base.isInStorage && me.mercrevivecost) return true;
       if (merc) {
         bodyLoc = Item.getBodyLocMerc(base);
         let eqItem = merc.getItemsEx().find(i => i.isEquipped && bodyLoc.includes(i.bodylocation));
