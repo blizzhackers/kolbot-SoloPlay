@@ -97,11 +97,10 @@
       sdk.locale.monsters.InfectorofSouls].map(function (id) {
       return getLocaleString(id);
     });
-    function skipLightningEnchanted(unit) {
+    Config.AdvancedSkipCheck.push(function skipLightningEnchanted(unit) {
       return unit.getEnchant(sdk.enchant.LightningEnchanted)
         && !(me.area === sdk.areas.ChaosSanctuary && unit.isSpecial && sealBosses.includes(unit.name));
-    }
-    Config.AdvancedSkipCheck.push(skipLightningEnchanted);
+    });
   }
 
   /* Class specific configuration. */
