@@ -2285,7 +2285,8 @@
     /**
      * @param {number} skillId
      * @param {Monster} monster
-     * @returns {number} seconds from the cast until the missile reaches the monster, 0 if unknown or out of reach
+     * @returns {number} seconds from when Skill.cast returns (the missile is already in flight) until it reaches
+     * the monster, 0 if unknown or out of reach
      */
     timeTillMissleImpact: function (skillId, monster) {
       if (monster === undefined || skillId === undefined || !monster.attackable) return 0;
@@ -2296,13 +2297,12 @@
         missile = MissileData[missileName];
       }
       if (missile && missile.velocity > 0) {
-        // tiles per second, the same speed targetPointForSkill uses
-        const missileVelocityTPS = missile.velocity;
+        // the game moves a missile Vel * 75 / 100 * 16 / 256 = Vel * 3/64 subtiles per frame, at 25 frames per second
+        const subtilesPerSecond = missile.velocity * 75 / 100 * 25 / 16;
         const distanceForMissile = getDistance(me, monster);
-        // too far for missile to reach this position
-        if (distanceForMissile > missile.range) return 0;
-        const castTimeS = me.castingDuration(skillId);
-        return (distanceForMissile / missileVelocityTPS) + castTimeS;
+        // missiles.txt Range is the missile's lifetime in frames
+        if (distanceForMissile > missile.range * missile.velocity * 3 / 64) return 0;
+        return distanceForMissile / subtilesPerSecond;
       }
       return 0;
     }

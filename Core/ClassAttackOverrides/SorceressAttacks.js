@@ -778,7 +778,7 @@
               if (missileDelay > 0) {
                 Misc.poll(function () {
                   return unit.dead || unit.hp < preHealth;
-                }, missileDelay * 1000, 50);
+                }, missileDelay * 1000 + 40, 50);
               }
               delay(50);
             }
