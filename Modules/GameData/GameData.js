@@ -2282,6 +2282,12 @@
     // 	// https://diablo3.ingame.de/forum/threads/1218516-FAQ-Bewegungs-und-Animationsgeschwindigkeiten-Teil-2?s=&postid=17610874
     // 	return this.attackFrames(skillId, weaponCode, ias, charClass) / 25;
     // },
+    /**
+     * @param {number} skillId
+     * @param {Monster} monster
+     * @returns {number} seconds from when Skill.cast returns (the missile is already in flight) until it reaches
+     * the monster, 0 if unknown or out of reach
+     */
     timeTillMissleImpact: function (skillId, monster) {
       if (monster === undefined || skillId === undefined || !monster.attackable) return 0;
       let missileName = getBaseStat("skills", skillId, "cltmissile");
@@ -2291,13 +2297,12 @@
         missile = MissileData[missileName];
       }
       if (missile && missile.velocity > 0) {
-        const missileVelocityTPS = missile.velocity;
-        const missileVelocityTPF = missileVelocityTPS / 25;
+        // the game moves a missile Vel * 75 / 100 * 16 / 256 = Vel * 3/64 subtiles per frame, at 25 frames per second
+        const subtilesPerSecond = missile.velocity * 75 / 100 * 25 / 16;
         const distanceForMissile = getDistance(me, monster);
-        // too far for missile to reach this position
-        if (distanceForMissile > missile.range) return 0;
-        const castTimeS = me.castingDuration(skillId);
-        return ((distanceForMissile / ((missileVelocityTPS / 32) * 25)) + castTimeS);
+        // missiles.txt Range is the missile's lifetime in frames
+        if (distanceForMissile > missile.range * missile.velocity * 3 / 64) return 0;
+        return distanceForMissile / subtilesPerSecond;
       }
       return 0;
     }
