@@ -541,13 +541,17 @@ function main () {
       // Only do this in expansion
       if (Config.StopOnDClone && !me.classic && me.hell) {
         D2Bot.printToConsole("Diablo Walks the Earth", sdk.colors.D2Bot.DarkGold);
+        if (Config.KillDclone) {
+          me.maxgametime += 30 * 60 * 1000;
+          Messaging.sendToScript("libs/SoloPlay/SoloPlay.js", "killdclone");
+          break;
+        }
         SoloEvents.cloneWalked = true;
         togglePause();
         Town.goToTown();
         showConsole();
         myPrint("ÿc4Diablo Walks the Earth");
         me.maxgametime += (30 * 1000 * 60);		// Add 30 minutes to current maxgametime
-        Config.KillDclone && Messaging.sendToScript(SoloEvents.filePath, "killdclone");
       }
 
       break;
