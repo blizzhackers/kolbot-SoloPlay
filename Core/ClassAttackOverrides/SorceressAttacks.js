@@ -213,9 +213,9 @@
     this.manaCost = function () {
       return 0;
     };
-    /** @returns {undefined} Missing return statement; this._range is referenced but never returned. */
+    /** @returns {number} Always 0. */
     this.range = function () {
-      this._range;
+      return this._range;
     };
   };
   /**
