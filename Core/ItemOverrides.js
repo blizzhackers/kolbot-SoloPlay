@@ -162,9 +162,14 @@ Item.autoEquipCheck = function (item, basicCheck = false) {
         }
 
         let [lvlReq, strReq, dexReq] = [item.lvlreq, item.strreq, item.dexreq];
+        // a runeword we already made can't be made again from the same runes, so keep it while waiting
+        // for strength/dexterity our build is going to reach anyway
+        const waitForStats = item.isRuneword
+          && strReq <= Check.finalBuild().maxStr && dexReq <= Check.finalBuild().maxDex;
 
         // todo - bit hacky, better way would be to track what stats are going to be allocated next
-        if ((lvlReq - me.charlvl > 5) || (strReq - me.trueStr > 10) || (dexReq - me.trueDex > 10)) {
+        if ((lvlReq - me.charlvl > 5)
+          || (!waitForStats && ((strReq - me.trueStr > 10) || (dexReq - me.trueDex > 10)))) {
           return false;
         }
 
