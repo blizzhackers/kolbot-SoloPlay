@@ -11,7 +11,7 @@ function bloodraven () {
 
   // Blood Raven is dead but Kashya hasn't given the reward yet: claim it instead of killing her again.
   if (me.nightmare && me.getQuest(sdk.quest.id.SistersBurialGrounds, sdk.quest.states.ReqComplete)
-    && Town.npcInteract("kashya") && Misc.poll(() => me.bloodraven, 1000 + me.ping, 100)) {
+    && Town.npcInteract("kashya") && Misc.poll(function () { return me.bloodraven; }, 1000 + me.ping, 100)) {
     return true;
   }
 
