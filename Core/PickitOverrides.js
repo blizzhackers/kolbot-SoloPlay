@@ -816,6 +816,41 @@ Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], onc
 };
 
 /**
+ * Check if a town visit can free up inventory space: an item to identify, an item
+ * Town.clearInventory sells, or a kept item the stash can take.
+ * @returns {boolean}
+ */
+Pickit.canMakeRoom = function () {
+  if (!Config.MakeRoom) return false;
+
+  // the types Town.clearInventory never sells
+  const unsoldTypes = [
+    sdk.items.type.Book,
+    sdk.items.type.HealingPotion,
+    sdk.items.type.ManaPotion,
+    sdk.items.type.RejuvPotion
+  ];
+  !me.assassin && unsoldTypes.push(sdk.items.type.Key);
+
+  return (Storage.Inventory.Compare(Config.Inventory) || []).some(function (item) {
+    switch (Pickit.checkItem(item).result) {
+    case Pickit.Result.UNID:
+      // For low level chars that can't actually get id scrolls -> prevent an infinite loop
+      return (me.gold > 100);
+    case Pickit.Result.UNWANTED:
+    case Pickit.Result.TRASH:
+      return item.identified
+        && item.sellable
+        && !unsoldTypes.includes(item.itemType)
+        && !Town.systemsKeep(item)
+        && me.canTpToTown();
+    default: // Check if a kept item can be stashed
+      return Town.canStash(item);
+    }
+  });
+};
+
+/**
  * @param {number} [range=Config.PickRange]
  * @param {boolean} [once=false]
  * @returns {boolean} False if dead, given a negative range, or muling instead of continuing; true otherwise
