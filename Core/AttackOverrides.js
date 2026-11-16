@@ -449,6 +449,9 @@ Attack.clearLocations = function (list = []) {
   return true;
 };
 
+// Repositioning during combat can ask the pathfinder to clear the same blocked node.
+const activeClearPositions = new Set();
+
 /**
  * Clear around a certain node
  * @param {number} x 
@@ -459,10 +462,14 @@ Attack.clearLocations = function (list = []) {
  * @returns {boolean}
  */
 Attack.clearPos = function (x, y, range = 15, pickit = true, cb = null) {
+  const position = me.area + ":" + x + "," + y;
+  if (activeClearPositions.has(position)) return false;
+
   /** @type {PathNode} */
   const _startPos = { x: x, y: y };
   const _mobCount = _startPos.mobCount({ range: range });
   console.debug("ÿc7ClearPosÿc0 :: " + _mobCount + " monsters around " + _startPos.x + ", " + _startPos.y);
+  activeClearPositions.add(position);
   try {
     if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
     if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0 || Attack.stopClear || !x || !y) return false;
@@ -624,6 +631,7 @@ Attack.clearPos = function (x, y, range = 15, pickit = true, cb = null) {
     console.debug("Start count: " + _mobCount + " End count: " + _startPos.mobCount({ range: range }));
     return _startPos.mobCount() < _mobCount;
   } finally {
+    activeClearPositions.delete(position);
     NodeAction.enabled = true;
   }
 };
