@@ -342,6 +342,11 @@ const LocationAction = {
           }
 
           break;
+        case sdk.game.locations.SelectDifficultySP:
+          sendKey(sdk.keys.code.Escape);
+          Starter.locationTimeout(Time.seconds(2), sdk.game.locations.SelectDifficultySP);
+
+          break;
         default:
           console.debug("Unknown Location: " + getLocation());
           break;
