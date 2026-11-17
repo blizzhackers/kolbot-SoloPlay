@@ -551,6 +551,11 @@ declare global {
     BNET?: boolean;
   }
 
+  interface DataFileObj {
+    /** Consecutive char-select misses for an established character; set by OOG/OOGOverrides.js. */
+    charNotFound?: number;
+  }
+
   interface IControlAction {
     /** Deletes the character, resets its data files and remakes it; false when the delete fails. */
     deleteAndRemakeChar(info: CharacterInfo): boolean;
