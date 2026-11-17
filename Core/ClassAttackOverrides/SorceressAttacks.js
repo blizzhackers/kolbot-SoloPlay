@@ -59,6 +59,42 @@
     }
   };
 
+  /**
+   * Our bolt for this cast: the nearest in-flight missile we own of the skill's missile class.
+   * @param {number} skillId
+   * @returns {{ gid: number, x: number, y: number, goneAt: number } | null} x/y = where it was first seen
+   */
+  const findOwnBolt = function (skillId) {
+    const classIds = [getBaseStat("skills", skillId, "cltmissile"), getBaseStat("skills", skillId, "srvmissile")];
+    let bolt = null;
+    getUnits(sdk.unittype.Missile).forEach(function (missile) {
+      if (!missile || missile.owner !== me.gid || missile.ownertype !== sdk.unittype.Player) return;
+      if (classIds.indexOf(missile.classid) === -1) return;
+      if (!bolt || missile.distance < getDistance(me, bolt.x, bolt.y)) {
+        bolt = { gid: missile.gid, x: missile.x, y: missile.y, goneAt: 0 };
+      }
+    });
+    return bolt;
+  };
+
+  /**
+   * True once the bolt can no longer hit: it has flown past the target, or it is gone without the
+   * target losing hp (it struck a wall or another monster).
+   * @param {{ gid: number, x: number, y: number, goneAt: number }} bolt
+   * @param {Monster} unit
+   */
+  const boltMissed = function (bolt, unit) {
+    if (typeof unit.x !== "number") return true;
+    const missile = Game.getMissile(-1, -1, bolt.gid);
+    if (!missile || typeof missile.x !== "number") {
+      // a hit on the target lands as an hp drop a tick or two after the bolt disappears
+      bolt.goneAt || (bolt.goneAt = getTickCount());
+      return getTickCount() - bolt.goneAt >= 150;
+    }
+    // 3 subtiles of slack covers the target's own size
+    return getDistance(bolt.x, bolt.y, missile.x, missile.y) > getDistance(bolt.x, bolt.y, unit.x, unit.y) + 3;
+  };
+
   const lastAttack = {
     skill: -1,
     count: 0,
@@ -776,8 +812,10 @@
               let preHealth = unit.hp;
               let missileDelay = GameData.timeTillMissleImpact(skill, unit);
               if (missileDelay > 0) {
+                // no bolt found = fall back to waiting out the full flight time
+                let bolt = findOwnBolt(skill);
                 Misc.poll(function () {
-                  return unit.dead || unit.hp < preHealth;
+                  return unit.dead || unit.hp < preHealth || (!!bolt && boltMissed(bolt, unit));
                 }, missileDelay * 1000 + 40, 50);
               }
               delay(50);
