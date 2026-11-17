@@ -36,14 +36,11 @@ new Overrides.Override(Town, Town.drinkPots, function (orignal, type) {
             : (objID = type.toLowerCase());
         }
 
-        if (!CharData.pots.get(objID).active() || CharData.pots.get(objID).timeLeft() <= 0) {
-          CharData.pots.get(objID).tick = getTickCount();
-          CharData.pots.get(objID).duration = objDrank.quantity * 30 * 1000;
-        } else {
-          CharData.pots.get(objID).duration += (
-            objDrank.quantity * 30 * 1000) - (getTickCount() - CharData.pots.get(objID).tick
-          );
-        }
+        // timeLeft() already subtracts the time since tick, so restart the timer from now with what was left
+        const pot = CharData.pots.get(objID);
+        const remaining = pot.active() ? Math.max(0, pot.timeLeft()) : 0;
+        pot.tick = getTickCount();
+        pot.duration = remaining + objDrank.quantity * 30 * 1000;
 
         console.log("ÿc9DrinkPotsÿc0 :: drank " + objDrank.quantity + " " + objDrank.potName + "s. Timer [" + Time.format(CharData.pots.get(objID).duration) + "]");
       }
