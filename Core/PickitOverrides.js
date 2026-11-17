@@ -939,19 +939,26 @@ Pickit.pickItems = function (range = Config.PickRange, once = false) {
              * is the use of an additonal pickit file without muling setup.
              */
 
+            const usedSpace = Storage.Inventory.UsedSpacePercent();
+
             // Go to town and do town chores
-            if (Town.visitTown()) {
-              // Recursive check after going to town. We need to remake item list because gids can change.
-              // Called only if room can be made so it shouldn't error out or block anything.
+            if (!Town.visitTown()) {
+              // Town visit failed - abort
+              console.warn("Failed to visit town. ÿc7Not enough room for " + Item.color(_item) + _item.name);
+              Pickit.ignoreList.add(_item.gid);
+
+              return false;
+            }
+
+            // Recursive check after going to town, only if the trip freed space or the item now fits (a trip can
+            // swap gear without changing used space) - otherwise an item that canMakeRoom() reports as removable
+            // but no town chore removes would send us back to town forever.
+            // We need to remake item list because gids can change.
+            if (Storage.Inventory.UsedSpacePercent() < usedSpace
+              || (_item.gid !== undefined && Storage.Inventory.CanFit(_item))) {
               Pickit.ignoreList.clear(); // reset the list of ignored gids
               return this.pickItems(range, once);
             }
-
-            // Town visit failed - abort
-            console.warn("Failed to visit town. ÿc7Not enough room for " + Item.color(_item) + _item.name);
-            Pickit.ignoreList.add(_item.gid);
-
-            return false;
           }
 
           // Can't make room - trigger automule
