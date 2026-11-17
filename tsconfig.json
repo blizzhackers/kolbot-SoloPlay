@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    // "5.0" is the only value TS 5.9 accepts; silences the module:"None"/moduleResolution:"classic"
+  // deprecations until this config is modernized like the root one (module preserve + bundler).
+  "ignoreDeprecations": "5.0",
+    "module": "None",
+    "lib": [
+      "ES2015",
+      "es2015.collection",
+      "ES2015.Promise",
+      "ES2016.Array.Include",
+      "ES2017.Object",
+      "ScriptHost",
+    ],
+    "target": "ES6",
+    "allowJs": true,
+    "checkJs": false,
+    "moduleResolution": "classic",
+    "allowUmdGlobalAccess": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "noEmit": true,
+    "strict": true,
+    // Keep node_modules/@types (e.g. @types/node from the parent repo) out - its ambient
+    // console/File/Storage globals collide with the D2BS SDK's own.
+    "types": [],
+    "baseUrl": "./",
+    // "rootDir": "./",
+    "outFile": "./out.js",
+    // Editor-only: loads the parent repo tooling plugin (implementation-preferring
+    // go-to-definition). Requires the workspace TypeScript, same as the root project.
+    "plugins": [{ "name": "kolbot-ts-plugin" }],
+  },
+  "include": [
+    "../../sdk/globals.d.ts",
+    "../../sdk/types/*.d.ts",
+    "../../libs/systems/**/*.d.ts",
+    "../../libs/manualplay/**/*.d.ts",
+    "../../libs/modules/*.d.ts",
+    "../../libs/oog/*.d.ts",
+    "globals.d.ts",
+    "*.js",
+    "./**/*.js",
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*",
+    "**/.soloplay/",
+    "**/.soloplay/",
+  ],
+}
