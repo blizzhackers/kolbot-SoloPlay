@@ -29,7 +29,8 @@ const LocationAction = {
 
 (function () {
   let joinInfo;
-  
+  let freshAccount = false;
+
   Starter.Config.DelayBeforeLogin = rand(5, 25);
   Starter.Config.StopOnDeadHardcore = false;
   Starter._ftj = 0;
@@ -72,6 +73,58 @@ const LocationAction = {
     let text = control.getText();
     if (!text || !text.length) return "";
     return text.join(" ");
+  };
+
+  const MAX_CHAR_NOT_FOUND = 5;
+
+  /**
+   * True once the profile's character has been in a game (in-game SoloPlay records its name in the
+   * datafile). Failing to find it is a char-select loading hiccup, never a reason to create a new one.
+   * An account made this session can't hold it, so its first character is always allowed.
+   * @returns {boolean}
+   */
+  const isEstablishedChar = function () {
+    const charName = Starter.profileInfo.charName;
+    return !freshAccount && !!charName && String.isEqual(charName, DataFile.getObj().name);
+  };
+
+  /**
+   * Retries an established character that findCharacter missed, stopping the profile after
+   * MAX_CHAR_NOT_FOUND consecutive misses. The count lives in the datafile because the slow retry
+   * restarts the client.
+   * @returns {void}
+   */
+  const retryEstablishedChar = function () {
+    const charName = Starter.profileInfo.charName;
+    // listed but not matched: the list finished loading after the lookup, or the ladder filter rejected it
+    const listed = ControlAction.getCharacters().some((name) => String.isEqual(name, charName));
+
+    listed
+      ? ControlAction.timeoutDelay("Character listed but not selectable: " + charName, Time.seconds(5))
+      : ControlAction.timeoutDelay("[R/D] Character not found: " + charName, Time.minutes(3));
+
+    // count after the delay: restart/stop are async, so a tick that runs before the client dies can't double-count
+    const misses = (DataFile.getObj().charNotFound || 0) + 1;
+
+    if (misses >= MAX_CHAR_NOT_FOUND) {
+      // reset so a manual restart gets a fresh retry budget
+      DataFile.updateStats("charNotFound", 0);
+      D2Bot.printToConsole(
+        "Kolbot-SoloPlay: " + charName + " not found after " + misses + " attempts. Stopping instead of replacing it. "
+        + "If the character is really gone, clear the profile's Character field to let SoloPlay make a new one.",
+        sdk.colors.D2Bot.Red
+      );
+      D2Bot.stop();
+
+      return;
+    }
+
+    DataFile.updateStats("charNotFound", misses);
+
+    if (!listed) {
+      D2Bot.printToConsole("Avoid Creating New Character - Restart");
+      D2Bot.restart();
+    }
   };
 
   new Overrides.Override(Starter, Starter.receiveCopyData, function (orignal, mode, msg) {
@@ -325,6 +378,13 @@ const LocationAction = {
                   D2Bot.printToConsole("Stuck at LobbyPleaseWait screen", sdk.colors.D2Bot.Red);
                 }
               } else if (text && text.includes("That character name is already taken.")) {
+                if (isEstablishedChar()) {
+                  // the taken name is our own character, so whatever sent us here failed to see it
+                  D2Bot.printToConsole("Character Name exists: " + info.charName + ". Not replacing it.", sdk.colors.D2Bot.Red);
+                  Controls.OkCentered.click();
+
+                  return false;
+                }
                 ControlAction.timeoutDelay("Character Name exists: " + info.charName + ". Making new Name.", 5e3);
                 Starter.profileInfo.charName = info.charName = NameGen();
                 Controls.OkCentered.click();
@@ -772,6 +832,7 @@ const LocationAction = {
             }
 
             if (ControlAction.makeAccount(Starter.profileInfo)) {
+              freshAccount = true;
               D2Bot.setProfile(Starter.profileInfo.account, Starter.profileInfo.password, null, "Normal");
               DataFile.updateStats("AcctName", Starter.profileInfo.account);
               DataFile.updateStats("AcctPswd", Starter.profileInfo.password);
@@ -805,6 +866,8 @@ const LocationAction = {
               Controls.OkCentered.click();	// Exit from that pop-up
               D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
               ControlAction.deleteAndRemakeChar(Starter.profileInfo);
+            } else if (isEstablishedChar()) {
+              retryEstablishedChar();
             } else {
               // If make character fails, check how many characters are on that account
               if (!ControlAction.makeCharacter(Starter.profileInfo)) {
@@ -1001,22 +1064,20 @@ const LocationAction = {
 
     if (Object.keys(Starter.profileInfo).length) {
       if (!ControlAction.findCharacter(Starter.profileInfo, true)) {
-        let currLoc = getLocation();
-        if (Starter.profileInfo.charName === DataFile.getObj().name
-          && currLoc !== sdk.game.locations.CharSelectNoChars
-          && ControlAction.getCharacters().length === 0) {
-          ControlAction.timeoutDelay("[R/D] Character not found ", 18e4);
-          D2Bot.printToConsole("Avoid Creating New Character - Restart");
-          D2Bot.restart();
-        } else {
-          if (!ControlAction.makeCharacter(Starter.profileInfo)) {
-            if (ControlAction.getCharacters().length >= 18) {
-              D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Red);
-              D2Bot.stop();
-            }
+        if (isEstablishedChar()) {
+          retryEstablishedChar();
+
+          return;
+        }
+
+        if (!ControlAction.makeCharacter(Starter.profileInfo)) {
+          if (ControlAction.getCharacters().length >= 18) {
+            D2Bot.printToConsole("Kolbot-SoloPlay: Account is full", sdk.colors.D2Bot.Red);
+            D2Bot.stop();
           }
         }
       } else {
+        DataFile.getObj().charNotFound && DataFile.updateStats("charNotFound", 0);
         ControlAction.loginCharacter(Starter.profileInfo, false);
       }
     }
