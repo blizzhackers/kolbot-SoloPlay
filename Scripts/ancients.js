@@ -33,7 +33,7 @@ function ancients () {
   Config.HPBuffer = 15;
   Config.MPBuffer = 15;
   // the stand-off sorceress dodges far more than she gets hit: most of her spare potions are mana
-  if ((me.nightmare || me.hell) && me.sorceress && Pather.canTeleport()) {
+  if ((me.nightmare || me.hell) && me.sorceress && Pather.canTeleport() && SetUp.currentBuild === "Leveling") {
     Config.HPBuffer = 8;
     Config.MPBuffer = 22;
   }
@@ -47,7 +47,7 @@ function ancients () {
     Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
   }
 
-  if ((me.nightmare || me.hell) && me.sorceress && Pather.canTeleport()) {
+  if ((me.nightmare || me.hell) && me.sorceress && Pather.canTeleport() && SetUp.currentBuild === "Leveling") {
     Attack.pwnAncients();
   } else {
     Precast.doPrecast(true);
