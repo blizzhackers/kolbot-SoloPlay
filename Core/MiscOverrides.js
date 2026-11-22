@@ -182,8 +182,11 @@ Misc.openChests = function (range = 15) {
 Misc.getShrine = function (unit) {
   if (unit.mode === sdk.objects.mode.Active) return false;
   AreaData.get(me.area).addShrine(unit);
-  if (Misc.lastShrine.remaining() > Time.seconds(30) && Misc.lastShrine.isMyCurrentState()) {
-    // skip for now, don't waste the shrine we have active
+  // only a same-type re-take is wasted: wells and other shrine types are already judged by _wantShrine/_wantWell
+  if (!Misc._isWell(unit)
+    && Misc.lastShrine.type === unit.objtype
+    && Misc.lastShrine.isMyCurrentState()
+    && Misc.lastShrine.remaining() > Time.seconds(30)) {
     return false;
   }
 
