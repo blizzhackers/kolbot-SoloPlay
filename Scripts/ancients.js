@@ -25,6 +25,9 @@ function ancients () {
   Town.doChores(false, { thawing: true, antidote: true, stamina: true, fullChores: true });
 
   let tempConfig = copyObj(Config); // save and update config settings
+  // these builds' 20+ yard skills mix cold and fire, so one of them hurts each Ancient whatever its immunity
+  const standOff = (me.nightmare || me.hell) && me.sorceress && Pather.canTeleport()
+    && ["Leveling", "Blizzballer", "Meteorb"].includes(SetUp.currentBuild);
 
   Config.TownCheck = false;
   Config.MercWatch = false;
@@ -33,7 +36,7 @@ function ancients () {
   Config.HPBuffer = 15;
   Config.MPBuffer = 15;
   // the stand-off sorceress dodges far more than she gets hit: most of her spare potions are mana
-  if ((me.nightmare || me.hell) && me.sorceress && Pather.canTeleport() && SetUp.currentBuild === "Leveling") {
+  if (standOff) {
     Config.HPBuffer = 8;
     Config.MPBuffer = 22;
   }
@@ -47,7 +50,7 @@ function ancients () {
     Pather.clearToExit(sdk.areas.AncientsWay, sdk.areas.ArreatSummit, true); // enter Arreat Summit
   }
 
-  if ((me.nightmare || me.hell) && me.sorceress && Pather.canTeleport() && SetUp.currentBuild === "Leveling") {
+  if (standOff) {
     Attack.pwnAncients();
   } else {
     Precast.doPrecast(true);
