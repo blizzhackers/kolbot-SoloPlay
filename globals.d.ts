@@ -579,7 +579,7 @@ declare global {
     getItemCharges(skillId: number): boolean;
     haveDependancy(itemType: number): ItemUnit | false;
     inverseSpotDistance(spot: { x: number; y: number }, distance: number, otherSpot?: Unit): IPathNode | { x: number; y: number };
-    pwnAncients(): void;
+    pwnAncients(): boolean;
     pwnDia(): Monster | false;
     pwnDury(): boolean;
     pwnMeph(): void;

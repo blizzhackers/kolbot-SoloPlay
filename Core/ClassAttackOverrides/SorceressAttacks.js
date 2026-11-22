@@ -155,7 +155,8 @@
    *  checkLast: boolean,
    *  checkSafeStatic: boolean,
    *  minRange?: number,
-   *  maxRange?: number
+   *  maxRange?: number,
+   *  exclude?: number[]
    * }} options
    */
   const decideAttack = function (unit, options = {}) {
@@ -166,11 +167,13 @@
       checkSafeStatic: true,
       minRange: 0,
       maxRange: 0,
+      exclude: [],
     }, options);
     let _choices = [];
 
     for (let [skillId, skill] of Skills) {
       if (!skill.have()) continue;
+      if (overrides.exclude.includes(skillId)) continue;
       if (overrides.minRange && skill.range() < overrides.minRange) continue;
       if (overrides.maxRange && skill.range() > overrides.maxRange) continue;
       skill._dmg = GameData.avgSkillDamage(skillId, unit);
@@ -317,7 +320,8 @@
      * and we don't need to move to cast the non-timed skill.
      * 4) Anything else?
      */
-    return decideAttack(unit, { checkSkillDelay: checkDelay, minRange: 20 });
+    // Telekinesis reaches far but barely hurts, so it is no damage skill to stand off with
+    return decideAttack(unit, { checkSkillDelay: checkDelay, minRange: 20, exclude: [sdk.skills.Telekinesis] });
   };
 
   /**
