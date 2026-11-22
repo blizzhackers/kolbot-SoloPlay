@@ -8,9 +8,28 @@
 */
 
 (function () {
+  /** @type {Set<string>} */
+  const findSpotReports = new Set();
+
+  /**
+   * Logs a FindSpot failure once per item and message: callers retry in tight loops, and an
+   * unthrottled log of the same failure ran to thousands of lines before the client restarted.
+   * @param {{ name?: string, classid?: number, gid?: number, sizex?: number, sizey?: number }} item
+   * @param {string} msg
+   */
+  const reportFindSpotOnce = function (item, msg) {
+    const key = item.gid + "|" + msg;
+    if (findSpotReports.has(key)) return;
+    findSpotReports.add(key);
+    console.error(
+      "FindSpot " + msg + " | item " + item.name + " classid " + item.classid + " gid " + item.gid
+      + " size " + item.sizex + "x" + item.sizey
+    );
+  };
+
   /**
    * @constructor
-   * @param {string} name - container name 
+   * @param {string} name - container name
    * @param {number} width - container width 
    * @param {number} height - container height
    * @param {number} location - container location
@@ -280,6 +299,11 @@
   Container.prototype.FindSpot = function (item, reverseX, reverseY, priorityClassIds, reserved) {
     // Make sure it's a valid item
     if (!item) return false;
+    // Without a size endY is NaN, so `x !== endY` never ends the scan and it reads past the buffer.
+    if (!(item.sizex > 0 && item.sizey > 0)) {
+      reportFindSpotOnce(item, this.name + ": item without an inventory size");
+      return false;
+    }
 
     /** @todo review this to see why it sometimes fails when there is actually enough room */
 
@@ -315,63 +339,70 @@
       yDir = -1;
     }
 
-    //Loop buffer looking for spot to place item.
+    // Loop buffer looking for spot to place item.
     for (y = startX; y !== endX; y += xDir) {
       Loop:
       for (x = startY; x !== endY; x += yDir) {
-        // A displaced item must fit entirely outside the space we are clearing.
-        if (reserved && x <= reserved.bottom && x + item.sizey > reserved.top
-          && y <= reserved.right && y + item.sizex > reserved.left) {
-          continue;
-        }
-
-        //Check if there is something in this spot.
-        if (this.buffer[x][y] > 0) {
-          // TODO: add makespot logic here. priorityClassIds should only be used when sorting -- in town, where it's safe!
-          // TODO: collapse this down to just a MakeSpot(item, location) call, and have MakeSpot do the priority checks right at the top
-          let bufferItemClass = this.itemList[this.buffer[x][y] - 1].classid;
-          let bufferItemGfx = this.itemList[this.buffer[x][y] - 1].gfx;
-          let bufferItemQuality = this.itemList[this.buffer[x][y] - 1].quality;
-
-          if (Config.SortSettings.PrioritySorting && priorityClassIds && priorityClassIds.includes(item.classid)
-            && !this.IsLocked(this.itemList[this.buffer[x][y] - 1], Config.Inventory) // don't try to make a spot by moving locked items! TODO: move this to the start of loop
-            && (priorityClassIds.indexOf(bufferItemClass) === -1
-            || priorityClassIds.indexOf(item.classid) < priorityClassIds.indexOf(bufferItemClass))) { // item in this spot needs to move!
-            if (item.classid !== bufferItemClass // higher priority item
-              || (item.classid === bufferItemClass && item.quality > bufferItemQuality) // same class, higher quality item
-              || (item.classid === bufferItemClass && item.quality === bufferItemQuality && item.gfx > bufferItemGfx) // same quality, higher graphic item
-              || (Config.AutoEquip && item.classid === bufferItemClass && item.quality === bufferItemQuality
-                && item.gfx === bufferItemGfx // same graphic, higher tier item
-                && NTIP.GetTier(item) > NTIP.GetTier(this.itemList[this.buffer[x][y] - 1]))) {
-              makeSpot = this.MakeSpot(item, { x: x, y: y }); // NOTE: passing these in buffer order [h/x][w/y]
-
-              if (makeSpot) {
-                return makeSpot !== -1 ? makeSpot : false;
-              }
-            }
-          }
-
-          if (item.gid === undefined) return false;
-
-          // ignore same gid
-          if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid) {
+        try {
+          // A displaced item must fit entirely outside the space we are clearing.
+          if (reserved && x <= reserved.bottom && x + item.sizey > reserved.top
+            && y <= reserved.right && y + item.sizex > reserved.left) {
             continue;
           }
-        }
 
-        //Loop the item size to make sure we can fit it.
-        for (nx = 0; nx < item.sizey; nx += 1) {
-          for (ny = 0; ny < item.sizex; ny += 1) {
-            if (this.buffer[x + nx][y + ny]) {
-              // ignore same gid
-              if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid) {
-                continue Loop;
+          //Check if there is something in this spot.
+          if (this.buffer[x][y] > 0) {
+            // TODO: add makespot logic here. priorityClassIds should only be used when sorting -- in town, where it's safe!
+            // TODO: collapse this down to just a MakeSpot(item, location) call, and have MakeSpot do the priority checks right at the top
+            let bufferItemClass = this.itemList[this.buffer[x][y] - 1].classid;
+            let bufferItemGfx = this.itemList[this.buffer[x][y] - 1].gfx;
+            let bufferItemQuality = this.itemList[this.buffer[x][y] - 1].quality;
+
+            if (Config.SortSettings.PrioritySorting && priorityClassIds && priorityClassIds.includes(item.classid)
+              && !this.IsLocked(this.itemList[this.buffer[x][y] - 1], Config.Inventory) // don't try to make a spot by moving locked items! TODO: move this to the start of loop
+              && (priorityClassIds.indexOf(bufferItemClass) === -1
+              || priorityClassIds.indexOf(item.classid) < priorityClassIds.indexOf(bufferItemClass))) { // item in this spot needs to move!
+              if (item.classid !== bufferItemClass // higher priority item
+                || (item.classid === bufferItemClass && item.quality > bufferItemQuality) // same class, higher quality item
+                || (item.classid === bufferItemClass && item.quality === bufferItemQuality && item.gfx > bufferItemGfx) // same quality, higher graphic item
+                || (Config.AutoEquip && item.classid === bufferItemClass && item.quality === bufferItemQuality
+                  && item.gfx === bufferItemGfx // same graphic, higher tier item
+                  && NTIP.GetTier(item) > NTIP.GetTier(this.itemList[this.buffer[x][y] - 1]))) {
+                makeSpot = this.MakeSpot(item, { x: x, y: y }); // NOTE: passing these in buffer order [h/x][w/y]
+
+                if (makeSpot) {
+                  return makeSpot !== -1 ? makeSpot : false;
+                }
+              }
+            }
+
+            if (item.gid === undefined) return false;
+
+            // ignore same gid
+            if (item.gid !== this.itemList[this.buffer[x][y] - 1].gid) {
+              continue;
+            }
+          }
+
+          //Loop the item size to make sure we can fit it.
+          for (nx = 0; nx < item.sizey; nx += 1) {
+            for (ny = 0; ny < item.sizex; ny += 1) {
+              if (this.buffer[x + nx][y + ny]) {
+                // ignore same gid
+                if (item.gid !== this.itemList[this.buffer[x + nx][y + ny] - 1].gid) {
+                  continue Loop;
+                }
               }
             }
           }
-        }
 
-        return ({ x: x, y: y });
+          return ({ x: x, y: y });
+        } catch (e) {
+          reportFindSpotOnce(item, this.name + ": " + (e && e.message ? e.message : e)
+            + " at x " + x + " y " + y + " (endX " + endX + ", endY " + endY + ")");
+
+          return false;
+        }
       }
     }
 
