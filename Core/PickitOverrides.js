@@ -816,6 +816,29 @@ Pickit.essessntialsPick = function (clearBeforePick = false, builtList = [], onc
 };
 
 /**
+ * Check if a town visit can free up inventory space: an item to identify, an item
+ * Town.clearInventory sells, or a kept item the stash can take.
+ * @returns {boolean}
+ */
+Pickit.canMakeRoom = function () {
+  if (!Config.MakeRoom) return false;
+
+  return (Storage.Inventory.Compare(Config.Inventory) || []).some(function (item) {
+    switch (Pickit.checkItem(item).result) {
+    case Pickit.Result.UNID:
+      // For low level chars that can't actually get id scrolls -> prevent an infinite loop
+      return (me.gold > 100);
+    case Pickit.Result.UNWANTED:
+    case Pickit.Result.TRASH:
+      // SoloPlay's clearInventory keeps some of these, see Town.wouldSell
+      return Town.wouldSell(item) && me.canTpToTown();
+    default: // Check if a kept item can be stashed
+      return Town.canStash(item);
+    }
+  });
+};
+
+/**
  * @param {number} [range=Config.PickRange]
  * @param {boolean} [once=false]
  * @returns {boolean} False if dead, given a negative range, or muling instead of continuing; true otherwise
