@@ -64,6 +64,45 @@ const LocationAction = {
     );
   };
 
+  // one console line per death: the lobby and char-select checks can both fire before the remake
+  let deathReported = false;
+
+  /**
+   * Prints the dead hardcore character's level and total running time to the D2Bot console.
+   * me.* stats are unreadable out of game, so both come from the profile's SoloPlay files; the
+   * engine's character list, when the D2BS build has one, overrides the stored level.
+   * @returns {void}
+   */
+  const reportHardcoreDeath = function () {
+    if (deathReported) return;
+    deathReported = true;
+
+    const soloStats = CharData.getStats();
+    const charName = Starter.profileInfo.charName || soloStats.charName;
+    let level = soloStats.level;
+
+    const chars = typeof getCharacterList === "function" ? getCharacterList() : false;
+    const entry = chars && chars.find(function (c) {
+      return String.isEqual(c.name, charName);
+    });
+    entry && (level = entry.level);
+
+    let runTime = "";
+    if (FileTools.exists(Tracker.GTPath)) {
+      const gameObj = Tracker.readObj(Tracker.GTPath);
+      if (gameObj) {
+        // LastSave from before a reboot is ahead of the current tick count
+        const sinceSave = gameObj.LastSave > getTickCount() ? 0 : Time.elapsed(gameObj.LastSave);
+        runTime = " | Running time: " + Time.format(gameObj.Total + sinceSave);
+      }
+    }
+
+    D2Bot.printToConsole(
+      "Hardcore character died :: " + charName + " | Level: " + level + runTime,
+      sdk.colors.D2Bot.Red
+    );
+  };
+
   /**
    * @param {Control} control
    * @returns {string}
@@ -619,6 +658,7 @@ const LocationAction = {
     Settings.logPerformance && Tracker.initialize();
     D2Bot.printToConsole("Deleted: " + info.charName + ". Now remaking...", sdk.colors.D2Bot.Gold);
     Starter.deadCheck = false;
+    deathReported = false;
 
     return ControlAction.makeCharacter(Starter.profileInfo);
   };
@@ -864,7 +904,7 @@ const LocationAction = {
             // Pop-up that happens when choosing a dead HC char
             if (getLocation() === sdk.game.locations.OkCenteredErrorPopUp) {
               Controls.OkCentered.click();	// Exit from that pop-up
-              D2Bot.printToConsole("Character died", sdk.colors.D2Bot.Red);
+              reportHardcoreDeath();
               ControlAction.deleteAndRemakeChar(Starter.profileInfo);
             } else if (isEstablishedChar()) {
               retryEstablishedChar();
@@ -1260,7 +1300,7 @@ const LocationAction = {
     }
 
     if (me.diedHardcore) {
-      D2Bot.printToConsole("Hardcore character died", sdk.colors.D2Bot.Red);
+      reportHardcoreDeath();
       Starter.deadCheck = true;
     }
 
@@ -1347,6 +1387,7 @@ const LocationAction = {
 
     switch (string) {
     case getLocaleString(sdk.locale.text.CannotCreateGamesDeadHCChar):
+      reportHardcoreDeath();
       Starter.deadCheck = true;
       Controls.OkCentered.click();
       return;
