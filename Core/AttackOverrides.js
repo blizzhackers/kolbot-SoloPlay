@@ -1750,12 +1750,556 @@ Attack.pwnDia = function () {
   return dia;
 };
 
-/**
- * Stub: not yet implemented.
- */
-Attack.pwnAncients = function () {
-  // @todo fillout
-};
+(function () {
+  /**
+   * Spare potions a stand-off sorceress leaves at the south end of the Arreat Summit before touching the altar;
+   * the town trip after the drop buys a second buffer. When she runs low she leads the Ancients to the north end,
+   * teleports to the stash, drinks what she needs and picks up a few more, then fights on from there.
+   */
+  const stash = {
+    /** @type {{ x: number, y: number } | null} */
+    spot: null,
+    /** @type {number[]} */
+    gids: [],
+    lastRefuel: 0,
+    /** an Ancient this close ends the wait at the kite spot and the pickups at the stash */
+    CLOSE: 12,
+    /** she goes to the stash, and picks up what is left after the fight, only with every Ancient this far away */
+    STASH_CLEAR: 25,
+
+    /** @returns {Monster[]} the living Ancients, nearest first */
+    livingAncients: function () {
+      const ids = [sdk.monsters.KorlictheProtector, sdk.monsters.TalictheDefender, sdk.monsters.MadawctheGuardian];
+      return getUnits(sdk.unittype.Monster)
+        .filter(function (mon) { return ids.includes(mon.classid) && mon.attackable; })
+        .sort(function (a, b) { return a.distance - b.distance; });
+    },
+
+    reset: function () {
+      this.gids.forEach(function (gid) {
+        Pickit.ignoreList.delete(gid);
+      });
+      this.spot = null;
+      this.gids = [];
+      this.lastRefuel = 0;
+    },
+
+    /**
+     * @param {number} type item type
+     * @returns {number} potions of that type in the belt and inventory
+     */
+    carried: function (type) {
+      return me.getItemsEx().filter(function (item) {
+        return item.itemType === type && (item.isInInventory || item.isInBelt);
+      }).length;
+    },
+
+    /**
+     * @param {number[]} [types] item types, all when omitted
+     * @returns {ItemUnit[]} the stash's potions still on the ground, nearest first
+     */
+    items: function (types) {
+      return this.gids
+        .map(function (gid) { return Game.getItem(-1, -1, gid); })
+        .filter(function (item) {
+          return !!item && item.onGroundOrDropping && (!types || types.includes(item.itemType));
+        })
+        .sort(function (a, b) { return a.distance - b.distance; });
+    },
+
+    /**
+     * Drops the inventory potions beyond the belt's free slots for that kind (and rejuvenations beyond six) at the
+     * south end of the summit, 30+ yards from the statues, then buys the buffer again in town.
+     * @returns {boolean} true if a stash was dropped
+     */
+    drop: function () {
+      this.reset();
+      const spot = [{ x: 10047, y: 12655 }, { x: 10058, y: 12648 }].find(function (node) {
+        return Attack.validSpot(node.x, node.y);
+      });
+      if (!spot) return false;
+
+      const col = Storage.Belt.checkColumns(Storage.BeltSize());
+      const beltNeed = function (kind) {
+        return Config.BeltColumn.reduce(function (sum, c, i) { return c === kind ? sum + col[i] : sum; }, 0);
+      };
+      const inInventory = me.getItemsEx().filter(function (item) { return item.isInInventory; });
+      const rejuvs = inInventory.filter(function (item) { return item.itemType === sdk.items.type.RejuvPotion; });
+      const spareRejuvs = Math.max(0, this.carried(sdk.items.type.RejuvPotion) - 6);
+      const keep = new Map([
+        [sdk.items.type.HealingPotion, beltNeed("hp")],
+        [sdk.items.type.ManaPotion, beltNeed("mp")],
+        [sdk.items.type.RejuvPotion, Math.max(beltNeed("rv"), rejuvs.length - spareRejuvs)],
+      ]);
+      const spares = inInventory
+        .filter(function (item) { return keep.has(item.itemType); })
+        .sort(function (a, b) { return b.classid - a.classid; })
+        .filter(function (item) {
+          const left = keep.get(item.itemType);
+          keep.set(item.itemType, left - 1);
+          return left <= 0;
+        });
+      if (!spares.length || !Pather.moveTo(spot.x, spot.y)) return false;
+
+      for (let item of spares) {
+        if (me.dead || !item.drop()) break;
+        this.gids.push(item.gid);
+        Pickit.ignoreList.add(item.gid);
+      }
+      if (!this.gids.length) return false;
+      this.spot = spot;
+
+      Town.goToTown();
+      NPCAction.buyPotions();
+      if (!Pather.usePortal(sdk.areas.ArreatSummit, me.name)) {
+        Pather.journeyTo(sdk.areas.ArreatSummit);
+      }
+      console.log("\u00ffc8Kolbot-SoloPlay\u00ffc0: Ancients stash: dropped " + this.gids.length + " potions");
+
+      return true;
+    },
+
+    /**
+     * @param {number} teleMana
+     * @returns {boolean} true when she is below 40 % mana, or low on life with no healing or rejuvenation potion on
+     * her, and the stash still holds that kind of potion
+     */
+    needsRefuel: function () {
+      if (!this.spot || getTickCount() - this.lastRefuel < Time.seconds(10)) return false;
+      const T = sdk.items.type;
+      if (me.mpPercent < 40 && this.items([T.ManaPotion, T.RejuvPotion]).length > 0) return true;
+      const lowLife = me.hpPercent < 50 && !this.carried(T.HealingPotion) && !this.carried(T.RejuvPotion);
+      return lowLife && this.items([T.HealingPotion, T.RejuvPotion]).length > 0;
+    },
+
+    /**
+     * Leads the Ancients to the north end of the summit and waits for all three to close in (or one to get close,
+     * or 6 seconds), then teleports to the stash if they are all STASH_CLEAR from it, drinks and picks up potions.
+     * @returns {boolean} true if she reached the stash
+     */
+    refuel: function () {
+      const self = this;
+      const spot = this.spot;
+      const kite = { x: 10051, y: 12592 };
+      this.lastRefuel = getTickCount();
+
+      if (getDistance(me, kite.x, kite.y) > 5 && !Pather.moveTo(kite.x, kite.y)) return false;
+      const waitStart = getTickCount();
+      while (!me.dead && getTickCount() - waitStart < Time.seconds(6)) {
+        const ancients = this.livingAncients();
+        if (!ancients.length) break;
+        if (ancients[0].distance < 6) break;
+        if (ancients.every(function (mon) { return mon.distance <= self.CLOSE; })) break;
+        delay(100);
+      }
+
+      const clear = this.livingAncients().every(function (mon) {
+        return getDistance(mon, spot.x, spot.y) >= self.STASH_CLEAR;
+      });
+      if (!clear) {
+        console.log("\u00ffc8Kolbot-SoloPlay\u00ffc0: Ancients stash: not clear, refuel skipped");
+        return false;
+      }
+      if (!Pather.moveTo(spot.x, spot.y)) return false;
+
+      const T = sdk.items.type;
+      let drankMana = false;
+      let drankLife = false;
+
+      for (let picks = 0; picks < 6 && !me.dead; picks++) {
+        const nearest = this.livingAncients()[0];
+        if (nearest && nearest.distance < this.CLOSE) break;
+
+        // what she needs now first, then whatever fits to restock the belt
+        const order = [];
+        !drankMana && me.mpPercent < 60 && order.push(T.ManaPotion);
+        !drankLife && me.hpPercent < 80 && order.push(T.HealingPotion);
+        me.hpPercent < 40 && order.push(T.RejuvPotion);
+        order.push(T.ManaPotion, T.HealingPotion);
+        let item = null;
+        for (let type of order) {
+          item = this.items([type])[0] || null;
+          if (item) break;
+        }
+        if (!item || !Pickit.canFit(item)) break;
+
+        const gid = item.gid;
+        if (!Pickit.pickItem(item, Pickit.Result.WANTED, "ancients stash", { allowClear: false, retry: 2 })) break;
+
+        const potion = me.getItemsEx().find(function (it) {
+          return it.gid === gid && (it.isInInventory || it.isInBelt);
+        });
+        if (!potion) continue;
+        const drink = (potion.itemType === T.ManaPotion && !drankMana && me.mpPercent < 60)
+          || (potion.itemType === T.HealingPotion && !drankLife && me.hpPercent < 80)
+          || (potion.itemType === T.RejuvPotion && me.hpPercent < 40);
+        if (drink) {
+          potion.interact();
+          potion.itemType === T.ManaPotion && (drankMana = true);
+          potion.itemType === T.HealingPotion && (drankLife = true);
+          delay(50);
+        }
+      }
+      return true;
+    },
+
+    /** After the fight: picks up what is left of the stash, except potions an Ancient is near. */
+    pickUp: function () {
+      if (!this.spot) return;
+      if (!me.dead && me.inArea(sdk.areas.ArreatSummit)) {
+        const ancients = this.livingAncients();
+        const STASH_CLEAR = this.STASH_CLEAR;
+        for (let item of this.items()) {
+          const near = ancients.some(function (mon) { return getDistance(mon, item) < STASH_CLEAR; });
+          if (near || !Pickit.canFit(item)) continue;
+          Pickit.pickItem(item, Pickit.Result.WANTED, "ancients stash", { allowClear: false, retry: 2 });
+        }
+      }
+      this.reset();
+    },
+  };
+
+  /**
+   * Fights the Ancients from a stand-off as a teleporting sorceress: drops the potion stash, precasts, moves to
+   * the altar and touches it, fights, then picks up what is left of the stash.
+   * The three charge together and their basic swings kill a sorceress in seconds, so she opens 25 yards
+   * from all three, teleports to a spot 20+ yards from every Ancient whenever one closes in, and casts
+   * only skills that reach 20 yards or more (no Static Field). She keeps two Teleports of mana for escapes, drinks a
+   * carried mana potion when she gets near that reserve and refuels at the stash below 40 % mana. When no Ancient is
+   * below half life after 8 minutes she steps through a town portal and back and touches the altar again, which
+   * resets the Ancients; she restocks in town only when her tome is low or her belt isn't full.
+   * The same reset re-rolls a pack with a Cursed or Extra Fast Ancient or one she can't hurt from range, until the pack
+   * is acceptable.
+   * @returns {boolean} true once all three are dead
+   */
+  Attack.pwnAncients = function () {
+    stash.drop();
+
+    Precast.doPrecast(true);
+
+    // move to altar
+    if (!Pather.moveToPreset(sdk.areas.ArreatSummit, sdk.unittype.Object, sdk.quest.chest.AncientsAltar)) {
+      console.warn("ÿc8Kolbot-SoloPlayÿc0: Failed to move to ancients' altar");
+    }
+
+    Common.Ancients.touchAltar();
+
+    const statues = [Common.Ancients.talicStatue, Common.Ancients.madawcStatue, Common.Ancients.korlicStatue];
+    // monster mode 14 is the skill sequence that Leap and Whirlwind run in
+    const SEQUENCE_MODE = 14;
+    const MAX_CAST_RANGE = 30;
+    const STALL_TIME = Time.minutes(8);
+    const FIGHT_TIME = Time.minutes(15);
+    const MAX_RESETS = 2;
+    // a bad pack is re-rolled until it is acceptable, up to MAX_ROLLS times (then fought); an Ancient she can't attack
+    // at all, MAX_UNATTACKABLE_ROLLS times as startAncients does (then she gives up)
+    const MAX_ROLLS = 30;
+    const MAX_UNATTACKABLE_ROLLS = 10;
+    const sorc = ClassAttack[sdk.player.class.Sorceress];
+    const teleMana = Skill.getManaCost(sdk.skills.Teleport);
+    // the stand-off skills she has put points into; a one-point prerequisite (Charged Bolt) does not count
+    const mainSkills = [
+      sdk.skills.IceBolt, sdk.skills.IceBlast, sdk.skills.GlacialSpike, sdk.skills.Blizzard, sdk.skills.FrozenOrb,
+      sdk.skills.FireBolt, sdk.skills.FireBall, sdk.skills.Meteor, sdk.skills.Hydra,
+      sdk.skills.ChargedBolt, sdk.skills.Lightning, sdk.skills.ChainLightning,
+    ].filter(function (skillId) {
+      return GameData.baseLevel(skillId) >= 5 && Skill.getRange(skillId) >= 20;
+    });
+
+    const getAncients = stash.livingAncients;
+
+    /**
+     * @param {Monster[]} ancients
+     * @returns {string} why the pack is worth re-rolling, or "" to fight it
+     */
+    const badPack = function (ancients) {
+      for (let mon of ancients) {
+        // Cursed (Amplify Damage) kills the merc. An Extra Fast pack loses no more often, but its fight is slower and
+        // costs far more mana, and a re-roll costs a few seconds
+        if (mon.getEnchant(sdk.enchant.Cursed)) return mon.name + " is Cursed";
+        if (mon.getEnchant(sdk.enchant.ExtraFast)) return mon.name + " is Extra Fast";
+        // immune to all her stand-off skills, e.g. a Cold Enchanted Talic for a cold and fire sorceress
+        const hurt = mainSkills.some(function (skillId) { return GameData.avgSkillDamage(skillId, mon) > 0; });
+        if (mainSkills.length && !hurt) return mon.name + " can't be hurt from range";
+      }
+      return "";
+    };
+
+    const isDone = function () {
+      return Common.Ancients.checkStatues() || Misc.checkQuest(sdk.quest.id.RiteofPassage, sdk.quest.states.Completed);
+    };
+
+    /**
+     * How fast an Ancient closes on her, in yards a second: about 12 walking, 23 when Extra Fast and 30 in a Leap or
+     * Whirlwind. A statue, before they wake, counts as a walking Ancient.
+     * @param {{ x: number, y: number }} unit
+     * @returns {number}
+     */
+    const speedOf = function (unit) {
+      const mon = /** @type {Monster} */ (unit);
+      if (typeof mon.getEnchant === "function" && mon.getEnchant(sdk.enchant.ExtraFast)) return 23;
+      return mon.mode === SEQUENCE_MODE ? 30 : 12;
+    };
+
+    /**
+     * How close an Ancient may come before she teleports away: its 3-yard swing plus what it covers in 0.6 seconds,
+     * a cast and the start of a teleport.
+     * @param {{ x: number, y: number }} unit
+     * @returns {number}
+     */
+    const threatRange = function (unit) {
+      return 3 + (speedOf(unit) * 0.6);
+    };
+
+    /**
+     * Where a threat will be when she lands: an Ancient walks toward where she stands for a teleport's time, one in
+     * a Leap or Whirlwind ends at its target; a statue stays put.
+     * @param {{ x: number, y: number }} unit
+     * @returns {{ x: number, y: number }}
+     */
+    const atLanding = function (unit) {
+      const mon = /** @type {Monster} */ (unit);
+      if (typeof mon.getEnchant !== "function") return unit;
+      if (mon.mode === SEQUENCE_MODE) return mon.targetx ? { x: mon.targetx, y: mon.targety } : { x: me.x, y: me.y };
+      const d = Math.max(1, mon.distance);
+      const step = Math.min(d, speedOf(mon) * me.castingDuration(sdk.skills.Teleport));
+      return { x: mon.x + ((me.x - mon.x) * step / d), y: mon.y + ((me.y - mon.y) * step / d) };
+    };
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @returns {number} how many of the 8 points 6 yards around it are walkable (fewer near edges and corners)
+     */
+    const openness = function (x, y) {
+      let open = 0;
+      for (let k = 0; k < 8; k++) {
+        const a = k * Math.PI / 4;
+        Attack.validSpot(Math.round(x + (6 * Math.cos(a))), Math.round(y + (6 * Math.sin(a)))) && open++;
+      }
+      return open;
+    };
+
+    /**
+     * Best spot to stand on: at least `margin` yards beyond each threat's range, measured from where it will be when
+     * she lands, and, when there is a target, within casting range of it; then open ground and the shortest hop.
+     * Falls back to the spot with the most clearance.
+     * @param {{ x: number, y: number }[]} threats
+     * @param {number} margin
+     * @param {Monster} [target]
+     * @returns {{ x: number, y: number } | null}
+     */
+    const findSpot = function (threats, margin, target) {
+      const altar = Common.Ancients.altarSpot;
+      const centers = [{ x: me.x, y: me.y }, altar];
+      target && centers.push({ x: target.x, y: target.y });
+      const landed = threats.map(atLanding);
+      let best = null;
+      let bestTier = -1;
+      let bestScore = -Infinity;
+
+      for (let center of centers) {
+        for (let radius = 10; radius <= 30; radius += 5) {
+          for (let i = 0; i < 16; i++) {
+            const x = Math.round(center.x + radius * Math.cos(i * Math.PI / 8));
+            const y = Math.round(center.y + radius * Math.sin(i * Math.PI / 8));
+            // stay on the summit's plateau, in sight of the Ancients
+            if (getDistance(me, x, y) < 3 || getDistance(x, y, altar.x, altar.y) > 35) continue;
+            if (!Attack.validSpot(x, y)) continue;
+
+            const clear = threats.reduce(function (min, t, i) {
+              return Math.min(min, getDistance(x, y, landed[i].x, landed[i].y) - threatRange(t));
+            }, Infinity);
+            const inRange = !target || getDistance(x, y, target.x, target.y) <= MAX_CAST_RANGE;
+            const open = clear >= margin ? openness(x, y) : 0;
+            const tier = (clear >= margin ? 4 : 0) + (open >= 6 ? 2 : 0) + (inRange ? 1 : 0);
+            const score = Math.min(clear, margin + 6) + (0.5 * open) - (0.2 * getDistance(me, x, y));
+
+            if (tier > bestTier || (tier === bestTier && score > bestScore)) {
+              [best, bestTier, bestScore] = [{ x: x, y: y }, tier, score];
+            }
+          }
+        }
+      }
+
+      return best;
+    };
+
+    /** @param {{ x: number, y: number } | null} spot */
+    const hop = function (spot) {
+      return !!spot && me.mp >= teleMana && Pather.teleportTo(spot.x, spot.y);
+    };
+
+    // two Teleports of mana kept for escapes: casts and repositioning hops leave them
+    const reserve = 2 * teleMana;
+    let lastDrink = 0;
+
+    /**
+     * Drinks a mana potion she carries (a rejuvenation if she has none), belt first, instead of leaving it to the
+     * tools thread, which let her stand dry with potions in her inventory.
+     * @returns {boolean} true if she drank
+     */
+    const drinkMana = function () {
+      if (getTickCount() - lastDrink < Time.seconds(1)) return false;
+      const type = sdk.items.type;
+      const potion = me.getItemsEx()
+        .filter(function (item) {
+          return (item.isInBelt || item.isInInventory)
+            && (item.itemType === type.ManaPotion || item.itemType === type.RejuvPotion);
+        })
+        .sort(function (a, b) {
+          return (Number(b.itemType === type.ManaPotion) - Number(a.itemType === type.ManaPotion))
+            || (Number(b.isInBelt) - Number(a.isInBelt));
+        })[0];
+      if (!potion) return false;
+      lastDrink = getTickCount();
+      potion.interact();
+      delay(50);
+      return true;
+    };
+
+    /**
+     * Resets the Ancients for a re-roll or after a stall. A town portal opened on the summit despawns them, and the
+     * altar can be touched again once that portal is gone, which happens when she comes back through it. So she steps
+     * through and straight back, and restocks in town (ancientsPrep) only when her tome is low or her belt isn't full.
+     */
+    const resetPack = function () {
+      if (Town.checkScrolls(sdk.items.TomeofTownPortal) < 5 || me.needBeltPots() || !Pather.makePortal(true)) {
+        Common.Ancients.ancientsPrep();
+        return;
+      }
+      Pather.usePortal(sdk.areas.ArreatSummit, me.name) || Pather.journeyTo(sdk.areas.ArreatSummit);
+    };
+
+    /** @returns {boolean} true if the Ancients died, false on a stall, a timeout or death */
+    const fight = function () {
+      const start = getTickCount();
+      let progress = false;
+      let castSinceHop = true;
+      let blockedHops = 0;
+
+      while (!me.dead) {
+        const ancients = getAncients();
+
+        const anyHurt = ancients.some(function (mon) { return mon.hpPercent < 50; });
+        progress = progress || (ancients.length > 0 && ancients.length < 3) || anyHurt;
+        if (getTickCount() - start > (progress ? FIGHT_TIME : STALL_TIME)) {
+          console.log("ÿc8Kolbot-SoloPlayÿc0: Ancients fight stalled, resetting");
+          return false;
+        }
+
+        if (!ancients.length) {
+          if (isDone()) return true;
+          // out of sight: go back to the altar, where they are
+          if (!Misc.poll(function () { return getAncients().length > 0 || isDone(); }, 3000, 100)) {
+            getDistance(me, Common.Ancients.altarSpot) > 10
+              ? Pather.moveToUnit(Common.Ancients.altarSpot)
+              : hop(findSpot(statues, 15));
+          }
+          continue;
+        }
+
+        const target = ancients[0];
+
+        if (me.mp < reserve + 2 * teleMana && drinkMana()) continue;
+        // low with nothing on her: lead them away from the stash and refuel there
+        if (stash.needsRefuel()) {
+          stash.refuel();
+          castSinceHop = true;
+          continue;
+        }
+        const threatened = ancients.some(function (mon) { return mon.distance < threatRange(mon); });
+        const close = threatened && (castSinceHop || target.distance < 5);
+
+        if (close || (me.hpPercent < 50 && target.distance < 1.5 * threatRange(target))) {
+          if (hop(findSpot(ancients, 10, target))) {
+            castSinceHop = false;
+            continue;
+          }
+        }
+
+        if (target.distance > MAX_CAST_RANGE || checkCollision(me, target, Coords.BlockBits.Ranged)) {
+          if (blockedHops < 3 && me.mp >= reserve + teleMana && hop(findSpot(ancients, 10, target))) {
+            blockedHops++;
+            continue;
+          }
+        }
+        blockedHops = 0;
+
+        // a switch-cast charge keeps her busy for up to 1.9 seconds: only with the nearest Ancient 20+ yards away
+        target.distance > 20 && sorc.switchCurse(target, false);
+
+        // range of 20 or more, so never Static Field
+        const skill = sorc.decideDistanceSkill(target, true);
+        if (skill === -1 || me.mp < skill.manaCost() + reserve) {
+          // nothing she can cast at all means she is dry with nothing left to drink: standing in their reach loses the
+          // fight, so end it and let the reset (a town portal and a restock) start a new one
+          if (skill === -1) return false;
+          // the reserve is there for the escape: while she waits on it, the next danger check may hop without a cast
+          castSinceHop = true;
+          delay(50);
+          continue;
+        }
+
+        const point = GameData.targetPointForSkill(skill.skillId, target);
+        point
+          ? Skill.cast(skill.skillId, Skill.getHand(skill.skillId), point.x, point.y)
+          : Skill.cast(skill.skillId, Skill.getHand(skill.skillId), target);
+        castSinceHop = true;
+      }
+
+      return false;
+    };
+
+    /** @returns {boolean} true once all three are dead */
+    const standOff = function () {
+      Attack.stopClear = true;
+
+      try {
+        for (let reset = 0; reset <= MAX_RESETS; reset++) {
+          if (reset > 0) {
+            hop(findSpot(getAncients(), 10));
+            resetPack();
+            if (!me.inArea(sdk.areas.ArreatSummit)) return false;
+            Precast.doPrecast(true);
+            Common.Ancients.touchAltar();
+          }
+
+          // re-roll as startAncients does (leave, touch the altar again) an Ancient we can't attack, and a pack
+          // with a dangerous mod or an Ancient none of her stand-off skills hurt
+          for (let roll = 0; ; roll++) {
+            Misc.poll(function () { return getAncients().length >= 3; }, 2000, 100);
+            const attackable = Common.Ancients.canAttack();
+            const reason = attackable ? badPack(getAncients()) : "can't attack";
+            if (!reason) break;
+            if (attackable && roll >= MAX_ROLLS) break;
+            if (!attackable && roll >= MAX_UNATTACKABLE_ROLLS) {
+              throw new Error("I think I'm unable to complete ancients, I've rolled them " + roll + " times");
+            }
+            console.log("ÿc8Kolbot-SoloPlayÿc0: Ancients re-roll " + (roll + 1) + ": " + reason);
+            resetPack();
+            Common.Ancients.touchAltar();
+          }
+
+          const ancients = getAncients();
+          hop(findSpot(ancients.length ? ancients : statues, 15));
+
+          if (fight()) return true;
+          if (me.dead || isDone()) return isDone();
+        }
+      } finally {
+        Attack.stopClear = false;
+      }
+
+      return false;
+    };
+
+    const done = standOff();
+    stash.pickUp();
+
+    return done;
+  };
+})();
 
 /**
  * @param {Monster} unit 
