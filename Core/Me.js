@@ -570,99 +570,342 @@ me.getSkillTabs = function (classid = me.classid) {
   ][classid];
 };
 
-me.inDanger = (function () {
+// Danger is the damage expected over the next DANGER_HORIZON seconds as a share of the HP we hold
+// above the chicken line, so one hard hitter, a fast pack still out of sight range, or ranged fire
+// all count, and the same pack weighs more on a sorceress than on a barbarian.
+(function () {
+  const MonsterData = require("../Modules/GameData/MonsterData");
+  const DANGER_HORIZON = 2;
+  // 1 = the expected damage takes us down to the chicken line.
+  const DANGER_THRESHOLD = 1;
+  // Life percent treated as the floor when Config.LifeChicken is off.
+  const DEFAULT_LIFE_FLOOR = 10;
+  // Monsters swing roughly once a second once in reach (AI delay plus attack animation).
+  const ATTACKS_PER_SEC = 1;
+  const MELEE_REACH = 3;
+  const RANGED_REACH = 12;
+  // Beyond this nothing in the game closes the gap within the horizon.
+  const SCAN_RADIUS = 40;
+  // A missile whose shooter can't be costed is charged this share of max HP.
+  const UNKNOWN_SHOOTER_HP_SHARE = 0.05;
   const dangerAuras = [sdk.states.Fanaticism, sdk.states.Conviction];
+  // Unmeasured: no live hit under either aura has been sampled yet.
+  const AURA_MULTIPLIER = 1.5;
   const dangerEnchants = [
     sdk.enchant.ManaBurn, sdk.enchant.LightningEnchanted, sdk.enchant.FireEnchanted
   ];
+  // How far (in tiles) a missile's path may pass from the location and still count as a hit.
+  const MISSILE_LANE = 3;
+  /** @type {Map<number, { damaging: boolean, stationary: boolean }>} */
+  const missileInfo = new Map();
 
-  // @todo better determination of what actually constitutes being in danger
-  // need check for ranged mobs so we can stick and move to avoid missiles
+  // missiles.txt "Skill" when the missile belongs to no skill.
+  const NO_SKILL = 65535;
+
   /**
-   * @param {{ x: number; y: number } | MeType} [checkLoc]
-   * @param {number} [range=10]
-   * @returns {boolean}
+   * Damage comes from the missile's own row, its shooter (SrcDamage) or its skill (Fire Ball,
+   * a shaman's fire bolt), and a skill missile only hurts if it collides. Measured on the
+   * live table: this keeps 85 of the 86 missiles monsters fire (all but the catapult's
+   * launch effect, whose child missile does the damage) and drops blood, glows and auras.
+   * @param {number} classid
    */
-  return function (checkLoc, range) {
-    let count = 0;
-    const _this = typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x")
-      ? checkLoc
-      : me;
-    range === undefined && (range = 10);
-    const nearUnits = getUnits(sdk.unittype.Monster)
-      .filter(function (mon) {
-        return mon && mon.attackable && getDistance(_this, mon) < range;
-      });
-  
-    for (let mon of nearUnits) {
-      if (mon.isSpecial) {
-        if (dangerAuras.some(function (state) { return mon.getState(state); })) {
-          count += 3;
-        } else {
-          count += 2;
+  function getMissileInfo (classid) {
+    let info = missileInfo.get(classid);
+    if (!info) {
+      const skill = Number(getBaseStat("missiles", classid, "Skill"));
+      info = {
+        damaging: Number(getBaseStat("missiles", classid, "MinDamage")) > 0
+          || Number(getBaseStat("missiles", classid, "EMin")) > 0
+          || Number(getBaseStat("missiles", classid, "SrcDamage")) > 0
+          || (skill !== NO_SKILL && Number(getBaseStat("missiles", classid, "CollideType")) > 0),
+        stationary: !Number(getBaseStat("missiles", classid, "Vel")),
+      };
+      missileInfo.set(classid, info);
+    }
+    return info;
+  }
+
+  /** @param {number} gid */
+  function isHostilePlayer (gid) {
+    return gid !== me.gid && getPlayerFlag(me.gid, gid, sdk.player.flag.Hostile);
+  }
+
+  /**
+   * Who fired the missile, following missile-spawned missiles and merc/summon ownership.
+   * Returns null when the shooter is us, our merc/summons, a friendly player or a town NPC;
+   * monster is null when the shooter can't be costed (out of sight, or a hostile player).
+   * @param {Unit} missile
+   * @returns {{ monster: Monster | null } | null}
+   */
+  function getHostileShooter (missile) {
+    /** @type {Unit} */
+    let unit = missile;
+    // A missile can be spawned by another missile (e.g. split or exploding shots).
+    for (let i = 0; i < 3 && unit.type === sdk.unittype.Missile; i++) {
+      const parent = unit.getParent();
+      if (!parent || typeof parent !== "object") {
+        // Owner out of sight: the missile still carries its owner's id and type.
+        if (unit.ownertype === sdk.unittype.Player) {
+          return isHostilePlayer(unit.owner) ? { monster: null } : null;
         }
-      } else {
-        // TODO: speedy monsters are more dangerous, also difficulty should be taken into account as well
-        // and type of character, as if we are a caster like a sorceress we are squishier and could be 1 or 2 shotted by a normal monster
-        // vs a barbarian or paladin who can take a few hits
-        count += mon.speed > 3 ? 1.5 : 1;
+        return unit.ownertype === sdk.unittype.Monster ? { monster: null } : null;
+      }
+      unit = parent;
+    }
+
+    if (unit.type === sdk.unittype.Player) {
+      return isHostilePlayer(unit.gid) ? { monster: null } : null;
+    }
+    if (unit.type !== sdk.unittype.Monster) return null;
+
+    // A merc or summon resolves to the player that owns it.
+    const master = unit.getParent();
+    if (master && typeof master === "object" && master.type === sdk.unittype.Player) {
+      return isHostilePlayer(master.gid) ? { monster: null } : null;
+    }
+    const monster = /** @type {Monster} */ (unit);
+    return monster.isNPC ? null : { monster: monster };
+  }
+
+  /**
+   * Whether the missile threatens the location: a moving one whose path passes within
+   * MISSILE_LANE of it ahead of the missile, or a stationary one lying within MISSILE_LANE.
+   * @param {Unit} missile
+   * @param {{ x: number, y: number }} loc
+   * @param {boolean} stationary
+   */
+  function threatens (missile, loc, stationary) {
+    const px = loc.x - missile.x;
+    const py = loc.y - missile.y;
+    if (stationary) return Math.sqrt(px * px + py * py) <= MISSILE_LANE;
+
+    const dx = missile.targetx - missile.x;
+    const dy = missile.targety - missile.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    // No target to read a heading from.
+    if (!missile.targetx || !missile.targety || length === 0) return false;
+
+    const ux = dx / length;
+    const uy = dy / length;
+    // Behind the missile: it is flying away from the location.
+    if (px * ux + py * uy < 0) return false;
+    return Math.abs(px * uy - py * ux) <= MISSILE_LANE;
+  }
+
+  /** @typedef {{ physical: number, elements: { type: number, damage: number }[] }} HitProfile */
+  /** @type {{ area: number, hits: Map<string, HitProfile> }} */
+  const hitCache = { area: -1, hits: new Map() };
+  // monstats El*Mode values for the two attack animations elemental damage can ride on.
+  const ATTACK1_MODE = 4;
+  const ATTACK2_MODE = 5;
+  // monstats El*Type -> [resist stat, max-resist stat]; other types (drains, stun) do no damage.
+  /** @type {{ [type: string]: number[] }} */
+  const ELEMENT_RESISTS = {
+    1: [sdk.stats.FireResist, sdk.stats.MaxFireResist],
+    2: [sdk.stats.LightResist, sdk.stats.MaxLightResist],
+    3: [sdk.stats.MagicResist, sdk.stats.MaxMagicResist],
+    4: [sdk.stats.ColdResist, sdk.stats.MaxColdResist],
+    5: [sdk.stats.PoisonResist, sdk.stats.MaxPoisonResist],
+  };
+
+  /**
+   * Base damage that monstats' damage percentages apply to, for a monster of this level:
+   * MonLvl.txt's DM (classic) or L-DM (expansion) column for the difficulty, the row being the
+   * level. Needs D2BS's "monlvl" table.
+   * @param {number} level
+   */
+  function baseDamage (level) {
+    const column = (me.classic ? "DM" : "L-DM") + ["", "(N)", "(H)"][me.diff];
+    return Number(getBaseStat("monlvl", level, column)) || 0;
+  }
+
+  /** @param {number | string | undefined} a @param {number | string | undefined} b */
+  function mean (a, b) {
+    return ((Number(a) || 0) + (Number(b) || 0)) / 2;
+  }
+
+  /**
+   * What one hit from this monster deals before our resists, split by element. Physical and
+   * elemental columns are both percentages of the level's base damage (their Nightmare/Hell
+   * values stay flat while monster level climbs). The unit's own level is exact where GameData's
+   * area level is not: Nightmare bosses and Hell elites sit above it. Cached per area (party size).
+   * @param {Monster} mon
+   * @returns {HitProfile}
+   */
+  function hitProfile (mon) {
+    if (hitCache.area !== me.area) {
+      hitCache.area = me.area;
+      hitCache.hits.clear();
+    }
+    const classid = mon.classid;
+    const level = Number(mon.getStat(sdk.stats.Level)) || Number(GameData.monsterLevel(classid, me.area)) || 0;
+    const key = classid + ":" + level;
+    let profile = hitCache.hits.get(key);
+    if (profile) return profile;
+    const data = MonsterData.get(classid);
+    profile = { physical: 0, elements: [] };
+    if (data) {
+      const base = baseDamage(level) * (Number(GameData.monsterDamageModifier()) || 1) / 100;
+      const attack1 = mean(data.Attack1MinDmg, data.Attack1MaxDmg);
+      const attack2 = mean(data.Attack2MinDmg, data.Attack2MaxDmg);
+      const skill1 = mean(data.Skill1MinDmg, data.Skill1MaxDmg);
+      const swings = [attack1, attack2, skill1].filter(function (d) { return d > 0; });
+      profile.physical = swings.length
+        ? swings.reduce(function (sum, d) { return sum + d; }, 0) / swings.length * base
+        : 0;
+      // An element rides one attack animation, so it lands on that share of the swings.
+      const attackModes = (attack1 > 0 ? 1 : 0) + (attack2 > 0 ? 1 : 0) || 1;
+      const sfx = ["", "(N)", "(H)"][me.diff];
+      for (let i = 1; i <= 3; i++) {
+        const type = Number(getBaseStat("monstats", classid, "El" + i + "Type"));
+        const mode = Number(getBaseStat("monstats", classid, "El" + i + "Mode"));
+        if (!ELEMENT_RESISTS[type] || (mode !== ATTACK1_MODE && mode !== ATTACK2_MODE)) continue;
+        const chance = (Number(getBaseStat("monstats", classid, "El" + i + "Pct" + sfx)) || 0) / 100;
+        const damage = chance * mean(
+          getBaseStat("monstats", classid, "El" + i + "MinD" + sfx),
+          getBaseStat("monstats", classid, "El" + i + "MaxD" + sfx)
+        ) * base / attackModes;
+        damage > 0 && profile.elements.push({ type: type, damage: damage });
       }
     }
-    if (count > me.maxNearMonsters) {
-      return true;
+    hitCache.hits.set(key, profile);
+    return profile;
+  }
+
+  /**
+   * Our resist to each damage type as the game applies it: the stat (shrines and potions
+   * included) less the difficulty penalty, between -100 and 75 + max-resist (95 at most).
+   * Magic resist takes no difficulty penalty.
+   * @returns {{ physical: number, [type: string]: number }} share of each type that gets through
+   */
+  function damageTaken () {
+    const penalty = me.classic ? [0, 20, 50][me.diff] : [0, 40, 100][me.diff];
+    /** @type {{ physical: number, [type: string]: number }} */
+    // Physical resist caps at 50 and goes negative under curses (Amplify Damage: -100, measured live).
+    const taken = { physical: 1 - Math.max(-100, Math.min(50, me.getStat(sdk.stats.DamageResist) || 0)) / 100 };
+    for (let type in ELEMENT_RESISTS) {
+      const stats = ELEMENT_RESISTS[type];
+      const cap = Math.min(95, 75 + (me.getStat(stats[1]) || 0));
+      const resist = (me.getStat(stats[0]) || 0) - (Number(type) === 3 ? 0 : penalty);
+      taken[type] = 1 - Math.max(-100, Math.min(cap, resist)) / 100;
     }
-  
-    const dangerClose = nearUnits
-      .find(function (mon) {
-        return dangerEnchants.some(function (chant) {
-          return mon.getEnchant(chant);
-        });
-      });
+    return taken;
+  }
 
-    if (dangerClose) {
-      return true;
+  /**
+   * Damage one hit from this monster deals to us after damage reduction and resists.
+   * @param {Monster} mon
+   * @param {{ physical: number, [type: string]: number }} taken
+   */
+  function hitDamage (mon, taken) {
+    const profile = hitProfile(mon);
+    let damage = profile.physical * taken.physical;
+    for (let element of profile.elements) {
+      damage += element.damage * taken[element.type];
+    }
+    return damage * auraMultiplier(mon);
+  }
+
+  /**
+   * Fanaticism or Conviction makes a pack hit harder. Elites get no bump of their own: live hits
+   * from uniques, champions and bosses measured ~1x this model in Normal and Hell (657-hit rig sample).
+   * @param {Monster} mon
+   */
+  function auraMultiplier (mon) {
+    return dangerAuras.some(function (state) { return mon.getState(state); }) ? AURA_MULTIPLIER : 1;
+  }
+
+  /**
+   * Seconds before the monster can hit the location. Monstats speed is coordinate units per
+   * second (measured live at 0.6-0.9x of it), so the run speed is a safe upper bound.
+   * @param {Monster} mon
+   * @param {{ x: number, y: number }} loc
+   */
+  function secondsToReach (mon, loc) {
+    const reach = getBaseStat("monstats", mon.classid, "RangedType") ? RANGED_REACH : MELEE_REACH;
+    const gap = getDistance(loc.x, loc.y, mon) - reach;
+    if (gap <= 0) return 0;
+    const data = MonsterData.get(mon.classid);
+    if (!data) return 0;
+    let speed = Math.max(Number(data.Velocity) || 0, Number(data.Run) || 0);
+    if (mon.getState(sdk.states.Frozen)) {
+      speed *= Math.max(0, 100 + (Number(data.ColdEffect) || 0)) / 100;
+    }
+    return speed > 0 ? gap / speed : Infinity;
+  }
+
+  /**
+   * @param {{ x: number; y: number } | MeType} [checkLoc]
+   * @returns {{ x: number, y: number }}
+   */
+  function locationOf (checkLoc) {
+    return typeof checkLoc !== "undefined" && checkLoc.hasOwnProperty("x") ? checkLoc : me;
+  }
+
+  /**
+   * HP we can lose before life drops to the chicken threshold (Config.LifeChicken, or
+   * DEFAULT_LIFE_FLOOR percent when that is off); hpPercent <= LifeChicken is what chickens.
+   */
+  function hpAboveFloor () {
+    const floor = Config.LifeChicken > 0 ? Config.LifeChicken : DEFAULT_LIFE_FLOOR;
+    return me.hp - me.hpmax * floor / 100;
+  }
+
+  /**
+   * Damage expected at the location over the next DANGER_HORIZON seconds, as a share of the HP
+   * above the chicken line: 1 means we expect to reach it. At or under the line any damage scores.
+   * @param {{ x: number; y: number } | MeType} [checkLoc]
+   * @returns {number}
+   */
+  me.dangerScore = function (checkLoc) {
+    const loc = locationOf(checkLoc);
+    const taken = damageTaken();
+    let expected = 0;
+    let worstHit = 0;
+    // Monsters already scored over the horizon: their missiles in flight are among those hits.
+    /** @type {Set<number>} */
+    const scored = new Set();
+
+    for (let mon of getUnits(sdk.unittype.Monster)) {
+      if (!mon || !mon.attackable || mon.isFrozen || getDistance(loc.x, loc.y, mon) > SCAN_RADIUS) continue;
+      const hit = hitDamage(mon, taken);
+      worstHit = Math.max(worstHit, hit);
+      const active = DANGER_HORIZON - secondsToReach(mon, loc);
+      if (active > 0) {
+        expected += hit * ATTACKS_PER_SEC * active;
+        scored.add(mon.gid);
+      }
     }
 
-    // lets determine if we are in danger of missiles based on thier trajectory - getParent isn't working for missles /:
-    // TODO: determine why because it should work from https://github.com/noah-/d2bs/pull/40
-    // const Vector = require("../Modules/Vector");
-    // /** @type {Line[]} */
-    // let missileHooks = [];
-    // const missiles = getUnits(sdk.unittype.Missile).filter(function (missile) {
-    //   if (!missile) return false;
-    //   /** @type {Monster | Player | null} */
-    //   let parent = missile.getParent();
-    //   if (parent && (parent.gid === me.gid || parent.isNPC)) {
-    //     return false;
-    //   }
+    for (let missile of getUnits(sdk.unittype.Missile)) {
+      if (!missile || getDistance(loc.x, loc.y, missile) > SCAN_RADIUS) continue;
+      const info = getMissileInfo(missile.classid);
+      if (!info.damaging || !threatens(missile, loc, info.stationary)) continue;
+      const shooter = getHostileShooter(missile);
+      if (!shooter || (shooter.monster && scored.has(shooter.monster.gid))) continue;
+      expected += shooter.monster
+        ? hitDamage(shooter.monster, taken)
+        : Math.max(worstHit, me.hpmax * UNKNOWN_SHOOTER_HP_SHARE);
+    }
 
-    //   if (parent) {
-    //     console.debug("Missile parent: " + parent.gid + " " + parent.classid + " " + parent.name + " for missle: " + missile.classid);
-    //   }
+    return expected / Math.max(1, hpAboveFloor());
+  };
 
-    //   // alright now to check if the missile is heading towards us
-    //   const missileTargetX = missile.targetx || missile.x;
-    //   const missileTargetY = missile.targety || missile.y;
-    //   missileHooks.push(new Line(missile.x, missile.y, missileTargetX, missileTargetY, CollMap.colors.red, true));
-    //   const toTarget = new Vector(missileTargetX - missile.x, missileTargetY - missile.y).normalize();
-    //   const toMe = new Vector(me.x - missile.x, me.y - missile.y).normalize();
-
-    //   // Compute dot product (cosine of angle between vectors)
-    //   let dot = toTarget.x * toMe.x + toTarget.y * toMe.y;
-
-    //   // If dot product is close to 1, missile is heading toward us (angle < ~30deg)
-    //   return (dot > 0.85);
-    // });
-    // if (missiles.length > 0) {
-    //   console.debug("We are in danger of missiles, count: " + missiles.length);
-    //   // return true;
-    // }
-
-    // for (let missile of missileHooks) {
-    //   missile.remove();
-    // }
-
-    return false;
+  /**
+   * True when the expected damage over the next few seconds would take life to the chicken
+   * threshold, or an enchanted elite (mana burn, lightning or fire enchanted) is within range.
+   * @param {{ x: number; y: number } | MeType} [checkLoc]
+   * @param {number} [range=10] radius for the enchanted-elite check
+   * @returns {boolean}
+   */
+  me.inDanger = function (checkLoc, range) {
+    if (me.dangerScore(checkLoc) >= DANGER_THRESHOLD) return true;
+    const loc = locationOf(checkLoc);
+    range === undefined && (range = 10);
+    return getUnits(sdk.unittype.Monster).some(function (mon) {
+      return mon && mon.attackable && getDistance(loc.x, loc.y, mon) < range
+        && dangerEnchants.some(function (chant) { return mon.getEnchant(chant); });
+    });
   };
 })();
 

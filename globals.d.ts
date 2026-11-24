@@ -377,6 +377,9 @@ declare global {
     /** Returns 0 when bodyLoc is falsy or nothing is equipped there. Currently has no callers. */
     getWeaponQuantityPercent(bodyLoc: number): number;
     getSkillTabs(classid: number): number[];
+    /** Expected damage at the location over the next 2 s as a share of the HP above the LifeChicken line (default 10%); 1 = reaches it. */
+    dangerScore(checkLoc?: { x: number; y: number } | MeType): number;
+    /** dangerScore >= 1, or an enchanted elite within range (default 10). */
     inDanger(checkLoc?: { x: number; y: number } | MeType, range?: number): boolean;
     checkSkill(skillId: number, subId: number): boolean;
     cleanUpInvoPotions(beltSize: number): boolean;
