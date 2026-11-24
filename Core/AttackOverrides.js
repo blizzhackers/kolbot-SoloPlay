@@ -1599,7 +1599,8 @@ Attack.pwnDia = function () {
     return false;
   }
 
-  let tick = getTickCount();
+  const started = getTickCount();
+  let tick = started;
   let lastPosition = { x: 7791, y: 5293 };
   let manaTP, manaSK, manaStatic, rangeStatic;
   let [minDist, maxDist, minRange, maxRange] = (function () {
@@ -1640,15 +1641,15 @@ Attack.pwnDia = function () {
   Attack.stopClear = true;
 
   do {
-    // give up in 10 minutes
-    if (getTickCount() - tick > Time.minutes(10)) {
-      break;
-    }
-
     while ((dia = getDiablo())) {
       if (dia.dead) {
         me.overhead("Diablo's dead");
         break;
+      }
+
+      if (getTickCount() - started >= Time.minutes(10)) {
+        Attack.stopClear = false;
+        return false;
       }
 
       if (getDistance(me, dia) < minDist || getDistance(me, dia) > maxDist || getTickCount() - tick > 25e3) {
@@ -1721,6 +1722,11 @@ Attack.pwnDia = function () {
 
     if (dia && dia.dead) {
       break;
+    }
+
+    if (!dia && getTickCount() - started >= Time.minutes(10)) {
+      Attack.stopClear = false;
+      return false;
     }
 
     if (!dia) {
