@@ -25,7 +25,8 @@ function ancients () {
   Town.doChores(false, { thawing: true, antidote: true, stamina: true, fullChores: true });
 
   let tempConfig = copyObj(Config); // save and update config settings
-  // these builds' 20+ yard skills mix cold and fire, so one of them hurts each Ancient whatever its immunity
+  // each build's 20+ yard skills hurt every Ancient: Leveling, Blizzballer and Meteorb mix cold and fire for Hell's
+  // immunities, and Stepping (cold) plays Nightmare, where no Ancient is natively immune
   const standOff = (me.nightmare || me.hell) && me.sorceress && Pather.canTeleport()
     && ["Leveling", "Stepping", "Blizzballer", "Meteorb"].includes(SetUp.currentBuild);
 
