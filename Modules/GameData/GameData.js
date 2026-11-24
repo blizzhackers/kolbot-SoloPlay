@@ -14,6 +14,31 @@
   const MissileData = require("./MissileData");
   const Coords = require("../Coords");
   const Vector = require("../Vector");
+  /**
+   * Charged Bolt volley model, fitted to 62 bolts watched live (charged bolt 3, Stony Field): 95% launch within 45
+   * degrees of the aim, bunched toward it (median 14, where an even spread gives 22.5); free bolts flew 24-33 yards.
+   * weights[i] is the share of bolts through bin i: half even, half peaked. The bolts zig-zag, so a monster catches
+   * fewer than its width suggests: hitWidth (x sizex / 2) fits 117 live casts (charged bolt 2-4) on 2- and 3-wide
+   * targets within 9 yards; the old sizex / 2 + 0.5 predicted about twice the hits on a lone 2-wide target.
+   */
+  const CHARGED_BOLT = (function () {
+    const coneHalfAngle = Math.PI / 4;
+    const bins = 48;
+    const weights = [];
+    let total = 0;
+    for (let i = 0; i < bins; i++) {
+      const angle = -coneHalfAngle + (i + 0.5) * (2 * coneHalfAngle / bins);
+      weights.push(0.5 + (1 - Math.abs(angle) / coneHalfAngle));
+      total += weights[i];
+    }
+    return {
+      coneHalfAngle: coneHalfAngle,
+      reach: 24,
+      hitWidth: 0.85,
+      bins: bins,
+      weights: weights.map(function (w) { return w / total; }),
+    };
+  })();
   // [0] physical, [1] elemental: min/max damage stat names per skill level bracket
   const skillDmgFields = [
     [
@@ -1050,9 +1075,25 @@
     },
 
     /**
+     * The distance the sorceress casts Charged Bolt from on a lone target: point blank if it never moves (nests,
+     * eggs), 4 if it is a slow plain monster (zombies, slow skeletons: velocity 3 or less), else 7. Groups, mana
+     * burn and cold enchanted stay at the skill's range; champions and uniques never get the slow-monster spot.
+     * @param {Monster} unit
+     * @returns {number}
+     */
+    chargedBoltCastRange: function (unit) {
+      const range = Skill.getRange(sdk.skills.ChargedBolt);
+      if (unit.hasEnchant(sdk.enchant.ManaBurn, sdk.enchant.ColdEnchanted)) return range;
+      if (unit.getMobCount(6, Coords.Collision.BLOCK_MISSILE) >= 3) return range;
+      const velocity = getBaseStat("monstats", unit.classid, "Velocity");
+      if (velocity === 0) return 3;
+      return velocity <= 3 && !unit.isSpecial ? 4 : 7;
+    },
+
+    /**
      * Calculate actual average damage this skill does taking into account splash/range of skill
-     * @param {number} skillID 
-     * @param {Monster | number | string} unit 
+     * @param {number} skillID
+     * @param {Monster | number | string} unit
      * @returns {number}
      * @todo
      * - build me metadata - then use it to calulate a range of skills rather than redo the exact same calculations.
@@ -1306,6 +1347,68 @@
         return totalDmg;
       };
 
+      /**
+       * Each bolt of the volley strikes the first monster in its path, so the cone is cut into bins and each bin
+       * goes to the nearest monster covering it: a crowd catches every bolt, a lone small target at range a few.
+       * Cast from where doCast will stand (chargedBoltCastRange), which may be closer than we are now.
+       * @param {Monster} target
+       * @returns {number}
+       */
+      const calculateChargedBoltDamage = function (target) {
+        const skillId = sdk.skills.ChargedBolt;
+        const bolts = getBaseStat("skills", skillId, "Param1")
+          + getBaseStat("skills", skillId, "Param2") * (GameData.skillLevel(skillId) - 1);
+        // no unit: the damage of one bolt, without skillDamage's per-unit bolt guess
+        const perBolt = GameData.skillDamage(skillId);
+        const castRange = GameData.chargedBoltCastRange(target);
+        const dist = getDistance(me, target);
+        const origin = dist > castRange
+          ? { x: target.x + (me.x - target.x) * castRange / dist, y: target.y + (me.y - target.y) * castRange / dist }
+          : { x: me.x, y: me.y };
+        const aim = Math.atan2(target.y - origin.y, target.x - origin.x);
+        const { coneHalfAngle, reach, hitWidth, bins, weights } = CHARGED_BOLT;
+        const binWidth = 2 * coneHalfAngle / bins;
+        /** @type {{ mon: Monster, d: number }[]} */
+        const owners = new Array(bins);
+
+        getUnits(sdk.unittype.Monster).forEach(function (mon) {
+          if (!mon.attackable) return;
+          const d = Math.max(1, getDistance(origin.x, origin.y, mon.x, mon.y));
+          if (d > reach) return;
+          let size = getBaseStat("monstats2", getBaseStat("monstats", mon.classid, "baseid"), "sizex");
+          (typeof size !== "number" || size < 1 || size > 3) && (size = 3);
+          const halfWidth = Math.atan(size / 2 * hitWidth / d);
+          let rel = Math.atan2(mon.y - origin.y, mon.x - origin.x) - aim;
+          rel = Math.atan2(Math.sin(rel), Math.cos(rel));
+          for (let i = 0; i < bins; i++) {
+            const binAngle = -coneHalfAngle + (i + 0.5) * binWidth;
+            if (Math.abs(binAngle - rel) <= halfWidth && (!owners[i] || d < owners[i].d)) {
+              owners[i] = { mon: mon, d: d };
+            }
+          }
+        });
+
+        /** @type {Map<number, { mon: Monster, share: number }>} */
+        const hits = new Map();
+        owners.forEach(function (owner, i) {
+          if (!owner) return;
+          const entry = hits.get(owner.mon.gid) || { mon: owner.mon, share: 0 };
+          entry.share += weights[i];
+          hits.set(owner.mon.gid, entry);
+        });
+
+        let totalDmg = 0;
+        hits.forEach(function (entry) {
+          const scale = bolts * entry.share;
+          const volley = Object.assign({}, perBolt, {
+            pmin: perBolt.pmin * scale, pmax: perBolt.pmax * scale,
+            min: perBolt.min * scale, max: perBolt.max * scale,
+          });
+          totalDmg += getTotalDmg(volley, entry.mon);
+        });
+        return totalDmg;
+      };
+
       /** @param {Monster} unit */
       const calcVolcanoDamage = function (unit) {
         let velocity = unit.currentVelocity;
@@ -1355,7 +1458,6 @@
       case sdk.skills.Meteor:
       case sdk.skills.FireBall:
       case sdk.skills.GlacialSpike:
-      case sdk.skills.ChargedBolt:
       case sdk.skills.Fissure:
         let { x, y } = unit;
         let rad = skillID === sdk.skills.Volcano ? 15 : skillID === sdk.skills.Fissure ? 10 : 5;
@@ -1378,6 +1480,9 @@
         return calculateRawStaticDamage(unit);
       case sdk.skills.ChainLightning:
         return calculateChainDamage(skillID, unit);
+      case sdk.skills.ChargedBolt:
+        if (typeof unit !== "object") return getTotalDmg(this.skillDamage(skillID, unit), unit);
+        return calculateChargedBoltDamage(unit);
       default:
         return getTotalDmg(this.skillDamage(skillID, unit), unit);
       }
@@ -2297,12 +2402,9 @@
         missile = MissileData[missileName];
       }
       if (missile && missile.velocity > 0) {
-        // the game moves a missile Vel * 75 / 100 * 16 / 256 = Vel * 3/64 subtiles per frame, at 25 frames per second
-        const subtilesPerSecond = missile.velocity * 75 / 100 * 25 / 16;
         const distanceForMissile = getDistance(me, monster);
-        // missiles.txt Range is the missile's lifetime in frames
-        if (distanceForMissile > missile.range * missile.velocity * 3 / 64) return 0;
-        return distanceForMissile / subtilesPerSecond;
+        if (distanceForMissile > missileReach(missile)) return 0;
+        return distanceForMissile / (subtilesPerFrame(missile.velocity) * 25);
       }
       return 0;
     }
@@ -2364,8 +2466,26 @@
   }
 
   /**
-   * @param {number} skillId 
-   * @param {Monster} monster 
+   * The game moves a unit Vel * 75 / 100 * 16 / 256 = Vel * 3/64 subtiles per 25 fps frame. Holds for
+   * missiles.txt Vel and monstats Velocity/Run alike (measured live: Ice Bolt 14.6/s for 14.1, Velocity-6
+   * monsters walking straight ~6.9/s for 7.0).
+   * @param {number} velocity
+   */
+  function subtilesPerFrame (velocity) {
+    return velocity * 3 / 64;
+  }
+
+  /**
+   * missiles.txt Range is the missile's lifetime in frames, not a distance.
+   * @param {import("./MissileData")[number]} missile
+   */
+  function missileReach (missile) {
+    return missile.range * subtilesPerFrame(missile.velocity);
+  }
+
+  /**
+   * @param {number} skillId
+   * @param {Monster} monster
    * @returns {PathNode}
    */
   function targetPointForSkill (skillId, monster) {
@@ -2397,82 +2517,40 @@
       return null;
     }
     if (monster.isMoving && (monster.targetx !== me.x || monster.targety !== me.y)) {
-      let startX = monster.x;
-      let startY = monster.y;
-      // tiles per second velocities
-      // ToDo: is monster slowed by freeze or something ?
-      let monsterVelocityTPS = monster.currentVelocity;
-      let missileVelocityTPS = missile.velocity;
-      // tiles per frame velocities
-      let monsterVelocityTPF = monsterVelocityTPS / 25;
-      let missileVelocityTPF = missileVelocityTPS / 25;
-      //console.log("monster is moving to "+monster.targetx+", "+monster.targety + " at speed "+monsterVelocity);
-      let path = getPath(monster.area, startX, startY, monster.targetx, monster.targety, 2, 1);
-      if (path && path.length) {
-      // path is reversed from target to monster, we will check from last path position (target) to monster position
-        path.reverse();
-        let diffS = 0, diffF, found = 0;
-        let time = { missile: {}, monster: {} };
-        for (let i = 0; i < path.length; i++) {
-          let pos = path[i];
-          // ToDo : does missile spawn at me position ?
-          let distanceForMissile = getDistance(me, pos);
-          if (distanceForMissile > missile.range) {
-          // too far for missile to reach this position
-            continue;
-          }
-          let distanceForMonster = getDistance({ x: startX, y: startY }, pos);
-          let timeForMonsterF = distanceForMonster / monsterVelocityTPF;
-          // time in seconds
-          // let castTimeS = GameData.castingDuration(skillId);
-          // let timeForMissileS = distanceForMissile / missileVelocityTPS + castTimeS;
-          // time in frames
-          let castTimeF = me.castingFrames(skillId);
-          let timeForMissileF = distanceForMissile / missileVelocityTPF + castTimeF;
-          // let timeForMonsterS = distanceForMonster / monsterVelocityTPS;
-          // Todo: missile and monster size
-          // diff seconds
-          // diffS = timeForMissileS-timeForMonsterS;
-          // diff frames
-          diffF = timeForMissileF - timeForMonsterF;
-          // diff > 0 : missile will reach pos after monster
-          // diff < 0 : missile will reach pos before monster
-          // console.log("time for monster to reach "+pos+" = "+timeForMonster);
-          // console.log("time for missile to reach "+pos+" = "+timeForMissile);
-          // console.log("diff = "+diff)
-          if (i === 0 && diffF >= 0) {
-          // last path position and missile is late, we can't predict next monster target, shoot at last path position
-          // it may fail because monster may be moving at other target while missile is arriving
-          // console.log("missile will be too late");
-            found = pos;
-            // time.missile.seconds = timeForMissileS;
-            time.missile.frames = timeForMissileF;
-            // time.monster.seconds = timeForMonsterS;
-            time.monster.frames = timeForMonsterF;
-            break;
-          }
-          // the number of frames needed for unit to move 1 tile
-          let timeToMoveOneTileMonsterF = 1 / monsterVelocityTPF;
-          // let timeToMoveOneTileMissileF = 1 / missileVelocityTPF;
-          // while missile is travelling, monster will continue to move
-          // if the difference is greater than the time a monster will move 1 tile, the missile will miss
-          // todo: monster size, missile size
-          if (diffF >= -1 * timeToMoveOneTileMonsterF && diffF <= 1 * timeToMoveOneTileMonsterF) {
-            found = pos;
-            // time.missile.seconds = timeForMissileS;
-            time.missile.frames = timeForMissileF;
-            // time.monster.seconds = timeForMonsterS;
-            time.monster.frames = timeForMonsterF;
-            break;
-          }
-        }
-        if (found) {
-          // console.log("missile will hit monster in "+time.missile.seconds+" ("+time.missile.frames+") at "+found.x+", "+found.y);
-          // console.log("time for monster = "+time.monster.seconds+ " ("+time.monster.frames+")")
-          // console.log("diff missile-monster = "+diffS+ " ("+diffF+")");
-          return found;
+      const monsterSpeed = subtilesPerFrame(monster.currentVelocity);
+      if (!(monsterSpeed > 0)) return null;
+      const missileSpeed = subtilesPerFrame(missile.velocity);
+      const reach = missileReach(missile);
+      // The bolt spawns mid-animation, not when the cast ends: measured from this call through
+      // Skill.cast (skill already set) to the missile, 0.72 of the cast at 10 FCR, 0.61 at 65 FCR.
+      const launchFrames = me.castingFrames(skillId) * 0.65;
+      // runs monster -> destination, one node per subtile (NoPathReducer)
+      const path = getPath(monster.area, monster.x, monster.y, monster.targetx, monster.targety, 2, 1);
+      if (!path || !path.length) return null;
+
+      // Missile-minus-monster arrival time only falls along the path (the missile is the faster
+      // one), so the node closest to zero is where they meet.
+      let prev = { x: monster.x, y: monster.y };
+      let walked = 0;
+      let best = null;
+      let bestDiff = Infinity;
+      for (let i = 0; i < path.length; i++) {
+        const pos = path[i];
+        walked += getDistance(prev, pos);
+        prev = pos;
+        const flight = getDistance(me, pos);
+        if (flight > reach) continue;
+        const diff = flight / missileSpeed + launchFrames - walked / monsterSpeed;
+        if (Math.abs(diff) < Math.abs(bestDiff)) {
+          best = pos;
+          bestDiff = diff;
         }
       }
+      if (!best) return null;
+      // late even at the destination: aim there, we can't predict where it heads next
+      if (best === path[path.length - 1] && bestDiff >= 0) return best;
+      // the window is the frames the monster takes to cross one subtile
+      return Math.abs(bestDiff) <= 1 / monsterSpeed ? best : null;
     }
     return null;
   }

@@ -148,9 +148,17 @@
   };
 
   /**
+   * Below mpPercent, decideAttack trades some damage for a cheaper skill that still deals at least dmgRatio of the
+   * top skill's damage and more damage per mana. The ratio admits the early single-target case it targets: Ice
+   * Blast 4 (+1 Ice Bolt) deals about 70% of Nova 7's damage for about a third of its mana (skills.txt values).
+   */
+  const MANA_SAVER = { mpPercent: 50, dmgRatio: 0.65 };
+
+  /**
    * @param {Monster} unit
    * @param {{
    *  manaSort?: boolean,
+   *  manaSaver?: boolean,
    *  checkSkillDelay?: boolean,
    *  checkLast: boolean,
    *  checkSafeStatic: boolean,
@@ -162,6 +170,7 @@
   const decideAttack = function (unit, options = {}) {
     const overrides = Object.assign({
       manaSort: true,
+      manaSaver: true,
       checkSkillDelay: false,
       checkLast: true,
       checkSafeStatic: true,
@@ -180,34 +189,62 @@
       _choices.push(skill);
     }
 
-    return _choices
-      .sort(function (a, b) {
-        if (overrides.manaSort) {
-          if (b._dmg === a._dmg) {
-            return b.manaCost() - a.manaCost();
-          }
-        }
-        return b._dmg - a._dmg;
-      })
-      .find(function (skill) {
-        if (overrides.checkLast
-          && _choices.length > 2
-          && lastAttack.count > 3
-          // && skill.skillId === lastAttack.skill
-          // for now only check these two, just mixing in other attacks every third attack
-          && [sdk.skills.ChargedBolt, sdk.skills.StaticField].includes(skill.skillId)
-          && unit.gid === lastAttack.gid) {
-          return false;
-        }
-        if (overrides.checkSafeStatic
-          && _choices.length > 2
-          && skill.skillId === sdk.skills.StaticField
-          && unit.distance > skill.range()
-          && me.inDanger(unit, skill.range() + 1)) {
-          return false;
-        }
-        return (me.mp > skill.manaCost()) && (!skill.timed || !overrides.checkSkillDelay || !me.skillDelay);
-      }) || -1;
+    /** @param {SkillDataInfo} skill */
+    const usable = function (skill) {
+      if (overrides.checkLast
+        && _choices.length > 2
+        && lastAttack.count > 3
+        // && skill.skillId === lastAttack.skill
+        // for now only check these two, just mixing in other attacks every third attack
+        && [sdk.skills.ChargedBolt, sdk.skills.StaticField].includes(skill.skillId)
+        && unit.gid === lastAttack.gid) {
+        return false;
+      }
+      if (overrides.checkSafeStatic
+        && _choices.length > 2
+        && skill.skillId === sdk.skills.StaticField
+        && unit.distance > skill.range()
+        && me.inDanger(unit, skill.range() + 1)) {
+        return false;
+      }
+      return (me.mp > skill.manaCost()) && (!skill.timed || !overrides.checkSkillDelay || !me.skillDelay);
+    };
+
+    _choices.sort(function (a, b) {
+      // equal damage (e.g. both finish the target) is cheaper with the lower mana skill
+      if (overrides.manaSort && b._dmg === a._dmg) {
+        return a.manaCost() - b.manaCost();
+      }
+      return b._dmg - a._dmg;
+    });
+
+    const best = _choices.find(usable);
+    if (!best) return -1;
+    if (!overrides.manaSaver || me.mpPercent >= MANA_SAVER.mpPercent || best.manaCost() <= 0) return best;
+
+    // Attack and Telekinesis are excluded: doAttack rewrites both to no-ops outside early normal, and a 0 mana
+    // melee swing must never win on efficiency
+    let saver = null;
+    let saverEfficiency = best._dmg / best.manaCost();
+    _choices.forEach(function (skill) {
+      if (skill === best || skill.manaCost() <= 0 || skill.manaCost() >= best.manaCost()) return;
+      if ([sdk.skills.Attack, sdk.skills.Telekinesis].includes(skill.skillId)) return;
+      if (skill._dmg < best._dmg * MANA_SAVER.dmgRatio) return;
+      const efficiency = skill._dmg / skill.manaCost();
+      if (efficiency > saverEfficiency && usable(skill)) {
+        saver = skill;
+        saverEfficiency = efficiency;
+      }
+    });
+
+    if (saver && Settings.debugging.skills) {
+      console.log(
+        sdk.colors.Yellow + "(Mana Saver :: " + getSkillById(saver.skillId) + " over " + getSkillById(best.skillId)
+        + ") DMG: " + saver._dmg + " vs " + best._dmg + " :: MP " + me.mpPercent + "%"
+      );
+    }
+
+    return saver || best;
   };
 
   /**
@@ -457,9 +494,10 @@
 
     switch (selectedSkill.skillId) {
     case sdk.skills.ChargedBolt:
-      if (selectedSkill.skillId === sdk.skills.ChargedBolt
-        && Skills.get(sdk.skills.IceBolt).have()
-        && slowable(unit)) {
+      // chilling the target is worth a little damage, not most of a volley that a crowd or a close target catches
+      if (Skills.get(sdk.skills.IceBolt).have()
+        && slowable(unit)
+        && Skills.get(sdk.skills.IceBolt)._dmg >= selectedSkill._dmg * 0.75) {
         selectedSkill = Skills.get(sdk.skills.IceBolt);
       }
 
@@ -613,7 +651,8 @@
     const { skillId: skill, timed } = choosenSkill;
     const mana = choosenSkill.manaCost();
     let range = choosenSkill.range();
-    
+    const ranged = range > 4;
+
     // unit became invalidated
     if (!unit || !unit.attackable) return Attack.Result.SUCCESS;
     if (!!skill && me.mp < mana) {
@@ -627,6 +666,12 @@
     if (Settings.debugging.skills && choosenSkill.have()) {
       // console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill.dmg);
       console.log(sdk.colors.Yellow + "(Selected Main :: " + getSkillById(skill) + ") DMG: " + choosenSkill._dmg);
+    }
+
+    // set before the too-close back-off below, or it backs away from the spot this range walks us to; the damage
+    // estimate assumes this cast distance, so both read it from one place
+    if (skill === sdk.skills.ChargedBolt) {
+      range = GameData.chargedBoltCastRange(unit);
     }
 
     if (!novaLike.includes(skill)) {
@@ -655,13 +700,6 @@
     }
 
     if (!me.skillDelay || !timed) {
-      let ranged = range > 4;
-
-      if (skill === sdk.skills.ChargedBolt
-        && !unit.hasEnchant(sdk.enchant.ManaBurn, sdk.enchant.ColdEnchanted)) {
-        unit.getMobCount(6, Coords.Collision.BLOCK_MISSILE) < 3 && (range = 7);
-      }
-
       if (skill === sdk.skills.Attack) {
         if (me.hpPercent < 50 && me.mode !== sdk.player.mode.GettingHit && !me.checkForMobs({ range: 12 })) {
           console.log("Low health but safe right now, going to delay a bit");
@@ -682,7 +720,8 @@
         }
       }
 
-      if (range < 4 && !Attack.validSpot(unit.x, unit.y)) {
+      // melee needs the target's spot walkable; a missile cast up close (charged bolt on a nest) does not
+      if (!ranged && range < 4 && !Attack.validSpot(unit.x, unit.y)) {
         return Attack.Result.FAILED;
       }
 
@@ -717,7 +756,7 @@
         }
         // Allow short-distance walking for melee skills
         let walk = (
-          (range < 4 || (skill === sdk.skills.ChargedBolt && range === 7))
+          (range < 4 || (skill === sdk.skills.ChargedBolt && range <= 7))
           && unit.distance < 10 && !checkCollision(me, unit, sdk.collision.BlockWalk)
         );
         // for novalike if we can see them we can cast, need to determine if monsters block line of sight
@@ -754,7 +793,7 @@
             if (!Misc.poll(() => unit.dead || unit.hp < preHealth, 300, 50)) {
               cRetry++;
               // we still might of missed so pick another coord
-              if (!Attack.getIntoPosition(unit, (range - cRetry), Coords.Collision.BLOCK_MISSILE, true)) {
+              if (!Attack.getIntoPosition(unit, Math.max(2, range - cRetry), Coords.Collision.BLOCK_MISSILE, true)) {
                 handleFailToGetIntoPosition(choosenSkill);
                 return Attack.Result.FAILED;
               }
@@ -803,6 +842,7 @@
             }
           }
         } else {
+          Skill.setSkill(skill, Skill.getHand(skill));
           let targetPoint = GameData.targetPointForSkill(skill, unit);
 
           if (unit.attackable) {
