@@ -90,7 +90,6 @@ function tristram () {
       ];
       let stones = getStones();
       let stoneTick = getTickCount();
-      let retry = true;
 
       for (let i = 0; i < 5; i++) {
         for (let stone of stones) {
@@ -109,14 +108,10 @@ function tristram () {
             i--;
           }
 
-          if (getTickCount() - stoneTick < Time.minutes(2)) {
-            if (retry) {
-              stones = getStones();
-              stoneTick = getTickCount();
-            } else {
-              return false;
-            }
+          if (getTickCount() - stoneTick > Time.minutes(2)) {
+            return false;
           }
+          stones = getStones();
           Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
           delay(10);
         }
