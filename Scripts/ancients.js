@@ -27,7 +27,7 @@ function ancients () {
   let tempConfig = copyObj(Config); // save and update config settings
   // these builds' 20+ yard skills mix cold and fire, so one of them hurts each Ancient whatever its immunity
   const standOff = (me.nightmare || me.hell) && me.sorceress && Pather.canTeleport()
-    && ["Leveling", "Blizzballer", "Meteorb"].includes(SetUp.currentBuild);
+    && ["Leveling", "Stepping", "Blizzballer", "Meteorb"].includes(SetUp.currentBuild);
 
   Config.TownCheck = false;
   Config.MercWatch = false;
