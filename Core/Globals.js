@@ -665,6 +665,16 @@ const SetUp = (function () {
       Config.Inventory[3] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
       Config.SkipId.push(sdk.monsters.FireTower);
+      // These have no skills (monstats), so they only matter as path blockers and a teleporter goes over
+      // them; a tower's imps are separate monsters. Walkers keep clearing them: their path can run through
+      // one that Pather.openDoors doesn't catch.
+      let inertObstacles = [
+        sdk.monsters.BarricadeDoor1, sdk.monsters.BarricadeDoor2, sdk.monsters.BarricadeTower,
+        sdk.monsters.BarricadeWall1, sdk.monsters.BarricadeWall2, sdk.monsters.PrisonDoor,
+      ];
+      Config.AdvancedSkipCheck.push(function skipObstaclesWhenTeleporting(unit) {
+        return inertObstacles.includes(unit.classid) && Pather.useTeleport();
+      });
 
       /* FastMod configuration. */
       Config.FCR = 0;
