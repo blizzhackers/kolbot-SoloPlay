@@ -346,6 +346,7 @@
       let fail = 0;
       let invalidCheck = false;
       let cbCheck = false;
+      const PATH_DEBUG_ID = Date.now() + Math.floor(Math.random() * 1000);
 
       Pather.clearUIFlags();
 
@@ -374,90 +375,94 @@
 
       path.reverse();
       settings.pop && path.pop();
-      PathDebug.drawPath(path);
-      if (useTeleport && Config.TeleSwitch && path.length > 5) {
-        me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-      }
-
-      while (path.length > 0) {
-        // Abort if dead
-        if (me.dead) return false;
-        // main path
-        if (Pather.recursion) {
-          Pather.currentWalkingPath = path;
-          PathDebug.drawPath(Pather.currentWalkingPath);
-        }
-        Pather.clearUIFlags();
-
-        /** @type {PathNode} */
-        node = path.shift();
-
-        if (typeof settings.callback === "function" && settings.callback()) {
-          cbCheck = true;
-          break;
+      try {
+        PathDebug.drawPath(PATH_DEBUG_ID, path);
+        if (useTeleport && Config.TeleSwitch && path.length > 5) {
+          me.switchWeapons(Attack.getPrimarySlot() ^ 1);
         }
 
-        if (getDistance(me, node) > 2) {
-          // Make life in Maggot Lair easier
-          if (fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y)) {
-            invalidCheck = true;
+        while (path.length > 0) {
+          // Abort if dead
+          if (me.dead) return false;
+          // main path
+          if (Pather.recursion) {
+            Pather.currentWalkingPath = path;
+            PathDebug.drawPath(PATH_DEBUG_ID, Pather.currentWalkingPath);
           }
-          // Make life in Maggot Lair easier - should this include arcane as well?
-          if (annoyingArea || invalidCheck) {
-            let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
+          Pather.clearUIFlags();
 
-            if (adjustedNode) {
-              [node.x, node.y] = adjustedNode;
-              invalidCheck && (invalidCheck = false);
+          /** @type {PathNode} */
+          node = path.shift();
+
+          if (typeof settings.callback === "function" && settings.callback()) {
+            cbCheck = true;
+            break;
+          }
+
+          if (getDistance(me, node) > 2) {
+            // Make life in Maggot Lair easier
+            if (fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y)) {
+              invalidCheck = true;
             }
-          }
+            // Make life in Maggot Lair easier - should this include arcane as well?
+            if (annoyingArea || invalidCheck) {
+              let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
 
-          if (useTeleport && tpMana <= me.mp
-            ? Pather.teleportTo(node.x, node.y)
-            : useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
-              ? Pather.teleUsingCharges(node.x, node.y)
-              : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
-            // we successfully moved to the node
-          } else {
-            if (!me.inTown) {
-              if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
-                console.debug("Failed to walk to node, but opened door/barrel");
-                continue;
+              if (adjustedNode) {
+                [node.x, node.y] = adjustedNode;
+                invalidCheck && (invalidCheck = false);
               }
             }
 
-            // Reduce node distance in new path
-            path = getPath(
-              me.area,
-              node.x, node.y,
-              me.x, me.y,
-              useTeleport ? 1 : 0,
-              useTeleport ? rand(25, 35) : rand(10, 15)
-            );
-            if (!path) throw new Error("moveTo: Failed to generate path.");
-
-            path.reverse();
-            PathDebug.drawPath(path);
-            settings.pop && path.pop();
-
-            if (fail > 0) {
-              console.debug("move retry " + fail);
-              Packet.flash(me.gid);
-
-              if (fail >= settings.retry) {
-                console.log("Failed move: Retry = " + settings.retry);
-                break;
+            if (useTeleport && tpMana <= me.mp
+              ? Pather.teleportTo(node.x, node.y)
+              : useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
+                ? Pather.teleUsingCharges(node.x, node.y)
+                : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)) {
+              // we successfully moved to the node
+            } else {
+              if (!me.inTown) {
+                if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
+                  console.debug("Failed to walk to node, but opened door/barrel");
+                  continue;
+                }
               }
-            }
-            fail++;
-          }
-        }
 
-        delay(5);
+              // Reduce node distance in new path
+              path = getPath(
+                me.area,
+                node.x, node.y,
+                me.x, me.y,
+                useTeleport ? 1 : 0,
+                useTeleport ? rand(25, 35) : rand(10, 15)
+              );
+              if (!path) throw new Error("moveTo: Failed to generate path.");
+
+              path.reverse();
+              PathDebug.drawPath(PATH_DEBUG_ID, path);
+              settings.pop && path.pop();
+
+              if (fail > 0) {
+                console.debug("move retry " + fail);
+                Packet.flash(me.gid);
+
+                if (fail >= settings.retry) {
+                  console.log("Failed move: Retry = " + settings.retry);
+                  break;
+                }
+              }
+              fail++;
+            }
+          }
+
+          delay(5);
+        }
+      } finally {
+        // runs on every exit, including a throw from a callee such as a nested move
+        PathDebug.removeHooks(PATH_DEBUG_ID);
       }
 
       me.switchToPrimary();
-      PathDebug.removeHooks();
 
       return cbCheck || getDistance(me, node.x, node.y) < 5;
     },

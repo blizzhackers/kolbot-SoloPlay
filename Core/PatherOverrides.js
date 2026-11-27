@@ -580,316 +580,320 @@ Pather.move = function (target, givenSettings = {}) {
 
   path.reverse();
   settings.pop && path.pop();
-  PathDebug.drawPath(PATH_DEBUG_ID, path);
-  if (useTeleport && Config.TeleSwitch && path.length > 5) {
-    me.switchWeapons(Attack.getPrimarySlot() ^ 1);
-  }
-
-  while (path.length > 0) {
-    // Abort if dead
-    if (me.dead) return false;
-    // main path
-    if (Pather.recursion) {
-      Pather.currentWalkingPath = path;
-      PathDebug.drawPath(PATH_DEBUG_ID, Pather.currentWalkingPath);
-    }
-    Pather.clearUIFlags();
-    Config.DebugMode.Path && ShrineHooks.check();
-
-    /** @type {PathNode} */
-    node = path.shift();
-
-    if (typeof settings.callback === "function" && settings.callback()) {
-      cbCheck = true;
-      break;
+  try {
+    PathDebug.drawPath(PATH_DEBUG_ID, path);
+    if (useTeleport && Config.TeleSwitch && path.length > 5) {
+      me.switchWeapons(Attack.getPrimarySlot() ^ 1);
     }
 
-    if (getDistance(me, node) > 2) {
-      // Make life in Maggot Lair easier
-      if (fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y)) {
-        invalidCheck = true;
+    while (path.length > 0) {
+      // Abort if dead
+      if (me.dead) return false;
+      // main path
+      if (Pather.recursion) {
+        Pather.currentWalkingPath = path;
+        PathDebug.drawPath(PATH_DEBUG_ID, Pather.currentWalkingPath);
       }
-      // Make life in Maggot Lair easier - should this include arcane as well?
-      if (annoyingArea || invalidCheck) {
-        let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
+      Pather.clearUIFlags();
+      Config.DebugMode.Path && ShrineHooks.check();
 
-        if (adjustedNode) {
-          [node.x, node.y] = adjustedNode;
-          invalidCheck && (invalidCheck = false);
+      /** @type {PathNode} */
+      node = path.shift();
+
+      if (typeof settings.callback === "function" && settings.callback()) {
+        cbCheck = true;
+        break;
+      }
+
+      if (getDistance(me, node) > 2) {
+        // Make life in Maggot Lair easier
+        if (fail >= 3 && fail % 3 === 0 && !Attack.validSpot(node.x, node.y)) {
+          invalidCheck = true;
+        }
+        // Make life in Maggot Lair easier - should this include arcane as well?
+        if (annoyingArea || invalidCheck) {
+          let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 15, 3, sdk.collision.BlockWalk);
+
+          if (adjustedNode) {
+            [node.x, node.y] = adjustedNode;
+            invalidCheck && (invalidCheck = false);
+          }
+
+          annoyingArea && ([settings.clearSettings.clearPath, settings.clearSettings.range] = [true, 5]);
+          settings.retry <= 3 && !useTeleport && (settings.retry = 15);
         }
 
-        annoyingArea && ([settings.clearSettings.clearPath, settings.clearSettings.range] = [true, 5]);
-        settings.retry <= 3 && !useTeleport && (settings.retry = 15);
-      }
-
-      if (useTeleport && tpMana <= me.mp
-        ? Pather.teleportTo(node.x, node.y)
-        : useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
-          ? Pather.teleUsingCharges(node.x, node.y)
-          : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)
-      ) {
-        if (settings.allowNodeActions && !me.inTown) {
-          if (Pather.recursion) {
-            try {
-              Pather.recursion = false;
-              /**
-               * @todo We need to pass our path in so we can fix the recursion issues of running forward on our path
-               * only to return to the old node and continue we should instead perform the actions in a way that moves
-               * us forward on our path ensuring we haven't skipped anything in the process as well
-               * for long paths maybe generate a coordinate list of shrines/chests and have action hooks for them
-               */
-              NodeAction.go(settings.clearSettings);
-              // need to determine if its worth going back to our orignal node (items maybe?)
-              // vs our current proximity to our next node
-              // need to export our main path so other functions that cause us to move can see it
-              if (node.distance > 5) {
-                const lastNode = Pather.currentWalkingPath.last();
-                // lets try and find the nearest node that brings us close to our goal
-                /** @type {PathNode} */
-                let nearestNode = Pather.currentWalkingPath.length > 0 && Pather.currentWalkingPath
-                  .filter(function (el) {
-                    return !!el && el.x !== node.x && el.y !== node.y;
-                  })
-                  .sort(function (a, b) {
-                    const [aDist, bDist] = [a.distance, b.distance];
-                    const [aLastDist, bLastDist] = [getDistance(a, lastNode), getDistance(b, lastNode)];
-                    if (aDist < bDist && aLastDist < bLastDist) return -1;
-                    if (aDist > bDist && aLastDist > bLastDist) return 1;
-                    return aDist - bDist;
-                  })
-                  .find(function (pNode) {
-                    return pNode.distance > 5;
-                  });
-                  
-                if (node.distance >= 10 && !useTeleport) {
-                  if (Config.DebugMode.Path) {
-                    console.debug(
-                      "Node distance is greater than 10. What is the closest node? "
-                      + nearestNode + " " + pDiff(node, nearestNode) + "%"
-                    );
-                  }
-                  if (nearestNode
-                    && nearestNode.distance > 5
-                    && pDiff(node, nearestNode) > 5
-                  ) {
-                    let newIndex = path.findIndex(function (node) {
-                      return nearestNode.x === node.x && nearestNode.y === node.y;
+        if (useTeleport && tpMana <= me.mp
+          ? Pather.teleportTo(node.x, node.y)
+          : useChargedTele && (getDistance(me, node) >= 15 || me.inArea(sdk.areas.ThroneofDestruction))
+            ? Pather.teleUsingCharges(node.x, node.y)
+            : Pather.walkTo(node.x, node.y, (fail > 0 || me.inTown) ? 2 : 4)
+        ) {
+          if (settings.allowNodeActions && !me.inTown) {
+            if (Pather.recursion) {
+              try {
+                Pather.recursion = false;
+                /**
+                 * @todo We need to pass our path in so we can fix the recursion issues of running forward on our path
+                 * only to return to the old node and continue we should instead perform the actions in a way that moves
+                 * us forward on our path ensuring we haven't skipped anything in the process as well
+                 * for long paths maybe generate a coordinate list of shrines/chests and have action hooks for them
+                 */
+                NodeAction.go(settings.clearSettings);
+                // need to determine if its worth going back to our orignal node (items maybe?)
+                // vs our current proximity to our next node
+                // need to export our main path so other functions that cause us to move can see it
+                if (node.distance > 5) {
+                  const lastNode = Pather.currentWalkingPath.last();
+                  // lets try and find the nearest node that brings us close to our goal
+                  /** @type {PathNode} */
+                  let nearestNode = Pather.currentWalkingPath.length > 0 && Pather.currentWalkingPath
+                    .filter(function (el) {
+                      return !!el && el.x !== node.x && el.y !== node.y;
+                    })
+                    .sort(function (a, b) {
+                      const [aDist, bDist] = [a.distance, b.distance];
+                      const [aLastDist, bLastDist] = [getDistance(a, lastNode), getDistance(b, lastNode)];
+                      if (aDist < bDist && aLastDist < bLastDist) return -1;
+                      if (aDist > bDist && aLastDist > bLastDist) return 1;
+                      return aDist - bDist;
+                    })
+                    .find(function (pNode) {
+                      return pNode.distance > 5;
                     });
-                    if (newIndex > -1) {
-                      if (Config.DebugMode.Path) {
-                        console.debug("Found near node to start from. Resetting path from here.");
-                      }
-                      path = path.slice(newIndex);
-                      node = path.shift();
-                    }
-                  } else {
+                  
+                  if (node.distance >= 10 && !useTeleport) {
                     if (Config.DebugMode.Path) {
-                      console.debug("Node distance is greater than 10. Reset new path from here.");
-                    }
-                    let newPath = getPath(
-                      me.area,
-                      target.x, target.y,
-                      me.x, me.y,
-                      usingTele ? 1 : 0,
-                      usingTele ? rand(25, 35) : rand(10, 15)
-                    );
-                    if (!newPath) {
-                      if (Config.DebugMode.Path) {
-                        console.warn("Failed to generate new path. Returning to original path.");
-                      }
-                    } else {
-                      path = newPath;
-                      path.reverse();
-                      PathDebug.drawPath(PATH_DEBUG_ID, path);
-                      settings.pop && path.pop();
-                      continue;
-                    }
-                  }
-                }
-
-                if (node.distance >= 35) {
-                  if (Config.DebugMode.Path) {
-                    console.debug(
-                      "Node distance is greater than 35. What is the closest node? "
+                      console.debug(
+                        "Node distance is greater than 10. What is the closest node? "
                         + nearestNode + " " + pDiff(node, nearestNode) + "%"
-                    );
-                  }
-                  if (nearestNode
+                      );
+                    }
+                    if (nearestNode
                       && nearestNode.distance > 5
                       && pDiff(node, nearestNode) > 5
-                  ) {
-                    let newIndex = path.findIndex(function (node) {
-                      return nearestNode.x === node.x && nearestNode.y === node.y;
-                    });
-                    if (newIndex > -1) {
-                      if (Config.DebugMode.Path) {
-                        console.debug("Found near node to start from. Resetting path from here.");
-                      }
-                      path = path.slice(newIndex);
-                      node = path.shift();
-                    }
-                  } else {
-                    if (Config.DebugMode.Path) {
-                      console.debug("Node distance is greater than 35. Reset new path from here.");
-                    }
-                    let newPath = getPath(
-                      me.area,
-                      target.x, target.y,
-                      me.x, me.y,
-                      usingTele ? 1 : 0,
-                      usingTele ? rand(25, 35) : rand(10, 15)
-                    );
-                    if (!newPath) {
-                      if (Config.DebugMode.Path) {
-                        console.warn("Failed to generate new path. Returning to original path.");
+                    ) {
+                      let newIndex = path.findIndex(function (node) {
+                        return nearestNode.x === node.x && nearestNode.y === node.y;
+                      });
+                      if (newIndex > -1) {
+                        if (Config.DebugMode.Path) {
+                          console.debug("Found near node to start from. Resetting path from here.");
+                        }
+                        path = path.slice(newIndex);
+                        node = path.shift();
                       }
                     } else {
-                      path = newPath;
-                      path.reverse();
-                      PathDebug.drawPath(PATH_DEBUG_ID, path);
-                      settings.pop && path.pop();
-                      continue;
+                      if (Config.DebugMode.Path) {
+                        console.debug("Node distance is greater than 10. Reset new path from here.");
+                      }
+                      let newPath = getPath(
+                        me.area,
+                        target.x, target.y,
+                        me.x, me.y,
+                        usingTele ? 1 : 0,
+                        usingTele ? rand(25, 35) : rand(10, 15)
+                      );
+                      if (!newPath) {
+                        if (Config.DebugMode.Path) {
+                          console.warn("Failed to generate new path. Returning to original path.");
+                        }
+                      } else {
+                        path = newPath;
+                        path.reverse();
+                        PathDebug.drawPath(PATH_DEBUG_ID, path);
+                        settings.pop && path.pop();
+                        continue;
+                      }
                     }
                   }
-                }
-                node.distance > 5 && Pather.move(node, settings);
-              }
-            } finally {
-              Pather.recursion = true;
-            }
-          } else {
-            if (!me.inTown && settings.allowPicking) {
-              if (picked.node.distance > 10) {
-                Pickit.essessntialsPick(false);
-                picked.update(node);
-              }
-            }
-          }
-        }
-      } else {
-        if (!me.inTown) {
-          if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
-            console.debug("Failed to walk to node, but opened door/barrel");
-            continue;
-          }
 
-          if (/* fail > 0 &&  */(!useTeleport || tpMana > me.mp)) {
-            // Leap can be helpful on long paths but make sure we don't spam it
-            if (Skill.canUse(sdk.skills.LeapAttack)) {
-              // we can use leapAttack, now lets see if we should - either haven't used it yet
-              // or it's been long enough since last time
-              if (leaped.at === 0 || getTickCount() - leaped.at > Time.seconds(3)
-                || leaped.node.distance > 5 || me.checkForMobs({ range: 6 })) {
-                // alright now if we have actually casted it set the values so we know
-                if (Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
-                  leaped.update(node);
-                  if (node.distance < 5) continue; // sucessfully cleared obstacle
+                  if (node.distance >= 35) {
+                    if (Config.DebugMode.Path) {
+                      console.debug(
+                        "Node distance is greater than 35. What is the closest node? "
+                          + nearestNode + " " + pDiff(node, nearestNode) + "%"
+                      );
+                    }
+                    if (nearestNode
+                        && nearestNode.distance > 5
+                        && pDiff(node, nearestNode) > 5
+                    ) {
+                      let newIndex = path.findIndex(function (node) {
+                        return nearestNode.x === node.x && nearestNode.y === node.y;
+                      });
+                      if (newIndex > -1) {
+                        if (Config.DebugMode.Path) {
+                          console.debug("Found near node to start from. Resetting path from here.");
+                        }
+                        path = path.slice(newIndex);
+                        node = path.shift();
+                      }
+                    } else {
+                      if (Config.DebugMode.Path) {
+                        console.debug("Node distance is greater than 35. Reset new path from here.");
+                      }
+                      let newPath = getPath(
+                        me.area,
+                        target.x, target.y,
+                        me.x, me.y,
+                        usingTele ? 1 : 0,
+                        usingTele ? rand(25, 35) : rand(10, 15)
+                      );
+                      if (!newPath) {
+                        if (Config.DebugMode.Path) {
+                          console.warn("Failed to generate new path. Returning to original path.");
+                        }
+                      } else {
+                        path = newPath;
+                        path.reverse();
+                        PathDebug.drawPath(PATH_DEBUG_ID, path);
+                        settings.pop && path.pop();
+                        continue;
+                      }
+                    }
+                  }
+                  node.distance > 5 && Pather.move(node, settings);
                 }
+              } finally {
+                Pather.recursion = true;
               }
-            }
-
-            /**
-             * whirlwind can be useful as well, implement it.
-             * Things to consider:
-             * 1) Can we cast whirlwind on the node? Is it blocked by something other than monsters.
-             * 2) If we can't cast on that node, is there another node between us and it that would work?
-             */
-            if (Skill.canUse(sdk.skills.Whirlwind)) {
-              // we can use whirlwind, now lets see if we should - either haven't used it yet
-              // or it's been long enough since last time
-              if (whirled.at === 0 || getTickCount() - whirled.at > Time.seconds(3)
-                || whirled.node.distance > 5 || me.checkForMobs({ range: 6 })) {
-                // alright now if we have actually casted it set the values so we know
-                if (Skill.cast(sdk.skills.Whirlwind, sdk.skills.hand.Right, node.x, node.y)) {
-                  whirled.update(node);
-                  if (node.distance < 5) continue; // sucessfully cleared obstacle
-                }
-              }
-            }
-
-            if (usingTele) {
-              if (teleported.at === 0 || getTickCount() - teleported.at > Time.seconds(3)
-                || teleported.node.distance > 5 || me.checkForMobs({ range: 6 })) {
-                // alright now if we have actually casted it set the values so we know
-                if (useTeleport ? Pather.teleportTo(node.x, node.y) : Pather.teleUsingCharges(node.x, node.y)) {
-                  teleported.update(node);
-                  if (node.distance < 5) continue; // sucessfully cleared obstacle
-                }
-              }
-            }
-
-            // if we are allowed to clear
-            if (settings.allowClearing) {
-              // Don't go berserk on longer paths - also check that there are even mobs blocking us
-              if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3)
-                && cleared.node.distance > 5 && me.checkForMobs({ range: 10 })) {
-                // only set that we cleared if we actually killed at least 1 mob
-                if (Attack.clearPos(
-                  node.x, node.y, 10,
-                  settings.allowPicking,
-                  function () {
-                    return node.distance < 5;
-                  })) {
-                  cleared.update(node);
-                  if (node.distance < 5) continue; // sucessfully cleared obstacle
+            } else {
+              if (!me.inTown && settings.allowPicking) {
+                if (picked.node.distance > 10) {
+                  Pickit.essessntialsPick(false);
+                  picked.update(node);
                 }
               }
             }
           }
-        } else if (fail > 0 && me.inArea(sdk.areas.LutGholein) && me.x > 5122 && me.y <= 5049) {
-          // dislike have this here but handle atma blocking us from inside the tavern
-          if (me.inArea(sdk.areas.LutGholein) && me.x > 5122 && me.y <= 5049) {
-            let atma = Game.getNPC(NPC.Atma);
-            if (atma && (atma.x === 5136 || atma.x === 5137)
-              && (atma.y >= 5048 && atma.y <= 5051)) {
-              // yup dumb lady is blocking the door, take side door
-              [[5140, 5038], [5148, 5031], [5154, 5025], [5161, 5030]].forEach(function (node) {
-                Pather.walkTo(node[0], node[1]);
-              });
+        } else {
+          if (!me.inTown) {
+            if (!useTeleport && (Pather.openDoors(node.x, node.y) || Pather.kickBarrels(node.x, node.y))) {
+              console.debug("Failed to walk to node, but opened door/barrel");
+              continue;
+            }
+
+            if (/* fail > 0 &&  */(!useTeleport || tpMana > me.mp)) {
+              // Leap can be helpful on long paths but make sure we don't spam it
+              if (Skill.canUse(sdk.skills.LeapAttack)) {
+                // we can use leapAttack, now lets see if we should - either haven't used it yet
+                // or it's been long enough since last time
+                if (leaped.at === 0 || getTickCount() - leaped.at > Time.seconds(3)
+                  || leaped.node.distance > 5 || me.checkForMobs({ range: 6 })) {
+                  // alright now if we have actually casted it set the values so we know
+                  if (Skill.cast(sdk.skills.LeapAttack, sdk.skills.hand.Right, node.x, node.y)) {
+                    leaped.update(node);
+                    if (node.distance < 5) continue; // sucessfully cleared obstacle
+                  }
+                }
+              }
+
+              /**
+               * whirlwind can be useful as well, implement it.
+               * Things to consider:
+               * 1) Can we cast whirlwind on the node? Is it blocked by something other than monsters.
+               * 2) If we can't cast on that node, is there another node between us and it that would work?
+               */
+              if (Skill.canUse(sdk.skills.Whirlwind)) {
+                // we can use whirlwind, now lets see if we should - either haven't used it yet
+                // or it's been long enough since last time
+                if (whirled.at === 0 || getTickCount() - whirled.at > Time.seconds(3)
+                  || whirled.node.distance > 5 || me.checkForMobs({ range: 6 })) {
+                  // alright now if we have actually casted it set the values so we know
+                  if (Skill.cast(sdk.skills.Whirlwind, sdk.skills.hand.Right, node.x, node.y)) {
+                    whirled.update(node);
+                    if (node.distance < 5) continue; // sucessfully cleared obstacle
+                  }
+                }
+              }
+
+              if (usingTele) {
+                if (teleported.at === 0 || getTickCount() - teleported.at > Time.seconds(3)
+                  || teleported.node.distance > 5 || me.checkForMobs({ range: 6 })) {
+                  // alright now if we have actually casted it set the values so we know
+                  if (useTeleport ? Pather.teleportTo(node.x, node.y) : Pather.teleUsingCharges(node.x, node.y)) {
+                    teleported.update(node);
+                    if (node.distance < 5) continue; // sucessfully cleared obstacle
+                  }
+                }
+              }
+
+              // if we are allowed to clear
+              if (settings.allowClearing) {
+                // Don't go berserk on longer paths - also check that there are even mobs blocking us
+                if (cleared.at === 0 || getTickCount() - cleared.at > Time.seconds(3)
+                  && cleared.node.distance > 5 && me.checkForMobs({ range: 10 })) {
+                  // only set that we cleared if we actually killed at least 1 mob
+                  if (Attack.clearPos(
+                    node.x, node.y, 10,
+                    settings.allowPicking,
+                    function () {
+                      return node.distance < 5;
+                    })) {
+                    cleared.update(node);
+                    if (node.distance < 5) continue; // sucessfully cleared obstacle
+                  }
+                }
+              }
+            }
+          } else if (fail > 0 && me.inArea(sdk.areas.LutGholein) && me.x > 5122 && me.y <= 5049) {
+            // dislike have this here but handle atma blocking us from inside the tavern
+            if (me.inArea(sdk.areas.LutGholein) && me.x > 5122 && me.y <= 5049) {
+              let atma = Game.getNPC(NPC.Atma);
+              if (atma && (atma.x === 5136 || atma.x === 5137)
+                && (atma.y >= 5048 && atma.y <= 5051)) {
+                // yup dumb lady is blocking the door, take side door
+                [[5140, 5038], [5148, 5031], [5154, 5025], [5161, 5030]].forEach(function (node) {
+                  Pather.walkTo(node[0], node[1]);
+                });
+              }
             }
           }
-        }
 
-        // Reduce node distance in new path
-        path = getPath(
-          me.area,
-          target.x, target.y,
-          me.x, me.y,
-          useTeleport ? 1 : 0,
-          useTeleport ? rand(25, 35) : rand(10, 15)
-        );
-        if (!path) throw new Error("moveTo: Failed to generate path.");
-        if (!path.length && getDistance(me, target.x, target.y) >= 5) {
-          path = getPathFinerSpacing(useTeleport ? 30 : 15) || path;
-        }
-
-        path.reverse();
-        PathDebug.drawPath(PATH_DEBUG_ID, path);
-        settings.pop && path.pop();
-
-        if (fail > 0) {
-          console.debug("move retry " + fail);
-          Packet.flash(me.gid);
-
-          if (fail >= settings.retry) {
-            console.log("Failed move: Retry = " + settings.retry);
-            break;
+          // Reduce node distance in new path
+          path = getPath(
+            me.area,
+            target.x, target.y,
+            me.x, me.y,
+            useTeleport ? 1 : 0,
+            useTeleport ? rand(25, 35) : rand(10, 15)
+          );
+          if (!path) throw new Error("moveTo: Failed to generate path.");
+          if (!path.length && getDistance(me, target.x, target.y) >= 5) {
+            path = getPathFinerSpacing(useTeleport ? 30 : 15) || path;
           }
+
+          path.reverse();
+          PathDebug.drawPath(PATH_DEBUG_ID, path);
+          settings.pop && path.pop();
+
+          if (fail > 0) {
+            console.debug("move retry " + fail);
+            Packet.flash(me.gid);
+
+            if (fail >= settings.retry) {
+              console.log("Failed move: Retry = " + settings.retry);
+              break;
+            }
+          }
+          if (fail > 100) {
+            // why?
+            console.debug(settings);
+            throw new Error("Retry limit excessivly exceeded");
+          }
+          fail++;
         }
-        if (fail > 100) {
-          // why?
-          console.debug(settings);
-          throw new Error("Retry limit excessivly exceeded");
-        }
-        fail++;
       }
-    }
 
-    delay(5);
+      delay(5);
+    }
+  } finally {
+    // runs on every exit, including a throw from a callee such as a nested move
+    PathDebug.removeHooks(PATH_DEBUG_ID);
   }
 
   me.switchToPrimary();
-  PathDebug.removeHooks(PATH_DEBUG_ID);
   Config.DebugMode.Path && ShrineHooks.flush();
 
   return cbCheck || getDistance(me, node.x, node.y) < 5;
