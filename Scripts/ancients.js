@@ -41,7 +41,9 @@ function ancients () {
     Config.HPBuffer = 8;
     Config.MPBuffer = 22;
   }
-  Config.LifeChicken = 10;
+  // lower than the usual chicken so the fight isn't abandoned on every big hit, but a hardcore character still
+  // leaves the game before the Ancients can finish her
+  Config.LifeChicken = me.hardcore ? 25 : 10;
   CharData.updateConfig();
   me.overhead("updated settings");
 
